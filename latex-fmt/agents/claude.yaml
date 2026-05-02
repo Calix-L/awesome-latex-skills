@@ -1,0 +1,12 @@
+name: latex-fmt
+description: Reformat LaTeX papers for target journals and conferences
+type: skill
+skill_file: latex-fmt/SKILL.md
+auto_activate:
+  - triggers:
+    - "format for.*"
+    - "switch to.*template"
+    - "reformat"
+    - "投稿格式化"
+    - "改成.*模板"
+    - "apply.*template"

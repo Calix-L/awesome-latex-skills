@@ -1,0 +1,12 @@
+name: latex-polish
+description: Polish academic writing in LaTeX files
+type: skill
+skill_file: latex-polish/SKILL.md
+auto_activate:
+  - triggers:
+    - "polish.*paper"
+    - "润色"
+    - "improve.*writing"
+    - "fix.*grammar"
+    - "学术写作"
+    - "chinglish"

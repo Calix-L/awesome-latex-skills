@@ -1,0 +1,14 @@
+name: latex-rescue
+description: Diagnose and fix LaTeX compilation errors
+type: skill
+skill_file: latex-rescue/SKILL.md
+auto_activate:
+  - triggers:
+    - "fix.*latex"
+    - "编译报错"
+    - "wont compile"
+    - "pdflatex.*error"
+    - "帮我修.*latex"
+  - file_patterns:
+    - "*.tex"
+    context: compilation_error

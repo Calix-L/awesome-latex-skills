@@ -1,0 +1,73 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{booktabs}
+
+\title{A Sample Paper with Common LaTeX Errors}
+\author{Test Author}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+This is a correct section with no errors. The parameter $\alpha$ controls the learning rate,
+and $x_i$ denotes the $i$-th input sample. We use $\mathbf{W}$ to represent weight matrices.
+
+\begin{equation}
+  \mathcal{L} = -\sum_{i=1}^{N} y_i \log(\hat{y}_i) + (1 - y_i) \log(1 - \hat{y}_i)
+\end{equation}
+
+\section{Typo Errors}
+
+\begin{itemize}
+  \item First item with a typo in the command: \hline should be \hline
+  \item Another typo: \usepackage is wrong
+  \item And: \textbf should be \textbf
+\end{itemize}
+
+\section{Math Mode Errors}
+
+The parameters $\alpha$ and $\beta$ control the shape of the distribution.
+We can write $x_i$ to denote the $i$-th observation, and $x^2$ for squared values.
+
+\begin{equation}
+  x^{ab} = \sum_{i=1}^{n} y_i^2
+\end{equation}
+
+\section{Bracket Errors}
+
+\textbf{This text has missing closing brace.}
+
+This text has an extra closing brace.
+
+\section{Environment Errors}
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.5\textwidth]{example.png}
+  \caption{An example figure.}
+\end{figure}
+
+\begin{table}
+  \begin{tabular}{ll}
+    A & B \\
+    C & D \\
+  \end{tabular}
+\end{table}
+
+\section{Reference Errors}
+
+As shown in Section 2, our method outperforms prior work. The reference was manually corrected.
+
+\begin{figure}
+  \centering
+  \includegraphics[width=0.5\textwidth]{plot.pdf}
+  \caption{Results on benchmark datasets.}
+  \label{fig:results}
+\end{figure}
+
+Figure \ref{fig:results} shows our main results.
+
+\end{document}
