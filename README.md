@@ -10,7 +10,7 @@
 
 <p align="center">
   <b>AI Agent skills for LaTeX & academic workflows.</b><br>
-  Fix compilation errors. Polish academic writing. Format for journals. Read papers.<br>
+  Fix compilation errors. Polish academic writing. Format for journals. Read papers. Recover LaTeX.<br>
   <i>Pure markdown prompt packs — no servers, no API keys, no dependencies.</i>
 </p>
 
@@ -42,6 +42,7 @@
 | **Reviewer #2** | "English needs significant improvement" | What does that even mean? |
 | **Camera-ready deadline** | Reformatted entire paper for new venue | Start from scratch |
 | **50 papers to read** | Can't keep up with arxiv | Can't remember what you read |
+| **Lost the .tex file** | Only have camera-ready PDF | Need to make edits |
 
 **These are expertise problems, not tooling problems.** An AI agent with the right knowledge can solve them. These skills encode that knowledge.
 
