@@ -2,7 +2,7 @@
 
 ## How Skills Improve
 
-These skills get better with more reference knowledge. The LLM has general LaTeX knowledge, but the reference files encode **specific, high-precision rules** that the LLM can't reliably produce every time. Every new error pattern, package conflict,0 and Chinglish fix you add directly improves the skill's output quality.
+These skills get better with more reference knowledge. The LLM has general LaTeX knowledge, but the reference files encode **specific, high-precision rules** that the LLM can't reliably produce every time. Every new error pattern, package conflict,and Chinglish fix you add directly improves the skill's output quality.
 
 ## Ways to Contribute
 

@@ -183,11 +183,50 @@ test_fmt_templates() {
     done
 }
 
+test_paper_read_coverage() {
+    echo ""
+    echo "=== Testing paper-read: Reference Completeness ==="
+
+    local skill_dir="$SCRIPT_DIR/../paper-read"
+
+    local refs=(
+        "references/reading-framework.md"
+        "references/critical-appraisal.md"
+    )
+
+    for ref in "${refs[@]}"; do
+        if [ -f "$skill_dir/$ref" ]; then
+            pass "Reference file exists: $ref"
+        else
+            fail "Missing reference file: $ref"
+        fi
+    done
+
+    # Check reading levels are documented
+    local skill_md="$skill_dir/SKILL.md"
+    if grep -qi 'skim\|read.*level\|deep' "$skill_md"; then
+        pass "SKILL.md documents 3 reading levels"
+    else
+        warn "SKILL.md may be missing reading level definitions"
+    fi
+
+    # Check critical appraisal reference is comprehensive
+    local appraisal="$skill_dir/references/critical-appraisal.md"
+    local sections=("Methodology" "Results" "Claims" "Innovation")
+    for section in "${sections[@]}"; do
+        if grep -qi "$section" "$appraisal"; then
+            pass "Critical appraisal covers: $section"
+        else
+            warn "Critical appraisal may be missing: $section"
+        fi
+    done
+}
+
 test_agent_configs() {
     echo ""
     echo "=== Testing Agent Configs ==="
 
-    local skills=("latex-rescue" "latex-polish" "latex-fmt")
+    local skills=("latex-rescue" "latex-polish" "latex-fmt" "paper-read")
 
     for skill in "${skills[@]}"; do
         local dir="$SCRIPT_DIR/../$skill/agents"
@@ -265,6 +304,7 @@ check_pdflatex && HAS_LATEX=true || true
 test_rescue_error_catalog_coverage
 test_polish_rules_exist
 test_fmt_templates
+test_paper_read_coverage
 test_agent_configs
 test_chinese_pattern_coverage
 

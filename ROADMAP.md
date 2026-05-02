@@ -26,8 +26,8 @@
 ## v2.0 — Full Academic Suite
 
 ### Paper Reading
-- [ ] `paper-read`: PDF → structured extraction (problem, method, results, limitations)
-- [ ] `paper-read`: Cross-paper comparison ("what's the consensus on approach X?")
+- [x] `paper-read`: PDF + arXiv extraction, 3 reading levels (skim/read/deep), structured analysis
+- [x] `paper-read`: Claims vs evidence mapping, critical appraisal checklist, cross-paper comparison
 - [ ] `lit-map`: Citation graph + research lineage visualization
 
 ### Publishing Workflow
@@ -38,7 +38,7 @@
 ### Grants & Career
 - [ ] `grant-writing`: Funding proposal (国自然/NSF) structure and critique
 - [ ] `academic-cv`: Maintain yaml CV data → render per-style PDF
-- [ ]tenure-packet-prep: Organize tenure materials
+- [ ] `tenure-packet-prep`: Organize tenure materials
 
 ### Collaboration
 - [ ] `paper-diff`: Semantic diff for co-author review ("what changed in the Method section?")
@@ -55,8 +55,8 @@
 
 | Reference File | Current | Target v1.1 | Target v2.0 |
 |---|---|---|---|
-| error-catalog.md | 50+ patterns | 80+ | 120+ |
+| error-catalog.md | 85+ patterns | 100+ | 150+ |
 | package-conflicts.md | 15 conflicts | 25+ | 40+ |
-| chinglish-patterns.md | 14 categories | 20+ | 30+ |
-| academic-phrasebank.md | 6 sections | 8 sections | 10 sections |
+| chinglish-patterns.md | 16 categories | 20+ | 30+ |
+| academic-phrasebank.md | 9 sections | 10 sections | 12 sections |
 | venue-guide.md | 9 venues | 12 venues | 20 venues |
