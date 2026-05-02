@@ -61,7 +61,7 @@ Some venues forbid certain packages or require specific ones:
 | CVPR | `geometry`, `setspace` | `cvpr` |
 | ACL | `fullpage` | `acl` |
 | AAAI | `fullpage`, `geometry`, `setspace` | `aaai25` |
-| ICLR | (no specific bans) | (article class, no custom .cls) |
+| ICLR | `geometry` not recommended | `iclr2025` (official .sty) |
 | IEEE | `fullpage`, `geometry` | `IEEEtran` |
 
 After the document class change is applied, recompile and fix any resulting errors using the `latex-rescue` workflow before continuing.
@@ -102,9 +102,23 @@ Abstract → Introduction → Related Work → Method → Experiments → Conclu
 ```
 Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References
 ```
-No strict limit. OpenReview-based. No anonymous requirement after desk rejection.
+No strict limit. OpenReview-based. Double-blind review — anonymize submission.
+
+**ECCV**:
+```
+Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References
+```
+Uses `eccv.cls`. 14 pages + unlimited references. Supplementary is separate PDF.
+
+**TMLR**:
+```
+Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References
+```
+No page limit. Uses OpenReview. Not double-blind (non-anonymous).
 
 If the current paper is missing a required section, flag it but don't invent content.
+
+**Anonymization reminder**: For double-blind venues, anonymize BOTH the main PDF and supplementary material. Check for identifying text in: author names, acknowledgments, self-references, file metadata, URLs pointing to personal pages.
 
 ### Phase 4: Page Limit Compliance
 
@@ -117,9 +131,9 @@ Check against venue limits:
 | CVPR | 8 pages | References |
 | ACL | 8 pages | References, appendices |
 | AAAI | 7 pages + 2 refs | 2 extra pages for references only |
-| ICLR | No limit | — (but reviewers stop reading at 10) |
-| Nature | ~6 pages (flexible) | Methods, references |
-| Science | ~6 pages (flexible) | Supplementary |
+| ICLR | No strict limit | — (but reviewers stop reading at 10) |
+| Nature | ~1,500-3,000 words (article type dependent) | Methods, references |
+| Science | ~2,000-5,000 words (article type dependent) | Supplementary |
 
 To check page count, compile with the target template and check:
 ```bash
@@ -138,7 +152,7 @@ Check and update citation style for target venue:
 
 | Venue | Default Style | BibTeX Engine | Notes |
 |-------|-------------|---------------|-------|
-| NeurIPS | `\bibliographystyle{plain}` | bibtex | Template handles this |
+| NeurIPS | Handled by `.cls` | bibtex | Do NOT manually set `\bibliographystyle`; template auto-configures |
 | ICML | `\bibliographystyle{icml2025}` | bibtex | Provided in template |
 | CVPR | `\bibliographystyle{ieee_fullname}` | bibtex | IEEE-style numeric |
 | ACL | `\bibliographystyle{acl_natbib}` | bibtex | Author-year with natbib |
@@ -150,6 +164,11 @@ When converting between styles:
 - **Numeric → Author-year**: Replace `\cite{key}` → `\citep{key}` (if loading natbib). Update .bst.
 - **Author-year → Numeric**: All citations remain `\cite{key}` (standard), just update .bst.
 - **natbib-specific commands** (`\citep`, `\citet`, `\citealp`): Only works with natbib. Remove or convert if target venue doesn't support natbib.
+
+**Converting between bibtex and biblatex**:
+- **bibtex → biblatex**: Replace `\bibliographystyle{...}` + `\bibliography{refs}` with `\usepackage[backend=biber,style=...]{biblatex}` + `\addbibresource{refs.bib}` + `\printbibliography`. Change backend command from `bibtex` to `biber`.
+- **biblatex → bibtex**: Reverse the above. Remove `\usepackage{biblatex}`, add `\bibliographystyle{...}` + `\bibliography{refs}`. Change backend from `biber` to `bibtex`.
+- **Important**: `natbib` and `biblatex` are incompatible. If switching to biblatex, remove `\usepackage{natbib}` entirely.
 
 After updating, run the full compile cycle:
 ```bash

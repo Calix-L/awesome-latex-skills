@@ -73,3 +73,29 @@ For each paper, extract ideas relevant to your own research:
 2. **Adaptable insights**: Ideas you could modify for your context
 3. **Open problems**: Questions the paper raises but doesn't answer
 4. **Avoided approaches**: Things the paper tried that failed (these are as valuable as successes)
+
+### Forward Citations
+After reading, check who has cited this paper (via Semantic Scholar or Google Scholar):
+- High citation count → likely influential, worth understanding deeply
+- Recent citing papers → shows how the community is building on this work
+- Contradictory citations → other papers that challenge or fail to reproduce these results
+
+## Paper Type Adjustments
+
+Not all papers follow the standard method-experiment structure. Adjust your reading strategy:
+
+### Survey / Position Papers
+- Focus on: taxonomy of approaches, identification of open problems, quality of coverage
+- Less focus on: individual method details (these are summarized, not proposed)
+- Key question: Does this survey provide a useful lens for the field, or is it just a reorganization of prior work?
+
+### Theory / Proof-Heavy Papers
+- Focus on: theorem assumptions vs conclusions — a strong theorem with weak assumptions is more valuable than the reverse
+- Check: Are assumptions realistic? Do they hold in practice?
+- Evaluate: Is the proof technique novel, or a straightforward application of known methods?
+- Key question: Does the theory explain WHY something works, or just THAT it works?
+
+### Empirical Studies
+- Focus on: experimental design, scale of evaluation, fairness of comparisons
+- Check: Are claims supported by the data, or do the authors overinterpret?
+- Key question: Does this change what the community believes about [topic]?

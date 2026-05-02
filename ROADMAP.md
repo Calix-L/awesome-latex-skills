@@ -16,8 +16,8 @@
 - [x] `latex-fmt`: Formatting-rules.md (118 lines, universal LaTeX rules)
 - [x] Agent configs: Claude Code + OpenAI-compatible per skill
 - [x] Test suite: 29 tests, fixtures for all 3 skills, automated runner
-- [x] Error catalog: 85+ patterns across 10+ categories
-- [x] Academic phrasebank: 9 sections with curated templates
+- [x] Error catalog: 50+ patterns across 13 categories
+- [x] Academic phrasebank: 11 sections with curated templates
 
 ## 1.1 — Polish & Expand (Next)
 - [ ] `latex-fmt`: Add arxiv.org-specific formatting mode
@@ -55,8 +55,8 @@
 
 | Reference File | Current | Target v1.1 | Target v2.0 |
 |---|---|---|---|
-| error-catalog.md | 85+ patterns | 100+ | 150+ |
-| package-conflicts.md | 15 conflicts | 25+ | 40+ |
+| error-catalog.md | 50+ patterns | 100+ | 150+ |
+| package-conflicts.md | 17 conflicts | 25+ | 40+ |
 | chinglish-patterns.md | 16 categories | 20+ | 30+ |
-| academic-phrasebank.md | 9 sections | 10 sections | 12 sections |
+| academic-phrasebank.md | 11 sections | 13 sections | 15 sections |
 | venue-guide.md | 9 venues | 12 venues | 20 venues |

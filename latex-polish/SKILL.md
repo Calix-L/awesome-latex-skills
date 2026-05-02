@@ -64,13 +64,19 @@ Ask the user (or infer from context):
 ### Phase 2: Analyze
 
 1. Read the target `.tex` file(s)
-2. Identify all LaTeX commands to skip: `\section{}`, `\cite{}`, `\ref{}`, `\begin{equation}` blocks, `\includegraphics{}`, `\label{}`, `\textbf{}`, `\emph{}`, `\textit{}`
+2. Identify all LaTeX commands to skip: `\section{}`, `\cite{}`, `\ref{}`, `\begin{equation}` blocks, `\includegraphics{}`, `\label{}`
+   - For wrapping commands like `\textbf{}`, `\emph{}`, `\textit{}`: preserve the command itself but you MAY polish the text argument inside
 3. Extract text blocks that need polishing
 4. Note section type — each section has its own conventions (see `references/section-anatomy.md`)
 
 ### Phase 3: Polish (Section-Aware)
 
 Apply different strategies per section. Consult `references/section-anatomy.md` for detailed guidance.
+
+**Level-dependent behavior**:
+- **Light**: Fix grammar only — subject-verb agreement, article usage, tense, typos. Do NOT restructure sentences or change word choice unless grammatically necessary.
+- **Moderate**: Grammar + style — fix grammar, improve word choice, tighten phrasing, add transitions, ensure academic register. Restructure only when meaning is unclear.
+- **Strict**: Top-venue standard — all of moderate plus: restructure weak openings, convert laundry lists to thematic paragraphs, add hedging to overclaimed statements, enforce publication-ready phrasing throughout.
 
 #### Abstract
 - 150-250 words typical. Ensure 4 components: background gap, approach, key results, implication.
@@ -140,17 +146,21 @@ Suggestions for author review:
 
 ## Chinese Scholar Special Attention
 
-Chinese authors have specific recurring issues. Watch for these and fix proactively. See `references/chinglish-patterns.md` for the full catalog.
+Chinese authors have specific recurring issues. Watch for these and fix proactively. See `references/chinglish-patterns.md` for the full catalog of 16 pattern categories.
 
-### Critical fixes:
+### Top-priority fixes (most common and most damaging):
 - **Article omission**: "The result shows" not "Result shows"; "a novel approach" not "novel approach"
 - **Subject-verb agreement**: "The results demonstrate" not "The results demonstrates"
 - **Overuse of "can"**: "X enables Y" not "X can enable Y" unless ability is specifically relevant
+
+### Medium-priority fixes:
 - **`According to` overuse**: vary with "As shown by", "X reported that", "Consistent with"
 - **`Make/let` constructions**: "This allows X to Y" not "This makes X to Y"
 - **Missing plural -s**: "several approaches" not "several approach"
 - **Wrong prepositions**: "different from" not "different with"; "based on" not "based from"
 - **`So` as conjunction**: replace with "Therefore,", "Thus,", "Consequently,"
+
+For the complete list with examples, see `references/chinglish-patterns.md`.
 
 ## Guardrails
 
