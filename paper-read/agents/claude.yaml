@@ -1,0 +1,12 @@
+name: paper-read
+description: Read, analyze, and extract knowledge from academic papers
+type: skill
+skill_file: paper-read/SKILL.md
+auto_activate:
+  - triggers:
+    - "read.*paper"
+    - "summarize.*paper"
+    - "analyze.*paper"
+    - "读.*论文"
+    - "arxiv"
+    - "what does.*paper.*say"

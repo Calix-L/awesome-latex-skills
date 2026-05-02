@@ -1,37 +1,44 @@
 # awesome-latex-skills
 
 <p align="center">
-  <b>AI Agent skills for LaTeX.</b><br>
-  Fix compilation errors. Polish academic writing. Format for journals.<br>
-  <i>Designed for Claude Code, Cursor, Windsurf, OpenClaw — any agent that reads markdown and runs commands.</i>
+  <img src="https://img.shields.io/badge/skills-4-blue" alt="skills">
+  <img src="https://img.shields.io/badge/tests-29%2F29%20passed-green" alt="tests">
+  <img src="https://img.shields.io/badge/license-MIT-yellow" alt="license">
+  <img src="https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Cursor%20%7C%20Windsurf-purple" alt="platform">
+</p>
+
+<p align="center">
+  <b>AI Agent skills for LaTeX & academic workflows.</b><br>
+  Fix compilation errors. Polish academic writing. Format for journals. Read papers.<br>
+  <i>Pure markdown prompt packs — no servers, no API keys, no dependencies.</i>
 </p>
 
 ---
 
 ## The Problem
 
-LaTeX powers virtually all of computer science, physics, and mathematics publishing. Everyone who uses it shares the same three nightmares:
+LaTeX powers virtually all of computer science, physics, and mathematics publishing. Everyone who uses it shares the same nightmares:
 
 1. **2 AM before deadline**: 47 cryptic compilation errors, none of which make sense
 2. **Reviewer #2**: "The English needs significant improvement"
 3. **Paper accepted!**: Now reformat the entire thing for the camera-ready template
+4. **50 papers to read**: Can't keep up with arxiv, can't remember what you read last week
 
 These are knowledge problems, not tooling problems. They're solved by expertise — the kind of expertise an AI agent can be given.
 
-## What This Is
-
-Three AI agent skills. Each is a self-contained prompt pack: a `SKILL.md` with a step-by-step workflow, backed by `references/` with deep domain knowledge. No servers, no API keys, no dependencies.
+## Skills
 
 | Skill | What it does | For when |
 |---|---|---|
 | **[latex-rescue](./latex-rescue/)** | Diagnoses and fixes LaTeX compilation errors | `pdflatex` explodes with 50 errors |
 | **[latex-polish](./latex-polish/)** | Improves academic writing style and clarity | Reviewer complains about your English |
-| **[latex-fmt](./latex-fmt/)** | Reformats papers for target venues | Switching from CVPR → NeurIPS template |
+| **[latex-fmt](./latex-fmt/)** | Reformats papers for 9 major CS venues | Switching from CVPR → NeurIPS template |
+| **[paper-read](./paper-read/)** | Reads and analyzes academic papers | You have a mountain of PDFs and no time |
 
 ## Quick Start
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/awesome-latex-skills.git
+git clone https://github.com/Calix-L/awesome-latex-skills.git
 ```
 
 ### Claude Code
@@ -40,11 +47,9 @@ git clone https://github.com/YOUR_USERNAME/awesome-latex-skills.git
 cp -r awesome-latex-skills/latex-rescue ~/.claude/skills/
 ```
 
-Then type `/latex-rescue` in any project. Or just say "fix my LaTeX errors" — the skill auto-activates from the trigger words.
+Then type `/latex-rescue` in any LaTeX project. Or just say "fix my LaTeX errors" — the skill auto-activates.
 
 ### Cursor / Windsurf / Any Agent
-
-Point the agent to the skill file:
 
 ```
 Read awesome-latex-skills/latex-rescue/SKILL.md and follow the workflow.
@@ -57,38 +62,13 @@ latex-rescue/
 ├── SKILL.md       ← The AI's playbook: role, triggers, 5-phase workflow, guardrails
 ├── README.md      ← Human-readable docs and examples
 ├── references/    ← Deep knowledge the AI consults while working
-│   ├── error-catalog.md       → 50+ error patterns with fix strategies
+│   ├── error-catalog.md       → 85+ error patterns with fix strategies
 │   ├── package-conflicts.md   → 15 known incompatibilities
 │   └── debug-workflow.md      → Binary-search debugging for stubborn errors
 └── agents/        ← Platform config (Claude Code, OpenAI-compatible)
-    ├── claude.yaml
-    └── openai.yaml
 ```
 
-The AI loads `SKILL.md`, follows the workflow step by step, and reads reference files as needed. The reference files are what make the difference — they encode hundreds of specific rules (exact typo → exact fix, package A conflicts with package B, Chinese author pattern → English correction) that the LLM can't reliably produce from memory alone.
-
-## What `latex-rescue` Actually Does
-
-Given a broken LaTeX project:
-
-1. **Compiles** with `pdflatex -interaction=nonstopmode -file-line-error`, captures the log
-2. **Parses** every error, extracting file:line:type, reading surrounding source context
-3. **Classifies** each error into one of 10 categories (typo, missing-bracket, math-mode, undefined-cs, environment, package-conflict, undefined-ref, hbox-overfull, file-not-found, syntax)
-4. **Fixes auto-fixable errors** first: known typos (`\beginn{`→`\begin{`), missing `$` around math, mismatched brackets, broken environment nesting — no LLM needed for these
-5. **Consults the error catalog** for known patterns, escalates complex cases to LLM
-6. **Recompiles** after each fix batch, verifies progress
-7. **Reports** everything that was changed, plus warnings that need human review
-
-## What `latex-polish` Actually Does
-
-Given a LaTeX paper draft:
-
-1. **Determines scope and level** (`light` = grammar only, `moderate` = grammar + style, `strict` = top-venue)
-2. **Identifies all LaTeX structures to preserve**: commands, math, citations, references, figures, comments
-3. **Applies section-aware strategies**: abstracts need 4 specific components; introductions need a funnel; related work needs thematic grouping not laundry lists
-4. **Fixes** grammar, article usage, tense consistency, academic register, clarity, concision
-5. **Targets Chinese-author patterns**: 14 categories of recurring issues (article omission, subject-verb agreement, "can" overuse, preposition errors, "make/let" constructions, etc.)
-6. **Reports** changes and flags substantive issues (missing citations, weak logic) for author review
+The AI loads `SKILL.md`, follows the workflow step by step, and reads reference files as needed. The reference files are what make the difference — they encode hundreds of specific rules that the LLM can't reliably produce from memory.
 
 ## Installation Requirements
 
@@ -98,22 +78,30 @@ For `latex-rescue`, the machine needs LaTeX installed:
 
 ```bash
 # macOS
-brew install --cask mactex-no-gui
+brew install --cask basictex
 
 # Ubuntu (minimal, ~500MB)
 sudo apt install texlive-latex-base texlive-latex-recommended texlive-latex-extra
 ```
 
+## Project Stats
+
+| | |
+|---|---|
+| Skills | 4 |
+| Reference files | 12 |
+| Error patterns cataloged | 85+ |
+| Venues supported | 9 |
+| Chinese author patterns | 16 categories |
+| Test coverage | 29/29 passing |
+
 ## Contributing
 
-These skills improve with more reference knowledge:
+See [CONTRIBUTING.md](./CONTRIBUTING.md). Add error patterns, phrasebank entries, venue templates, or Chinglish fixes.
 
-- New error patterns → `latex-rescue/references/error-catalog.md`
-- Journal templates → `latex-fmt/references/templates/`
-- Phrasebank entries → `latex-polish/references/academic-phrasebank.md`
-- Chinglish patterns → `latex-polish/references/chinglish-patterns.md`
+## Roadmap
 
-PRs welcome. If you discover a recurring LaTeX error that the catalog doesn't cover, or a Chinese-author writing pattern that should be caught, add it.
+See [ROADMAP.md](./ROADMAP.md). Next: `review-response` skill, `grant-writing` skill, `arxiv-digest` skill.
 
 ## License
 

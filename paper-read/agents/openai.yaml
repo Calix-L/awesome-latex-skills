@@ -1,0 +1,11 @@
+name: paper-read
+description: Read, analyze, and extract knowledge from academic papers
+type: skill
+skill_file: SKILL.md
+platform: openai
+model: gpt-5, gpt-5.3-codex
+auto_activate:
+  triggers:
+    - "read.*paper"
+    - "summarize.*paper"
+    - "analyze.*paper"
