@@ -2,8 +2,8 @@
 
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="CI"></a>
-  <img src="https://img.shields.io/badge/skills-4-blue" alt="skills">
-  <img src="https://img.shields.io/badge/tests-38%2F38%20passed-green" alt="tests">
+  <img src="https://img.shields.io/badge/skills-5-blue" alt="skills">
+  <img src="https://img.shields.io/badge/tests-45%2F45%20passed-green" alt="tests">
   <img src="https://img.shields.io/badge/license-MIT-yellow" alt="license">
   <img src="https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Cursor%20%7C%20Windsurf-purple" alt="platform">
 </p>
@@ -55,6 +55,7 @@
 | **[latex-polish](./latex-polish/)** | Improves writing style and clarity | Reviewer complains about English |
 | **[latex-fmt](./latex-fmt/)** | Reformats papers for 9 major venues | Switching templates |
 | **[paper-read](./paper-read/)** | Reads and analyzes academic papers | Mountain of PDFs, no time |
+| **[pdf2tex](./pdf2tex/)** | Converts PDF back to editable LaTeX | Lost .tex file, only have PDF |
 
 ```mermaid
 flowchart LR
@@ -62,15 +63,18 @@ flowchart LR
     C[Rough draft] -->|latex-polish| D[Publication-ready]
     E[CVPR format] -->|latex-fmt| F[NeurIPS format]
     G[arxiv PDF] -->|paper-read| H[Structured analysis]
+    I[Lost .tex source] -->|pdf2tex| J[Edited LaTeX]
 
     style A fill:#f7768e,stroke:#1a1b26
     style C fill:#f7768e,stroke:#1a1b26
     style E fill:#f7768e,stroke:#1a1b26
     style G fill:#f7768e,stroke:#1a1b26
+    style I fill:#f7768e,stroke:#1a1b26
     style B fill:#9ece6a,stroke:#1a1b26
     style D fill:#9ece6a,stroke:#1a1b26
     style F fill:#9ece6a,stroke:#1a1b26
     style H fill:#9ece6a,stroke:#1a1b26
+    style J fill:#9ece6a,stroke:#1a1b26
 ```
 
 ---
@@ -150,6 +154,22 @@ flowchart LR
 
 ---
 
+### pdf2tex — Recover lost LaTeX source
+
+<p align="center">
+  <img src="./assets/pdf2tex-demo.png" alt="pdf2tex demo" width="85%">
+</p>
+
+```diff
+- Only have paper.pdf, lost the .tex source
++ paper_reconstructed.tex (compilable, 8 pages)
+
+- Extracted: 5 sections, 12 equations, 4 tables, 6 figures
++ Preamble + amsmath + booktabs + 28 citations mapped
+```
+
+---
+
 ## Architecture
 
 ```mermaid
@@ -226,14 +246,14 @@ sudo apt install texlive-latex-base texlive-latex-recommended texlive-latex-extr
 
 | | |
 |---|---|
-| Skills | 4 |
-| Reference files | 14 |
+| Skills | 5 |
+| Reference files | 18 |
 | Error patterns cataloged | 85+ |
 | Package conflicts tracked | 15 |
 | Venues supported | 9 |
 | Chinese author patterns | 16 categories |
 | Academic phrasebank sections | 9 |
-| Test coverage | 38/38 passing |
+| Test coverage | 45/45 passing |
 | CI | GitHub Actions on push/PR |
 
 ---

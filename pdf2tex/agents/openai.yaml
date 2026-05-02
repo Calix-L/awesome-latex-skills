@@ -1,0 +1,11 @@
+name: pdf2tex
+description: Convert PDF documents into editable LaTeX source code
+type: skill
+skill_file: SKILL.md
+platform: openai
+model: gpt-5, gpt-5.3-codex
+auto_activate:
+  triggers:
+    - "convert.*pdf.*(tex|latex)"
+    - "pdf.*(to|2).*(tex|latex)"
+    - "extract.*latex.*(from|pdf)"

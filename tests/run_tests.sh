@@ -222,11 +222,48 @@ test_paper_read_coverage() {
     done
 }
 
+test_pdf2tex_coverage() {
+    echo ""
+    echo "=== Testing pdf2tex: Reference Completeness ==="
+
+    local skill_dir="$SCRIPT_DIR/../pdf2tex"
+
+    local refs=(
+        "references/pdf-extraction-guide.md"
+        "references/structure-detection.md"
+        "references/math-reconstruction.md"
+        "references/table-reconstruction.md"
+    )
+
+    for ref in "${refs[@]}"; do
+        if [ -f "$skill_dir/$ref" ]; then
+            pass "Reference file exists: $ref"
+        else
+            fail "Missing reference file: $ref"
+        fi
+    done
+
+    # Check SKILL.md has all 6 phases
+    local skill_md="$skill_dir/SKILL.md"
+    local phases=("Phase 0" "Phase 1" "Phase 2" "Phase 3" "Phase 4" "Phase 5" "Phase 6")
+    local found=0
+    for phase in "${phases[@]}"; do
+        if grep -qi "$phase" "$skill_md" 2>/dev/null; then
+            found=$((found + 1))
+        fi
+    done
+    if [ "$found" -ge 5 ]; then
+        pass "SKILL.md documents $found/7 workflow phases"
+    else
+        warn "SKILL.md only documents $found/7 phases"
+    fi
+}
+
 test_agent_configs() {
     echo ""
     echo "=== Testing Agent Configs ==="
 
-    local skills=("latex-rescue" "latex-polish" "latex-fmt" "paper-read")
+    local skills=("latex-rescue" "latex-polish" "latex-fmt" "paper-read" "pdf2tex")
 
     for skill in "${skills[@]}"; do
         local dir="$SCRIPT_DIR/../$skill/agents"
@@ -305,6 +342,7 @@ test_rescue_error_catalog_coverage
 test_polish_rules_exist
 test_fmt_templates
 test_paper_read_coverage
+test_pdf2tex_coverage
 test_agent_configs
 test_chinese_pattern_coverage
 

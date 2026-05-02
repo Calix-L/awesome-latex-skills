@@ -18,8 +18,11 @@
 - [x] Test suite: 29 tests, fixtures for all 3 skills, automated runner
 - [x] Error catalog: 85+ patterns across 10+ categories
 - [x] Academic phrasebank: 9 sections with curated templates
+- [x] `pdf2tex`: PDF → LaTeX reconstruction with pymupdf, structure/math/table detection
 
 ## 1.1 — Polish & Expand (Next)
+- [ ] `pdf2tex`: Scanned PDF OCR support (tesseract integration)
+- [ ] `pdf2tex`: Custom macro detection and reconstruction
 - [ ] `latex-fmt`: Add arxiv.org-specific formatting mode
 - [ ] `latex-fmt`: Multi-venue diff (show exactly what changes between CVPR → NeurIPS)
 
@@ -60,3 +63,7 @@
 | chinglish-patterns.md | 16 categories | 20+ | 30+ |
 | academic-phrasebank.md | 9 sections | 10 sections | 12 sections |
 | venue-guide.md | 9 venues | 12 venues | 20 venues |
+| pdf-extraction-guide.md | 1 guide | 3 guides | 5 guides |
+| structure-detection.md | 1 guide | 3 guides | 5 guides |
+| math-reconstruction.md | 1 guide | 2 guides | 4 guides |
+| table-reconstruction.md | 1 guide | 2 guides | 4 guides |

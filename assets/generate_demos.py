@@ -177,3 +177,30 @@ make_terminal("Terminal — /paper-read arxiv.org/abs/2307.xxxxx", [
 
 
 print(f"\nGenerated {4} demo images -> assets/")
+
+
+# ── pdf2tex ──────────────────────────────────────────────────
+
+make_terminal("Terminal — /pdf2tex paper.pdf", [
+    (GREEN, "Agent: Running /pdf2tex paper.pdf..."),
+    "",
+    (GRAY, "Phase 1: Extracting content with pymupdf..."),
+    (GRAY, "  Engine detected: pdflatex (pdfTeX-1.40.25)"),
+    (GRAY, "  Fonts: CMR10, CMBX12, CMMI10, CMSY10"),
+    "",
+    (GRAY, "Phase 2: Analyzing structure..."),
+    (CYAN, "  Document class: article (10pt, single-column)"),
+    (CYAN, "  5 sections, 3 subsections detected"),
+    (CYAN, "  12 equations, 4 tables, 6 figures"),
+    "",
+    (GRAY, "Phase 3: Reconstructing LaTeX..."),
+    (CYAN, "  Preamble generated (amsmath, booktabs, graphicx)"),
+    (CYAN, "  4 images extracted -> figures/"),
+    (CYAN, "  28 citations mapped -> \\cite{ref1}..\\cite{ref28}"),
+    "",
+    (GRAY, "Phase 5: Compilation check..."),
+    (GREEN, "Output written on paper_reconstructed.pdf (8 pages)"),
+    (YELLOW, "2 items flagged for manual review (see .tex comments)"),
+], os.path.join(ASSETS, "pdf2tex-demo.png"))
+
+print(f"\nGenerated {5} demo images -> assets/")
