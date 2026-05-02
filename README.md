@@ -18,64 +18,171 @@
 
 ## Table of Contents
 
-- [The Problem](#the-problem)
-- [Skills](#skills)
-- [Quick Start](#quick-start)
-- [How It Works](#how-it-works)
-- [Installation Requirements](#installation-requirements)
-- [Project Stats](#project-stats)
-- [Contributing](#contributing)
+- [What problem does this solve?](#what-problem-does-this-solve)
+- [Skills overview](#skills-overview)
+- [See it in action](#see-it-in-action)
+- [Architecture](#architecture)
+- [Quick start](#quick-start)
+- [Installation](#installation)
+- [Project stats](#project-stats)
 - [Roadmap](#roadmap)
-- [License](#license)
+- [Contributing](#contributing)
 
 ---
 
-## The Problem
+## What problem does this solve?
 
-LaTeX powers virtually all of computer science, physics, and mathematics publishing. Everyone who uses it shares the same nightmares:
+<p align="center">
+  <b>LaTeX powers CS, physics, and math publishing. Everyone hits the same walls:</b>
+</p>
 
-1. **2 AM before deadline**: 47 cryptic compilation errors, none of which make sense
-2. **Reviewer #2**: "The English needs significant improvement"
-3. **Paper accepted!**: Now reformat the entire thing for the camera-ready template
-4. **50 papers to read**: Can't keep up with arxiv, can't remember what you read last week
-
-These are knowledge problems, not tooling problems. They're solved by expertise — the kind of expertise an AI agent can be given.
-
-## Skills
-
-| Skill | What it does | For when |
+| | | |
 |---|---|---|
-| **[latex-rescue](./latex-rescue/)** | Diagnoses and fixes LaTeX compilation errors | `pdflatex` explodes with 50 errors |
-| **[latex-polish](./latex-polish/)** | Improves academic writing style and clarity | Reviewer complains about your English |
-| **[latex-fmt](./latex-fmt/)** | Reformats papers for 9 major CS venues | Switching from CVPR to NeurIPS template |
-| **[paper-read](./paper-read/)** | Reads and analyzes academic papers | You have a mountain of PDFs and no time |
+| **2 AM before deadline** | 47 cryptic compilation errors | No idea where to start |
+| **Reviewer #2** | "English needs significant improvement" | What does that even mean? |
+| **Camera-ready deadline** | Reformatted entire paper for new venue | Start from scratch |
+| **50 papers to read** | Can't keep up with arxiv | Can't remember what you read |
 
-### Skill Details
+**These are expertise problems, not tooling problems.** An AI agent with the right knowledge can solve them. These skills encode that knowledge.
 
-**latex-rescue** — The LaTeX emergency room.
-- Auto-detects engine (pdflatex / xelatex / lualatex)
-- Classifies errors into 10 categories
-- Fixes typos (`\beginn{` → `\begin{`), missing `$`, broken brackets, environment nesting
-- 85+ error patterns with auto-fix strategies
+---
 
-**latex-polish** — Your ruthless copy editor.
-- 3 levels: light (grammar), moderate (grammar + style), strict (top-venue ready)
-- Section-aware strategies for Abstract through Conclusion
-- 16 categories of Chinese-author (Chinglish) patterns
-- 9-section academic phrasebank with curated sentence templates
+## Skills overview
 
-**latex-fmt** — One click, new template.
-- 9 venues supported: NeurIPS, ICML, CVPR, ACL, AAAI, ICLR, IEEE, Nature, Science
-- Handles page limits, anonymization, section reordering, citation style conversion
-- Universal LaTeX formatting rules (booktabs, cleveref, no vertical lines in tables)
+| Skill | What it does | Use when |
+|---|---|---|
+| **[latex-rescue](./latex-rescue/)** | Diagnoses and fixes compilation errors | `pdflatex` explodes with errors |
+| **[latex-polish](./latex-polish/)** | Improves writing style and clarity | Reviewer complains about English |
+| **[latex-fmt](./latex-fmt/)** | Reformats papers for 9 major venues | Switching templates |
+| **[paper-read](./paper-read/)** | Reads and analyzes academic papers | Mountain of PDFs, no time |
 
-**paper-read** — Read papers like a reviewer.
-- 3 levels: skim (30s), read (5min), deep (15min with critical appraisal)
-- Claims vs evidence mapping table
-- Cross-paper comparison mode
-- Systematic evaluation checklist covering methodology, results, and innovation
+```mermaid
+flowchart LR
+    A[Broken LaTeX] -->|latex-rescue| B[Compiles]
+    C[Rough draft] -->|latex-polish| D[Publication-ready]
+    E[CVPR format] -->|latex-fmt| F[NeurIPS format]
+    G[arxiv PDF] -->|paper-read| H[Structured analysis]
 
-## Quick Start
+    style A fill:#f7768e,stroke:#1a1b26
+    style C fill:#f7768e,stroke:#1a1b26
+    style E fill:#f7768e,stroke:#1a1b26
+    style G fill:#f7768e,stroke:#1a1b26
+    style B fill:#9ece6a,stroke:#1a1b26
+    style D fill:#9ece6a,stroke:#1a1b26
+    style F fill:#9ece6a,stroke:#1a1b26
+    style H fill:#9ece6a,stroke:#1a1b26
+```
+
+---
+
+## See it in action
+
+### latex-rescue — fix 47 errors in 5 seconds
+
+<p align="center">
+  <b>Before</b><br>
+  <img src="./assets/rescue-before.png" alt="latex-rescue before" width="85%"><br>
+  <b>After</b><br>
+  <img src="./assets/rescue-after.png" alt="latex-rescue after" width="85%">
+</p>
+
+**What happened:**
+```diff
+- \textbff{bold}          → undefined control sequence
++ \textbf{bold}           → typo auto-fixed
+
+- x_i is important         → Missing $ inserted
++ $x_i$ is important       → math mode auto-fixed
+
+- \begin{figure} ... \end{table}
++ \begin{figure} ... \end{figure}   → environment mismatch fixed
+```
+
+---
+
+### latex-polish — Reviewer #2 no longer complains
+
+<p align="center">
+  <b>Before</b><br>
+  <img src="./assets/polish-before.png" alt="latex-polish before" width="85%"><br>
+  <b>After</b><br>
+  <img src="./assets/polish-after.png" alt="latex-polish after" width="85%">
+</p>
+
+**What changed:**
+```diff
+- The model can achieves good performance on the dataset.
++ The model achieves strong performance on the benchmark.
+
+- According to the experiment, it makes the accuracy improved by 3.2%.
++ Experiments show that the method improves accuracy by 3.2%.
+
+- Most of methods in this research field can not achieve the same result.
++ Most methods in this field fail to match this result.
+```
+
+---
+
+### latex-fmt — One command, new template
+
+<p align="center">
+  <img src="./assets/fmt-demo.png" alt="latex-fmt demo" width="85%">
+</p>
+
+```diff
+- \documentclass{article}
++ \documentclass{neurips_2025}
+
+- \usepackage{cite, fixmath}
++ \usepackage{times, cleveref}
+
+- \section*{Acknowledgements}
++ [REMOVED — not allowed in anonymous submission]
+```
+
+---
+
+### paper-read — Read papers at reviewer speed
+
+<p align="center">
+  <img src="./assets/paper-read-demo.png" alt="paper-read demo" width="85%">
+</p>
+
+---
+
+## Architecture
+
+```mermaid
+flowchart TB
+    subgraph Skill["Skill Directory (e.g. latex-rescue/)"]
+        SKILL["<b>SKILL.md</b><br/>AI playbook<br/>• Role definition<br/>• Trigger words<br/>• Phase-by-phase workflow<br/>• Guardrails"]
+        README["<b>README.md</b><br/>Human docs<br/>• What it does<br/>• How to install<br/>• Usage examples"]
+        REFS["<b>references/</b><br/>Domain knowledge<br/>• Error catalog (85+ patterns)<br/>• Package conflicts (15 known)<br/>• Debug workflow<br/>• … 14 files total"]
+        AGENTS["<b>agents/</b><br/>Platform config<br/>• claude.yaml<br/>• openai.yaml"]
+    end
+
+    AI["AI Agent<br/>(Claude Code, Cursor, Windsurf)"] -->|reads| SKILL
+    AI -->|consults| REFS
+    AI -->|uses| AGENTS
+
+    style AI fill:#7dcfff,stroke:#1a1b26,color:#1a1b26
+    style Skill fill:#1a1b26,stroke:#3b4261
+    style SKILL fill:#9ece6a,stroke:#1a1b26,color:#1a1b26
+    style README fill:#e0af68,stroke:#1a1b26,color:#1a1b26
+    style REFS fill:#bb9af7,stroke:#1a1b26,color:#1a1b26
+    style AGENTS fill:#7dcfff,stroke:#1a1b26,color:#1a1b26
+```
+
+**How it works:**
+1. You type `/latex-rescue` (or just "fix my LaTeX errors")
+2. The agent loads `SKILL.md` — it now knows its role, the exact 5-phase workflow, and the guardrails
+3. As it works through each phase, it reads `references/` files for specific rules
+4. The reference files encode **hundreds of precise rules** that LLMs can't reliably produce from memory
+5. The result is consistent, expert-quality output — not "vibes-based" AI work
+
+---
+
+## Quick start
 
 ```bash
 git clone https://github.com/Calix-L/awesome-latex-skills.git
@@ -87,66 +194,71 @@ git clone https://github.com/Calix-L/awesome-latex-skills.git
 cp -r awesome-latex-skills/latex-rescue ~/.claude/skills/
 ```
 
-Then type `/latex-rescue` in any LaTeX project. Or just say "fix my LaTeX errors" — the skill auto-activates from trigger words.
+Type `/latex-rescue` in any LaTeX project. Or just say "fix my LaTeX errors" — triggers auto-activate.
 
-### Cursor / Windsurf / Any Agent
+### Cursor / Windsurf / Any agent
 
-Point the agent to the skill file:
+Point the agent at the skill file:
 
 ```
 Read awesome-latex-skills/latex-rescue/SKILL.md and follow the workflow.
 ```
 
-## How It Works
+---
 
-```
-latex-rescue/
-├── SKILL.md       ← The AI's playbook: role, triggers, 5-phase workflow, guardrails
-├── README.md      ← Human-readable docs and examples
-├── references/    ← Deep knowledge the AI consults while working
-│   ├── error-catalog.md       → 85+ error patterns with fix strategies
-│   ├── package-conflicts.md   → 15 known incompatibilities
-│   └── debug-workflow.md      → Binary-search debugging for stubborn errors
-└── agents/        ← Platform config (Claude Code, OpenAI-compatible)
-    ├── claude.yaml
-    └── openai.yaml
-```
+## Installation
 
-The AI loads `SKILL.md`, follows the workflow step by step, and reads reference files as needed. The reference files are the differentiator — they encode hundreds of specific rules that even large models can't reliably produce from memory alone.
+Your agent needs file read/write and shell execution capabilities.
 
-## Installation Requirements
-
-Your AI agent needs the ability to read/write files and execute shell commands.
-
-For `latex-rescue`, the machine needs LaTeX installed:
+For `latex-rescue`, LaTeX must be installed:
 
 ```bash
 # macOS
 brew install --cask basictex
 
-# Ubuntu (minimal, ~500MB)
+# Ubuntu
 sudo apt install texlive-latex-base texlive-latex-recommended texlive-latex-extra
 ```
 
-## Project Stats
+---
+
+## Project stats
 
 | | |
 |---|---|
 | Skills | 4 |
 | Reference files | 14 |
 | Error patterns cataloged | 85+ |
+| Package conflicts tracked | 15 |
 | Venues supported | 9 |
 | Chinese author patterns | 16 categories |
+| Academic phrasebank sections | 9 |
 | Test coverage | 38/38 passing |
-| CI | GitHub Actions enabled |
+| CI | GitHub Actions on push/PR |
 
-## Contributing
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md). Add error patterns, phrasebank entries, venue templates, or Chinglish fixes.
+---
 
 ## Roadmap
 
-See [ROADMAP.md](./ROADMAP.md). Next up: `review-response` (parse reviewer comments → generate response letter), `grant-writing`, and `arxiv-digest`.
+See [ROADMAP.md](./ROADMAP.md).
+
+| Next | What |
+|---|---|
+| `review-response` | Parse reviewer comments → generate rebuttal letter |
+| `grant-writing` | NSF / 国自然 proposal structure and critique |
+| `arxiv-digest` | Daily arxiv scan → personalized TL;DR digest |
+| `cover-letter` | Journal cover letter generation |
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md). Every error pattern, phrasebank entry, and Chinglish fix directly improves output quality.
+
+- [Issue templates](./.github/ISSUE_TEMPLATE/) for bugs, features, and pattern contributions
+- [PR template](./.github/PULL_REQUEST_TEMPLATE.md) with submission checklist
+
+---
 
 ## License
 
