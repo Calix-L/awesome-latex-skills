@@ -48,10 +48,15 @@ If the user pastes an error message directly instead of pointing to a project di
    ```
    (Replace `pdflatex` with `xelatex` or `lualatex` if detected in step 2.)
 
-4. If the project uses `bibtex` or `biber`, run that too:
+4. If the project uses a bibliography backend, run that too:
    ```bash
+   # For bibtex (traditional):
    bibtex main 2>&1 | tee -a build.log
+
+   # For biber (biblatex projects):
+   biber main 2>&1 | tee -a build.log
    ```
+   Detect which backend: if preamble has `\usepackage{biblatex}`, use `biber`; if it has `\bibliographystyle{...}`, use `bibtex`.
 
 ### Phase 2: Parse and Classify Errors
 
@@ -94,14 +99,30 @@ Fix these immediately without consulting an LLM:
 \documentclas  → \documentclass
 \bibiographystyle → \bibliographystyle
 \bibliographystye → \bibliographystyle
-\bfseries      → \textbf (only when incorrectly used as a command with argument; {\bfseries text} is valid)
-\it            → \textit
-\tabel         → \table
-\fig           → \figure
-\refrence      → \reference
-\labl          → \label
-\capton        → \caption
 \textbfseries  → \textbf
+```
+
+**Deprecated command → modern equivalent** (these compile but produce warnings or have wrong scoping):
+```
+\bfseries{...} → \textbf{...} (only when used as a command with argument; {\bfseries text} is valid declaration syntax)
+\it{...}       → \textit{...} (same: \it is a valid but deprecated declaration; \textit{} is the modern command form)
+```
+
+**Environment-name typos** — these appear in `\begin{...}` or `\end{...}`. Fix the name inside the braces:
+```
+\tabel   → \begin{table} (table is an environment, not a command)
+\tabl    → \begin{table}
+\fig     → \begin{figure} (figure is an environment, not a command)
+\figre   → \begin{figure}
+\algin   → \begin{align}
+\itemz   → \begin{itemize}
+```
+
+**Other command typos**:
+```
+\refrence  → \bibliography or \bibliographystyle (context-dependent; \reference is not a LaTeX command)
+\labl      → \label
+\capton    → \caption
 ```
 
 **Missing closing brackets/braces** — count open/close pairs:

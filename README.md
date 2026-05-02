@@ -157,7 +157,7 @@ flowchart TB
     subgraph Skill["Skill Directory (e.g. latex-rescue/)"]
         SKILL["<b>SKILL.md</b><br/>AI playbook<br/>• Role definition<br/>• Trigger words<br/>• Phase-by-phase workflow<br/>• Guardrails"]
         README["<b>README.md</b><br/>Human docs<br/>• What it does<br/>• How to install<br/>• Usage examples"]
-        REFS["<b>references/</b><br/>Domain knowledge<br/>• Error catalog (50+ patterns)<br/>• Package conflicts (17 known)<br/>• Debug workflow<br/>• … 14 files total"]
+        REFS["<b>references/</b><br/>Domain knowledge<br/>• Error catalog (50+ patterns)<br/>• Package conflicts (15 known)<br/>• Debug workflow<br/>• … 11 files total"]
         AGENTS["<b>agents/</b><br/>Platform config<br/>• claude.yaml<br/>• openai.yaml"]
     end
 
@@ -227,10 +227,10 @@ sudo apt install texlive-latex-base texlive-latex-recommended texlive-latex-extr
 | | |
 |---|---|
 | Skills | 4 |
-| Reference files | 14 |
+| Reference files | 11 |
 | Error patterns cataloged | 50+ |
 | Package conflicts tracked | 15 |
-| Venues supported | 9 |
+| Venues supported | 11 |
 | Chinese author patterns | 16 categories |
 | Academic phrasebank sections | 11 |
 | Test coverage | 38/38 passing |

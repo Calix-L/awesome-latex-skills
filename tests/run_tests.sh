@@ -112,7 +112,7 @@ test_rescue_error_catalog_coverage() {
     fi
 
     # Check environment error coverage
-    if grep -q 'begin{figure}.*end{table}' "$broken"; then
+    if grep -q 'begin{figure}' "$broken" && grep -q 'end{table}' "$broken"; then
         if grep -qi 'begin.*end.*mismatch\|environment.*mismatch' "$catalog"; then
             pass "Error catalog covers environment mismatches"
         else

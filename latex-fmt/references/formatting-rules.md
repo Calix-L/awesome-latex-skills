@@ -55,7 +55,7 @@ Universal LaTeX formatting best practices applicable across all venues.
 ## Cross-References
 
 - Use `\usepackage{cleveref}` for automatic type-aware references: `\cref{fig:arch}` → "Figure 1"
-- Load `cleveref` after `hyperref` (both must be loaded, with `hyperref` before `cleveref`).
+- Load `cleveref` after `hyperref` (the only documented exception to the "hyperref last" rule).
 - Label prefix conventions:
   - `fig:` for figures → `\label{fig:architecture}`
   - `tab:` for tables → `\label{tab:results}`
@@ -72,8 +72,8 @@ Universal LaTeX formatting best practices applicable across all venues.
 
 ## Abstract
 
-- Usually limited to 150-300 words.
-- Place abstract section BEFORE `\maketitle` in many templates.
+- Usually limited to 150-300 words (check venue; many cap at 250).
+- Place abstract section BEFORE `\maketitle` in many conference templates (NeurIPS, ICML). In standard `article` class, abstract comes AFTER `\maketitle`.
 - No citations in abstract (exceptions: papers building directly on one prior work).
 
 ## Acknowledgments

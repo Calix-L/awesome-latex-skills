@@ -10,7 +10,6 @@
 | `cite` | `natbib` | Both modify `\cite` | Use `natbib` (more features); remove `cite` |
 | `algorithmic` | `algorithm2e` | Both define algorithm environments | Choose one; prefer `algorithm2e` |
 | `amsmath` | `mathtools` | `mathtools` superset of `amsmath` | Use `mathtools` (auto-loads `amsmath`); remove explicit `amsmath` |
-| `inputenc` | `fontenc` | Encoding order | Load `inputenc` before `fontenc` |
 | `fancyhdr` | `titlesec` | Heading style conflicts | Accept minor incompatibilities or use `scrlayer-scrpage` |
 | `listings` | `minted` | Both for code listing | Choose one; `minted` for syntax coloring, `listings` for simpler |
 | `pdfx` | Various | PDF/A compliance changes everything | Accept limitations or drop PDF/A requirement |
@@ -31,8 +30,8 @@ These pairs are sometimes assumed to conflict but actually work together:
 
 ## General Rules
 
-1. **Load `hyperref` last** — it patches many commands and must come after packages that define cross-references.
-2. **Load font packages in order**: `inputenc` → `fontenc` → `lmodern` (or other font package)
+1. **Load `hyperref` late** — it patches many commands and must come after packages that define cross-references. Exception: `cleveref` must come AFTER `hyperref`, so the load order is `...hyperref...cleveref`.
+2. **Load font/encoding packages in order**: `inputenc` → `fontenc` → `lmodern` (or other font package). This is standard recommended practice, not a conflict.
 3. **One of each function**: don't load multiple packages that do the same thing (e.g. two float-handling packages).
 4. **Check the .log for warnings**: packages print warnings about conflicts. Grep for `Package.*Warning` in the log.
 5. **Use `\PassOptionsToPackage`** to resolve option clashes without changing package load order.

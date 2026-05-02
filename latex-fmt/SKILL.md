@@ -83,9 +83,9 @@ Abstract → Introduction → Related Work → Method → Experiments → Conclu
 
 **CVPR**:
 ```
-Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References
+Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References → [Appendices]
 ```
-No appendices in main paper (max 8 pages). Appendices go in supplementary.
+8 pages main content (references excluded since 2019). Appendices allowed after references and don't count toward page limit. Supplementary is a separate PDF upload.
 
 **ACL**:
 ```
@@ -110,11 +110,11 @@ Abstract → Introduction → Related Work → Method → Experiments → Conclu
 ```
 Uses `eccv.cls`. 14 pages + unlimited references. Supplementary is separate PDF.
 
-**TMLR**:
+**TMLR** (Transactions on Machine Learning Research):
 ```
 Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References
 ```
-No page limit. Uses OpenReview. Not double-blind (non-anonymous).
+No page limit. Uses OpenReview. **Not double-blind** — authors are visible during review.
 
 If the current paper is missing a required section, flag it but don't invent content.
 
@@ -172,7 +172,11 @@ When converting between styles:
 
 After updating, run the full compile cycle:
 ```bash
+# For bibtex projects:
 pdflatex main && bibtex main && pdflatex main && pdflatex main
+
+# For biblatex/biber projects:
+pdflatex main && biber main && pdflatex main && pdflatex main
 ```
 
 ### Phase 6: Pre-Submission Checklist

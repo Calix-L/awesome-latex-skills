@@ -10,7 +10,7 @@
 3. **Key Results**: Numbers, comparisons, main finding
 4. **Implication**: Why it matters
 
-**Length**: 100-250 words (venue-dependent)
+**Length**: Typically 150-250 words (varies by venue: some allow up to 300, some cap at 150)
 
 **Common mistakes to flag**:
 - Missing quantitative results ("improves performance" vs "improves F1 by 3.2 points")

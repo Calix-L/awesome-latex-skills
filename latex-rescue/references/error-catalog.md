@@ -2,6 +2,8 @@
 
 ## Typo Corrections (auto-fix)
 
+### Command Typos
+
 | Wrong | Correct |
 |-------|---------|
 | `\beginn{` | `\begin{` |
@@ -13,18 +15,30 @@
 | `\bibiographystyle` | `\bibliographystyle` |
 | `\bibliographystye` | `\bibliographystyle` |
 | `\textbfseries` | `\textbf` |
-| `\tabel` | `\table` |
-| `\tabl` | `\table` |
 | `\labl` | `\label` |
 | `\capton` | `\caption` |
 | `\incluegraphics` | `\includegraphics` |
 | `\centeringg` | `\centering` |
-| `\tabluar` | `\tabular` |
-| `\fig` | `\figure` |
-| `\figre` | `\figure` |
-| `\refrence` | `\reference` |
-| `\algin` | `\begin{align}` |
-| `\itemz` | `\begin{itemize}` |
+
+### Environment-Name Typos
+
+These appear inside `\begin{...}` or `\end{...}`. Fix the environment name:
+
+| Wrong | Correct | Note |
+|-------|---------|------|
+| `\tabel` | `\begin{table}` | `table` is an environment, not a command |
+| `\tabl` | `\begin{table}` | Same |
+| `\fig` | `\begin{figure}` | `figure` is an environment, not a command |
+| `\figre` | `\begin{figure}` | Same |
+| `\tabluar` | `\begin{tabular}` | Same |
+| `\algin` | `\begin{align}` | Same |
+| `\itemz` | `\begin{itemize}` | Same |
+
+### Context-Dependent Typos
+
+| Wrong | Correct | Note |
+|-------|---------|------|
+| `\refrence` | `\bibliography` or `\bibliographystyle` | `\reference` is not a LaTeX command; infer from context |
 
 ## Math Mode Errors
 

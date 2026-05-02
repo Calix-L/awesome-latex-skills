@@ -79,7 +79,7 @@ Apply different strategies per section. Consult `references/section-anatomy.md` 
 - **Strict**: Top-venue standard — all of moderate plus: restructure weak openings, convert laundry lists to thematic paragraphs, add hedging to overclaimed statements, enforce publication-ready phrasing throughout.
 
 #### Abstract
-- 150-250 words typical. Ensure 4 components: background gap, approach, key results, implication.
+- 150-250 words typical (varies by venue from 150-300). Ensure 4 components: background gap, approach, key results, implication.
 - Every sentence must carry weight. Cut ruthlessly.
 - Check: if someone reads only the abstract, do they understand the contribution?
 

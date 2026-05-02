@@ -12,7 +12,7 @@
 ## Required Packages
 The `neurips_2025.cls` already loads: `amsmath`, `amssymb`, `natbib`, `hyperref`, `booktabs`, `graphicx`, `xcolor`.
 
-Do NOT load: `fullpage`, `geometry`, `setspace`, `enumitem` (conflicts with template).
+Do NOT load: `fullpage`, `geometry`, `setspace` (conflicts with template). `enumitem` may cause spacing issues with some template versions — test before using.
 
 ## Sections Required
 1. Abstract
@@ -40,7 +40,7 @@ Do NOT load: `fullpage`, `geometry`, `setspace`, `enumitem` (conflicts with temp
 ## Submission Tips
 - Checklist file must be uploaded as separate PDF
 - Use PDF figures only (no EPS)
-- Compile with pdflatex (not xelatex/lualatex — the template is designed for pdflatex)
+- Compile with pdflatex (strongly recommended; the template is designed for pdflatex). XeLaTeX may work for CJK authors but requires minor adjustments.
 
 ---
 
@@ -180,3 +180,47 @@ Both Nature and Science have their own submission systems with custom templates.
 - Discussions happen publicly between reviewers and authors
 - Double-blind review: anonymize all submissions
 - Anonymization of supplementary material also required
+
+---
+
+# ECCV 2026
+
+## Document Class
+```latex
+\documentclass[review]{eccv}
+% For camera-ready
+% \documentclass[final]{eccv}
+```
+
+## Page Limit
+- 14 pages main content + unlimited references
+- Supplementary material is a separate PDF upload
+
+## Anonymization
+- Double-blind review: remove all identifying information
+- Self-citations must be in third person
+
+## Unique
+- Figures should work in B&W print (reviewers may print)
+- Strong emphasis on reproducibility: code release expected
+- Uses `eccv.cls` which sets 2-column format
+
+---
+
+# TMLR
+
+## Document Class
+```latex
+\documentclass{article}
+% TMLR uses standard article class with OpenReview formatting
+```
+
+## Page Limit
+- No strict page limit
+- Typical submissions: 10-20 pages
+
+## Unique
+- OpenReview-based (non-anonymous, NOT double-blind)
+- Rolling submissions (no deadline)
+- Journal-style review process (not conference)
+- No supplementary material upload — appendices go in main PDF
