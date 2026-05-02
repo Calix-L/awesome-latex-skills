@@ -177,30 +177,40 @@ pdflatex main && bibtex main && pdflatex main && pdflatex main
 
 ### Phase 6: Pre-Submission Checklist
 
-After formatting, run a compliance check:
+After formatting, run a compliance check. The checklist items vary by venue:
 
-```bash
-=== Submission Readiness: NeurIPS 2026 ===
+**Universal checks (all venues)**:
+- [ ] Correct `\documentclass` and template loaded
+- [ ] Page count within limit
+- [ ] All figures included and referenced
+- [ ] Bibliography compiles without errors
+- [ ] No banned packages (`geometry`, `fullpage`, `setspace` — venue-dependent)
+- [ ] PDF metadata anonymized (check document properties for author name, remove `\pdfinfo` if present)
+- [ ] No identity-revealing text ("our prior work", self-citations in first person)
 
-Formatting:
-  [✓] Anonymous (no author names in PDF)
-  [✓] 9 pages (excluding references)
-  [✓] No page numbers
-  [✓] 10pt font
-  [✓] Single-column as per template
+**Double-blind venues (NeurIPS, ICML, CVPR, ACL, ICLR)**:
+- [ ] No author names in PDF
+- [ ] No acknowledgments section
+- [ ] No funding information
+- [ ] Supplementary material also anonymized
+- [ ] No page numbers in submission version
 
-  Content:
-  [✓] Broader Impact section present
-  [✓] Checklist included
-  [✓] No acknowledgments (double-blind)
-  [ ] WARNING: Line 234 references "our prior work [1]" — reveals identity
-  [ ] WARNING: Figure 3 has color — check if B&W printing works
+**NeurIPS-specific**:
+- [ ] Broader Impact section present
+- [ ] Checklist PDF uploaded separately
+- [ ] 9 pages main content
 
-  Files:
-  [✓] All figures included
-  [✓] Bibliography compiles without errors
-  [ ] Missing: camera-ready assets not required yet
-```
+**CVPR-specific**:
+- [ ] Figures readable in B&W print
+
+**ACL/EMNLP-specific**:
+- [ ] Limitations section present
+- [ ] AI writing assistant disclosure included
+
+**Supplementary material**:
+- [ ] Size within venue limit (NeurIPS: 100MB, ICML: similar)
+- [ ] Separate PDF upload where required (CVPR)
+- [ ] Anonymized if venue is double-blind
 
 ### Phase 7: Checklist Items
 

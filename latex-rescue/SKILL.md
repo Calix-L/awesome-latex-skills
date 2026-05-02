@@ -156,16 +156,39 @@ For errors not covered by the catalog:
 
 ### Phase 4: Verify
 
-After each batch of fixes:
+After each batch of fixes, run a **full compile cycle** to ensure cross-references and citations resolve:
 
 ```bash
-pdflatex -interaction=nonstopmode -file-line-error main.tex 2>&1 | tail -20
+# If project uses BibTeX:
+pdflatex -interaction=nonstopmode -file-line-error main.tex && \
+bibtex main && \
+pdflatex -interaction=nonstopmode -file-line-error main.tex && \
+pdflatex -interaction=nonstopmode -file-line-error main.tex
+
+# If project uses no bibliography, a single pass suffices for checking errors:
+pdflatex -interaction=nonstopmode -file-line-error main.tex
 ```
 
+**Alternative**: If `latexmk` is installed, it handles multi-pass automatically:
+```bash
+latexmk -pdf -interaction=nonstopmode main.tex
+```
+
+**Checking results**:
+- Extract errors: `grep '^!' build.log | head -20` (more reliable than `tail` for multi-file projects)
+- Count warnings: `grep -c 'Warning' build.log`
+- Check for undefined references: `grep 'undefined' build.log`
+
+**Decision**:
 - If **clean**: report all fixes applied, show final status
 - If **fewer errors**: continue fixing remaining errors
 - If **same number of errors**: the fix didn't work. **Do NOT re-apply the same fix.** Consult `references/debug-workflow.md` for escalation strategies.
 - If **more errors**: the fix introduced regressions. **Roll back the fix** and try a different approach.
+
+**Common false positives after a single-pass compile**:
+- `Reference 'X' undefined` — usually resolves after a second `pdflatex` run
+- `Citation 'X' undefined` — run `bibtex` then recompile twice
+- `Label multiply defined` — this is a real error, not a false positive
 
 ### Phase 5: Report
 

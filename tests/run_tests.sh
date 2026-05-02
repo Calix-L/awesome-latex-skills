@@ -41,6 +41,7 @@ test_rescue_compile() {
     local workdir="$(mktemp -d)"
 
     cp "$src" "$workdir/broken_paper.tex"
+    local orig_dir="$(pwd)"
     cd "$workdir"
 
     # Phase 1: Gather — compile and capture errors
@@ -76,6 +77,7 @@ test_rescue_compile() {
     fi
 
     # Cleanup
+    cd "$orig_dir"
     rm -rf "$workdir"
 }
 
@@ -173,7 +175,7 @@ test_fmt_templates() {
         return
     fi
 
-    local venues=("NeurIPS" "ICML" "CVPR" "ACL" "IEEE" "Nature" "Science" "AAAI" "ICLR")
+    local venues=("NeurIPS" "ICML" "CVPR" "ACL" "IEEE" "Nature" "Science" "AAAI" "ICLR" "ECCV" "TMLR")
     for venue in "${venues[@]}"; do
         if grep -qi "$venue" "$guide"; then
             pass "Template guide covers: $venue"
@@ -315,7 +317,7 @@ fi
 # Summary
 echo ""
 echo "======================================"
-echo " Results: ${GREEN}$pass_count passed${NC}, ${RED}$fail_count failed${NC}"
+printf " Results: \033[0;32m%s passed\033[0m, \033[0;31m%s failed\033[0m\n" "$pass_count" "$fail_count"
 echo "======================================"
 
 if [ "$fail_count" -gt 0 ]; then

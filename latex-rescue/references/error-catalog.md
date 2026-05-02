@@ -8,18 +8,23 @@
 | `\endd{` | `\end{` |
 | `\hlin` | `\hline` |
 | `\usepacakge` | `\usepackage` |
+| `\usepackge` | `\usepackage` |
 | `\documentclas` | `\documentclass` |
+| `\bibiographystyle` | `\bibliographystyle` |
 | `\bibliographystye` | `\bibliographystyle` |
 | `\textbfseries` | `\textbf` |
+| `\tabel` | `\table` |
 | `\tabl` | `\table` |
 | `\labl` | `\label` |
 | `\capton` | `\caption` |
 | `\incluegraphics` | `\includegraphics` |
 | `\centeringg` | `\centering` |
 | `\tabluar` | `\tabular` |
+| `\fig` | `\figure` |
 | `\figre` | `\figure` |
-| `\algin` | `align` |
-| `\itemz` | `itemize` |
+| `\refrence` | `\reference` |
+| `\algin` | `\begin{align}` |
+| `\itemz` | `\begin{itemize}` |
 
 ## Math Mode Errors
 
