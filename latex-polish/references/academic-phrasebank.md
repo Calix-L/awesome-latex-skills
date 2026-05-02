@@ -22,6 +22,11 @@ Curated sentence starters and templates for each section of a scientific paper.
 - `We show that [finding 1] and [finding 2], leading to [quantitative improvement].`
 - `Our results reveal that [surprising finding], suggesting that [implication].`
 
+### Implication
+- `These findings suggest that [broader takeaway], which has implications for [application area].`
+- `This result challenges the conventional assumption that [prior belief], opening new directions for [research area].`
+- `The improvement on [task] indicates that [mechanism] may be a general strategy for [broader problem].`
+
 ---
 
 ## Introduction
@@ -96,12 +101,6 @@ Curated sentence starters and templates for each section of a scientific paper.
 
 ## Experiments & Results
 
-### Setup
-- `We evaluate [method] on [N benchmarks] spanning [domains].`
-- `Baselines include [list with brief justification for each].`
-- `We implement [method] in [framework] and train on [hardware] for [duration].`
-- `Hyperparameters are selected via [procedure] on [validation set].`
-
 ### Setup / Implementation Details
 - `We evaluate [method] on [N benchmarks] spanning [domains].`
 - `Baselines include [list with brief justification for each].`
@@ -139,6 +138,38 @@ Curated sentence starters and templates for each section of a scientific paper.
 - `Promising directions include extending [method] to [related problem] and exploring [alternative technique].`
 - `We plan to investigate [open question] in future work.`
 - `The insights from this work may also apply to [broader domain].`
+
+---
+
+## Limitations
+
+### Scope Limitations
+- `Our approach is currently limited to [domain/setting], and its applicability to [other setting] remains to be verified.`
+- `We only evaluate on [N] datasets from [domain]; generalization to [other domains] is not guaranteed.`
+
+### Assumption Violations
+- `The method assumes [assumption], which may not hold in [scenario].`
+- `When [condition] is violated, performance degrades as shown in [analysis/appendix].`
+
+### Resource Constraints
+- `Training [method] requires [resource requirement], which may limit accessibility for researchers with limited compute.`
+- `Our experiments use [language/model size]; scaling to [larger setting] may present additional challenges.`
+
+---
+
+## Ethics / Broader Impact
+
+### Positive Impact
+- `This work may benefit [application] by [specific benefit].`
+- `By addressing [problem], our approach could help [stakeholder group].`
+
+### Potential Risks
+- `We note potential risks related to [risk], including [specific concern].`
+- `Dual-use concerns: [capability] could be misapplied to [harmful use case].`
+
+### Mitigation
+- `To mitigate [risk], we recommend [safeguard/policy].`
+- `We encourage future work to examine [ethical dimension] before deploying at scale.`
 
 ---
 

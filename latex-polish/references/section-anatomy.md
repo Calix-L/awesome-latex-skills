@@ -120,6 +120,45 @@ Each paragraph:
 - Limitations (be honest — this builds trust with reviewers)
 - Open questions and next steps
 
+**Common mistakes**:
+- Repeating results without interpretation
+- Not acknowledging limitations or caveats
+- Overgeneralizing from limited experiments
+
+---
+
+## Limitations
+
+**Purpose**: Honest assessment of what the work does NOT address. Required at ACL/EMNLP, strongly encouraged at NeurIPS.
+
+**Structure**:
+1. **Scope limitations**: What problems/settings does the method NOT cover?
+2. **Assumption violations**: What assumptions might fail in practice?
+3. **Resource constraints**: Compute, data, or accessibility limitations
+4. **Generalizability concerns**: Where might the results NOT hold?
+
+**Common mistakes**:
+- Writing token limitations just to check the box (reviewers notice)
+- Using "limitations" as a chance to pitch future work instead of acknowledging real weaknesses
+- Omitting limitations that are obvious to reviewers (they'll flag them anyway)
+
+---
+
+## Appendix
+
+**Purpose**: Supplementary material that supports the main paper but would break the flow.
+
+**Typical content**:
+- Additional experimental results (more datasets, more baselines)
+- Proofs and derivations
+- Implementation details (architecture specifics, hyperparameter tables)
+- Example outputs / qualitative results
+
+**Common mistakes**:
+- Putting crucial content in the appendix to save space (reviewers may miss it)
+- Forgetting to anonymize supplementary material
+- Not cross-referencing appendix content from the main paper
+
 ---
 
 ## Conclusion

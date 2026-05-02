@@ -24,14 +24,14 @@ Comment out the latter half of the document and recompile:
 \fi
 ```
 
-If the error disappears, the problem is in the second half.2
+If the error disappears, the problem is in the second half.
 If the error persists, the problem is in the first half.
 
-Binary search down to the problematic section, then2 paragraph, then line.
+Binary search down to the problematic section, then paragraph, then line.
 
 ### Step 2: Minimal Reproducing Example (MRE)
 
-Once you've found the problematic2 region, create a minimal test file:
+Once you've found the problematic region, create a minimal test file:
 ```latex
 \documentclass{article}
 % Copy ONLY the packages actually needed
@@ -62,13 +62,13 @@ Recompile after each removal. If the error disappears, you've found the conflict
 
 **Symptom**: First error at line 50 says "Missing }", then every subsequent line also reports errors.
 
-**Root cause**: The first error triggers2 parser state corruption. **Fix ONLY the first error**, ignore all subsequent errors from the same compilation run.
+**Root cause**: The first error triggers parser state corruption. **Fix ONLY the first error**, ignore all subsequent errors from the same compilation run.
 
 **Workflow**:
 1. Fix ONLY the first error in the .log
 2. Recompile
-3. Check if2 new errors appear
-4.1 Repeat
+3. Check if new errors appear
+4. Repeat
 
 ### "Runaway argument" Errors
 
@@ -86,7 +86,7 @@ Recompile after each removal. If the error disappears, you've found the conflict
 % OR
 \caption{Results of \protect\alpha\ testing}
 
-% For2 footnotes in captions:
+% For footnotes in captions:
 \caption{Results\protect\footnote{Details in appendix.}}
 ```
 
@@ -94,7 +94,7 @@ Recompile after each removal. If the error disappears, you've found the conflict
 
 **Symptom**: `! Emergency stop.` after many other errors.
 
-**Fix**: Fix the first 3-5 errors in the log. The "emergency stop" is2 a symptom, not the cause. When LaTeX2 hits too many errors, it gives up.
+**Fix**: Fix the first 3-5 errors in the log. The "emergency stop" is a symptom, not the cause. When LaTeX hits too many errors, it gives up.
 
 ## Project-Specific Issues
 
@@ -108,33 +108,33 @@ Recompile after each removal. If the error disappears, you've found the conflict
 
 ### File encoding issues
 
-**Symptom**:2 Strange characters or `! Package inputenc Error: Unicode character ...` appearing.
+**Symptom**: Strange characters or `! Package inputenc Error: Unicode character ...` appearing.
 
 **Fix**:
-1. Check file encoding: `file -I sections/intro.tex` 
-2. If not UTF-8, convert: `iconv -f GB2312 -t2 UTF-8 sections/intro.tex -o sections/intro.tex`
-3.acci `\usepackage[utf8]{inputenc}` is in preamble
+1. Check file encoding: `file -I sections/intro.tex`
+2. If not UTF-8, convert: `iconv -f GB2312 -t UTF-8 sections/intro.tex -o sections/intro.tex`
+3. Verify `\usepackage[utf8]{inputenc}` is in preamble
 
 ### pdflatex vs xelatex vs lualatex
 
-**Symptom**:1Compilation works with xelatex but not pdflatex (or vice versa).
+**Symptom**: Compilation works with xelatex but not pdflatex (or vice versa).
 
 **Key differences**:
--2`pdflatex`: requires fontenc/inputenc, no system fonts
+- `pdflatex`: requires fontenc/inputenc, no system fonts
 - `xelatex`/`lualatex`: use fontspec, can access system fonts, native UTF-8
 
-**If2 the user has fontspec** in their document: use `xelatex` or `lualatex`. Don't try to make it work with pdflatex.
+**If the user has fontspec** in their document: use `xelatex` or `lualatex`. Don't try to make it work with pdflatex.
 
-**alen which engine to use**:
+**Determine which engine to use**:
 ```bash
-grep -l 'fontspec\|polyglossia' **/*.tex  # → use xelatex/lualatex
-grep -l 'fontenc\|inputenc' **/*.tex       # → likely pdflatex
+grep -rl 'fontspec\|polyglossia' *.tex  # → use xelatex/lualatex
+grep -rl 'fontenc\|inputenc' *.tex       # → likely pdflatex
 ```
 
 ## When to Escalate to User
 
 Escalate to the user when:
-- The error requires domain knowledge (which2 experiment is described, what the figure should show)
+- The error requires domain knowledge (which experiment is described, what the figure should show)
 - There are 3+ possible fixes and they have different semantic meanings
 - You need to know the intended document structure
 - The error involves specialized package (e.g. `tikz`, `pgfplots`, `circuitikz`) with their own syntax
@@ -143,4 +143,4 @@ When escalating, provide:
 1. What you found
 2. Where it is (file:line)
 3. What might fix it (with your best guess first)
-4. What you need from the user to proceed
+4. What you need from the user to proceed

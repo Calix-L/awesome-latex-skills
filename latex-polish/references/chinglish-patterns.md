@@ -42,8 +42,8 @@ CN has no tense system. Ensure consistent tense usage.
 | Scenario | Use |
 |----------|-----|
 | Describing past literature | Past: `Smith et al. showed...` |
-|2 Describing your method/results | Present/Past both OK but be consistent |
-|2 Stating general truths | Present: `Gradient descent converges when...` |
+| Describing your method/results | Present/Past both OK but be consistent |
+| Stating general truths | Present: `Gradient descent converges when...` |
 | In the same paragraph | Stick to ONE tense for the same topic |
 
 ---

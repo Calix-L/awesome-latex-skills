@@ -94,9 +94,7 @@ Fix these immediately without consulting an LLM:
 \documentclas  → \documentclass
 \bibiographystyle → \bibliographystyle
 \bibliographystye → \bibliographystyle
-\citep         → \cite  (natbib)
-\citet         → \cite  (natbib)
-\bfseries      → \textbf (if used as command not declaration)
+\bfseries      → \textbf (only when incorrectly used as a command with argument; {\bfseries text} is valid)
 \it            → \textit
 \tabel         → \table
 \fig           → \figure
@@ -129,7 +127,7 @@ x_i without $   → $x_i$
 
 #### 3.2 Common Error-Specific Fixes
 
-For errors with known fix patterns, consult `references/error-catalog.md`. This catalog contains 80+ common LaTeX errors with specific fix instructions. Always check the catalog before attempting a generic fix.
+For errors with known fix patterns, consult `references/error-catalog.md`. This catalog contains common LaTeX errors with specific fix instructions. Always check the catalog before attempting a generic fix.
 
 Key patterns to know without searching:
 
@@ -234,6 +232,6 @@ Switching column layout often breaks floats:
 ## Reference Files
 
 When you encounter a specific error class, read the corresponding reference:
-- **`references/error-catalog.md`** — catalog of 80+ common LaTeX errors with fixes
+- **`references/error-catalog.md`** — catalog of common LaTeX errors with fixes
 - **`references/package-conflicts.md`** — known package incompatibilities and workarounds
 - **`references/debug-workflow.md`** — systematic debugging for stubborn compilation chains

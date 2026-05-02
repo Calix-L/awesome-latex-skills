@@ -32,6 +32,12 @@ Systematic evaluation framework for academic papers. Run through these questions
 - [ ] Are computational requirements stated?
 - [ ] Are random seeds reported? Multiple runs?
 
+### Data Integrity
+- [ ] Is there evidence of data leakage? (test data contaminating training, benchmark overlap)
+- [ ] For LLM-based methods: is there risk of evaluation data appearing in pre-training corpora?
+- [ ] Are train/test/validation splits clearly defined and non-overlapping?
+- [ ] For prompting experiments: are prompts cherry-picked or systematically designed?
+
 ---
 
 ## Results Evaluation

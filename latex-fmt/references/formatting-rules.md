@@ -12,7 +12,7 @@ Universal LaTeX formatting best practices applicable across all venues.
 
 - Default margin: 1 inch (2.54cm) all around when no template specifies otherwise.
 - Do NOT use `\usepackage{geometry}` unless you know the venue allows it (NeurIPS/ICML ban it).
--1 Do NOT use `\usepackage{setspace}` or `\linespread` to adjust line spacing unless required.
+- Do NOT use `\usepackage{setspace}` or `\linespread` to adjust line spacing unless required.
 - Venue templates include their own spacing — trust the template.
 
 ## Headings
@@ -28,7 +28,7 @@ Universal LaTeX formatting best practices applicable across all venues.
 - Photos: PNG or JPG at 300 DPI minimum.
 - `\includegraphics[width=\textwidth]{fig.pdf}` — use relative width specifications, never absolute cm unless you have a very specific reason.
 - Place `\label{}` AFTER `\caption{}` inside figure environment.
--1 Figure caption goes BELOW the figure.
+- Figure caption goes BELOW the figure.
 - Subfigure: use `\usepackage{subcaption}` (modern replacement for subfigure/subfig).
 
 ## Tables
@@ -50,12 +50,12 @@ Universal LaTeX formatting best practices applicable across all venues.
 - Use `\begin{equation}` for numbered equations, `\[...\]` for unnumbered.
 - Multi-line: `\begin{align}` (numbered per line) or `\begin{align*}` (unnumbered).
 - Use `\bm{}` (from `bm` package) for bold math symbols.
--1 Punctuation within equations: include periods/commas inside math mode.
+- Punctuation within equations: include periods/commas inside math mode (AMS convention).
 
 ## Cross-References
 
 - Use `\usepackage{cleveref}` for automatic type-aware references: `\cref{fig:arch}` → "Figure 1"
-- Load `cleveref` as the LAST package.
+- Load `cleveref` after `hyperref` (both must be loaded, with `hyperref` before `cleveref`).
 - Label prefix conventions:
   - `fig:` for figures → `\label{fig:architecture}`
   - `tab:` for tables → `\label{tab:results}`
@@ -68,52 +68,52 @@ Universal LaTeX formatting best practices applicable across all venues.
 
 - Double-blind submission: NO page numbers. Venue templates usually handle this automatically.
 - Camera-ready: page numbers OK.
--1 DO NOT manually add or remove page numbers — the template should control this.
+- DO NOT manually add or remove page numbers — the template should control this.
 
 ## Abstract
 
 - Usually limited to 150-300 words.
 - Place abstract section BEFORE `\maketitle` in many templates.
--1 No citations in abstract (exceptions: papers building directly on one prior work).
+- No citations in abstract (exceptions: papers building directly on one prior work).
 
 ## Acknowledgments
 
--1 Only in camera-ready version (NOT in anonymous submission).
+- Only in camera-ready version (NOT in anonymous submission).
 - Place before references section.
--1 Keep brief: funders, helpful discussions,1 specific contributors.
+- Keep brief: funders, helpful discussions, specific contributors.
 
 ## Appendices
 
 - Place AFTER references.
 - Use `\appendix` command to switch numbering to letters (`Appendix A`, `Appendix B`).
--1 Appendices may contain supplementary experiments, derivations,1 implementation details.
--11 Most venues allow unlimited appendices but1 reviewers are not obligated to read them.
+- Appendices may contain supplementary experiments, derivations, implementation details.
+- Most venues allow unlimited appendices but reviewers are not obligated to read them.
 
 ## Common Prohibitions
 
 These are commonly banned by venue templates:
 - `\usepackage{geometry}` — banned by NeurIPS, ICML, CVPR, IEEE
 - `\vspace{}`, `\vskip`, manual spacing hacks
--1 `\enlargethispage{}`
+- `\enlargethispage{}`
 - Changing font sizes mid-document
--1 Fullpage package
+- Fullpage package
 - Manual page breaks in submission version
 - Color text (use `\textcolor` only for figures, not body text)
 
 ## Pre-Submission Checks
 
-Run1 these checks before submitting:
+Run these checks before submitting:
 
 ```bash
 # Check for common banned packages
 grep -n '\\usepackage{geometry}\|\\usepackage{fullpage}\|\\usepackage{setspace}' main.tex
 
 # Check for identity-revealing text
-grep -in 'our prior work\|our previous work\|we previously' **/*.tex
+grep -in 'our prior work\|our previous work\|we previously' *.tex
 
 # Check for missing labels
-grep -n '\\ref{' **/*.tex | while read line; do
+grep -n '\\ref{' *.tex | while read line; do
   label=$(echo "$line" | grep -o '\\ref{[^}]*}' | sed 's/\\ref{//;s/}//')
-  grep -q "\\label{$label}" **/*.tex || echo "MISSING LABEL: $label"
+  grep -q "\\label{$label}" *.tex || echo "MISSING LABEL: $label"
 done
 ```
