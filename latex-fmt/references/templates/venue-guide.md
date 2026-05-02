@@ -1,5 +1,7 @@
 # NeurIPS 2026 / 2025
 
+> Verify the current year's `.cls` on the official NeurIPS site before starting.
+
 ## Document Class
 ```latex
 \documentclass{neurips_2025}
@@ -10,7 +12,7 @@
 ## Required Packages
 The `neurips_2025.cls` already loads: `amsmath`, `amssymb`, `natbib`, `hyperref`, `booktabs`, `graphicx`, `xcolor`.
 
-Do NOT load: `fullpage`, `geometry`, `setspace`, `enumitem` (conflicts with template).
+Do NOT load: `fullpage`, `geometry`, `setspace` (conflicts with template). `enumitem` may cause spacing issues with some template versions — test before using.
 
 ## Sections Required
 1. Abstract
@@ -38,19 +40,28 @@ Do NOT load: `fullpage`, `geometry`, `setspace`, `enumitem` (conflicts with temp
 ## Submission Tips
 - Checklist file must be uploaded as separate PDF
 - Use PDF figures only (no EPS)
-- Compile with pdflatex (not xelatex/lualatex — the template is designed for pdflatex)
+- Compile with pdflatex (strongly recommended; the template is designed for pdflatex). XeLaTeX may work for CJK authors but requires minor adjustments.
 
 ---
 
 # ICML 2026 / 2025
+
+> Verify the current year's `.cls` on the official ICML site before starting.
 
 ## Document Class
 ```latex
 \documentclass{icml2025}
 ```
 
+## Required Packages
+The `icml2025.sty` provides the official submission format. Do NOT override with custom packages.
+
 ## Page Limit
 - 8 pages main + unlimited references and appendices
+
+## Anonymization
+- Double-blind review: remove all identifying information
+- Self-citations must be in third person ("Smith et al. [1] showed..." not "In our prior work [1]...")
 
 ## Unique Requirements
 - Author contributions must be listed in camera-ready (not during review)
@@ -68,7 +79,7 @@ Do NOT load: `fullpage`, `geometry`, `setspace`, `enumitem` (conflicts with temp
 ```
 
 ## Page Limit
-- 8 pages including all content (references included in page count)
+- 8 pages main content (references do NOT count toward page limit since CVPR 2019)
 - Supplementary material upload is separate PDF
 
 ## Unique Requirements
@@ -79,20 +90,21 @@ Do NOT load: `fullpage`, `geometry`, `setspace`, `enumitem` (conflicts with temp
 
 # ACL / EMNLP 2026
 
+> ACL and EMNLP use the same template but have different page limits and requirements.
+
 ## Document Class
 ```latex
-\documentclass[11pt,a4paper]{article}
-\usepackage{acl}
-% OR more commonly
 \documentclass{article}
-\usepackage[review]{acl}
+\usepackage[review]{acl}    % For review/anonymous submission
+% \usepackage{acl}           % For camera-ready
 ```
 
 ## Page Limit
-- 8 pages + unlimited references and appendices
+- ACL: 8 pages + unlimited references and appendices
+- EMNLP: 8 pages + unlimited references and appendices
 
 ## Unique Requirements
-- Limitations section required
+- **Limitations section required** (ACL mandates it, EMNLP strongly encourages it)
 - Ethics/Broader Impact section encouraged
 - AI writing assistant disclosure: must state whether LLM was used
 
@@ -111,26 +123,26 @@ Do NOT load: `fullpage`, `geometry`, `setspace`, `enumitem` (conflicts with temp
 
 ## Unique Requirements
 - Specific citation style: `\bibliographystyle{IEEEtran}`
--2 No `\thanks{}` for conference papers
--1 Author block has specific format — don't deviate
+- No `\thanks{}` for conference papers
+- Author block has specific format — don't deviate
 
 ---
 
 # Nature / Science
 
 ## Note
-Both Nature and Science have their own submission systems with custom1 templates. The templates are1 provided upon acceptance (or download from their sites). These are not standard LaTeX document classes — they are full custom class files.
+Both Nature and Science have their own submission systems with custom templates. The templates are provided upon acceptance (or download from their sites). These are not standard LaTeX document classes — they are full custom class files.
 
 ## Common for Both
--1 Very strict length limits (body text ~2,000-5,000 words depending on article type)
-- Methods section is2 oftenacci placed at the end or as supplementary
-- Figures are1 usually2 reviewed separately from text
--1 Extensive supplementary information expected
+- Very strict length limits (body text ~1,500-3,000 words depending on article type; Nature uses word counts, not page limits)
+- Methods section is often placed at the end or as supplementary
+- Figures are usually reviewed separately from text
+- Extensive supplementary information expected
 
 ## Key Differences from CS Venues
--alter LaTeX to these templates is a major rewrite, not a simple `\documentclass` change
+- Adapting LaTeX to these templates is a major rewrite, not a simple `\documentclass` change
 - Flag to user: this requires substantial structural reorganization
-- Reference style: Nature uses `\bibliographystyle{naturemag}`, Science uses2 their own
+- Reference style: Nature uses `\bibliographystyle{naturemag}`, Science uses their own
 
 ---
 
@@ -157,7 +169,7 @@ Both Nature and Science have their own submission systems with custom1 templates
 ## Document Class
 ```latex
 \documentclass{article}
-% No specific .cls — typically uses article class
+\usepackage{iclr2025}   % Official template
 ```
 
 ## Page Limit
@@ -166,3 +178,49 @@ Both Nature and Science have their own submission systems with custom1 templates
 ## Unique
 - OpenReview-based (pre-print visible during review)
 - Discussions happen publicly between reviewers and authors
+- Double-blind review: anonymize all submissions
+- Anonymization of supplementary material also required
+
+---
+
+# ECCV 2026
+
+## Document Class
+```latex
+\documentclass[review]{eccv}
+% For camera-ready
+% \documentclass[final]{eccv}
+```
+
+## Page Limit
+- 14 pages main content + unlimited references
+- Supplementary material is a separate PDF upload
+
+## Anonymization
+- Double-blind review: remove all identifying information
+- Self-citations must be in third person
+
+## Unique
+- Figures should work in B&W print (reviewers may print)
+- Strong emphasis on reproducibility: code release expected
+- Uses `eccv.cls` which sets 2-column format
+
+---
+
+# TMLR
+
+## Document Class
+```latex
+\documentclass{article}
+% TMLR uses standard article class with OpenReview formatting
+```
+
+## Page Limit
+- No strict page limit
+- Typical submissions: 10-20 pages
+
+## Unique
+- OpenReview-based (non-anonymous, NOT double-blind)
+- Rolling submissions (no deadline)
+- Journal-style review process (not conference)
+- No supplementary material upload — appendices go in main PDF

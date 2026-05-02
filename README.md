@@ -3,7 +3,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="CI"></a>
   <img src="https://img.shields.io/badge/skills-5-blue" alt="skills">
-  <img src="https://img.shields.io/badge/tests-45%2F45%20passed-green" alt="tests">
+  <img src="https://img.shields.io/badge/tests-48%2F48%20passed-green" alt="tests">
   <img src="https://img.shields.io/badge/license-MIT-yellow" alt="license">
   <img src="https://img.shields.io/badge/platform-Claude%20Code%20%7C%20Cursor%20%7C%20Windsurf-purple" alt="platform">
 </p>
@@ -178,7 +178,7 @@ flowchart TB
     subgraph Skill["Skill Directory (e.g. latex-rescue/)"]
         SKILL["<b>SKILL.md</b><br/>AI playbook<br/>• Role definition<br/>• Trigger words<br/>• Phase-by-phase workflow<br/>• Guardrails"]
         README["<b>README.md</b><br/>Human docs<br/>• What it does<br/>• How to install<br/>• Usage examples"]
-        REFS["<b>references/</b><br/>Domain knowledge<br/>• Error catalog (85+ patterns)<br/>• Package conflicts (15 known)<br/>• Debug workflow<br/>• … 14 files total"]
+        REFS["<b>references/</b><br/>Domain knowledge<br/>• Error catalog (50+ patterns)<br/>• Package conflicts (15 known)<br/>• Debug workflow<br/>• … 11 files total"]
         AGENTS["<b>agents/</b><br/>Platform config<br/>• claude.yaml<br/>• openai.yaml"]
     end
 
@@ -249,12 +249,12 @@ sudo apt install texlive-latex-base texlive-latex-recommended texlive-latex-extr
 |---|---|
 | Skills | 5 |
 | Reference files | 18 |
-| Error patterns cataloged | 85+ |
-| Package conflicts tracked | 15 |
-| Venues supported | 9 |
+| Error patterns cataloged | 50+ |
+| Package conflicts tracked | 17 |
+| Venues supported | 11 |
 | Chinese author patterns | 16 categories |
-| Academic phrasebank sections | 9 |
-| Test coverage | 45/45 passing |
+| Academic phrasebank sections | 11 |
+| Test coverage | 48/48 passing |
 | CI | GitHub Actions on push/PR |
 
 ---

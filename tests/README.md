@@ -8,7 +8,7 @@ tests/
 ├── run_tests.sh                 # Automated test runner
 └── fixtures/
     ├── errors/
-    │   ├── broken_paper.tex     # Deliberately broken: 15+ errors
+    │   ├── broken_paper.tex     # Deliberately broken: 15 errors
     │   └── expected_fixed.tex   # What broken_paper.tex should look like after rescue
     ├── polish/
     │   └── chinglish_sample.tex # Sample with Chinese-author issues

@@ -2,24 +2,43 @@
 
 ## Typo Corrections (auto-fix)
 
+### Command Typos
+
 | Wrong | Correct |
 |-------|---------|
 | `\beginn{` | `\begin{` |
 | `\endd{` | `\end{` |
 | `\hlin` | `\hline` |
 | `\usepacakge` | `\usepackage` |
+| `\usepackge` | `\usepackage` |
 | `\documentclas` | `\documentclass` |
+| `\bibiographystyle` | `\bibliographystyle` |
 | `\bibliographystye` | `\bibliographystyle` |
 | `\textbfseries` | `\textbf` |
-| `\tabl` | `\table` |
 | `\labl` | `\label` |
 | `\capton` | `\caption` |
 | `\incluegraphics` | `\includegraphics` |
 | `\centeringg` | `\centering` |
-| `\tabluar` | `tabular` |
-| `\figre` | `figure` |
-| `\algin` | `align` |
-| `\itemz` | `itemize` |
+
+### Environment-Name Typos
+
+These appear inside `\begin{...}` or `\end{...}`. Fix the environment name:
+
+| Wrong | Correct | Note |
+|-------|---------|------|
+| `\tabel` | `\begin{table}` | `table` is an environment, not a command |
+| `\tabl` | `\begin{table}` | Same |
+| `\fig` | `\begin{figure}` | `figure` is an environment, not a command |
+| `\figre` | `\begin{figure}` | Same |
+| `\tabluar` | `\begin{tabular}` | Same |
+| `\algin` | `\begin{align}` | Same |
+| `\itemz` | `\begin{itemize}` | Same |
+
+### Context-Dependent Typos
+
+| Wrong | Correct | Note |
+|-------|---------|------|
+| `\refrence` | `\bibliography` or `\bibliographystyle` | `\reference` is not a LaTeX command; infer from context |
 
 ## Math Mode Errors
 
@@ -94,6 +113,21 @@
 |-------|---------|-----|
 | `Unicode char not set up` | Special character in source | Add `\usepackage[utf8]{inputenc}` or escape char |
 | `Invalid UTF-8 byte` | File encoding mismatch | Ensure file is UTF-8, not GB2312 |
+| `Package babel Error: Unknown option` | Wrong language/option for babel | Check babel documentation for supported options; ensure correct language name |
+
+## Auxiliary File Errors
+
+| Error | Pattern | Fix |
+|-------|---------|-----|
+| `File ended while scanning use of \@writefile` | Corrupted `.aux` file | Delete all `.aux`, `.toc`, `.lof`, `.lot` files and recompile |
+| `I'm not what you think you are` | Stale `.aux` from different document class | Delete `.aux` file and recompile twice |
+
+## Spacing Errors
+
+| Error | Pattern | Fix |
+|-------|---------|-----|
+| `There's no line here to end` | `\\` outside tabular/array or at start of paragraph | Remove `\\` or use `\par` instead |
+| `Missing \endgroup inserted` | Misplaced `\\` in moving argument | Use `\protect\\` or restructure |
 
 ## Font Errors
 
@@ -101,7 +135,7 @@
 |-------|---------|-----|
 | `Font ... not found` | Missing font package | Install font or use `\usepackage{lmodern}` |
 | `Command \texttildelow unavailable` | Wrong font encoding | Use `\usepackage[T1]{fontenc}` |
-| `Some font shapes were not available` | Missing bold/italic variant | Substition warning, usually harmless. Flag if important. |
+| `Some font shapes were not available` | Missing bold/italic variant | Substitution warning, usually harmless. Flag if important. |
 | `Corrupted NFSS tables` | Multiple fontenc calls | Only one `\usepackage[...]{fontenc}` allowed |
 
 ## Cross-Reference Errors

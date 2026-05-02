@@ -61,7 +61,7 @@ Some venues forbid certain packages or require specific ones:
 | CVPR | `geometry`, `setspace` | `cvpr` |
 | ACL | `fullpage` | `acl` |
 | AAAI | `fullpage`, `geometry`, `setspace` | `aaai25` |
-| ICLR | (no specific bans) | (article class, no custom .cls) |
+| ICLR | `geometry` not recommended | `iclr2025` (official .sty) |
 | IEEE | `fullpage`, `geometry` | `IEEEtran` |
 
 After the document class change is applied, recompile and fix any resulting errors using the `latex-rescue` workflow before continuing.
@@ -83,9 +83,9 @@ Abstract → Introduction → Related Work → Method → Experiments → Conclu
 
 **CVPR**:
 ```
-Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References
+Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References → [Appendices]
 ```
-No appendices in main paper (max 8 pages). Appendices go in supplementary.
+8 pages main content (references excluded since 2019). Appendices allowed after references and don't count toward page limit. Supplementary is a separate PDF upload.
 
 **ACL**:
 ```
@@ -102,9 +102,23 @@ Abstract → Introduction → Related Work → Method → Experiments → Conclu
 ```
 Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References
 ```
-No strict limit. OpenReview-based. No anonymous requirement after desk rejection.
+No strict limit. OpenReview-based. Double-blind review — anonymize submission.
+
+**ECCV**:
+```
+Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References
+```
+Uses `eccv.cls`. 14 pages + unlimited references. Supplementary is separate PDF.
+
+**TMLR** (Transactions on Machine Learning Research):
+```
+Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References
+```
+No page limit. Uses OpenReview. **Not double-blind** — authors are visible during review.
 
 If the current paper is missing a required section, flag it but don't invent content.
+
+**Anonymization reminder**: For double-blind venues, anonymize BOTH the main PDF and supplementary material. Check for identifying text in: author names, acknowledgments, self-references, file metadata, URLs pointing to personal pages.
 
 ### Phase 4: Page Limit Compliance
 
@@ -117,9 +131,9 @@ Check against venue limits:
 | CVPR | 8 pages | References |
 | ACL | 8 pages | References, appendices |
 | AAAI | 7 pages + 2 refs | 2 extra pages for references only |
-| ICLR | No limit | — (but reviewers stop reading at 10) |
-| Nature | ~6 pages (flexible) | Methods, references |
-| Science | ~6 pages (flexible) | Supplementary |
+| ICLR | No strict limit | — (but reviewers stop reading at 10) |
+| Nature | ~1,500-3,000 words (article type dependent) | Methods, references |
+| Science | ~2,000-5,000 words (article type dependent) | Supplementary |
 
 To check page count, compile with the target template and check:
 ```bash
@@ -138,7 +152,7 @@ Check and update citation style for target venue:
 
 | Venue | Default Style | BibTeX Engine | Notes |
 |-------|-------------|---------------|-------|
-| NeurIPS | `\bibliographystyle{plain}` | bibtex | Template handles this |
+| NeurIPS | Handled by `.cls` | bibtex | Do NOT manually set `\bibliographystyle`; template auto-configures |
 | ICML | `\bibliographystyle{icml2025}` | bibtex | Provided in template |
 | CVPR | `\bibliographystyle{ieee_fullname}` | bibtex | IEEE-style numeric |
 | ACL | `\bibliographystyle{acl_natbib}` | bibtex | Author-year with natbib |
@@ -151,37 +165,56 @@ When converting between styles:
 - **Author-year → Numeric**: All citations remain `\cite{key}` (standard), just update .bst.
 - **natbib-specific commands** (`\citep`, `\citet`, `\citealp`): Only works with natbib. Remove or convert if target venue doesn't support natbib.
 
+**Converting between bibtex and biblatex**:
+- **bibtex → biblatex**: Replace `\bibliographystyle{...}` + `\bibliography{refs}` with `\usepackage[backend=biber,style=...]{biblatex}` + `\addbibresource{refs.bib}` + `\printbibliography`. Change backend command from `bibtex` to `biber`.
+- **biblatex → bibtex**: Reverse the above. Remove `\usepackage{biblatex}`, add `\bibliographystyle{...}` + `\bibliography{refs}`. Change backend from `biber` to `bibtex`.
+- **Important**: `natbib` and `biblatex` are incompatible. If switching to biblatex, remove `\usepackage{natbib}` entirely.
+
 After updating, run the full compile cycle:
 ```bash
+# For bibtex projects:
 pdflatex main && bibtex main && pdflatex main && pdflatex main
+
+# For biblatex/biber projects:
+pdflatex main && biber main && pdflatex main && pdflatex main
 ```
 
 ### Phase 6: Pre-Submission Checklist
 
-After formatting, run a compliance check:
+After formatting, run a compliance check. The checklist items vary by venue:
 
-```bash
-=== Submission Readiness: NeurIPS 2026 ===
+**Universal checks (all venues)**:
+- [ ] Correct `\documentclass` and template loaded
+- [ ] Page count within limit
+- [ ] All figures included and referenced
+- [ ] Bibliography compiles without errors
+- [ ] No banned packages (`geometry`, `fullpage`, `setspace` — venue-dependent)
+- [ ] PDF metadata anonymized (check document properties for author name, remove `\pdfinfo` if present)
+- [ ] No identity-revealing text ("our prior work", self-citations in first person)
 
-Formatting:
-  [✓] Anonymous (no author names in PDF)
-  [✓] 9 pages (excluding references)
-  [✓] No page numbers
-  [✓] 10pt font
-  [✓] Single-column as per template
+**Double-blind venues (NeurIPS, ICML, CVPR, ACL, ICLR)**:
+- [ ] No author names in PDF
+- [ ] No acknowledgments section
+- [ ] No funding information
+- [ ] Supplementary material also anonymized
+- [ ] No page numbers in submission version
 
-  Content:
-  [✓] Broader Impact section present
-  [✓] Checklist included
-  [✓] No acknowledgments (double-blind)
-  [ ] WARNING: Line 234 references "our prior work [1]" — reveals identity
-  [ ] WARNING: Figure 3 has color — check if B&W printing works
+**NeurIPS-specific**:
+- [ ] Broader Impact section present
+- [ ] Checklist PDF uploaded separately
+- [ ] 9 pages main content
 
-  Files:
-  [✓] All figures included
-  [✓] Bibliography compiles without errors
-  [ ] Missing: camera-ready assets not required yet
-```
+**CVPR-specific**:
+- [ ] Figures readable in B&W print
+
+**ACL/EMNLP-specific**:
+- [ ] Limitations section present
+- [ ] AI writing assistant disclosure included
+
+**Supplementary material**:
+- [ ] Size within venue limit (NeurIPS: 100MB, ICML: similar)
+- [ ] Separate PDF upload where required (CVPR)
+- [ ] Anonymized if venue is double-blind
 
 ### Phase 7: Checklist Items
 

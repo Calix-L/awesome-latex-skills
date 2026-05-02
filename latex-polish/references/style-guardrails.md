@@ -131,6 +131,25 @@ Use the **exact same term** for the **exact same concept** throughout the paper.
 | "our model" / "our framework" / "our approach" | Pick ONE for each distinct thing |
 | "XNet" / "the proposed XNet" / "XNet model" | Pick ONE naming pattern |
 
+### Number Formatting
+
+- Spell out numbers below 10 in running text: "three baselines", "five datasets"
+- Use digits for 10 and above: "12 layers", "100 images"
+- Always use digits with units: "3 epochs", "5 Hz", "8 GPUs"
+- Always use digits in comparisons and with percentages: "3.2% improvement", "5× speedup"
+- Use comma grouping for 4+ digits: "10,000" (not "10000")
+- In LaTeX, use `\,` for thin-space grouping in math: `$10\,000$` or use `\num{10000}` from `siunitx`
+- Ranges use en-dash: "3--5 layers" (not "3-5")
+- Scientific notation: `$3.2 \times 10^{-4}$` (not "3.2e-4")
+
+### Hyphenation
+
+- Compound modifiers before a noun are hyphenated: "state-of-the-art method", "end-to-end training"
+- Same words after the noun are NOT hyphenated: "the method is state of the art"
+- Common CS terms: "multi-layer" or "multilayer" (pick one, be consistent)
+- "fine-tuned model" (adjective) vs "the model was fine-tuned" (verb)
+- LaTeX dashes: hyphen (`-`) for compound words, en-dash (`--`) for ranges, em-dash (`---`) for parenthetical breaks
+
 ### Abbreviation
 
 - Define on first use: `Large Language Models (LLMs)` → then use `LLMs` consistently
@@ -148,3 +167,5 @@ Before marking polishing as done, check:
 4. Is the same term used for the same concept everywhere?
 5. Did you remove "It is worth noting that", "Interestingly", "As a matter of fact"?
 6. Are you hedging claims where appropriate but not hedging your own results?
+7. Are numbers formatted consistently? (digits vs spelled out, comma grouping, ranges with en-dash)
+8. Are compound modifiers hyphenated when attributive, unhyphenated when predicative?

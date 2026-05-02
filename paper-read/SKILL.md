@@ -38,15 +38,24 @@ Activate when the user:
 
 ### Phase 1: Acquire the Paper
 
-1. **If given an arXiv link** (e.g. `arxiv.org/abs/2307.xxxxx`):
-   - Fetch abstract + metadata via `curl -sL https://arxiv.org/abs/XXXX.XXXX`
-   - Fetch PDF via `curl -sL https://arxiv.org/pdf/XXXX.XXXX.pdf -o /tmp/paper.pdf`
+1. **If given an arXiv link**:
+   - New-format IDs (post-2007): `YYMM.NNNNN` (e.g. `2307.12345`) — use `https://arxiv.org/abs/2307.12345`
+   - Old-format IDs (pre-2007): `subject/YYMMNNN` (e.g. `cs/0612093`) — use `https://arxiv.org/abs/cs/0612093`
+   - Fetch abstract + metadata: `curl -sL https://arxiv.org/abs/<ID>`
+   - Fetch PDF: `curl -sL https://arxiv.org/pdf/<ID>.pdf -o /tmp/paper.pdf`
    - Extract text from PDF: `pdftotext /tmp/paper.pdf /tmp/paper.txt`
 
 2. **If given a PDF**:
    - Extract text: `pdftotext paper.pdf /tmp/paper.txt`
 
-3. **If `pdftotext` not available**: Ask user to provide a text version or install `poppler-utils`.
+3. **If `pdftotext` not available**:
+   - As a fallback, the agent may read the PDF directly as a multimodal document (if supported)
+   - Ask the user to install `poppler-utils` or provide a text version
+
+4. **If given a DOI or journal URL (paywalled)**:
+   - Check for an arXiv preprint: search `https://arxiv.org/search/?query=<title>` or check Semantic Scholar for an open-access version
+   - If no open version exists, ask the user to supply a PDF
+   - Many authors upload preprints to their personal pages or institutional repositories
 
 ### Phase 2: Skim (always done first, even for deep reads)
 

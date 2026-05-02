@@ -6,10 +6,21 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Install TeX Live
+        run: sudo apt-get update && sudo apt-get install -y texlive-latex-base texlive-latex-recommended texlive-latex-extra
+      - name: Validate YAML configs
+        run: |
+          sudo apt-get install -y python3-yaml
+          for f in latex-rescue/agents/*.yaml latex-polish/agents/*.yaml latex-fmt/agents/*.yaml paper-read/agents/*.yaml; do
+            python3 -c "import yaml; yaml.safe_load(open('$f'))" || (echo "Invalid YAML: $f" && exit 1)
+          done
       - name: Run test suite
         run: bash tests/run_tests.sh

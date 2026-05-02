@@ -48,10 +48,15 @@ If the user pastes an error message directly instead of pointing to a project di
    ```
    (Replace `pdflatex` with `xelatex` or `lualatex` if detected in step 2.)
 
-4. If the project uses `bibtex` or `biber`, run that too:
+4. If the project uses a bibliography backend, run that too:
    ```bash
+   # For bibtex (traditional):
    bibtex main 2>&1 | tee -a build.log
+
+   # For biber (biblatex projects):
+   biber main 2>&1 | tee -a build.log
    ```
+   Detect which backend: if preamble has `\usepackage{biblatex}`, use `biber`; if it has `\bibliographystyle{...}`, use `bibtex`.
 
 ### Phase 2: Parse and Classify Errors
 
@@ -94,16 +99,30 @@ Fix these immediately without consulting an LLM:
 \documentclas  → \documentclass
 \bibiographystyle → \bibliographystyle
 \bibliographystye → \bibliographystyle
-\citep         → \cite  (natbib)
-\citet         → \cite  (natbib)
-\bfseries      → \textbf (if used as command not declaration)
-\it            → \textit
-\tabel         → \table
-\fig           → \figure
-\refrence      → \reference
-\labl          → \label
-\capton        → \caption
 \textbfseries  → \textbf
+```
+
+**Deprecated command → modern equivalent** (these compile but produce warnings or have wrong scoping):
+```
+\bfseries{...} → \textbf{...} (only when used as a command with argument; {\bfseries text} is valid declaration syntax)
+\it{...}       → \textit{...} (same: \it is a valid but deprecated declaration; \textit{} is the modern command form)
+```
+
+**Environment-name typos** — these appear in `\begin{...}` or `\end{...}`. Fix the name inside the braces:
+```
+\tabel   → \begin{table} (table is an environment, not a command)
+\tabl    → \begin{table}
+\fig     → \begin{figure} (figure is an environment, not a command)
+\figre   → \begin{figure}
+\algin   → \begin{align}
+\itemz   → \begin{itemize}
+```
+
+**Other command typos**:
+```
+\refrence  → \bibliography or \bibliographystyle (context-dependent; \reference is not a LaTeX command)
+\labl      → \label
+\capton    → \caption
 ```
 
 **Missing closing brackets/braces** — count open/close pairs:
@@ -129,7 +148,7 @@ x_i without $   → $x_i$
 
 #### 3.2 Common Error-Specific Fixes
 
-For errors with known fix patterns, consult `references/error-catalog.md`. This catalog contains 80+ common LaTeX errors with specific fix instructions. Always check the catalog before attempting a generic fix.
+For errors with known fix patterns, consult `references/error-catalog.md`. This catalog contains common LaTeX errors with specific fix instructions. Always check the catalog before attempting a generic fix.
 
 Key patterns to know without searching:
 
@@ -158,16 +177,39 @@ For errors not covered by the catalog:
 
 ### Phase 4: Verify
 
-After each batch of fixes:
+After each batch of fixes, run a **full compile cycle** to ensure cross-references and citations resolve:
 
 ```bash
-pdflatex -interaction=nonstopmode -file-line-error main.tex 2>&1 | tail -20
+# If project uses BibTeX:
+pdflatex -interaction=nonstopmode -file-line-error main.tex && \
+bibtex main && \
+pdflatex -interaction=nonstopmode -file-line-error main.tex && \
+pdflatex -interaction=nonstopmode -file-line-error main.tex
+
+# If project uses no bibliography, a single pass suffices for checking errors:
+pdflatex -interaction=nonstopmode -file-line-error main.tex
 ```
 
+**Alternative**: If `latexmk` is installed, it handles multi-pass automatically:
+```bash
+latexmk -pdf -interaction=nonstopmode main.tex
+```
+
+**Checking results**:
+- Extract errors: `grep '^!' build.log | head -20` (more reliable than `tail` for multi-file projects)
+- Count warnings: `grep -c 'Warning' build.log`
+- Check for undefined references: `grep 'undefined' build.log`
+
+**Decision**:
 - If **clean**: report all fixes applied, show final status
 - If **fewer errors**: continue fixing remaining errors
 - If **same number of errors**: the fix didn't work. **Do NOT re-apply the same fix.** Consult `references/debug-workflow.md` for escalation strategies.
 - If **more errors**: the fix introduced regressions. **Roll back the fix** and try a different approach.
+
+**Common false positives after a single-pass compile**:
+- `Reference 'X' undefined` — usually resolves after a second `pdflatex` run
+- `Citation 'X' undefined` — run `bibtex` then recompile twice
+- `Label multiply defined` — this is a real error, not a false positive
 
 ### Phase 5: Report
 
@@ -234,6 +276,6 @@ Switching column layout often breaks floats:
 ## Reference Files
 
 When you encounter a specific error class, read the corresponding reference:
-- **`references/error-catalog.md`** — catalog of 80+ common LaTeX errors with fixes
+- **`references/error-catalog.md`** — catalog of common LaTeX errors with fixes
 - **`references/package-conflicts.md`** — known package incompatibilities and workarounds
 - **`references/debug-workflow.md`** — systematic debugging for stubborn compilation chains

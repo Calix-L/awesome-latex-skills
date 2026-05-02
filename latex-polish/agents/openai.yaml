@@ -1,13 +1,14 @@
 name: latex-polish
 description: Polish academic writing in LaTeX files
 type: skill
-skill_file: SKILL.md
+skill_file: latex-polish/SKILL.md
 platform: openai
-model: gpt-5, gpt-5.3-codex
+model: gpt-4.1
 auto_activate:
-  triggers:
+  - triggers:
     - "polish.*paper"
     - "润色"
     - "improve.*writing"
     - "fix.*grammar"
+    - "学术写作"
     - "chinglish"
