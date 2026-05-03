@@ -100,6 +100,22 @@ These are commonly banned by venue templates:
 - Manual page breaks in submission version
 - Color text (use `\textcolor` only for figures, not body text)
 
+## Per-Venue Quick Reference
+
+| Venue | Banned Packages | Required Sections | Citation Style |
+|---|---|---|---|
+| NeurIPS | geometry, fullpage, setspace | Broader Impact | Handled by .cls |
+| ICML | geometry, fullpage | — | icml2025.bst |
+| CVPR | geometry, setspace | — | ieee_fullname.bst |
+| ACL | fullpage | Limitations | acl_natbib.bst |
+| AAAI | geometry, fullpage, setspace | — | aaai25.bst |
+| ICLR | geometry (discouraged) | — | Author's choice |
+| IEEE | geometry, fullpage | — | IEEEtran.bst |
+| ECCV | — | — | splncs04.bst |
+| TMLR | — | — | Author's choice |
+| Nature | — | Methods, Data Availability | Nature style |
+| Science | — | Methods, References | Science style |
+
 ## Pre-Submission Checks
 
 Run these checks before submitting:

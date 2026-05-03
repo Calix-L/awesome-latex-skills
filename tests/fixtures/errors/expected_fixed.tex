@@ -33,7 +33,7 @@ The parameters $\alpha$ and $\beta$ control the shape of the distribution.
 We can write $x_i$ to denote the $i$-th observation, and $x^2$ for squared values.
 
 \begin{equation}
-  x^{ab} = \sum_{i=1}^{n} y_i^2
+  x^{ab} = \sum_{i=1}^{n} y_i^2 % FLAGGED: ambiguous fix — could be {x^a}^b instead of x^{ab}
 \end{equation}
 
 \section{Bracket Errors}
@@ -57,9 +57,33 @@ This text has an extra closing brace.
   \end{tabular}
 \end{table}
 
+\section{Table Errors}
+
+\begin{tabular}{ll}
+  A & B \\ % FLAGGED: row has 3 columns but tabular has 2 — removed extra &
+  D & E \\
+\end{tabular}
+
+Some text before the table.
+
+% FLAGGED: removed \hline outside tabular environment
+
+\section{Spacing Errors}
+
+This is a paragraph with a bad line break.
+This continues after the break.
+
+\section{Label Errors}
+
+\label{sec:intro}
+
+\section{Duplicate Label}
+\label{sec:intro-dup} % FLAGGED: was duplicate \label{sec:intro} — renamed to avoid conflict
+
 \section{Reference Errors}
 
-As shown in Section 2, our method outperforms prior work. The reference was manually corrected.
+As shown in Section~\ref{sec:missing}, our method outperforms prior work. % FLAGGED: \ref{sec:missing} has no matching \label — verify correct section number
+% FLAGGED: removed \cite{undefined2024} — key not found in .bib file
 
 \begin{figure}
   \centering

@@ -202,9 +202,10 @@ latexmk -pdf -interaction=nonstopmode main.tex
 
 **Decision**:
 - If **clean**: report all fixes applied, show final status
-- If **fewer errors**: continue fixing remaining errors
+- If **fewer errors**: continue fixing remaining errors (max 3 fix cycles total)
 - If **same number of errors**: the fix didn't work. **Do NOT re-apply the same fix.** Consult `references/debug-workflow.md` for escalation strategies.
 - If **more errors**: the fix introduced regressions. **Roll back the fix** and try a different approach.
+- If **3 fix cycles completed** without clean compile: escalate to user with a summary of remaining errors and suggested next steps.
 
 **Common false positives after a single-pass compile**:
 - `Reference 'X' undefined` — usually resolves after a second `pdflatex` run
@@ -249,6 +250,8 @@ Compilation: ✓ clean / 0 errors / 3 warnings
 **WHEN IN DOUBT:**
 - Flag the error for user review rather than guessing
 - For `undefined-ref` errors, do NOT invent reference keys. Tell the user which refs are missing.
+- NEVER delete blocks of content to eliminate errors. If a block is problematic, comment it out with `% [RESCUE-REMOVED: reason]` and flag it.
+- NEVER edit `.sty`, `.cls`, or `.bst` files shipped with the template. Only edit user `.tex` files.
 
 ## Advanced Scenarios
 

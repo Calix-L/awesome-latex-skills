@@ -64,6 +64,33 @@ This text has an extra closing brace.}
   \end{table}
   \end{tabular}
 
+\section{Table Errors}
+
+% ERROR: too many alignment tabs
+\begin{tabular}{ll}
+  A & B & C \\
+  D & E \\
+\end{tabular}
+
+% ERROR: misplaced \hline outside tabular
+Some text before the table.
+
+\hline
+
+\section{Spacing Errors}
+
+% ERROR: misplaced \\ outside tabular/equation
+This is a paragraph with a bad line break.\\
+This continues after the break.
+
+\section{Label Errors}
+
+% ERROR: multiply defined label
+\label{sec:intro}
+
+\section{Duplicate Label}
+\label{sec:intro}
+
 \section{Reference Errors}
 
 % ERROR: undefined reference and citation

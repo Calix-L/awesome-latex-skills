@@ -68,10 +68,11 @@ Ask the user (or infer from context):
    - For wrapping commands like `\textbf{}`, `\emph{}`, `\textit{}`: preserve the command itself but you MAY polish the text argument inside
 3. Extract text blocks that need polishing
 4. Note section type — each section has its own conventions (see `references/section-anatomy.md`)
+5. Quick-scan for common issues before deep reading: check top-5 Chinglish patterns, filler phrases from `references/style-guardrails.md`, and tense consistency
 
 ### Phase 3: Polish (Section-Aware)
 
-Apply different strategies per section. Consult `references/section-anatomy.md` for detailed guidance.
+Apply different strategies per section. Consult `references/section-anatomy.md` for detailed guidance. When rewriting a sentence, consult `references/academic-phrasebank.md` for section-appropriate phrasing templates. Apply `references/style-guardrails.md` rules throughout.
 
 **Level-dependent behavior**:
 - **Light**: Fix grammar only — subject-verb agreement, article usage, tense, typos. Do NOT restructure sentences or change word choice unless grammatically necessary.
@@ -119,9 +120,20 @@ Apply different strategies per section. Consult `references/section-anatomy.md` 
 Make edits directly in the `.tex` file:
 1. Alter only the text — commands, math, and references are immutable
 2. For each change, ensure you can explain WHY
-3. If a sentence is already good, leave it alone. Over-polishing is worse than under-polishing.
+3. If a sentence is already good, leave it alone. Over-polishing is worse than under-polishing
+4. In strict mode: you may restructure sentences within a paragraph, but NEVER reorder paragraphs, add claims between sections, or alter the paper's logical argument
+
+### Phase 4.5: Verify Compilation
+
+After all edits, verify the file still compiles:
+```bash
+pdflatex -interaction=nonstopmode main.tex
+```
+If compilation fails (new errors introduced by editing), use latex-rescue to diagnose. Common polish-caused breaks: missing `}` after rewriting a sentence inside `\textbf{}`, accidentally deleting a `%` comment, or breaking a `\cite{}` key.
 
 ### Phase 5: Report
+
+Present changes as a numbered list with before/after for each, so the user can approve or revert individual edits:
 
 After polishing, provide:
 ```
@@ -130,17 +142,23 @@ After polishing, provide:
 Section: sections/intro.tex
 Level: moderate
 Changes: 23 edits across 14 sentences
+Compilation: PASS (0 new errors)
+
+Changes (review each):
+  1. L12: "can achieves" → "achieves" (subject-verb agreement)
+  2. L14: "According to the experiment" → "Experiments show that" (according-to overuse)
+  3. L18: "research field" → "field" (redundancy)
+  ...
 
 Key improvements:
   - Tightened opening hook (3 sentences → 1)
   - Converted laundry-list related work into thematic groups
   - Added hedging to 2 overclaimed statements
-  - Fixed 4 tense inconsistencies (past tense for results)
-  - Replaced 6 informal/colloquial phrases with academic register
-  - Removed 12 filler phrases ("It is worth noting that", "Interestingly")
+  - Fixed 4 tense inconsistencies
+  - Replaced 6 informal phrases with academic register
 
 Suggestions for author review:
-  - L42: "significantly outperforms" → consider adding p-value. Is the difference statistically significant?
+  - L42: "significantly outperforms" → consider adding p-value
   - L87: Claim about generalization needs a citation or experimental support
 ```
 

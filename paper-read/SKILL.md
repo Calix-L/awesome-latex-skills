@@ -181,6 +181,7 @@ After analysis, output a clean report:
 - Invent missing details (if the paper doesn't report architecture details, say so)
 - Call a paper "excellent" or "groundbreaking" — describe what it does and let the evidence speak
 - Skip the critical appraisal step even if the paper is from a famous lab
+- Fill in content that you cannot read from the paper. If text extraction failed for a section, say "Section X was not readable from the PDF" rather than inferring its content
 
 **ALWAYS:**
 - Distinguish between what the paper claims and what it actually proves

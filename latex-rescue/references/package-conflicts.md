@@ -36,6 +36,54 @@ These pairs are sometimes assumed to conflict but actually work together:
 4. **Check the .log for warnings**: packages print warnings about conflicts. Grep for `Package.*Warning` in the log.
 5. **Use `\PassOptionsToPackage`** to resolve option clashes without changing package load order.
 
+## Canonical Preamble Load Order
+
+Follow this order to prevent 80%+ of package conflicts:
+
+```latex
+% 1. Document class
+\documentclass[...]{...}
+
+% 2. Global options (before any package)
+\PassOptionsToPackage{option}{package}  % if needed
+
+% 3. Encoding and fonts (pdflatex only; skip for XeLaTeX/LuaLaTeX)
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+% 4. Language
+\usepackage[english]{babel}
+
+% 5. Math
+\usepackage{mathtools}  % auto-loads amsmath
+
+% 6. Tables and figures
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{subcaption}  % not subfigure
+
+% 7. Algorithms
+\usepackage{algorithm2e}  % or algorithmic — not both
+
+% 8. Other domain packages
+\usepackage{siunitx}
+\usepackage{listings}  % or minted — not both
+
+% 9. Typography and layout
+\usepackage{microtype}
+\usepackage{xcolor}  % not color
+
+% 10. Cross-referencing (hyperref BEFORE cleveref)
+\usepackage{hyperref}
+\usepackage{cleveref}
+
+% 11. Bibliography (choose ONE system)
+% Option A: natbib + bibtex
+\usepackage{natbib}
+% Option B: biblatex + biber
+% \usepackage[backend=biber,style=numeric]{biblatex}
+```
+
 ## Conflict Detection Workflow
 
 When encountering a `Command already defined` or `Option clash` error:

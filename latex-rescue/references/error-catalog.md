@@ -1,5 +1,29 @@
 # LaTeX Error Catalog
 
+## Error Message Quick-Map
+
+Look up the log message here to jump to the right section:
+
+| Log Message Substring | Category | Section Below |
+|---|---|---|
+| `Undefined control sequence` | Typo or missing package | Command Typos / Context-Dependent Typos |
+| `Missing $ inserted` | Math mode | Math Mode Errors |
+| `Missing } inserted` / `Extra }` | Braces | Bracket/Brace Errors |
+| `begin{...} ended by \end{...}` | Environment mismatch | Environment Errors |
+| `Missing \endcsname inserted` | Broken label/key | Syntax Errors |
+| `Runaway argument` | Fragile command in moving arg | Syntax Errors |
+| `Paragraph ended before ... was complete` | Missing brace or fragile cmd | Syntax Errors |
+| `Illegal parameter number` | Wrong `\newcommand` definition | Syntax Errors |
+| `Option clash` | Package loaded twice with diff options | Package Errors |
+| `Command already defined` | Package conflict | Package Errors |
+| `File ... not found` | Missing package or file | Package Errors |
+| `LaTeX Warning: Citation ... undefined` | Missing .bib entry | Citation Errors |
+| `LaTeX Warning: Reference ... undefined` | Missing \label | Reference Errors |
+| `Cannot determine size of graphic` | Missing image file | Float Errors |
+| `Too many }'s` / `Too few }'s` | Brace mismatch | Bracket/Brace Errors |
+| `Misplaced \hline` | Table formatting | Table Errors |
+| `Extra alignment tab` | Too many `&` in table row | Table Errors |
+
 ## Typo Corrections (auto-fix)
 
 ### Command Typos

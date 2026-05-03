@@ -45,7 +45,7 @@ Identify:
 \documentclass{neurips_2025}
 ```
 
-Load the right template config from `references/templates/<venue-name>.md` which contains:
+Load the right template config from `references/templates/venue-guide.md` which contains:
 - Exact `\documentclass` with options
 - Required packages
 - Venue-specific commands (`\usepackage[review]{...}` variations)
@@ -140,11 +140,12 @@ To check page count, compile with the target template and check:
 pdflatex main.tex && pdflatex main.tex
 ```
 
-If over the limit, suggest cuts:
-- Move verbose derivations to appendix
-- Reduce figure sizes
-- Condense related work paragraphs
-- Trim repetitive experimental descriptions
+If over the limit, suggest cuts in this priority order:
+1. Move proofs and derivations to appendix
+2. Reduce figure sizes to 0.8\textwidth
+3. Condense related work paragraphs
+4. Move supplementary experiments to appendix
+5. Trim repetitive experimental descriptions
 
 ### Phase 5: Citation and Bibliography Style
 
@@ -179,52 +180,66 @@ pdflatex main && bibtex main && pdflatex main && pdflatex main
 pdflatex main && biber main && pdflatex main && pdflatex main
 ```
 
-### Phase 6: Pre-Submission Checklist
+### Phase 6: Anonymization (double-blind venues only)
 
-After formatting, run a compliance check. The checklist items vary by venue:
+For NeurIPS, ICML, CVPR, ACL, ICLR, and other double-blind venues:
 
-**Universal checks (all venues)**:
+1. Replace `\author{...}` with `\author{Anonymous}`
+2. Comment out `\section*{Acknowledgments}` and its content
+3. Replace self-citing first-person text: "In our prior work [1]" → "Prior work [1]" or "[1]"
+4. Remove funding information
+5. Strip PDF metadata: `exiftool -all= paper.pdf`
+6. Check for identity-revealing URLs (personal GitHub, lab pages)
+
+### Phase 7: Pre-Submission Checklist
+
+After formatting, run a compliance check:
+
+**Universal (all venues)**:
 - [ ] Correct `\documentclass` and template loaded
 - [ ] Page count within limit
 - [ ] All figures included and referenced
 - [ ] Bibliography compiles without errors
 - [ ] No banned packages (`geometry`, `fullpage`, `setspace` — venue-dependent)
-- [ ] PDF metadata anonymized (check document properties for author name, remove `\pdfinfo` if present)
-- [ ] No identity-revealing text ("our prior work", self-citations in first person)
+- [ ] No identity-revealing text
 
-**Double-blind venues (NeurIPS, ICML, CVPR, ACL, ICLR)**:
-- [ ] No author names in PDF
-- [ ] No acknowledgments section
-- [ ] No funding information
-- [ ] Supplementary material also anonymized
-- [ ] No page numbers in submission version
+**Double-blind venues**: all items from Phase 6 verified
 
-**NeurIPS-specific**:
-- [ ] Broader Impact section present
-- [ ] Checklist PDF uploaded separately
-- [ ] 9 pages main content
+**NeurIPS-specific**: Broader Impact section present, checklist PDF uploaded separately
+**CVPR-specific**: Figures readable in B&W print
+**ACL/EMNLP-specific**: Limitations section present, AI writing assistant disclosure
 
-**CVPR-specific**:
-- [ ] Figures readable in B&W print
-
-**ACL/EMNLP-specific**:
-- [ ] Limitations section present
-- [ ] AI writing assistant disclosure included
-
-**Supplementary material**:
-- [ ] Size within venue limit (NeurIPS: 100MB, ICML: similar)
-- [ ] Separate PDF upload where required (CVPR)
-- [ ] Anonymized if venue is double-blind
-
-### Phase 7: Checklist Items
-
-For venues requiring checklists (NeurIPS, ACL):
-Reproduce the checklist questions and help the author answer them:
-
+For venues requiring checklists (NeurIPS, ACL), help the author answer:
 1. **Compute resources**: "We trained on 4x A100 GPUs for 12 hours..."
 2. **Data licensing**: "We use publicly available datasets..."
 3. **Ethical considerations**: "Our method could potentially..."
 4. **Limitations**: "Our approach assumes..."
+
+### Phase 8: Report
+
+```
+=== Format Report ===
+
+Source: CVPR (cvpr.cls)
+Target: NeurIPS 2025 (neurips_2025)
+Status: READY FOR REVIEW
+
+Template changes applied:
+  - \documentclass{cvpr} → \documentclass{neurips_2025}
+  - Removed: geometry, setspace
+  - Added: cleveref (after hyperref)
+  - Bibliography: ieee_fullname → handled by .cls
+
+Sections flagged (author must add content):
+  - Broader Impact (required by NeurIPS, currently missing)
+
+Anonymization: 3 items cleaned (author names, acknowledgments, self-citation)
+
+Page count: 8/9 pages (within limit)
+Citation style: updated ✓
+Compliance checklist: 11/12 pass
+  ⚠ Missing: Broader Impact section
+```
 
 ## Guardrails
 
