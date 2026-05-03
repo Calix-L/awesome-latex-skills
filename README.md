@@ -22,13 +22,13 @@
 
 ## Skills
 
-| Skill | What it does |
-|---|---|
-| :ambulance: **[latex-rescue](./latex-rescue/SKILL.md)** | Fix compilation errors — 50+ error patterns, package conflicts, environment mismatches |
-| :pencil2: **[latex-polish](./latex-polish/SKILL.md)** | Polish academic writing — 16 Chinglish categories, phrasebank by section, 3 intensity levels |
-| :repeat: **[latex-fmt](./latex-fmt/SKILL.md)** | Reformat for 11 venues — NeurIPS, ICML, CVPR, ACL, ICLR, ECCV, AAAI, TMLR, IEEE, Nature, Science |
-| :book: **[paper-read](./paper-read/SKILL.md)** | Read & analyze papers — 3 depth levels, critical appraisal, assumption auditing |
-| :wrench: **[pdf2tex](./pdf2tex/SKILL.md)** | Rebuild LaTeX from PDF — 7-phase pipeline, math & table reconstruction |
+| Skill | What it does | Invoke |
+|---|---|---|
+| :ambulance: **[latex-rescue](./latex-rescue/SKILL.md)** | Fix compilation errors — 50+ error patterns, package conflicts, environment mismatches | `/latex-rescue` |
+| :pencil2: **[latex-polish](./latex-polish/SKILL.md)** | Polish academic writing — 16 Chinglish categories, phrasebank by section, 3 intensity levels | `/latex-polish` |
+| :repeat: **[latex-fmt](./latex-fmt/SKILL.md)** | Reformat for 11 venues — NeurIPS, ICML, CVPR, ACL, ICLR, ECCV, AAAI, TMLR, IEEE, Nature, Science | `/latex-fmt` |
+| :book: **[paper-read](./paper-read/SKILL.md)** | Read & analyze papers — 3 depth levels, critical appraisal, assumption auditing | `/paper-read` |
+| :wrench: **[pdf2tex](./pdf2tex/SKILL.md)** | Rebuild LaTeX from PDF — 7-phase pipeline, math & table reconstruction | `/pdf2tex` |
 
 ---
 
@@ -79,12 +79,13 @@
 git clone https://github.com/Calix-L/awesome-latex-skills.git
 ```
 
-**Claude Code** — copy a skill to `~/.claude/skills/`, then type `/latex-rescue`:
+**Claude Code** — copy a skill to `~/.claude/skills/`, then invoke it:
 ```bash
 cp -r awesome-latex-skills/latex-rescue ~/.claude/skills/
+# Now type /latex-rescue in Claude Code
 ```
 
-**Any agent** — tell it to read the SKILL.md file:
+**Any agent** — point it to the SKILL.md:
 ```
 Read awesome-latex-skills/latex-rescue/SKILL.md and follow the workflow.
 ```

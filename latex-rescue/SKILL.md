@@ -31,7 +31,7 @@ If the user pastes an error message directly instead of pointing to a project di
 1. Extract the error type from the message
 2. Identify the offending file/line if present
 3. Ask the user to point you to the project directory for context
-4. Proceed to Phase 1
+4. Proceed to Phase 2
 
 ### Phase 2: Gather Information
 
@@ -85,7 +85,7 @@ Classify each error into one of these categories:
 
 Apply fixes in this order — easy wins first, then escalate.
 
-#### 3.1 Direct Fixes (no LLM needed)
+#### 4.1 Direct Fixes (no LLM needed)
 
 Fix these immediately without consulting an LLM:
 
@@ -146,7 +146,7 @@ x_i without $   → $x_i$
 \end{table*}   → \end{table}
 ```
 
-#### 3.2 Common Error-Specific Fixes
+#### 4.2 Common Error-Specific Fixes
 
 For errors with known fix patterns, consult `references/error-catalog.md`. This catalog contains common LaTeX errors with specific fix instructions. Always check the catalog before attempting a generic fix.
 
@@ -167,7 +167,7 @@ Fix: flag the offending line and suggest moving it after `\begin{document}`.
 - Typo in the name
 - Fix: search for `foo` in `references/package-conflicts.md` to find which package provides it.
 
-#### 3.3 Complex Fixes (use LLM judgment)
+#### 4.3 Complex Fixes (use LLM judgment)
 
 For errors not covered by the catalog:
 1. Read 20 lines of context around the error
