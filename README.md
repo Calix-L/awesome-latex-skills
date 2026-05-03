@@ -10,6 +10,7 @@
 
 <a href="https://github.com/Calix-L/awesome-latex-skills/actions"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="CI"></a>
 <img src="https://img.shields.io/badge/skills-5-blue" alt="5 skills">
+<img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=social" alt="Stars">
 <img src="https://img.shields.io/badge/license-MIT-yellow" alt="MIT">
 
 </div>
@@ -24,7 +25,7 @@
 
 | | Skill | What it does |
 |---|---|---|
-| :ambulance: | **[latex-rescue](./latex-rescue/SKILL.md)** | Fix compilation errors — 50+ patterns, package conflicts, environment mismatches |
+| :ambulance: | **[latex-rescue](./latex-rescue/SKILL.md)** | Fix compilation errors — 80+ patterns, package conflicts, environment mismatches |
 | :pencil2: | **[latex-polish](./latex-polish/SKILL.md)** | Polish academic writing — 16 Chinglish categories, phrasebank, 3 intensity levels |
 | :repeat: | **[latex-fmt](./latex-fmt/SKILL.md)** | Reformat for 11 venues — NeurIPS, ICML, CVPR, ACL, ICLR, ECCV, AAAI, TMLR, IEEE, Nature, Science |
 | :book: | **[paper-read](./paper-read/SKILL.md)** | Read & analyze papers — 3 depth levels, critical appraisal, assumption auditing |
@@ -35,7 +36,7 @@
 
 | Metric | Count |
 |---|---|
-| Error patterns cataloged | 50+ |
+| Error patterns cataloged | 80+ |
 | Package conflicts documented | 14 known pairs |
 | Chinglish pattern categories | 16 |
 | Phrasebank sentence templates | 100+ |

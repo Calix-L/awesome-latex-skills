@@ -194,6 +194,19 @@ test_paper_read_coverage() {
             warn "Critical appraisal may be missing: $section"
         fi
     done
+
+    local fixture="$FIXTURES/read/sample_paper.md"
+    if [ -f "$fixture" ]; then
+        pass "paper-read has test fixture"
+        local sections_in_fixture=$(grep -c '^## ' "$fixture" 2>/dev/null || echo "0")
+        if [ "$sections_in_fixture" -ge 3 ]; then
+            pass "paper-read fixture has $sections_in_fixture sections"
+        else
+            warn "paper-read fixture has only $sections_in_fixture sections"
+        fi
+    else
+        warn "paper-read has no test fixture"
+    fi
 }
 
 test_pdf2tex_coverage() {

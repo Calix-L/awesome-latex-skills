@@ -6,10 +6,11 @@ Look up the log message here to jump to the right section:
 
 | Log Message Substring | Category | Section Below |
 |---|---|---|
-| `Undefined control sequence` | Typo or missing package | Command Typos / Context-Dependent Typos |
+| `Undefined control sequence` | Typo or missing package | Command Typos / Package → Command Mapping |
 | `Missing $ inserted` | Math mode | Math Mode Errors |
 | `Missing } inserted` / `Extra }` | Braces | Bracket/Brace Errors |
 | `begin{...} ended by \end{...}` | Environment mismatch | Environment Errors |
+| `Environment ... undefined` | Missing package | Environment → Package Mapping |
 | `Missing \endcsname inserted` | Broken label/key | Syntax Errors |
 | `Runaway argument` | Fragile command in moving arg | Syntax Errors |
 | `Paragraph ended before ... was complete` | Missing brace or fragile cmd | Syntax Errors |
@@ -192,3 +193,59 @@ If an error is not in this catalog:
 2. Understand the semantic intent
 3. Apply minimal fix
 4. If fails → consult `debug-workflow.md`
+
+## Package → Command Mapping
+
+When `Undefined control sequence \X` appears and it's not a typo, the command likely comes from a missing package:
+
+| Command | Package | Notes |
+|---------|---------|-------|
+| `\hl{}` | `soul` | Highlight text |
+| `\ul{}` | `soul` | Underline text |
+| `\st{}` | `soul` | Strikethrough text |
+| `\cmark` / `\xmark` | `pifont` + custom def | Use `\ding{51}` / `\ding{55}` |
+| `\checkmark` | `amssymb` | Already loaded in most math papers |
+| `\mathbb{}` | `amssymb` | Blackboard bold (R, N, Z) |
+| `\bm{}` | `bm` | Bold math |
+| `\cref{}` | `cleveref` | Smart cross-references |
+| `\autoref{}` | `hyperref` | Auto-typed references |
+| `\subcaption{}` | `subcaption` | Sub-figure captions |
+| `\subfloat{}` | `subfig` | Alternative sub-figure (older) |
+| `\algorithmic` | `algorithmic` | Pseudocode |
+| `\SetAlgoLined` | `algorithm2e` | Alternative pseudocode |
+| `\cellcolor{}` | `colortbl` + `xcolor` | Table cell coloring |
+| `\rowcolor{}` | `colortbl` + `xcolor` | Table row coloring |
+| `\diagbox{}` | `diagbox` | Diagonal cell headers |
+| `\multirow{}` | `multirow` | Multi-row table cells |
+| `\thead{}` | `makecell` | Table header formatting |
+| `\lstinline` | `listings` | Inline code |
+| `\mintinline` | `minted` | Inline code with highlighting |
+| `\tcb{}` | `tcolorbox` | Colored boxes |
+| `\tikz` | `tikz` | Drawings |
+| `\pgfplotscreateplotcyclelist` | `pgfplots` | Plot cycle lists |
+| `\printbibliography` | `biblatex` | Bibliography (replaces \bibliography) |
+| `\printacronym` | `glossaries` | Acronym list |
+| `\si{}` / `\SI{}` | `siunitx` | Units and numbers |
+| `\num{}` | `siunitx` | Formatted numbers |
+
+## Environment → Package Mapping
+
+When `Environment foo undefined` appears:
+
+| Environment | Package |
+|-------------|---------|
+| `algorithm` | `algorithm` (float wrapper) |
+| `algorithmic` | `algorithmic` (pseudocode body) |
+| `align` | `amsmath` |
+| `gather` | `amsmath` |
+| `multline` | `amsmath` |
+| `cases` | `amsmath` |
+| `subfigure` | `subcaption` or `subfig` |
+| `subtable` | `subcaption` |
+| `lstlisting` | `listings` |
+| `minted` | `minted` (+ Python Pygments) |
+| `tcolorbox` | `tcolorbox` |
+| `tikzpicture` | `tikz` |
+| `tabularx` | `tabularx` |
+| `longtable` | `longtable` |
+| `booktabs` | Not an env — it provides `\toprule`, `\midrule`, `\bottomrule` |

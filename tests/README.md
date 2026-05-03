@@ -30,3 +30,4 @@ bash tests/run_tests.sh
 | `fixtures/errors/expected_fixed.tex` | Target output after rescue |
 | `fixtures/polish/chinglish_sample.tex` | Chinglish patterns for latex-polish |
 | `fixtures/fmt/pre_neurips.tex` | CVPR paper to convert for latex-fmt |
+| `fixtures/read/sample_paper.md` | Sample paper for paper-read analysis |
