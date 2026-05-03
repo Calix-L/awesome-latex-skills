@@ -55,7 +55,7 @@ Universal LaTeX formatting best practices applicable across all venues.
 ## Cross-References
 
 - Use `\usepackage{cleveref}` for automatic type-aware references: `\cref{fig:arch}` → "Figure 1"
-- Load `cleveref` after `hyperref` (the only documented exception to the "hyperref last" rule).
+- Load `cleveref` after `hyperref` (an exception to the "hyperref last" rule; `glossaries[implicit]` is another).
 - Label prefix conventions:
   - `fig:` for figures → `\label{fig:architecture}`
   - `tab:` for tables → `\label{tab:results}`

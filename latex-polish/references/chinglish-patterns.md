@@ -21,7 +21,7 @@ CN verbs don't inflect. Check every subject-verb pair.
 |-------|-------|
 | The results **demonstrates** | The results **demonstrate** |
 | Each method **have** | Each method **has** |
-| Data **was** collected | Data **were** collected (academic convention) |
+| Data **was** collected | Data **were** collected (formal convention; "was" also acceptable for collective sense) |
 | A set of features **were** | A set of features **was** |
 
 ### 3. Plural -s
@@ -95,7 +95,7 @@ CN 让/使 patterns don't translate to "make" or "let" in academic English.
 | based **from** | based **on** |
 | depends **from** | depends **on** |
 | similar **with** | similar **to** |
-| compare **with** (for differences) | `compare to` = liken; `compare with` = examine differences |
+| compare **with** (when meaning "liken to") | `compare to` = liken; `compare with` = examine differences. Both are correct in their respective senses. |
 | consist **with** | consist **of** |
 | related **with** | related **to** |
 | according **with** | according **to** |
@@ -119,7 +119,7 @@ CN 让/使 patterns don't translate to "make" or "let" in academic English.
 |------------|-------|-------|
 | 做研究 | make research | **conduct/do** research |
 | 做实验 | make experiments | **conduct/run** experiments |
-| 做决定 | make an analysis | **perform/conduct** an analysis |
+| 做分析 | make an analysis | **perform/conduct** an analysis |
 | 扮演角色 | play a role | (Correct! "Plays a role" is fine) |
 | 学习知识 | learn knowledge | **acquire/gain** knowledge |
 | 很大 | big problem | **major/serious/significant** problem |

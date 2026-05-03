@@ -78,17 +78,17 @@ Recompile after each removal. If the error disappears, you've found the conflict
 
 **Fix**:
 ```latex
-% Before (fragile)
-\caption{Results of \alpha testing}
+% Before (fragile command in moving argument)
+\caption{Results for \footnote{Details} testing}
 
 % After (protected)
-\caption{Results of $\alpha$ testing}
-% OR
-\caption{Results of \protect\alpha\ testing}
+\caption{Results for \protect\footnote{Details} testing}
 
-% For footnotes in captions:
-\caption{Results\protect\footnote{Details in appendix.}}
+% Alternative: use optional argument for short form
+\caption[Short form]{Long form with \protect\footnote{Details}}
 ```
+
+Note: If the command is also invalid outside math mode (e.g., `\alpha`), add `$...$` as well — that is a separate error from the fragile-command issue.
 
 ### `Emergency stop` After Many Errors
 
@@ -111,8 +111,8 @@ Recompile after each removal. If the error disappears, you've found the conflict
 **Symptom**: Strange characters or `! Package inputenc Error: Unicode character ...` appearing.
 
 **Fix**:
-1. Check file encoding: `file -I sections/intro.tex`
-2. If not UTF-8, convert: `iconv -f GB2312 -t UTF-8 sections/intro.tex -o sections/intro.tex`
+1. Check file encoding: `file -I file.tex` (macOS) or `file -i file.tex` (Linux)
+2. If not UTF-8, convert: `iconv -f GB2312 -t UTF-8 file.tex > file_utf8.tex && mv file_utf8.tex file.tex`
 3. Verify `\usepackage[utf8]{inputenc}` is in preamble
 
 ### pdflatex vs xelatex vs lualatex

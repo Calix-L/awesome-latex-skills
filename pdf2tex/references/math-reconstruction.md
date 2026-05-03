@@ -164,7 +164,7 @@ Complex cases:
 - May share alignment points (equals signs at same x-position)
 - May have equation numbers at each line
 
-→ `\begin{align}...\end{align}` or `\begin{eqnarray}...\end{eqnarray}`
+→ `\begin{align}...\end{align}` (prefer align; avoid `eqnarray` — deprecated, produces incorrect spacing)
 
 ## Cases Environment
 

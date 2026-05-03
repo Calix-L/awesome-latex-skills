@@ -29,7 +29,7 @@ for page_num, page in enumerate(doc):
                     text = span["text"]
                     font = span["font"]
                     size = round(span["size"], 1)
-                    flags = span["flags"]  # bitfield: 2^0=superscript, 2^1=italic, 2^3=bold, 2^4=mono
+                    flags = span["flags"]  # bitfield: 2^0=superscript, 2^1=italic, 2^2=serifed, 2^3=bold, 2^4=mono
                     color = span["color"]  # RGB as int
                     origin = span["origin"]  # (x, y) baseline
                     # Use these features to classify text type

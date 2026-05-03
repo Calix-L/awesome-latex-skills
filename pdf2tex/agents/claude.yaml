@@ -8,5 +8,7 @@ auto_activate:
     - "pdf.*(to|2).*(tex|latex)"
     - "extract.*latex.*(from|pdf)"
     - "reconstruct.*latex"
+    - "get.*tex.*(from|pdf)"
     - "pdf转tex"
     - "pdf转latex"
+    - "恢复.*(tex|latex).*源码"

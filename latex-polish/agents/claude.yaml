@@ -5,8 +5,9 @@ skill_file: latex-polish/SKILL.md
 auto_activate:
   - triggers:
     - "polish.*paper"
-    - "润色"
-    - "improve.*writing"
-    - "fix.*grammar"
-    - "学术写作"
+    - "improve.*academic.*writing"
+    - "fix.*english"
+    - "improve.*section"
     - "chinglish"
+    - "润色"
+    - "学术写作"

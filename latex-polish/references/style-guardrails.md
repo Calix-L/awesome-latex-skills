@@ -108,7 +108,7 @@ Keep the subject and verb close together.
 | Interestingly, | (delete) | Let the reader decide what's interesting |
 | As a matter of fact, | (delete) | Always filler |
 | It has been shown that | (cite directly) | "Smith et al. showed that" |
-| With respect to | Regarding / About | |
+| With respect to | Regarding | "About" is too informal for academic register |
 | For the purpose of | To / For | |
 | In order to | To | |
 | The fact that | (rephrase) | |
@@ -154,7 +154,7 @@ Use the **exact same term** for the **exact same concept** throughout the paper.
 
 - Define on first use: `Large Language Models (LLMs)` → then use `LLMs` consistently
 - Don't re-define abbreviations in later sections
-- Avoid abbreviations in section headings unless universally known (e.g. "BERT" is OK, "CPKT" is not)
+- Avoid abbreviations in section headings unless universally known (e.g. "BERT" is OK, domain-specific ones are not)
 
 ---
 

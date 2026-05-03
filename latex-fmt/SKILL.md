@@ -54,14 +54,14 @@ Load the right template config from `references/templates/<venue-name>.md` which
 
 Some venues forbid certain packages or require specific ones:
 
-| Venue | Forbidden Packages | Required Packages |
-|-------|-------------------|-------------------|
+| Venue | Banned / Discouraged Packages | Required Packages |
+|-------|------------------------------|-------------------|
 | NeurIPS | `fullpage`, `geometry`, `setspace` | `neurips_2025` |
 | ICML | `fullpage`, `geometry` | `icml2025` |
 | CVPR | `geometry`, `setspace` | `cvpr` |
 | ACL | `fullpage` | `acl` |
 | AAAI | `fullpage`, `geometry`, `setspace` | `aaai25` |
-| ICLR | `geometry` not recommended | `iclr2025` (official .sty) |
+| ICLR | `geometry` (discouraged) | `iclr2025` (official .sty) |
 | IEEE | `fullpage`, `geometry` | `IEEEtran` |
 
 After the document class change is applied, recompile and fix any resulting errors using the `latex-rescue` workflow before continuing.
@@ -72,7 +72,7 @@ Some venues require specific section ordering:
 
 **NeurIPS**:
 ```
-Abstract → Introduction → Related Work → [Background] → Method → Experiments → Conclusion → [Broader Impact] → References → [Checklist]
+Abstract → Introduction → Related Work → [Background] → Method → Experiments → Conclusion → Broader Impact → References → [Checklist]
 ```
 NeurIPS requires a "Broader Impact" section. If missing, flag it.
 
@@ -124,16 +124,16 @@ If the current paper is missing a required section, flag it but don't invent con
 
 Check against venue limits:
 
-| Venue | Page Limit | Excluding |
-|-------|-----------|-----------|
+| Venue | Limit | Excluding |
+|-------|-------|-----------|
 | NeurIPS | 9 pages | References, appendices |
 | ICML | 8 pages | References, appendices |
 | CVPR | 8 pages | References |
 | ACL | 8 pages | References, appendices |
 | AAAI | 7 pages + 2 refs | 2 extra pages for references only |
 | ICLR | No strict limit | — (but reviewers stop reading at 10) |
-| Nature | ~1,500-3,000 words (article type dependent) | Methods, references |
-| Science | ~2,000-5,000 words (article type dependent) | Supplementary |
+| Nature | ~1,500-3,000 words | Methods, references |
+| Science | ~2,000-5,000 words | Supplementary |
 
 To check page count, compile with the target template and check:
 ```bash
@@ -242,5 +242,5 @@ Reproduce the checklist questions and help the author answer them:
 
 ## Reference Files
 
-- **`references/templates/`** — Venue-specific template configurations (NeurIPS, ICML, CVPR, ACL, IEEE, Nature, Science, AAAI, ICLR)
+- **`references/templates/venue-guide.md`** — Per-venue template configurations (NeurIPS, ICML, CVPR, ACL, IEEE, Nature, Science, AAAI, ICLR, ECCV, TMLR)
 - **`references/formatting-rules.md`** — General formatting rules applicable across venues

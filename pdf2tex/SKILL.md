@@ -204,7 +204,7 @@ Based on the extracted structure, build the .tex file.
 1. Remove duplicated text (PDF extraction sometimes duplicates headers/footers)
 2. Strip running headers and page numbers from body text
 3. Join hyphenated words at line breaks (if broken across lines in PDF)
-4. Fix encoding issues (ligature fi, fl, ff → fi, fl, ff characters)
+4. Fix ligatures: Unicode U+FB01→"fi", U+FB02→"fl", U+FB03→"ffi", etc.
 5. Normalize whitespace and line breaks
 
 **Smart refinements:**

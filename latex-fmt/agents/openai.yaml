@@ -7,8 +7,10 @@ model: gpt-4.1
 auto_activate:
   - triggers:
     - "format for.*"
-    - "switch to.*template"
     - "reformat"
+    - "apply.*template"
+    - "switch to.*template"
+    - "change to.*format"
+    - "/latex-fmt"
     - "投稿格式化"
     - "改成.*模板"
-    - "apply.*template"

@@ -108,21 +108,21 @@ Fix these immediately without consulting an LLM:
 \it{...}       → \textit{...} (same: \it is a valid but deprecated declaration; \textit{} is the modern command form)
 ```
 
-**Environment-name typos** — these appear in `\begin{...}` or `\end{...}`. Fix the name inside the braces:
+**Environment-name typos** — misspelled names inside `\begin{...}` / `\end{...}`:
 ```
-\tabel   → \begin{table} (table is an environment, not a command)
-\tabl    → \begin{table}
-\fig     → \begin{figure} (figure is an environment, not a command)
-\figre   → \begin{figure}
-\algin   → \begin{align}
-\itemz   → \begin{itemize}
+\begin{tabel}  → \begin{table}
+\begin{tabl}   → \begin{table}
+\begin{fig}    → \begin{figure}
+\begin{figre}  → \begin{figure}
+\begin{algin}  → \begin{align}
+\begin{itemz}  → \begin{itemize}
 ```
 
 **Other command typos**:
 ```
-\refrence  → \bibliography or \bibliographystyle (context-dependent; \reference is not a LaTeX command)
-\labl      → \label
-\capton    → \caption
+\refrence   → \ref (misspelled \ref; not \bibliography)
+\labl       → \label
+\capton     → \caption
 ```
 
 **Missing closing brackets/braces** — count open/close pairs:

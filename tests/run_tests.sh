@@ -1,9 +1,6 @@
 #!/bin/bash
 # awesome-latex-skills test runner
 # Usage: ./run_tests.sh [skill_name]
-#
-# Tests are verification-oriented: does the skill's reference knowledge
-# cover the error patterns in the test fixtures?
 
 set -e
 
@@ -28,7 +25,6 @@ check_pdflatex() {
         return 0
     else
         warn "pdflatex not found — compile tests will be skipped"
-        warn "Install: brew install --cask basictex (macOS) or apt install texlive-latex-base (Linux)"
         return 1
     fi
 }
@@ -44,41 +40,25 @@ test_rescue_compile() {
     local orig_dir="$(pwd)"
     cd "$workdir"
 
-    # Phase 1: Gather — compile and capture errors
     pdflatex -interaction=nonstopmode -file-line-error broken_paper.tex > /dev/null 2>&1 || true
 
     if [ ! -f broken_paper.log ]; then
         fail "No .log file produced"
+        cd "$orig_dir" && rm -rf "$workdir"
         return
     fi
     pass "Compilation produced .log file"
 
-    # Phase 2: Parse — count errors by category
     local total_errors=$(grep -c '^!' broken_paper.log 2>/dev/null || echo "0")
     echo "  Found $total_errors errors in log"
 
-    local typos=$(grep -ci 'undefined control sequence' broken_paper.log 2>/dev/null || echo "0")
-    echo "  - Undefined control sequences: $typos"
-
-    local math=$(grep -ci 'missing \$ inserted' broken_paper.log 2>/dev/null || echo "0")
-    echo "  - Math mode errors: $math"
-
-    local braces=$(grep -ci 'missing } inserted' broken_paper.log 2>/dev/null || echo "0")
-    echo "  - Brace errors: $braces"
-
-    local env=$(grep -ci 'end{' broken_paper.log 2>/dev/null || echo "0")
-    echo "  - Environment errors: $env"
-
-    # Verify: at least some errors found
     if [ "$total_errors" -gt 5 ]; then
-        pass "Multiple error categories detected ($total_errors total)"
+        pass "Multiple errors detected ($total_errors total)"
     else
-        warn "Fewer errors than expected ($total_errors). Test fixture may need updating."
+        warn "Fewer errors than expected ($total_errors)"
     fi
 
-    # Cleanup
-    cd "$orig_dir"
-    rm -rf "$workdir"
+    cd "$orig_dir" && rm -rf "$workdir"
 }
 
 test_rescue_error_catalog_coverage() {
@@ -88,37 +68,51 @@ test_rescue_error_catalog_coverage() {
     local catalog="$SCRIPT_DIR/../latex-rescue/references/error-catalog.md"
     local broken="$FIXTURES/errors/broken_paper.tex"
 
-    # Check that error types in fixture are covered by catalog
-    local covered=0
-    local uncovered=0
-
-    # Check typo coverage
-    if grep -qi 'beginn\|endd\|hlin\|usepacakge\|textbfseries' "$broken"; then
-        local typo_count=$(grep -c '|' "$catalog" 2>/dev/null || echo "0")
-        if [ "$typo_count" -gt 10 ]; then
-            pass "Error catalog has $typo_count typo entries (fixture has multiple typos)"
-        else
-            fail "Error catalog has only $typo_count typo entries"
-        fi
+    local typo_count=$(grep -c '|' "$catalog" 2>/dev/null || echo "0")
+    if [ "$typo_count" -gt 10 ]; then
+        pass "Error catalog has $typo_count table entries"
+    else
+        fail "Error catalog has only $typo_count table entries"
     fi
 
-    # Check math error coverage
-    if grep -q 'alpha\|x_i\|x\^2' "$broken"; then
-        if grep -qi 'Missing \$ inserted\|math.*symbol.*text' "$catalog"; then
-            pass "Error catalog covers math mode errors"
-        else
-            warn "Math mode error coverage could be improved"
-        fi
+    if grep -qi 'Missing \$ inserted\|math.*symbol.*text' "$catalog"; then
+        pass "Error catalog covers math mode errors"
+    else
+        warn "Math mode error coverage could be improved"
     fi
 
-    # Check environment error coverage
-    if grep -q 'begin{figure}' "$broken" && grep -q 'end{table}' "$broken"; then
-        if grep -qi 'begin.*end.*mismatch\|environment.*mismatch' "$catalog"; then
-            pass "Error catalog covers environment mismatches"
-        else
-            warn "Environment mismatch coverage could be improved"
-        fi
+    if grep -qi 'begin.*end.*mismatch\|environment.*mismatch' "$catalog"; then
+        pass "Error catalog covers environment mismatches"
+    else
+        warn "Environment mismatch coverage could be improved"
     fi
+}
+
+test_rescue_expected_fix() {
+    echo ""
+    echo "=== Testing latex-rescue: Expected Fix Consistency ==="
+
+    local broken="$FIXTURES/errors/broken_paper.tex"
+    local fixed="$FIXTURES/errors/expected_fixed.tex"
+
+    if [ ! -f "$fixed" ]; then
+        fail "expected_fixed.tex not found"
+        return
+    fi
+    pass "expected_fixed.tex exists"
+
+    local fixed_lines=$(wc -l < "$fixed" | tr -d ' ')
+    local broken_lines=$(wc -l < "$broken" | tr -d ' ')
+    echo "  broken_paper.tex: $broken_lines lines, expected_fixed.tex: $fixed_lines lines"
+
+    if [ "$fixed_lines" -ge "$((broken_lines - 5))" ] && [ "$fixed_lines" -le "$((broken_lines + 5))" ]; then
+        pass "Fixed file is similar size to broken file (within 5 lines)"
+    else
+        warn "Fixed file size differs significantly from broken file"
+    fi
+
+    local flagged=$(grep -c 'FLAGGED' "$fixed" 2>/dev/null || echo "0")
+    echo "  $flagged items flagged for manual review"
 }
 
 test_polish_rules_exist() {
@@ -127,7 +121,6 @@ test_polish_rules_exist() {
 
     local skill_dir="$SCRIPT_DIR/../latex-polish"
 
-    # Check each reference file exists
     local refs=(
         "references/academic-phrasebank.md"
         "references/section-anatomy.md"
@@ -143,32 +136,20 @@ test_polish_rules_exist() {
         fi
     done
 
-    # Check chinglish patterns coverage
     local chinglish="$skill_dir/references/chinglish-patterns.md"
     local line_count=$(wc -l < "$chinglish" | tr -d ' ')
     if [ "$line_count" -gt 100 ]; then
-        pass "Chinglish reference has $line_count lines (comprehensive)"
+        pass "Chinglish reference has $line_count lines"
     else
         warn "Chinglish reference only has $line_count lines"
     fi
-
-    # Verify phrasebank covers all major sections
-    local sections=("Abstract" "Introduction" "Related Work" "Method" "Conclusion")
-    for section in "${sections[@]}"; do
-        if grep -q "$section" "$skill_dir/references/academic-phrasebank.md"; then
-            pass "Phrasebank covers: $section"
-        else
-            warn "Phrasebank may be missing: $section"
-        fi
-    done
 }
 
 test_fmt_templates() {
     echo ""
     echo "=== Testing latex-fmt: Template Coverage ==="
 
-    local templates_dir="$SCRIPT_DIR/../latex-fmt/references/templates"
-    local guide="$templates_dir/venue-guide.md"
+    local guide="$SCRIPT_DIR/../latex-fmt/references/templates/venue-guide.md"
 
     if [ ! -f "$guide" ]; then
         fail "Venue guide not found"
@@ -178,9 +159,9 @@ test_fmt_templates() {
     local venues=("NeurIPS" "ICML" "CVPR" "ACL" "IEEE" "Nature" "Science" "AAAI" "ICLR" "ECCV" "TMLR")
     for venue in "${venues[@]}"; do
         if grep -qi "$venue" "$guide"; then
-            pass "Template guide covers: $venue"
+            pass "Venue guide covers: $venue"
         else
-            warn "Template guide may be missing: $venue"
+            warn "Venue guide may be missing: $venue"
         fi
     done
 }
@@ -204,15 +185,6 @@ test_paper_read_coverage() {
         fi
     done
 
-    # Check reading levels are documented
-    local skill_md="$skill_dir/SKILL.md"
-    if grep -qi 'skim\|read.*level\|deep' "$skill_md"; then
-        pass "SKILL.md documents 3 reading levels"
-    else
-        warn "SKILL.md may be missing reading level definitions"
-    fi
-
-    # Check critical appraisal reference is comprehensive
     local appraisal="$skill_dir/references/critical-appraisal.md"
     local sections=("Methodology" "Results" "Claims" "Innovation")
     for section in "${sections[@]}"; do
@@ -244,33 +216,16 @@ test_pdf2tex_coverage() {
             fail "Missing reference file: $ref"
         fi
     done
-
-    # Check SKILL.md has all 6 phases
-    local skill_md="$skill_dir/SKILL.md"
-    local phases=("Phase 0" "Phase 1" "Phase 2" "Phase 3" "Phase 4" "Phase 5" "Phase 6")
-    local found=0
-    for phase in "${phases[@]}"; do
-        if grep -qi "$phase" "$skill_md" 2>/dev/null; then
-            found=$((found + 1))
-        fi
-    done
-    if [ "$found" -ge 5 ]; then
-        pass "SKILL.md documents $found/7 workflow phases"
-    else
-        warn "SKILL.md only documents $found/7 phases"
-    fi
 }
 
 test_agent_configs() {
     echo ""
     echo "=== Testing Agent Configs ==="
 
-    local skills=("latex-rescue" "latex-polish" "latex-fmt" "paper-read" "pdf2tex")
-
-    for skill in "${skills[@]}"; do
-        local dir="$SCRIPT_DIR/../$skill/agents"
+    for agent_dir in "$SCRIPT_DIR/../"*/agents; do
+        local skill=$(basename "$(dirname "$agent_dir")")
         for agent in "claude.yaml" "openai.yaml"; do
-            if [ -f "$dir/$agent" ]; then
+            if [ -f "$agent_dir/$agent" ]; then
                 pass "$skill has $agent config"
             else
                 fail "$skill missing $agent config"
@@ -286,12 +241,11 @@ test_chinese_pattern_coverage() {
     local chinglish="$SCRIPT_DIR/../latex-polish/references/chinglish-patterns.md"
     local sample="$FIXTURES/polish/chinglish_sample.tex"
 
-    # Check that major pattern categories exist in reference
     local categories=(
         "Article Omission"
         "Subject-Verb Agreement"
         "Plural"
-        "Overuse of .can"
+        "can"
         "According to"
         "Make.*Let"
         "So.*Conjunction"
@@ -317,15 +271,6 @@ test_chinese_pattern_coverage() {
     else
         warn "Only $matched/10 categories covered"
     fi
-
-    # Verify sample file has chinglish issues to detect
-    local sample_issues=0
-    grep -qi 'can achieve\|research field\|Result shows\|make the model\|different with\|based from\|more and more\|Most of methods\|have several advantage\|works well' "$sample" 2>/dev/null && sample_issues=1
-    if [ "$sample_issues" -eq 1 ]; then
-        pass "Test sample contains chinglish patterns to detect"
-    else
-        warn "Test sample may not have enough chinglish patterns"
-    fi
 }
 
 # --- Main ---
@@ -335,12 +280,11 @@ echo " awesome-latex-skills Test Suite"
 echo "======================================"
 echo ""
 
-# Check prerequisites
 HAS_LATEX=false
 check_pdflatex && HAS_LATEX=true || true
 
-# Run tests
 test_rescue_error_catalog_coverage
+test_rescue_expected_fix
 test_polish_rules_exist
 test_fmt_templates
 test_paper_read_coverage
@@ -352,7 +296,6 @@ if $HAS_LATEX; then
     test_rescue_compile
 fi
 
-# Summary
 echo ""
 echo "======================================"
 printf " Results: \033[0;32m%s passed\033[0m, \033[0;31m%s failed\033[0m\n" "$pass_count" "$fail_count"

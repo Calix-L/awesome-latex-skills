@@ -5,10 +5,11 @@ skill_file: latex-rescue/SKILL.md
 auto_activate:
   - triggers:
     - "fix.*latex"
-    - "编译报错"
-    - "wont compile"
+    - "latex.*wont compile"
     - "pdflatex.*error"
+    - "compilation.*failed"
+    - "编译报错"
     - "帮我修.*latex"
-  - file_patterns:
+    file_patterns:
     - "*.tex"
     context: compilation_error

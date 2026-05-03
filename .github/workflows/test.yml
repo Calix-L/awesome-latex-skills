@@ -19,7 +19,7 @@ jobs:
       - name: Validate YAML configs
         run: |
           sudo apt-get install -y python3-yaml
-          for f in latex-rescue/agents/*.yaml latex-polish/agents/*.yaml latex-fmt/agents/*.yaml paper-read/agents/*.yaml; do
+          for f in */agents/*.yaml; do
             python3 -c "import yaml; yaml.safe_load(open('$f'))" || (echo "Invalid YAML: $f" && exit 1)
           done
       - name: Run test suite

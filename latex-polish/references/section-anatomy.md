@@ -129,7 +129,7 @@ Each paragraph:
 
 ## Limitations
 
-**Purpose**: Honest assessment of what the work does NOT address. Required at ACL/EMNLP, strongly encouraged at NeurIPS.
+**Purpose**: Honest assessment of what the work does NOT address. Required at ACL, strongly encouraged at EMNLP and NeurIPS.
 
 **Structure**:
 1. **Scope limitations**: What problems/settings does the method NOT cover?

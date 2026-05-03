@@ -195,5 +195,4 @@ Curated sentence starters and templates for each section of a scientific paper.
 - `We hypothesize that` / `One possible explanation is`
 
 ### Emphasis
-- `It is worth noting that` (use sparingly — often better to just state the fact)
 - `Crucially,` / `Critically,` / `Of particular importance,`
