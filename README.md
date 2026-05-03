@@ -16,7 +16,7 @@
 
 ---
 
-**[Skills](#skills) · [Demos](#demos) · [Quick Start](#quick-start) · [Compatibility](#compatibility) · [Contributing](./CONTRIBUTING.md)**
+**[Skills](#skills) · [Demos](#demos) · [Workflows](#workflows) · [Quick Start](#quick-start) · [Compatibility](#compatibility) · [Contributing](./CONTRIBUTING.md)**
 
 ---
 
@@ -29,6 +29,22 @@
 | :repeat: | **[latex-fmt](./latex-fmt/SKILL.md)** | Reformat for 11 venues — NeurIPS, ICML, CVPR, ACL, ICLR, ECCV, AAAI, TMLR, IEEE, Nature, Science |
 | :book: | **[paper-read](./paper-read/SKILL.md)** | Read & analyze papers — 3 depth levels, critical appraisal, assumption auditing |
 | :wrench: | **[pdf2tex](./pdf2tex/SKILL.md)** | Rebuild LaTeX from PDF — 7-phase pipeline, math & table reconstruction |
+
+<details>
+<summary>By the numbers</summary>
+
+| Metric | Count |
+|---|---|
+| Error patterns cataloged | 50+ |
+| Package conflicts documented | 14 known pairs |
+| Chinglish pattern categories | 16 |
+| Phrasebank sentence templates | 100+ |
+| Venue formatting rules | 11 |
+| Critical appraisal checklist items | 40+ |
+| Math glyph → LaTeX mappings | 80+ |
+| Reference files total | 15 |
+
+</details>
 
 ---
 
@@ -82,6 +98,8 @@ Skills inject **hundreds of domain-specific rules** that LLMs can't reliably pro
 + \bibliographystyle{neurips_2025}
 - \section*{Acknowledgements}
 + [REMOVED — anonymous submission]
+- \author{Zhang et al.}
++ \author{Anonymous}
 ```
 
 ### :book: paper-read — 50 papers in your reading list, no time
@@ -105,6 +123,29 @@ Skills inject **hundreds of domain-specific rules** that LLMs can't reliably pro
 + \section{Introduction}
 + The model achieves $F_1 = 92.3$ on the benchmark.
 + % [UNCERTAIN: math notation — verify subscripts]
+```
+
+---
+
+## Workflows
+
+Skills combine for common academic scenarios:
+
+```
+Deadline crunch         Crash → rescue → compile ✓
+                        └─ latex-rescue alone
+
+Review turnaround       Draft → polish → fmt → submit
+                        └─ latex-polish → latex-fmt
+
+Rebuttal reformat       CVPR reject → read reviews → polish → reformat for ICML
+                        └─ paper-read → latex-polish → latex-fmt
+
+Lost source recovery     PDF → pdf2tex → rescue (fix reconstruction) → polish
+                        └─ pdf2tex → latex-rescue → latex-polish
+
+New paper from scratch   Read 20 related papers → polish draft → format for venue
+                        └─ paper-read → latex-polish → latex-fmt
 ```
 
 ---

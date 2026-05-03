@@ -222,7 +222,8 @@ Based on the extracted structure, build the .tex file.
    # or: xelatex / lualatex
    ```
 3. If errors → fix and recompile (use latex-rescue workflows)
-4. Compare reconstruction with original:
+4. If text quality is rough → suggest latex-polish for the reconstructed text
+5. Compare reconstruction with original:
    - Check page count matches
    - Check that all sections exist
    - Check that references resolve
