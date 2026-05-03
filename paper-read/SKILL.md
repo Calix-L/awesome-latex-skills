@@ -34,7 +34,7 @@ Activate when the user:
 | `read` (default) | Full read, focused on method + results | Structured report | 5min |
 | `deep` | Line-by-line, check math, evaluate claims | Full critical review | 15min |
 
-## Core Workflow
+## Workflow
 
 ### Phase 1: Acquire the Paper
 

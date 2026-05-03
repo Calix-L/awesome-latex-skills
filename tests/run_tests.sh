@@ -224,13 +224,11 @@ test_agent_configs() {
 
     for agent_dir in "$SCRIPT_DIR/../"*/agents; do
         local skill=$(basename "$(dirname "$agent_dir")")
-        for agent in "claude.yaml" "openai.yaml"; do
-            if [ -f "$agent_dir/$agent" ]; then
-                pass "$skill has $agent config"
-            else
-                fail "$skill missing $agent config"
-            fi
-        done
+        if [ -f "$agent_dir/config.yaml" ]; then
+            pass "$skill has config.yaml"
+        else
+            fail "$skill missing config.yaml"
+        fi
     done
 }
 

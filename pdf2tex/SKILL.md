@@ -26,9 +26,9 @@ Activate when the user:
 - Says "convert this PDF to LaTeX"
 - Any variation of "pdf2tex", "pdf to tex", "pdf转tex/LaTeX"
 
-## Core Workflow
+## Workflow
 
-### Phase 0: Quick Assessment
+### Phase 1: Quick Assessment
 
 Before extraction, note what CAN and CANNOT be recovered:
 
@@ -49,7 +49,7 @@ Before extraction, note what CAN and CANNOT be recovered:
 - Input file structure (`\input`, `\include` boundaries)
 - Original bibliography database file
 
-### Phase 1: Extract Content
+### Phase 2: Extract Content
 
 Use Python with pymupdf (fitz) to extract structured content.
 
@@ -93,7 +93,7 @@ Also run `pdffonts paper.pdf` (from poppler) to list all fonts used — this hel
 - Look in PDF metadata Creator field: "LaTeX with hyperref" / "XeTeX" / "LuaTeX" / "pdfTeX"
 - Also check `pdffonts` output: Type 1 fonts → pdflatex; TrueType/OpenType → xelatex/lualatex
 
-### Phase 2: Analyze Structure
+### Phase 3: Analyze Structure
 
 Consult `references/structure-detection.md` for heuristics.
 
@@ -136,7 +136,7 @@ Determine these structural elements:
 - Small text at bottom of page, separated by a short rule
 - May have superscript marker in body text
 
-### Phase 3: Reconstruct LaTeX
+### Phase 4: Reconstruct LaTeX
 
 Based on the extracted structure, build the .tex file.
 
@@ -198,7 +198,7 @@ Based on the extracted structure, build the .tex file.
 - In body text, replace citation placeholders with `\cite{refX}`
 - If author-year detected, use `\bibitem[Author(Year)]{refX}` format
 
-### Phase 4: Post-Processing
+### Phase 5: Post-Processing
 
 **Cleanup passes:**
 1. Remove duplicated text (PDF extraction sometimes duplicates headers/footers)
@@ -213,7 +213,7 @@ Based on the extracted structure, build the .tex file.
 - Look for "Theorem", "Lemma", "Definition" patterns → `\begin{theorem}` etc.
 - Detect "Proof." → `\begin{proof}...\end{proof}`
 
-### Phase 5: Verification
+### Phase 6: Verification
 
 1. Write `paper_reconstructed.tex` to disk
 2. Compile with detected engine:
@@ -228,7 +228,7 @@ Based on the extracted structure, build the .tex file.
    - Check that references resolve
 5. Report what was recovered and what needs manual attention
 
-### Phase 6: Report
+### Phase 7: Report
 
 ```
 === PDF → LaTeX Reconstruction ===

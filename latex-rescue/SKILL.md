@@ -23,9 +23,9 @@ Activate this skill when the user:
 - Says their paper won't compile
 - Invokes you with `/latex-rescue`
 
-## Core Workflow
+## Workflow
 
-### Phase 0: Quick Entry (Pasted Error Message)
+### Phase 1: Quick Entry (Pasted Error Message)
 
 If the user pastes an error message directly instead of pointing to a project directory:
 1. Extract the error type from the message
@@ -33,7 +33,7 @@ If the user pastes an error message directly instead of pointing to a project di
 3. Ask the user to point you to the project directory for context
 4. Proceed to Phase 1
 
-### Phase 1: Gather Information
+### Phase 2: Gather Information
 
 1. **Identify the main `.tex` file.** If the project has `main.tex`, use that. Otherwise scan for `.tex` files containing `\documentclass`. If ambiguous, ask the user.
 
@@ -58,7 +58,7 @@ If the user pastes an error message directly instead of pointing to a project di
    ```
    Detect which backend: if preamble has `\usepackage{biblatex}`, use `biber`; if it has `\bibliographystyle{...}`, use `bibtex`.
 
-### Phase 2: Parse and Classify Errors
+### Phase 3: Parse and Classify Errors
 
 Read `build.log` (or the `.log` file). Extract every error. For each error, record:
 - **File** and **line number**
@@ -81,7 +81,7 @@ Classify each error into one of these categories:
 | `file-not-found` | `File not found` | No — check paths |
 | `syntax` | `Runaway argument`, `Paragraph ended before` | Conditional — contextual fix |
 
-### Phase 3: Fix Strategy
+### Phase 4: Fix Strategy
 
 Apply fixes in this order — easy wins first, then escalate.
 
@@ -175,7 +175,7 @@ For errors not covered by the catalog:
 3. Apply the minimal fix to satisfy both syntax and intent
 4. If unsure between multiple fixes, apply the simplest one and verify
 
-### Phase 4: Verify
+### Phase 5: Verify
 
 After each batch of fixes, run a **full compile cycle** to ensure cross-references and citations resolve:
 
@@ -212,7 +212,7 @@ latexmk -pdf -interaction=nonstopmode main.tex
 - `Citation 'X' undefined` — run `bibtex` then recompile twice
 - `Label multiply defined` — this is a real error, not a false positive
 
-### Phase 5: Report
+### Phase 6: Report
 
 After resolution, report:
 ```

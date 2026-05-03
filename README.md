@@ -22,69 +22,13 @@
 
 ## Skills
 
-<table>
-<tr>
-<td width="50%">
-
-### :ambulance: [latex-rescue](./latex-rescue/)
-
-Fix compilation errors
-
-- 50+ error patterns cataloged
-- Package conflicts resolved
-- Environment mismatches fixed
-- XeLaTeX/LuaLaTeX auto-detection
-
-</td>
-<td width="50%">
-
-### :pencil2: [latex-polish](./latex-polish/)
-
-Polish academic writing
-
-- 16 Chinglish pattern categories
-- Phrasebank by paper section
-- Light / moderate / strict levels
-- Preserves all LaTeX commands & math
-
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-### :repeat: [latex-fmt](./latex-fmt/)
-
-Reformat for venues
-
-- 11 venues: NeurIPS, ICML, CVPR, ACL, ICLR, ECCV, AAAI, TMLR, IEEE, Nature, Science
-- Bibtex ↔ Biblatex conversion
-- Anonymization enforcement
-- Compliance checklist
-
-</td>
-<td width="50%">
-
-### :book: [paper-read](./paper-read/)
-
-Read & analyze papers
-
-- 3 depth levels: skim → read → deep
-- Critical appraisal checklist
-- Assumption auditing
-- Cross-paper comparison
-
-</td>
-</tr>
-<tr>
-<td colspan="2" align="center">
-
-### :wrench: [pdf2tex](./pdf2tex/)
-
-Rebuild LaTeX from PDF — 7-phase pipeline, math & table reconstruction, compilable output
-
-</td>
-</tr>
-</table>
+| Skill | What it does |
+|---|---|
+| :ambulance: **[latex-rescue](./latex-rescue/SKILL.md)** | Fix compilation errors — 50+ error patterns, package conflicts, environment mismatches |
+| :pencil2: **[latex-polish](./latex-polish/SKILL.md)** | Polish academic writing — 16 Chinglish categories, phrasebank by section, 3 intensity levels |
+| :repeat: **[latex-fmt](./latex-fmt/SKILL.md)** | Reformat for 11 venues — NeurIPS, ICML, CVPR, ACL, ICLR, ECCV, AAAI, TMLR, IEEE, Nature, Science |
+| :book: **[paper-read](./paper-read/SKILL.md)** | Read & analyze papers — 3 depth levels, critical appraisal, assumption auditing |
+| :wrench: **[pdf2tex](./pdf2tex/SKILL.md)** | Rebuild LaTeX from PDF — 7-phase pipeline, math & table reconstruction |
 
 ---
 
@@ -135,37 +79,36 @@ Rebuild LaTeX from PDF — 7-phase pipeline, math & table reconstruction, compil
 git clone https://github.com/Calix-L/awesome-latex-skills.git
 ```
 
-**Claude Code** — drop a skill into `~/.claude/skills/`:
+**Claude Code** — copy a skill to `~/.claude/skills/`, then type `/latex-rescue`:
 ```bash
 cp -r awesome-latex-skills/latex-rescue ~/.claude/skills/
 ```
 
-**Any agent** — point it at the file:
+**Any agent** — tell it to read the SKILL.md file:
 ```
 Read awesome-latex-skills/latex-rescue/SKILL.md and follow the workflow.
 ```
 
-That's it. No servers, no API keys, no dependencies.
+**Prerequisites**: latex-rescue needs a LaTeX install. pdf2tex needs `pip install pymupdf`. The other 3 skills need nothing.
 
 <details>
 <summary>How it works</summary>
 
-Each skill is a directory the agent reads at runtime:
+Each skill is a self-contained directory:
 
 ```
 latex-rescue/
-├── SKILL.md              # role, triggers, workflow, guardrails
-├── references/           # domain knowledge consulted during work
-│   ├── error-catalog.md  #   50+ error patterns → fix or escalate
+├── SKILL.md              # the prompt — role, triggers, workflow, guardrails
+├── references/           # domain knowledge the agent reads at each phase
+│   ├── error-catalog.md
 │   ├── package-conflicts.md
 │   └── debug-workflow.md
-└── agents/               # auto-activation configs
-    ├── claude.yaml
-    └── openai.yaml
+└── agents/
+    └── config.yaml       # auto-activation triggers and platform settings
 ```
 
-1. You type `/latex-rescue` or describe the problem
-2. Agent loads `SKILL.md` — structured workflow + guardrails
+1. You type `/latex-rescue` or say "fix my LaTeX errors"
+2. Agent loads `SKILL.md` — now it has a structured workflow + guardrails
 3. It reads `references/` for precise domain rules at each phase
 4. Same workflow → same expert output, every time
 

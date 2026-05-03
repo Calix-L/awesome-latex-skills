@@ -2,6 +2,10 @@ name: paper-read
 description: Read, analyze, and extract knowledge from academic papers
 type: skill
 skill_file: paper-read/SKILL.md
+platforms:
+  claude_code: {}
+  openai:
+    model: gpt-4.1
 auto_activate:
   - triggers:
     - "read.*paper"

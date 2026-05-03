@@ -123,7 +123,7 @@ Make edits directly in the `.tex` file:
 3. If a sentence is already good, leave it alone. Over-polishing is worse than under-polishing
 4. In strict mode: you may restructure sentences within a paragraph, but NEVER reorder paragraphs, add claims between sections, or alter the paper's logical argument
 
-### Phase 4.5: Verify Compilation
+### Phase 5: Verify Compilation
 
 After all edits, verify the file still compiles:
 ```bash
@@ -131,7 +131,7 @@ pdflatex -interaction=nonstopmode main.tex
 ```
 If compilation fails (new errors introduced by editing), use latex-rescue to diagnose. Common polish-caused breaks: missing `}` after rewriting a sentence inside `\textbf{}`, accidentally deleting a `%` comment, or breaking a `\cite{}` key.
 
-### Phase 5: Report
+### Phase 6: Report
 
 Present changes as a numbered list with before/after for each, so the user can approve or revert individual edits:
 
