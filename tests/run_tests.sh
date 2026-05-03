@@ -301,6 +301,48 @@ test_chinese_pattern_coverage() {
     fi
 }
 
+test_skill_structure() {
+    echo ""
+    echo "=== Testing SKILL.md Structure ==="
+
+    local required_sections=("Role" "When to Activate" "Workflow" "Guardrails" "Reference Files")
+    local required_frontmatter=("name:" "description:" "version:" "triggers:")
+
+    for skill_dir in "$SCRIPT_DIR/../"*/; do
+        local skill=$(basename "$skill_dir")
+        local skill_md="$skill_dir/SKILL.md"
+        [ -f "$skill_md" ] || continue
+
+        for section in "${required_sections[@]}"; do
+            if grep -q "## $section" "$skill_md"; then
+                pass "$skill has section: $section"
+            else
+                fail "$skill missing section: $section"
+            fi
+        done
+
+        for fm in "${required_frontmatter[@]}"; do
+            if grep -q "^$fm" "$skill_md"; then
+                pass "$skill has frontmatter: $fm"
+            else
+                fail "$skill missing frontmatter: $fm"
+            fi
+        done
+
+        local ref_dir="$skill_dir/references"
+        if [ -d "$ref_dir" ]; then
+            local ref_count=$(find "$ref_dir" -name "*.md" | wc -l | tr -d ' ')
+            if [ "$ref_count" -ge 2 ]; then
+                pass "$skill has $ref_count reference files"
+            else
+                warn "$skill has only $ref_count reference files"
+            fi
+        else
+            fail "$skill missing references/ directory"
+        fi
+    done
+}
+
 # --- Main ---
 
 echo "======================================"
@@ -319,6 +361,7 @@ test_paper_read_coverage
 test_pdf2tex_coverage
 test_agent_configs
 test_skill_triggers
+test_skill_structure
 test_chinese_pattern_coverage
 
 if $HAS_LATEX; then

@@ -32,6 +32,19 @@
 
 ---
 
+## Why skills, not just prompts?
+
+| | Raw LLM | With skill pack |
+|---|---|---|
+| `\beginn{table}` | "That's an interesting typo" | Auto-corrects to `\begin{table}` |
+| "According to the experiment" | Accepts it | Flags `According to` overuse, suggests alternatives |
+| NeurIPS submission | Forgets Broader Impact | Flags missing required section |
+| PDF → LaTeX | Produces broken markup | Structured 7-phase pipeline with verification |
+
+Skills inject **hundreds of domain-specific rules** that LLMs can't reliably produce from memory. Each skill is a structured workflow + reference knowledge + guardrails — same input, same expert output, every time.
+
+---
+
 ## Demos
 
 ### :ambulance: latex-rescue — 2 AM, 47 errors, deadline tomorrow
@@ -153,8 +166,6 @@ latex-rescue/
 2. Agent loads `SKILL.md` — now it has a structured workflow + guardrails
 3. It reads `references/` for precise domain rules at each phase
 4. Same workflow → same expert output, every time
-
-The difference from a raw LLM: these skills inject hundreds of precise, domain-specific rules that LLMs can't reliably produce from memory. An LLM knows LaTeX exists. These skills know that `\usepackage{cite}` must become `\bibliographystyle{neurips_2025}` when switching to NeurIPS.
 
 </details>
 

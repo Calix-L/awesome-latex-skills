@@ -1,6 +1,6 @@
-# NeurIPS 2026 / 2025
+# NeurIPS 2026
 
-> Verify the current year's `.cls` on the official NeurIPS site before starting.
+> Verify the current year's `.cls` on the official NeurIPS site before starting. The 2026 template may not be released until mid-2026; until then, `neurips_2025` remains current.
 
 ## Document Class
 ```latex
@@ -44,9 +44,9 @@ Do NOT load: `fullpage`, `geometry`, `setspace` (conflicts with template). `enum
 
 ---
 
-# ICML 2026 / 2025
+# ICML 2026
 
-> Verify the current year's `.cls` on the official ICML site before starting.
+> The 2026 template may not be available until early 2026; `icml2025` remains current until the update.
 
 ## Document Class
 ```latex
