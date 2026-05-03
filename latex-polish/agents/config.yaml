@@ -15,3 +15,6 @@ auto_activate:
     - "chinglish"
     - "润色"
     - "学术写作"
+    - "/latex-polish"
+    file_patterns:
+    - "*.tex"

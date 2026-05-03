@@ -9,6 +9,7 @@ triggers:
   - "pdflatex error"
   - "compilation failed"
   - "帮我修 LaTeX"
+  - "/latex-rescue"
 ---
 
 ## Role

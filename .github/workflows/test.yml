@@ -20,7 +20,7 @@ jobs:
         run: |
           sudo apt-get install -y python3-yaml
           for f in */agents/*.yaml; do
-            python3 -c "import yaml; yaml.safe_load(open('$f'))" || (echo "Invalid YAML: $f" && exit 1)
+            python3 -c "import yaml; yaml.safe_load(open('$f', encoding='utf-8'))" || (echo "Invalid YAML: $f" && exit 1)
           done
       - name: Run test suite
         run: bash tests/run_tests.sh

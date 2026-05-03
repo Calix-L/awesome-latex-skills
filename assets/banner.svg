@@ -4,34 +4,47 @@
       <stop offset="0%" stop-color="#1a1b26"/>
       <stop offset="100%" stop-color="#24283b"/>
     </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#7dcfff" stop-opacity="0.08"/>
+      <stop offset="100%" stop-color="#7dcfff" stop-opacity="0"/>
+    </linearGradient>
     <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
-      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#414868" stroke-width="0.3" opacity="0.4"/>
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#414868" stroke-width="0.3" opacity="0.3"/>
     </pattern>
+    <filter id="softglow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
-  <!-- Background -->
+  <!-- Background layers -->
   <rect width="900" height="220" rx="12" fill="url(#bg)"/>
   <rect width="900" height="220" rx="12" fill="url(#grid)"/>
-  <!-- Left accent bar -->
-  <rect x="0" y="0" width="6" height="220" rx="3" fill="#7dcfff"/>
+  <rect width="900" height="80" y="60" fill="url(#glow)"/>
+  <!-- Left accent -->
+  <rect x="0" y="0" width="5" height="220" rx="2.5" fill="#7dcfff"/>
   <!-- LATEX watermark -->
-  <text x="40" y="170" font-family="Georgia,serif" font-size="150" fill="#7dcfff" font-weight="bold" opacity="0.06">LATEX</text>
-  <!-- Title -->
-  <text x="300" y="82" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="36" fill="#c0caf5" font-weight="700">awesome-latex-skills</text>
+  <text x="40" y="168" font-family="Georgia,serif" font-size="145" fill="#7dcfff" font-weight="bold" opacity="0.05" letter-spacing="8">LATEX</text>
+  <!-- Title with glow -->
+  <text x="300" y="82" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="36" fill="#c0caf5" font-weight="700" filter="url(#softglow)">awesome-latex-skills</text>
   <!-- Subtitle -->
   <text x="300" y="112" font-family="-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif" font-size="15" fill="#a9b1d6">AI agent skills for LaTeX &amp; academic workflows</text>
   <!-- Skill pills -->
-  <rect x="300" y="135" width="86" height="28" rx="14" fill="#f7768e" opacity="0.9"/>
-  <text x="343" y="154" font-family="-apple-system,sans-serif" font-size="12" fill="#1a1b26" text-anchor="middle" font-weight="600">rescue</text>
-  <rect x="396" y="135" width="80" height="28" rx="14" fill="#9ece6a" opacity="0.9"/>
-  <text x="436" y="154" font-family="-apple-system,sans-serif" font-size="12" fill="#1a1b26" text-anchor="middle" font-weight="600">polish</text>
-  <rect x="486" y="135" width="56" height="28" rx="14" fill="#7dcfff" opacity="0.9"/>
-  <text x="514" y="154" font-family="-apple-system,sans-serif" font-size="12" fill="#1a1b26" text-anchor="middle" font-weight="600">fmt</text>
-  <rect x="552" y="135" width="66" height="28" rx="14" fill="#bb9af7" opacity="0.9"/>
-  <text x="585" y="154" font-family="-apple-system,sans-serif" font-size="12" fill="#1a1b26" text-anchor="middle" font-weight="600">read</text>
-  <rect x="628" y="135" width="80" height="28" rx="14" fill="#e0af68" opacity="0.9"/>
-  <text x="668" y="154" font-family="-apple-system,sans-serif" font-size="12" fill="#1a1b26" text-anchor="middle" font-weight="600">pdf2tex</text>
-  <!-- Decorative dots -->
-  <circle cx="840" cy="40" r="3" fill="#f7768e" opacity="0.5"/>
-  <circle cx="855" cy="40" r="3" fill="#9ece6a" opacity="0.5"/>
-  <circle cx="870" cy="40" r="3" fill="#7dcfff" opacity="0.5"/>
+  <rect x="300" y="134" width="86" height="28" rx="14" fill="#f7768e" opacity="0.9"/>
+  <text x="343" y="153" font-family="-apple-system,sans-serif" font-size="12" fill="#1a1b26" text-anchor="middle" font-weight="600">rescue</text>
+  <rect x="396" y="134" width="80" height="28" rx="14" fill="#9ece6a" opacity="0.9"/>
+  <text x="436" y="153" font-family="-apple-system,sans-serif" font-size="12" fill="#1a1b26" text-anchor="middle" font-weight="600">polish</text>
+  <rect x="486" y="134" width="56" height="28" rx="14" fill="#7dcfff" opacity="0.9"/>
+  <text x="514" y="153" font-family="-apple-system,sans-serif" font-size="12" fill="#1a1b26" text-anchor="middle" font-weight="600">fmt</text>
+  <rect x="552" y="134" width="66" height="28" rx="14" fill="#bb9af7" opacity="0.9"/>
+  <text x="585" y="153" font-family="-apple-system,sans-serif" font-size="12" fill="#1a1b26" text-anchor="middle" font-weight="600">read</text>
+  <rect x="628" y="134" width="80" height="28" rx="14" fill="#e0af68" opacity="0.9"/>
+  <text x="668" y="153" font-family="-apple-system,sans-serif" font-size="12" fill="#1a1b26" text-anchor="middle" font-weight="600">pdf2tex</text>
+  <!-- Decorative corner dots -->
+  <circle cx="840" cy="40" r="3" fill="#f7768e" opacity="0.4"/>
+  <circle cx="855" cy="40" r="3" fill="#9ece6a" opacity="0.4"/>
+  <circle cx="870" cy="40" r="3" fill="#7dcfff" opacity="0.4"/>
+  <!-- Bottom subtle line -->
+  <line x1="300" y1="178" x2="708" y2="178" stroke="#414868" stroke-width="0.5" opacity="0.5"/>
+  <!-- Tagline -->
+  <text x="504" y="198" font-family="-apple-system,sans-serif" font-size="11" fill="#565f89" text-anchor="middle">structured workflows · domain references · guardrails</text>
 </svg>

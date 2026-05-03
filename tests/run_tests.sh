@@ -229,6 +229,36 @@ test_agent_configs() {
         else
             fail "$skill missing config.yaml"
         fi
+
+        if grep -q "/$skill" "$agent_dir/config.yaml" 2>/dev/null; then
+            pass "$skill config.yaml has slash command trigger"
+        else
+            fail "$skill config.yaml missing slash command trigger"
+        fi
+    done
+}
+
+test_skill_triggers() {
+    echo ""
+    echo "=== Testing SKILL.md Trigger Consistency ==="
+
+    for skill_dir in "$SCRIPT_DIR/../"*/; do
+        local skill=$(basename "$skill_dir")
+        local skill_md="$skill_dir/SKILL.md"
+        [ -f "$skill_md" ] || continue
+
+        if grep -q "/$skill" "$skill_md"; then
+            pass "$skill SKILL.md has slash command trigger"
+        else
+            fail "$skill SKILL.md missing slash command trigger"
+        fi
+
+        local trigger_count=$(grep -c '^\s*- "' "$skill_md" 2>/dev/null || echo "0")
+        if [ "$trigger_count" -ge 5 ]; then
+            pass "$skill has $trigger_count triggers"
+        else
+            warn "$skill has only $trigger_count triggers"
+        fi
     done
 }
 
@@ -288,6 +318,7 @@ test_fmt_templates
 test_paper_read_coverage
 test_pdf2tex_coverage
 test_agent_configs
+test_skill_triggers
 test_chinese_pattern_coverage
 
 if $HAS_LATEX; then

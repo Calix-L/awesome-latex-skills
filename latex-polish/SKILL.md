@@ -9,6 +9,7 @@ triggers:
   - "fix my English"
   - "学术写作润色"
   - "improve this section"
+  - "/latex-polish"
 ---
 
 ## Role

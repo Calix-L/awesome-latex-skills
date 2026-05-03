@@ -16,3 +16,4 @@ auto_activate:
     - "arxiv"
     - "读.*论文"
     - "论文速读"
+    - "/paper-read"

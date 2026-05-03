@@ -3,14 +3,14 @@ name: pdf2tex
 description: Convert PDF documents back into editable LaTeX source code. Extracts text, math, tables, figures, and structure. Uses pymupdf + AI for intelligent reconstruction.
 version: 1.0.0
 triggers:
-  - "convert.*pdf.*(tex|latex)"
-  - "pdf.*(to|2).*(tex|latex)"
-  - "extract.*latex.*(from|pdf)"
-  - "reconstruct.*latex"
+  - "convert pdf to latex"
+  - "pdf to tex"
+  - "extract latex from pdf"
+  - "reconstruct latex"
   - "pdf转tex"
   - "pdf转latex"
-  - "恢复.*(tex|latex).*源码"
-  - "get.*tex.*(from|pdf)"
+  - "恢复tex源码"
+  - "/pdf2tex"
 ---
 
 ## Role

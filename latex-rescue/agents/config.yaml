@@ -14,5 +14,6 @@ auto_activate:
     - "compilation.*failed"
     - "编译报错"
     - "帮我修.*latex"
+    - "/latex-rescue"
     file_patterns:
     - "*.tex"

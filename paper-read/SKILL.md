@@ -11,6 +11,7 @@ triggers:
   - "what does this paper say"
   - "explain this paper"
   - "arxiv"
+  - "/paper-read"
 ---
 
 ## Role
