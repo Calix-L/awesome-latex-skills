@@ -1,10 +1,10 @@
 <div align="center">
 
-# awesome-latex-skills
+<img src="./assets/banner.svg" alt="awesome-latex-skills" width="100%">
 
 **Prompt packs that make any AI agent a LaTeX expert.**
 
-`47 compilation errors → 0` · `Chinglish → publication-ready` · `CVPR → NeurIPS` · `50 papers → structured notes`
+`47 errors → 0` · `Chinglish → publication-ready` · `CVPR → NeurIPS` · `50 papers → structured notes`
 
 <br>
 
@@ -22,15 +22,75 @@
 
 ## Skills
 
-- :ambulance: **[latex-rescue](./latex-rescue/)** — fix compilation errors · 50+ error patterns · package conflicts · environment mismatches
-- :pencil2: **[latex-polish](./latex-polish/)** — polish academic writing · 16 Chinglish categories · phrasebank by section · level-controlled edits
-- :repeat: **[latex-fmt](./latex-fmt/)** — reformat for 11 venues · NeurIPS · ICML · CVPR · ACL · ICLR · ECCV · AAAI · TMLR · IEEE · Nature · Science
-- :book: **[paper-read](./paper-read/)** — read & analyze papers · 3 depth levels · critical appraisal · idea mining
-- :wrench: **[pdf2tex](./pdf2tex/)** — rebuild LaTeX from PDF · 7-phase pipeline · math & table reconstruction
+<table>
+<tr>
+<td width="50%">
+
+### :ambulance: [latex-rescue](./latex-rescue/)
+
+Fix compilation errors
+
+- 50+ error patterns cataloged
+- Package conflicts resolved
+- Environment mismatches fixed
+- XeLaTeX/LuaLaTeX auto-detection
+
+</td>
+<td width="50%">
+
+### :pencil2: [latex-polish](./latex-polish/)
+
+Polish academic writing
+
+- 16 Chinglish pattern categories
+- Phrasebank by paper section
+- Light / moderate / strict levels
+- Preserves all LaTeX commands & math
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### :repeat: [latex-fmt](./latex-fmt/)
+
+Reformat for venues
+
+- 11 venues: NeurIPS, ICML, CVPR, ACL, ICLR, ECCV, AAAI, TMLR, IEEE, Nature, Science
+- Bibtex ↔ Biblatex conversion
+- Anonymization enforcement
+- Compliance checklist
+
+</td>
+<td width="50%">
+
+### :book: [paper-read](./paper-read/)
+
+Read & analyze papers
+
+- 3 depth levels: skim → read → deep
+- Critical appraisal checklist
+- Assumption auditing
+- Cross-paper comparison
+
+</td>
+</tr>
+<tr>
+<td colspan="2" align="center">
+
+### :wrench: [pdf2tex](./pdf2tex/)
+
+Rebuild LaTeX from PDF — 7-phase pipeline, math & table reconstruction, compilable output
+
+</td>
+</tr>
+</table>
+
+---
 
 ## Demos
 
-**latex-rescue** — 47 errors, gone.
+### :ambulance: latex-rescue — 2 AM, 47 errors, deadline tomorrow
 
 ```diff
 - \textbff{bold}              → Undefined control sequence
@@ -43,7 +103,7 @@
 + \begin{figure}...\end{figure}  → mismatch fixed
 ```
 
-**latex-polish** — Reviewer #2, satisfied.
+### :pencil2: latex-polish — Reviewer #2 says "English needs improvement"
 
 ```diff
 - The model can achieves good performance on the dataset.
@@ -56,14 +116,18 @@
 + Most methods in this field fail to match this result.
 ```
 
-**latex-fmt** — New venue, one pass.
+### :repeat: latex-fmt — Camera-ready reformat, CVPR → NeurIPS
 
 ```diff
 - \documentclass{article}
 + \documentclass{neurips_2025}
 - \usepackage{cite}
 + \bibliographystyle{neurips_2025}
+- \section*{Acknowledgements}
++ [REMOVED — anonymous submission]
 ```
+
+---
 
 ## Quick Start
 
@@ -108,6 +172,8 @@ latex-rescue/
 The difference from a raw LLM: these skills inject hundreds of precise, domain-specific rules that LLMs can't reliably produce from memory. An LLM knows LaTeX exists. These skills know that `\usepackage{cite}` must become `\bibliographystyle{neurips_2025}` when switching to NeurIPS.
 
 </details>
+
+---
 
 ## License
 
