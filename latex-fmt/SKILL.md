@@ -68,6 +68,8 @@ After the document class change is applied, recompile and fix any resulting erro
 
 ### Phase 3: Section Reorganization
 
+#### 3.1 Required Section Ordering
+
 Some venues require specific section ordering:
 
 **NeurIPS**:
@@ -118,11 +120,13 @@ No page limit. Uses OpenReview. **Not double-blind** — authors are visible dur
 
 If the current paper is missing a required section, flag it but don't invent content.
 
-**Anonymization reminder**: For double-blind venues, anonymize BOTH the main PDF and supplementary material. Check for identifying text in: author names, acknowledgments, self-references, file metadata, URLs pointing to personal pages.
+#### 3.2 Anonymization Reminder
+
+For double-blind venues, anonymize BOTH the main PDF and supplementary material. Check for identifying text in: author names, acknowledgments, self-references, file metadata, URLs pointing to personal pages.
 
 ### Phase 4: Page Limit Compliance
 
-Check against venue limits:
+#### 4.1 Check Against Limits
 
 | Venue | Limit | Excluding |
 |-------|-------|-----------|
@@ -141,6 +145,8 @@ pdflatex main.tex && pdflatex main.tex
 ```
 
 If over the limit, suggest cuts in this priority order:
+
+#### 4.2 Cut Priority
 1. Move proofs and derivations to appendix
 2. Reduce figure sizes to 0.8\textwidth
 3. Condense related work paragraphs
@@ -149,7 +155,7 @@ If over the limit, suggest cuts in this priority order:
 
 ### Phase 5: Citation and Bibliography Style
 
-Check and update citation style for target venue:
+#### 5.1 Venue Citation Styles
 
 | Venue | Default Style | BibTeX Engine | Notes |
 |-------|-------------|---------------|-------|
@@ -162,11 +168,15 @@ Check and update citation style for target venue:
 | IEEE | `\bibliographystyle{IEEEtran}` | bibtex | Strict IEEE format |
 
 When converting between styles:
+
+#### 5.2 Citation Command Conversion
 - **Numeric → Author-year**: Replace `\cite{key}` → `\citep{key}` (if loading natbib). Update .bst.
 - **Author-year → Numeric**: All citations remain `\cite{key}` (standard), just update .bst.
 - **natbib-specific commands** (`\citep`, `\citet`, `\citealp`): Only works with natbib. Remove or convert if target venue doesn't support natbib.
 
 **Converting between bibtex and biblatex**:
+
+#### 5.3 Backend Conversion
 - **bibtex → biblatex**: Replace `\bibliographystyle{...}` + `\bibliography{refs}` with `\usepackage[backend=biber,style=...]{biblatex}` + `\addbibresource{refs.bib}` + `\printbibliography`. Change backend command from `bibtex` to `biber`.
 - **biblatex → bibtex**: Reverse the above. Remove `\usepackage{biblatex}`, add `\bibliographystyle{...}` + `\bibliography{refs}`. Change backend from `biber` to `bibtex`.
 - **Important**: `natbib` and `biblatex` are incompatible. If switching to biblatex, remove `\usepackage{natbib}` entirely.

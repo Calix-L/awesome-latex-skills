@@ -168,16 +168,45 @@ Suggestions for author review:
 Chinese authors have specific recurring issues. Watch for these and fix proactively. See `references/chinglish-patterns.md` for the full catalog of 16 pattern categories.
 
 ### Top-priority fixes (most common and most damaging):
-- **Article omission**: "The result shows" not "Result shows"; "a novel approach" not "novel approach"
-- **Subject-verb agreement**: "The results demonstrate" not "The results demonstrates"
-- **Overuse of "can"**: "X enables Y" not "X can enable Y" unless ability is specifically relevant
+
+**Article omission** — Chinese has no articles; add `a/an/the` rigorously:
+```
+"Result shows that..."  → "The result shows that..."
+"We propose novel approach" → "We propose a novel approach"
+"In experiment, we found" → "In the experiment, we found"
+```
+
+**Subject-verb agreement** — Chinese verbs don't inflect; check every pair:
+```
+"The results demonstrates" → "The results demonstrate"
+"Each method have" → "Each method has"
+"The data was collected" → "The data were collected" (formal; "was" also acceptable)
+```
+
+**Overuse of "can"** — Chinese 可以 (can) maps to English "can" far too often:
+```
+"This method can solve the problem" → "This method solves the problem"
+"The model can achieve high accuracy" → "The model achieves high accuracy"
+"We can observe that" → "We observe that"
+```
 
 ### Medium-priority fixes:
-- **`According to` overuse**: vary with "As shown by", "X reported that", "Consistent with"
-- **`Make/let` constructions**: "This allows X to Y" not "This makes X to Y"
-- **Missing plural -s**: "several approaches" not "several approach"
-- **Wrong prepositions**: "different from" not "different with"; "based on" not "based from"
-- **`So` as conjunction**: replace with "Therefore,", "Thus,", "Consequently,"
+
+**`According to` overuse**: vary with "As shown by", "X reported that", "Consistent with"
+```
+"According to the experiment" → "Experiments show that"
+"According to Table 1" → "Table 1 shows that"
+```
+
+**`Make/let` constructions**: "This allows X to Y" not "This makes X to Y"
+```
+"This makes the model to learn" → "This allows the model to learn"
+"The function makes the error reduce" → "The function reduces the error"
+```
+
+**Missing plural -s**: "several approaches" not "several approach"
+**Wrong prepositions**: "different from" not "different with"; "based on" not "based from"
+**`So` as conjunction**: replace with "Therefore,", "Thus,", "Consequently,"
 
 For the complete list with examples, see `references/chinglish-patterns.md`.
 
