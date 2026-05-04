@@ -1,7 +1,7 @@
 ---
 name: latex-polish
 description: Polish academic writing in LaTeX files. Enhances clarity, fixes grammar, improves academic style, and eliminates Chinglish patterns. Operates on text content while preserving LaTeX commands, math, citations, and references.
-version: 1.0.0
+version: 1.1.0
 triggers:
   - "polish my paper"
   - "improve academic writing"

@@ -1,7 +1,7 @@
 ---
 name: latex-rescue
 description: Diagnose and fix LaTeX compilation errors. Handles undefined control sequences, missing brackets, math mode violations, package conflicts, undefined references, and environment mismatches.
-version: 1.0.0
+version: 1.1.0
 triggers:
   - "fix my LaTeX errors"
   - "论文编译报错"
@@ -166,7 +166,7 @@ Fix: flag the offending line and suggest moving it after `\begin{document}`.
 **`Environment foo undefined`** — the environment `foo` doesn't exist. Usually:
 - Missing `\usepackage` that defines it (e.g. `{algorithm}` needs `\usepackage{algorithm}`)
 - Typo in the name
-- Fix: search for `foo` in `references/package-conflicts.md` to find which package provides it.
+- Fix: look up `foo` in the Environment → Package Mapping table in `references/error-catalog.md` to find which package provides it.
 
 #### 4.3 Complex Fixes (use LLM judgment)
 
@@ -276,6 +276,18 @@ For citation errors:
 Switching column layout often breaks floats:
 - `table*` → `table` (or vice versa) depending on document class
 - Check preamble for `\documentclass[twocolumn]{...}`
+
+### Overleaf Projects
+
+Overleaf users cannot run local compilation commands. Adapt the workflow:
+1. **Ask the user to paste the error message** from the Overleaf log (click "Logs and output files")
+2. **Diagnose from the error message alone** — classify the error using Phase 3 rules
+3. **Apply fixes to the `.tex` files** — the user can copy changes back to Overleaf
+4. **Do NOT run `pdflatex` locally** — trust the Overleaf log instead
+5. **Overleaf-specific quirks**:
+   - Overleaf auto-creates `{filename}.blg` and `{filename}.bbl` — `bibtex`/`biber` errors appear there
+   - Overleaf caches old files — if a fix doesn't take effect, advise clearing cache (Menu → Clear cached files)
+   - Overleaf uses `latexmk` internally — a single recompile usually resolves cross-references
 
 ## Reference Files
 

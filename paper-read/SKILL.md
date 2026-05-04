@@ -1,7 +1,7 @@
 ---
 name: paper-read
 description: Read, analyze, and extract knowledge from academic papers. Handles PDFs and arXiv links. Produces structured summaries, identifies core contributions, evaluates methodology, and enables cross-paper comparison.
-version: 1.0.0
+version: 1.1.0
 triggers:
   - "read this paper"
   - "summarize this paper"
@@ -66,6 +66,12 @@ Read and extract:
 - **Venue + year** — top tier? workshop? preprint?
 - **Abstract** — 4 components: problem, approach, results, implication
 - **Figures + tables** — the paper's story told visually. What's Figure 1? What's the main result table?
+
+Adjust expectations by venue status:
+- **Peer-reviewed (NeurIPS/ICML/CVPR/ACL/ICLR)**: claims have passed reviewer scrutiny. Still verify, but give benefit of the doubt on experimental rigor.
+- **Preprints (arXiv, SSRN)**: no peer review yet. Be more skeptical — check for missing baselines, incomplete ablations, overclaims. A preprint's claims are proposals, not findings.
+- **Workshop papers**: typically early-stage work. Expect incomplete experiments but look for promising ideas.
+- **Journal versions**: often stronger than the conference version (more experiments, revisions). Check if this is an extended version and compare to the conference original if cited.
 
 Output a 5-bullet quick summary:
 ```

@@ -156,6 +156,15 @@ Use the **exact same term** for the **exact same concept** throughout the paper.
 - Don't re-define abbreviations in later sections
 - Avoid abbreviations in section headings unless universally known (e.g. "BERT" is OK, domain-specific ones are not)
 
+### Oxford Comma
+
+Use the Oxford (serial) comma consistently throughout the paper:
+- With: "We evaluate on ImageNet, COCO, and ADE20K."
+- Without: "We evaluate on ImageNet, COCO and ADE20K."
+- Pick one style and apply it everywhere — do not mix within the same paper
+- Default recommendation: **use the Oxford comma** (most CS style guides prefer it, and it prevents ambiguity)
+- Ambiguity the Oxford comma resolves: "We thank my advisors, Alice and Bob" → are Alice and Bob the advisors, or two additional people? "We thank my advisors, Alice, and Bob" is unambiguous.
+
 ---
 
 ## Quick Self-Review

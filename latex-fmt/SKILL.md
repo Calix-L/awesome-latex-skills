@@ -1,7 +1,7 @@
 ---
 name: latex-fmt
 description: Reformat LaTeX papers for target journals and conferences. Handles document class changes, margin/page adjustments, citation style conversion, figure/table reformatting, and compliance checking against venue-specific requirements.
-version: 1.0.0
+version: 1.1.0
 triggers:
   - "format for journal"
   - "apply template"
