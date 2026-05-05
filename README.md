@@ -2,21 +2,24 @@
 
 <img src="./assets/banner.svg" alt="awesome-latex-skills" width="100%">
 
-### Your AI agent wrote `\beginn{table}` again. Fix it in seconds.
+<br>
 
-Every researcher who uses LaTeX knows the pain: **47 compilation errors at 2 AM**, a reviewer who says *"English needs improvement"*, or a CVPR reject that needs to become an ICML submission by Friday.
+### Every researcher knows the feeling.
 
-**awesome-latex-skills** turns any AI agent into a LaTeX expert with structured workflows, domain-specific references, and guardrails that raw prompts can't provide.
+> *47 compilation errors at 2 AM. A reviewer who writes "English needs improvement."*
+> *A CVPR reject that needs to become an ICML submission by Friday.*
 
-&nbsp;
+**awesome-latex-skills** gives any AI agent the domain expertise to handle these — structured workflows, curated references, and guardrails that raw prompts can't replicate.
+
+<br>
 
 `47 errors → 0` &nbsp;·&nbsp; `Chinglish → publication-ready` &nbsp;·&nbsp; `CVPR → NeurIPS` &nbsp;·&nbsp; `50 pages → structured notes`
 
-&nbsp;
+<br>
 
 <a href="https://github.com/Calix-L/awesome-latex-skills/actions"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="CI"></a>
 <img src="https://img.shields.io/badge/skills-5-blue" alt="5 skills">
-<img src="https://img.shields.io/badge/tests-142_passing-brightgreen" alt="142 tests">
+<img src="https://img.shields.io/badge/tests-146_passing-brightgreen" alt="146 tests">
 <img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=social" alt="Stars">
 <img src="https://img.shields.io/badge/license-MIT-yellow" alt="MIT">
 
@@ -32,9 +35,9 @@ Every researcher who uses LaTeX knows the pain: **47 compilation errors at 2 AM*
 
 <table>
 <tr>
-<td width="60" align="center">:ambulance:</td>
-<td><strong><a href="./latex-rescue/SKILL.md">latex-rescue</a></strong></td>
-<td>Fix compilation errors — 80+ auto-fix patterns, package conflict resolution, Overleaf support</td>
+<td width="54" align="center">:ambulance:</td>
+<td width="120"><strong><a href="./latex-rescue/SKILL.md">latex-rescue</a></strong></td>
+<td>Fix compilation errors — 80+ auto-fix patterns, package conflicts, Overleaf support</td>
 </tr>
 <tr>
 <td align="center">:pencil2:</td>
@@ -44,7 +47,7 @@ Every researcher who uses LaTeX knows the pain: **47 compilation errors at 2 AM*
 <tr>
 <td align="center">:repeat:</td>
 <td><strong><a href="./latex-fmt/SKILL.md">latex-fmt</a></strong></td>
-<td>Reformat between venues — NeurIPS, ICML, CVPR, ACL, ICLR, ECCV, AAAI, TMLR, IEEE, Nature, Science</td>
+<td>Reformat between 11 venues — NeurIPS · ICML · CVPR · ACL · ICLR · ECCV · AAAI · TMLR · IEEE · Nature · Science</td>
 </tr>
 <tr>
 <td align="center">:book:</td>
@@ -58,21 +61,10 @@ Every researcher who uses LaTeX knows the pain: **47 compilation errors at 2 AM*
 </tr>
 </table>
 
-<details>
-<summary>By the numbers</summary>
-
-| Metric | Count |
-|---|---|
-| Error patterns cataloged | 80+ |
-| Package conflicts documented | 14 known pairs |
-| Chinglish pattern categories | 18 |
-| Phrasebank sentence templates | 100+ |
-| Venue formatting rules | 11 |
-| Critical appraisal checklist items | 43 |
-| Math glyph → LaTeX mappings | 97+ |
-| Reference files total | 15 |
-
-</details>
+| | | | |
+|---|---|---|---|
+| 80+ error patterns | 14 package conflicts | 18 Chinglish categories | 100+ phrasebank templates |
+| 11 venue rules | 43 appraisal items | 97+ glyph mappings | 15 reference files |
 
 ---
 
@@ -83,18 +75,18 @@ You've tried asking ChatGPT to fix your LaTeX. It guesses. It misses things. It 
 | What happens | Raw LLM | With skill pack |
 |---|---|---|
 | `\beginn{table}` | "That's an interesting typo" | Auto-corrects to `\begin{table}` |
-| "According to the experiment" | Accepts it | Flags `According to` overuse, suggests alternatives |
+| "According to the experiment" | Accepts it | Flags overuse, suggests alternatives |
 | NeurIPS submission | Forgets Broader Impact | Flags missing required section |
 | PDF → LaTeX | Produces broken markup | 7-phase pipeline with verification |
 | `\citep{}` without natbib | Silently ignores | Detects missing package, adds it |
 
-**Why?** Skills inject hundreds of domain-specific rules that LLMs can't reliably produce from memory. Each skill is a **structured workflow + reference knowledge + guardrails** — same input, same expert output, every time.
+Skills inject **hundreds of domain-specific rules** that LLMs can't reliably recall from memory. Each skill = structured workflow + reference knowledge + guardrails. Same input, same expert output, every time.
 
 ---
 
 ## Demos
 
-### :ambulance: latex-rescue — 2 AM, 47 errors, deadline tomorrow
+### :ambulance: latex-rescue — *2 AM, 47 errors, deadline tomorrow*
 
 ```diff
 - \textbff{bold}              → Undefined control sequence
@@ -105,12 +97,9 @@ You've tried asking ChatGPT to fix your LaTeX. It guesses. It misses things. It 
 
 - \begin{figure}...\end{table}
 + \begin{figure}...\end{figure}  → mismatch fixed
-
-- \usepackage{cite} + \usepackage{natbib}
-+ → removed cite (conflicts with natbib)  → package conflict resolved
 ```
 
-### :pencil2: latex-polish — Reviewer #2 says "English needs improvement"
+### :pencil2: latex-polish — *Reviewer #2 says "English needs improvement"*
 
 ```diff
 - The model can achieves good performance on the dataset.
@@ -121,40 +110,32 @@ You've tried asking ChatGPT to fix your LaTeX. It guesses. It misses things. It 
 
 - Most of methods in this research field can not achieve the same result.
 + Most methods in this field fail to match this result.
-
-- This method proves that our approach is completely novel.
-+ This method demonstrates that our approach is novel to our knowledge.
-  (hedging: "proves" → "demonstrates", "completely" → removed)
 ```
 
-### :repeat: latex-fmt — Camera-ready reformat, CVPR → NeurIPS
+### :repeat: latex-fmt — *Camera-ready reformat, CVPR → NeurIPS*
 
 ```diff
 - \documentclass{article}
 + \documentclass{neurips_2025}
-- \usepackage{cite}
-+ \bibliographystyle{neurips_2025}
-- \section*{Acknowledgements}
-+ [REMOVED — anonymous submission]
 - \author{Zhang et al.}
 + \author{Anonymous}
 - (no Broader Impact section)
-+ ⚠ Broader Impact section required by NeurIPS — flagged for author
++ ⚠ Broader Impact required by NeurIPS — flagged
 ```
 
-### :book: paper-read — 50 papers in your reading list, no time
+### :book: paper-read — *50 papers in your reading list, no time*
 
 ```diff
 - "This paper proposes a novel transformer-based approach for..."
-+ [skim] Object detection via transformers · Wang et al., CVPR 2024
++ [skim] Object detection · Wang et al., CVPR 2024
 +        Novelty: sparse attention for real-time. Verdict: worth deep read.
 
 - (reading every paper front-to-back)
-+ [deep] Key equation: Eq.3 sparse attention. Delta: 10x faster.
-+        Gap: only tested on COCO. Overclaim: "state-of-the-art" (margin 0.3%).
++ [deep] Key eq: sparse attention. Delta: 10x faster.
++        Gap: only tested on COCO. Overclaim: "SOTA" (margin 0.3%).
 ```
 
-### :wrench: pdf2tex — Lost the .tex, only the PDF survives
+### :wrench: pdf2tex — *Lost the .tex, only the PDF survives*
 
 ```diff
 - (staring at a compiled PDF, no source files)
@@ -169,39 +150,40 @@ You've tried asking ChatGPT to fix your LaTeX. It guesses. It misses things. It 
 
 ## Workflows
 
-Skills combine into pipelines for common academic scenarios:
+Skills compose into pipelines for real academic scenarios:
 
-| Scenario | Pipeline | Slash commands |
+| Scenario | What you type | What happens |
 |---|---|---|
-| Deadline crunch | crash → rescue → compile | `/latex-rescue` |
-| Review turnaround | draft → polish → format → submit | `/latex-polish` → `/latex-fmt` |
-| Rebuttal reformat | CVPR reject → polish → reformat for ICML | `/latex-polish` → `/latex-fmt` |
-| Lost source recovery | PDF → reconstruct → fix → polish | `/pdf2tex` → `/latex-rescue` → `/latex-polish` |
-| New paper from scratch | read papers → polish draft → format for venue | `/paper-read` → `/latex-polish` → `/latex-fmt` |
-| Overleaf user | paste error log → get fixes | `/latex-rescue` |
+| Deadline crunch | `/latex-rescue` | Crash → rescue → compile |
+| Review turnaround | `/latex-polish` → `/latex-fmt` | Draft → polish → format → submit |
+| Rebuttal reformat | `/latex-polish` → `/latex-fmt` | CVPR reject → polish → reformat for ICML |
+| Lost source | `/pdf2tex` → `/latex-rescue` | PDF → reconstruct → fix → polish |
+| New paper | `/paper-read` → `/latex-polish` → `/latex-fmt` | Read papers → polish → format for venue |
+| Overleaf | `/latex-rescue` | Paste error log → get fixes |
 
 ---
 
 ## Quick Start
 
-**Install all skills at once:**
+**One command to install all 5 skills:**
 ```bash
-git clone https://github.com/Calix-L/awesome-latex-skills.git
+git clone https://github.com/Calix-L/awesome-latex-skills.git && \
 cp -r awesome-latex-skills/{latex-rescue,latex-polish,latex-fmt,paper-read,pdf2tex} ~/.claude/skills/
 ```
 
-**Or install one skill:**
+Then just type `/latex-rescue`, `/latex-polish`, etc. in Claude Code.
+
+**One skill only:**
 ```bash
 cp -r awesome-latex-skills/latex-rescue ~/.claude/skills/
-# Then type /latex-rescue in Claude Code
 ```
 
-**Any agent** — point it to the SKILL.md:
+**Not using Claude Code?** Just point your agent to the SKILL.md:
 ```
 Read awesome-latex-skills/latex-rescue/SKILL.md and follow the workflow.
 ```
 
-**Prerequisites**: `latex-rescue` needs a LaTeX install. `pdf2tex` needs `pip install pymupdf`. The other 3 skills need nothing.
+<sup>No install needed for `latex-polish`, `latex-fmt`, or `paper-read`. `latex-rescue` needs LaTeX. `pdf2tex` needs `pip install pymupdf`.</sup>
 
 ---
 
@@ -209,8 +191,8 @@ Read awesome-latex-skills/latex-rescue/SKILL.md and follow the workflow.
 
 | Platform | How to use |
 |---|---|
-| **Claude Code** | Copy skill folder to `~/.claude/skills/`, invoke with `/latex-rescue` |
-| **ChatGPT / GPT-4** | Paste SKILL.md as a custom instruction or system prompt |
+| **Claude Code** | Copy to `~/.claude/skills/`, invoke with `/latex-rescue` |
+| **ChatGPT / GPT-4** | Paste SKILL.md as custom instruction or system prompt |
 | **Cursor** | Add SKILL.md content to `.cursor/rules/` |
 | **Copilot** | Add SKILL.md content to `.github/copilot-instructions.md` |
 | **Any LLM** | Send SKILL.md as context, then ask your question |
