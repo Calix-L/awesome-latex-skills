@@ -2,11 +2,17 @@
 
 <img src="./assets/banner.svg" alt="awesome-latex-skills" width="100%">
 
-**Prompt packs that make any AI agent a LaTeX expert.**
+### Your AI agent wrote `\beginn{table}` again. Fix it in seconds.
 
-`47 errors → 0` · `Chinglish → publication-ready` · `CVPR → NeurIPS` · `50 pages → structured notes`
+Every researcher who uses LaTeX knows the pain: **47 compilation errors at 2 AM**, a reviewer who says *"English needs improvement"*, or a CVPR reject that needs to become an ICML submission by Friday.
 
-<br>
+**awesome-latex-skills** turns any AI agent into a LaTeX expert with structured workflows, domain-specific references, and guardrails that raw prompts can't provide.
+
+&nbsp;
+
+`47 errors → 0` &nbsp;·&nbsp; `Chinglish → publication-ready` &nbsp;·&nbsp; `CVPR → NeurIPS` &nbsp;·&nbsp; `50 pages → structured notes`
+
+&nbsp;
 
 <a href="https://github.com/Calix-L/awesome-latex-skills/actions"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="CI"></a>
 <img src="https://img.shields.io/badge/skills-5-blue" alt="5 skills">
@@ -24,13 +30,33 @@
 
 ## Skills
 
-| | Skill | What it does |
-|---|---|---|
-| :ambulance: | **[latex-rescue](./latex-rescue/SKILL.md)** | Fix compilation errors — 80+ patterns, package conflicts, environment mismatches |
-| :pencil2: | **[latex-polish](./latex-polish/SKILL.md)** | Polish academic writing — 16 Chinglish categories, phrasebank, 3 intensity levels |
-| :repeat: | **[latex-fmt](./latex-fmt/SKILL.md)** | Reformat for 11 venues — NeurIPS, ICML, CVPR, ACL, ICLR, ECCV, AAAI, TMLR, IEEE, Nature, Science |
-| :book: | **[paper-read](./paper-read/SKILL.md)** | Read & analyze papers — 3 depth levels, critical appraisal, assumption auditing |
-| :wrench: | **[pdf2tex](./pdf2tex/SKILL.md)** | Rebuild LaTeX from PDF — 7-phase pipeline, math & table reconstruction |
+<table>
+<tr>
+<td width="60" align="center">:ambulance:</td>
+<td><strong><a href="./latex-rescue/SKILL.md">latex-rescue</a></strong></td>
+<td>Fix compilation errors — 80+ auto-fix patterns, package conflict resolution, Overleaf support</td>
+</tr>
+<tr>
+<td align="center">:pencil2:</td>
+<td><strong><a href="./latex-polish/SKILL.md">latex-polish</a></strong></td>
+<td>Polish academic writing — 16 Chinglish categories, 100+ phrasebank templates, 3 intensity levels</td>
+</tr>
+<tr>
+<td align="center">:repeat:</td>
+<td><strong><a href="./latex-fmt/SKILL.md">latex-fmt</a></strong></td>
+<td>Reformat between venues — NeurIPS, ICML, CVPR, ACL, ICLR, ECCV, AAAI, TMLR, IEEE, Nature, Science</td>
+</tr>
+<tr>
+<td align="center">:book:</td>
+<td><strong><a href="./paper-read/SKILL.md">paper-read</a></strong></td>
+<td>Read & analyze papers — skim / read / deep, 43-item critical appraisal, assumption auditing</td>
+</tr>
+<tr>
+<td align="center">:wrench:</td>
+<td><strong><a href="./pdf2tex/SKILL.md">pdf2tex</a></strong></td>
+<td>Rebuild LaTeX from PDF — 7-phase pipeline, 97+ math glyph mappings, table reconstruction</td>
+</tr>
+</table>
 
 <details>
 <summary>By the numbers</summary>
@@ -42,7 +68,7 @@
 | Chinglish pattern categories | 16 |
 | Phrasebank sentence templates | 100+ |
 | Venue formatting rules | 11 |
-| Critical appraisal checklist items | 40+ |
+| Critical appraisal checklist items | 43 |
 | Math glyph → LaTeX mappings | 97+ |
 | Reference files total | 15 |
 
@@ -52,14 +78,17 @@
 
 ## Why skills, not just prompts?
 
-| Scenario | Raw LLM | With skill pack |
+You've tried asking ChatGPT to fix your LaTeX. It guesses. It misses things. It changes your math.
+
+| What happens | Raw LLM | With skill pack |
 |---|---|---|
 | `\beginn{table}` | "That's an interesting typo" | Auto-corrects to `\begin{table}` |
 | "According to the experiment" | Accepts it | Flags `According to` overuse, suggests alternatives |
 | NeurIPS submission | Forgets Broader Impact | Flags missing required section |
-| PDF → LaTeX | Produces broken markup | Structured 7-phase pipeline with verification |
+| PDF → LaTeX | Produces broken markup | 7-phase pipeline with verification |
+| `\citep{}` without natbib | Silently ignores | Detects missing package, adds it |
 
-Skills inject **hundreds of domain-specific rules** that LLMs can't reliably produce from memory. Each skill is a structured workflow + reference knowledge + guardrails — same input, same expert output, every time.
+**Why?** Skills inject hundreds of domain-specific rules that LLMs can't reliably produce from memory. Each skill is a **structured workflow + reference knowledge + guardrails** — same input, same expert output, every time.
 
 ---
 
@@ -76,6 +105,9 @@ Skills inject **hundreds of domain-specific rules** that LLMs can't reliably pro
 
 - \begin{figure}...\end{table}
 + \begin{figure}...\end{figure}  → mismatch fixed
+
+- \usepackage{cite} + \usepackage{natbib}
++ → removed cite (conflicts with natbib)  → package conflict resolved
 ```
 
 ### :pencil2: latex-polish — Reviewer #2 says "English needs improvement"
@@ -89,6 +121,10 @@ Skills inject **hundreds of domain-specific rules** that LLMs can't reliably pro
 
 - Most of methods in this research field can not achieve the same result.
 + Most methods in this field fail to match this result.
+
+- This method proves that our approach is completely novel.
++ This method demonstrates that our approach is novel to our knowledge.
+  (hedging: "proves" → "demonstrates", "completely" → removed)
 ```
 
 ### :repeat: latex-fmt — Camera-ready reformat, CVPR → NeurIPS
@@ -102,6 +138,8 @@ Skills inject **hundreds of domain-specific rules** that LLMs can't reliably pro
 + [REMOVED — anonymous submission]
 - \author{Zhang et al.}
 + \author{Anonymous}
+- (no Broader Impact section)
++ ⚠ Broader Impact section required by NeurIPS — flagged for author
 ```
 
 ### :book: paper-read — 50 papers in your reading list, no time
@@ -131,16 +169,16 @@ Skills inject **hundreds of domain-specific rules** that LLMs can't reliably pro
 
 ## Workflows
 
-Skills combine for common academic scenarios:
+Skills combine into pipelines for common academic scenarios:
 
-| Scenario | Pipeline |
-|---|---|
-| Deadline crunch | `latex-rescue` → compile |
-| Review turnaround | `latex-polish` → `latex-fmt` → submit |
-| Rebuttal reformat | `paper-read` → `latex-polish` → `latex-fmt` |
-| Lost source recovery | `pdf2tex` → `latex-rescue` → `latex-polish` |
-| New paper from scratch | `paper-read` → `latex-polish` → `latex-fmt` |
-| Overleaf user | `latex-rescue` (paste error log mode) |
+| Scenario | Pipeline | Slash commands |
+|---|---|---|
+| Deadline crunch | crash → rescue → compile | `/latex-rescue` |
+| Review turnaround | draft → polish → format → submit | `/latex-polish` → `/latex-fmt` |
+| Rebuttal reformat | CVPR reject → polish → reformat for ICML | `/latex-polish` → `/latex-fmt` |
+| Lost source recovery | PDF → reconstruct → fix → polish | `/pdf2tex` → `/latex-rescue` → `/latex-polish` |
+| New paper from scratch | read papers → polish draft → format for venue | `/paper-read` → `/latex-polish` → `/latex-fmt` |
+| Overleaf user | paste error log → get fixes | `/latex-rescue` |
 
 ---
 
