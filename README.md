@@ -17,7 +17,7 @@
 
 ---
 
-**[Skills](#skills) · [Demos](#demos) · [Workflows](#workflows) · [Quick Start](#quick-start) · [Compatibility](#compatibility) · [Contributing](./CONTRIBUTING.md)**
+**[Skills](#skills) · [Demos](#demos) · [Workflows](#workflows) · [Quick Start](#quick-start) · [Compatibility](#compatibility) · [Changelog](./CHANGELOG.md) · [Contributing](./CONTRIBUTING.md)**
 
 ---
 
@@ -147,6 +147,9 @@ Lost source recovery     PDF → pdf2tex → rescue (fix reconstruction) → pol
 
 New paper from scratch   Read 20 related papers → polish draft → format for venue
                         └─ paper-read → latex-polish → latex-fmt
+
+Overleaf user            Paste error log → get fixes → apply in editor
+                        └─ latex-rescue (Overleaf mode)
 ```
 
 ---

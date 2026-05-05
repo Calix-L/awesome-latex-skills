@@ -174,3 +174,37 @@ Each paragraph:
 - Copying the abstract verbatim
 - Generic future work ("investigating other applications")
 - Not acknowledging limitations
+
+---
+
+## Broader Impact / Ethics
+
+**Purpose**: Assess societal implications of the work. Required by NeurIPS, encouraged by ICML and others.
+
+**Structure**:
+1. **Positive applications**: Who benefits and how
+2. **Potential harms**: Misuse scenarios, dual-use concerns, negative societal effects
+3. **Mitigation strategies**: What safeguards, policies, or design choices reduce risk
+4. **Equity and access**: Who might be excluded or disadvantaged by this work
+
+**Common mistakes**:
+- Writing only positive impact (reviewers expect honest risk assessment)
+- Generic boilerplate ("AI can be used for good or bad")
+- Claiming there are no risks (every work has some)
+- Ignoring data-related harms (privacy, representation bias, consent)
+
+---
+
+## Acknowledgments
+
+**Purpose**: Credit non-author contributors and funders. Camera-ready only — NOT in anonymous submission.
+
+**Structure**:
+1. Funding sources (grant numbers if applicable)
+2. Key contributors (not qualifying for authorship): data annotation, infrastructure, discussions
+3. Reviewer credit (optional, if helpful feedback shaped the final version)
+
+**Common mistakes**:
+- Including in anonymous submission (reveals identity via funding)
+- Overly long or overly personal
+- Forgetting to acknowledge compute resources or data providers

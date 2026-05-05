@@ -22,5 +22,12 @@ jobs:
           for f in */agents/*.yaml; do
             python3 -c "import yaml; yaml.safe_load(open('$f', encoding='utf-8'))" || (echo "Invalid YAML: $f" && exit 1)
           done
+      - name: Check version consistency
+        run: |
+          versions=$(grep -h '^version:' */SKILL.md | sed 's/version: *//' | sort -u)
+          if [ $(echo "$versions" | wc -l) -gt 1 ]; then
+            echo "Version mismatch found:"; echo "$versions"; exit 1
+          fi
+          echo "All skills at version: $versions"
       - name: Run test suite
         run: bash tests/run_tests.sh

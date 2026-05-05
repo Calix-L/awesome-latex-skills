@@ -17,3 +17,5 @@ auto_activate:
     - "读.*论文"
     - "论文速读"
     - "/paper-read"
+    file_patterns:
+    - "*.pdf"
