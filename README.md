@@ -10,6 +10,7 @@
 
 <a href="https://github.com/Calix-L/awesome-latex-skills/actions"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="CI"></a>
 <img src="https://img.shields.io/badge/skills-5-blue" alt="5 skills">
+<img src="https://img.shields.io/badge/tests-142_passing-brightgreen" alt="142 tests">
 <img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=social" alt="Stars">
 <img src="https://img.shields.io/badge/license-MIT-yellow" alt="MIT">
 
@@ -42,7 +43,7 @@
 | Phrasebank sentence templates | 100+ |
 | Venue formatting rules | 11 |
 | Critical appraisal checklist items | 40+ |
-| Math glyph → LaTeX mappings | 80+ |
+| Math glyph → LaTeX mappings | 97+ |
 | Reference files total | 15 |
 
 </details>
@@ -51,7 +52,7 @@
 
 ## Why skills, not just prompts?
 
-| | Raw LLM | With skill pack |
+| Scenario | Raw LLM | With skill pack |
 |---|---|---|
 | `\beginn{table}` | "That's an interesting typo" | Auto-corrects to `\begin{table}` |
 | "According to the experiment" | Accepts it | Flags `According to` overuse, suggests alternatives |
@@ -132,25 +133,14 @@ Skills inject **hundreds of domain-specific rules** that LLMs can't reliably pro
 
 Skills combine for common academic scenarios:
 
-```
-Deadline crunch         Crash → rescue → compile ✓
-                        └─ latex-rescue alone
-
-Review turnaround       Draft → polish → fmt → submit
-                        └─ latex-polish → latex-fmt
-
-Rebuttal reformat       CVPR reject → read reviews → polish → reformat for ICML
-                        └─ paper-read → latex-polish → latex-fmt
-
-Lost source recovery     PDF → pdf2tex → rescue (fix reconstruction) → polish
-                        └─ pdf2tex → latex-rescue → latex-polish
-
-New paper from scratch   Read 20 related papers → polish draft → format for venue
-                        └─ paper-read → latex-polish → latex-fmt
-
-Overleaf user            Paste error log → get fixes → apply in editor
-                        └─ latex-rescue (Overleaf mode)
-```
+| Scenario | Pipeline |
+|---|---|
+| Deadline crunch | `latex-rescue` → compile |
+| Review turnaround | `latex-polish` → `latex-fmt` → submit |
+| Rebuttal reformat | `paper-read` → `latex-polish` → `latex-fmt` |
+| Lost source recovery | `pdf2tex` → `latex-rescue` → `latex-polish` |
+| New paper from scratch | `paper-read` → `latex-polish` → `latex-fmt` |
+| Overleaf user | `latex-rescue` (paste error log mode) |
 
 ---
 
@@ -159,9 +149,7 @@ Overleaf user            Paste error log → get fixes → apply in editor
 **Install all skills at once:**
 ```bash
 git clone https://github.com/Calix-L/awesome-latex-skills.git
-cp -r awesome-latex-skills/latex-rescue awesome-latex-skills/latex-polish \
-      awesome-latex-skills/latex-fmt awesome-latex-skills/paper-read \
-      awesome-latex-skills/pdf2tex ~/.claude/skills/
+cp -r awesome-latex-skills/{latex-rescue,latex-polish,latex-fmt,paper-read,pdf2tex} ~/.claude/skills/
 ```
 
 **Or install one skill:**
@@ -175,7 +163,7 @@ cp -r awesome-latex-skills/latex-rescue ~/.claude/skills/
 Read awesome-latex-skills/latex-rescue/SKILL.md and follow the workflow.
 ```
 
-**Prerequisites**: latex-rescue needs a LaTeX install. pdf2tex needs `pip install pymupdf`. The other 3 skills need nothing.
+**Prerequisites**: `latex-rescue` needs a LaTeX install. `pdf2tex` needs `pip install pymupdf`. The other 3 skills need nothing.
 
 ---
 
