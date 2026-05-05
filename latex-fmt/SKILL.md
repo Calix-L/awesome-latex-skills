@@ -264,6 +264,7 @@ Compliance checklist: 11/12 pass
 - Flag but don't auto-fix content that reveals identity in anonymous submissions
 - Preserve the author's content exactly — only change formatting
 - Provide clear diffs of what changed
+- Check for a `.gitignore` — LaTeX projects should exclude `*.aux`, `*.bbl`, `*.blg`, `*.log`, `*.out`, `*.synctex.gz`, `*.toc`, `*.fls`, `*.fdb_latexmk`
 
 ## Reference Files
 

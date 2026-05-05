@@ -430,6 +430,38 @@ test_edge_case_content() {
     fi
 }
 
+test_config_consistency() {
+    echo ""
+    echo "=== Testing Config Consistency ==="
+
+    for agent_dir in "$SCRIPT_DIR/../"*/agents; do
+        local skill=$(basename "$(dirname "$agent_dir")")
+        local config="$agent_dir/config.yaml"
+        [ -f "$config" ] || continue
+
+        # All configs should have file_patterns
+        if grep -q 'file_patterns' "$config"; then
+            pass "$skill config.yaml has file_patterns"
+        else
+            fail "$skill config.yaml missing file_patterns"
+        fi
+
+        # All configs should have slash command trigger
+        if grep -q "/$skill" "$config"; then
+            pass "$skill config.yaml has /$skill trigger"
+        else
+            fail "$skill config.yaml missing /$skill trigger"
+        fi
+
+        # All configs should have platforms section
+        if grep -q 'platforms' "$config"; then
+            pass "$skill config.yaml has platforms section"
+        else
+            fail "$skill config.yaml missing platforms section"
+        fi
+    done
+}
+
 # --- Main ---
 
 echo "======================================"
@@ -453,6 +485,7 @@ test_chinese_pattern_coverage
 test_version_consistency
 test_reference_paths
 test_edge_case_content
+test_config_consistency
 
 if $HAS_LATEX; then
     test_rescue_compile

@@ -44,6 +44,18 @@ Look up the log message here to jump to the right section:
 | `\capton` | `\caption` |
 | `\incluegraphics` | `\includegraphics` |
 | `\centeringg` | `\centering` |
+| `\usepackge` | `\usepackage` |
+| `\documnetclass` | `\documentclass` |
+| `\begn{document}` | `\begin{document}` |
+| `\end{docment}` | `\end{document}` |
+| `\seciton{` | `\section{` |
+| `\subsectoin{` | `\subsection{` |
+| `\subsubsectoin{` | `\subsubsection{` |
+| `\figur{` | `\figure` (but `figure` is an env — use `\begin{figure}`) |
+| `\refrences` | `\section*{References}` (not a standard command) |
+| `\biblography` | `\bibliography` |
+| `\bibilography` | `\bibliography` |
+| `\citep{` without natbib | `\cite{` (or add `\usepackage{natbib}`) |
 
 ### Environment-Name Typos
 
@@ -249,3 +261,13 @@ When `Environment foo undefined` appears:
 | `tabularx` | `tabularx` |
 | `longtable` | `longtable` |
 | `booktabs` | Not an env — it provides `\toprule`, `\midrule`, `\bottomrule` |
+| `figure*` | Built-in (two-column float, no package needed) |
+| `table*` | Built-in (two-column float, no package needed) |
+| `split` | `amsmath` (single equation split across lines) |
+| `aligned` | `amsmath` (like align but used inside equation) |
+| `bmatrix` | `amsmath` (bracketed matrix) |
+| `pmatrix` | `amsmath` (parenthesized matrix) |
+| `Vmatrix` | `amsmath` (double-bar matrix) |
+| `theorem` | `amsthm` (requires `\newtheorem{theorem}{Theorem}` if class doesn't provide it) |
+| `proof` | `amsthm` |
+| `remark` | `amsthm` (requires `\newtheorem{remark}{Remark}`) |

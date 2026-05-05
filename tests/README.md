@@ -23,6 +23,7 @@ bash tests/run_tests.sh
 | Version consistency | All SKILL.md files have the same version number |
 | Reference file paths | All paths mentioned in SKILL.md Reference Files sections exist on disk |
 | Edge case content | Overleaf guidance, preprint expectations, Oxford comma, venue status |
+| Config consistency | All config.yaml files have file_patterns, slash command triggers, and platforms section |
 | Compile test | `broken_paper.tex` produces a `.log` file (requires pdflatex) |
 
 ## Fixtures

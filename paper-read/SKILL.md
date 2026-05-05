@@ -73,6 +73,8 @@ Adjust expectations by venue status:
 - **Workshop papers**: typically early-stage work. Expect incomplete experiments but look for promising ideas.
 - **Journal versions**: often stronger than the conference version (more experiments, revisions). Check if this is an extended version and compare to the conference original if cited.
 
+For detailed per-status reading strategies, consult `references/reading-framework.md` → Venue Status and Expectations.
+
 Output a 5-bullet quick summary:
 ```
 ### [Title]

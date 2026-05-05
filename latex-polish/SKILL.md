@@ -116,6 +116,17 @@ Apply different strategies per section. Consult `references/section-anatomy.md` 
 - Acknowledge limitations honestly (this builds credibility)
 - Future work should be specific, not generic ("exploring X directions" is too vague)
 
+#### Broader Impact / Ethics
+- Required by NeurIPS, encouraged by ICML and others
+- Must cover both positive applications AND potential harms — writing only positive impact is a red flag
+- Avoid generic boilerplate ("AI can be used for good or bad") — be specific about THIS work's implications
+- Equity and access: who might be excluded or disadvantaged?
+
+#### Acknowledgments
+- Camera-ready only — must be REMOVED in anonymous submission
+- Keep brief: funders, specific contributors, compute resources
+- Don't over-acknowledge (reviewers don't need your life story)
+
 ### Phase 4: Apply Changes
 
 Make edits directly in the `.tex` file:
