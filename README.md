@@ -19,7 +19,7 @@
 
 <a href="https://github.com/Calix-L/awesome-latex-skills/actions"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="CI"></a>
 <img src="https://img.shields.io/badge/skills-5-blue" alt="5 skills">
-<img src="https://img.shields.io/badge/tests-146_passing-brightgreen" alt="146 tests">
+<img src="https://img.shields.io/badge/tests-151_passing-brightgreen" alt="151 tests">
 <img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=social" alt="Stars">
 <img src="https://img.shields.io/badge/license-MIT-yellow" alt="MIT">
 

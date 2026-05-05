@@ -134,3 +134,20 @@ Choose ONE:
 - **Borderline**: Interesting idea but flaws in execution or evaluation
 - **Weak**: Flawed methodology, overclaimed, or just not enough novelty
 - **Cannot evaluate**: Missing crucial details to make a judgment
+
+---
+
+## Reproducibility Red Flags
+
+Quick-check these before trusting any result:
+
+- [ ] No code repository linked (or linked repo is empty/placeholder)
+- [ ] "We will release code upon acceptance" (often never happens)
+- [ ] Hyperparameters described as "standard" or "common" without specifics
+- [ ] Only 1 random seed reported (no error bars = no statistical validity)
+- [ ] Training details mention "selected the best checkpoint" without defining "best"
+- [ ] Evaluation on proprietary/internal datasets not available to others
+- [ ] Ablations only on a subset of experiments (e.g., only on 1 of 3 datasets)
+- [ ] Baseline numbers copied from original papers without re-running (different setups)
+- [ ] Compute budget not stated (impossible to assess feasibility)
+- [ ] Claims of "real-time" without specifying hardware

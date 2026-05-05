@@ -133,3 +133,40 @@ grep -n '\\ref{' *.tex | while read line; do
   grep -q "\\label{$label}" *.tex || echo "MISSING LABEL: $label"
 done
 ```
+
+## Project Structure Conventions
+
+A clean LaTeX project follows this layout:
+
+```
+project/
+├── main.tex              # documentclass + preamble + \input{} calls
+├── sections/
+│   ├── intro.tex         # \section{Introduction}
+│   ├── related.tex       # \section{Related Work}
+│   ├── method.tex        # \section{Method}
+│   ├── experiments.tex   # \section{Experiments}
+│   └── conclusion.tex    # \section{Conclusion}
+├── figures/              # all images
+├── tables/               # standalone table files (optional)
+├── refs.bib              # bibliography database
+└── supplementary.tex     # appendix (if allowed)
+```
+
+**Rules**:
+- `main.tex` should contain ONLY preamble and `\input{}` calls — no body content
+- Each `\section{}` gets its own file
+- Use `\input{sections/intro}` not `\include{sections/intro}` ( `\include` forces a page break and cannot be nested)
+- Images go in `figures/`, referenced as `\includegraphics{figures/fig1.pdf}`
+
+## Common Template Gotchas
+
+| Template | Common mistake | Fix |
+|---|---|---|
+| NeurIPS | Adding `\usepackage{geometry}` | Template sets margins — remove it |
+| ICML | Using `\cite{}` with author-year style | Use `\citep{}` / `\citet{}` (natbib) |
+| CVPR | Missing `[review]` option in documentclass | Add `\documentclass[review]{cvpr}` for submission |
+| ACL | Forgetting `\usepackage[review]{acl}` | Required for anonymous submission |
+| IEEE | Using `\thanks{}` in conference papers | Not allowed — remove it |
+| AAAI | Using A4 paper | Must be letter: `\documentclass[letterpaper]{article}` |
+| Any | Loading both `cite` and `natbib` | Remove `cite` — `natbib` supersedes it |

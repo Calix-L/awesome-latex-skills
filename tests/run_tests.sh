@@ -500,6 +500,45 @@ test_reference_depth() {
     else
         fail "chinglish-patterns has only $cat_count numbered categories (expected 18+)"
     fi
+
+    # Critical appraisal should have reproducibility red flags
+    local appraisal="$SCRIPT_DIR/../paper-read/references/critical-appraisal.md"
+    if grep -qi "reproducib.*red flag\|Reproducibility Red Flag" "$appraisal"; then
+        pass "critical-appraisal has Reproducibility Red Flags section"
+    else
+        fail "critical-appraisal missing Reproducibility Red Flags section"
+    fi
+
+    # Reading framework should have implementation reading strategy
+    local framework="$SCRIPT_DIR/../paper-read/references/reading-framework.md"
+    if grep -qi "Reading for Implementation\|reimplement" "$framework"; then
+        pass "reading-framework has implementation reading strategy"
+    else
+        fail "reading-framework missing implementation reading strategy"
+    fi
+
+    # Formatting rules should have project structure conventions
+    local formatting="$SCRIPT_DIR/../latex-fmt/references/formatting-rules.md"
+    if grep -qi "project structure\|Project Structure" "$formatting"; then
+        pass "formatting-rules has project structure conventions"
+    else
+        fail "formatting-rules missing project structure conventions"
+    fi
+
+    # Cross-skill references should exist
+    local polish_skill="$SCRIPT_DIR/../latex-polish/SKILL.md"
+    if grep -qi "latex-rescue" "$polish_skill"; then
+        pass "latex-polish SKILL.md cross-references latex-rescue"
+    else
+        fail "latex-polish SKILL.md missing cross-reference to latex-rescue"
+    fi
+
+    local read_skill="$SCRIPT_DIR/../paper-read/SKILL.md"
+    if grep -qi "latex-polish\|latex-fmt" "$read_skill"; then
+        pass "paper-read SKILL.md cross-references other skills"
+    else
+        fail "paper-read SKILL.md missing cross-references to other skills"
+    fi
 }
 
 # --- Main ---

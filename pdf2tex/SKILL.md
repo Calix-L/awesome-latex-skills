@@ -271,7 +271,7 @@ Based on the extracted structure, build the .tex file.
 - Leave placeholder cite keys that are easy to find-and-replace later
 
 **BOUNDARY CASES:**
-- "Scanned PDF" (image-based) → explain that OCR is needed (tesseract), not standard extraction
+- "Scanned PDF" (image-based) → explain that OCR is needed (tesseract), not standard extraction. See `references/pdf-extraction-guide.md` for OCR fallback instructions.
 - "Corrupted PDF" → extract what you can, note what's missing
 - "Encrypted/restricted PDF" → ask user to remove restrictions first
 - "Huge PDF" (100+ pages) → ask whether to extract all or specific sections

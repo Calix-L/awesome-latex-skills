@@ -69,7 +69,7 @@ Ask the user (or infer from context):
    - For wrapping commands like `\textbf{}`, `\emph{}`, `\textit{}`: preserve the command itself but you MAY polish the text argument inside
 3. Extract text blocks that need polishing
 4. Note section type — each section has its own conventions (see `references/section-anatomy.md`)
-5. Quick-scan for common issues before deep reading: check top-5 Chinglish patterns, filler phrases from `references/style-guardrails.md`, and tense consistency
+5. Quick-scan for common issues before deep reading: check top-6 Chinglish patterns (articles, subject-verb, "can", "according to", "based on", redundancy), filler phrases from `references/style-guardrails.md`, and tense consistency
 
 ### Phase 3: Polish (Section-Aware)
 

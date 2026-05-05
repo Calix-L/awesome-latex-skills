@@ -17,6 +17,13 @@ All notable changes to awesome-latex-skills.
 - **Broader Impact/Ethics and Acknowledgments** section guidance in section-anatomy and latex-polish SKILL.md
 - **12 additional typo patterns** in error-catalog (documnetclass, seciton, biblography, etc.)
 - **11 additional environment→package mappings** in error-catalog (split, aligned, bmatrix, theorem, proof, etc.)
+- **Common Error Chains** in debug-workflow and error-catalog (5 chains with examples)
+- **2 new Chinglish categories** (#17 "Based on" misuse, #18 redundant "the") — now 18 total
+- **OCR fallback section** in pdf-extraction-guide with Tesseract code
+- **Multi-column detection code** in pdf-extraction-guide
+- **Reproducibility Red Flags** quick-check section in critical-appraisal (10 items)
+- **Reading for Implementation** strategy in reading-framework
+- **Project structure conventions** and **Common Template Gotchas** in formatting-rules
 - **.gitignore guidance** in latex-fmt for LaTeX projects
 - **file_patterns** in latex-fmt and paper-read config.yaml (consistency with other skills)
 - **Version consistency test** — all SKILL.md versions match
@@ -41,7 +48,7 @@ All notable changes to awesome-latex-skills.
 - All SKILL.md versions bumped from 1.0.0 to 1.1.0
 - Fixed cross-reference: latex-rescue environment lookup now points to error-catalog.md (not package-conflicts.md)
 - paper-read SKILL.md now cross-references reading-framework's venue status section
-- Test suite expanded from 103 to 146 tests
+- Test suite expanded from 103 to 151 tests
 
 ## v1.0.0 — 2025-05-04
 

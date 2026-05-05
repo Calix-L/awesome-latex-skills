@@ -136,3 +136,25 @@ Adjust your reading confidence based on publication status:
 - Industry reports may have access to resources academics don't — check if results are reproducible
 - May have commercial motivations — check for cherry-picked benchmarks
 - Often lack implementation details needed for reproduction
+
+## Reading for Implementation
+
+When you're reading a paper to **reimplement** it (not just understand it), adjust your strategy:
+
+### What to prioritize
+1. **Algorithm pseudocode**: This is your blueprint — map it directly to code
+2. **Architecture diagrams**: Every box → a module, every arrow → data flow
+3. **Hyperparameter tables**: You need exact values, not "standard settings"
+4. **Training procedure**: Learning rate schedule, batch size, optimizer, epochs — all of it
+5. **Loss function**: Write this down verbatim — it's the most common source of bugs
+
+### What to be skeptical of
+- Missing implementation details ("we use a standard transformer" — which variant? how many layers?)
+- "We found X worked best" without ablation — might be critical or might not matter
+- Architecture diagrams that don't match the text — the text is usually more accurate
+- Claims about simplicity — if it was simple, the paper wouldn't be 10 pages
+
+### What to skip on first pass
+- Related work (unless you need to compare approaches)
+- Theoretical analysis (come back after you have working code)
+- Qualitative examples (focus on quantitative results first)
