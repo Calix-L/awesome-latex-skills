@@ -196,3 +196,21 @@ Curated sentence starters and templates for each section of a scientific paper.
 
 ### Emphasis
 - `Crucially,` / `Critically,` / `Of particular importance,`
+- `The key insight is that` / `The central observation is that`
+
+---
+
+## Response to Reviewers
+
+### Acknowledging Feedback
+- `We thank the reviewer for this insightful comment.`
+- `We appreciate this suggestion and have [action taken].`
+
+### Addressing Concerns
+- `We have conducted additional experiments to address this concern.`
+- `As the reviewer correctly points out, [acknowledgment]. We have [response].`
+- `While [limitation] remains, our results demonstrate that [strength].`
+
+### Declining Changes with Justification
+- `We respectfully note that [reason why the suggestion was not adopted].`
+- `This is an interesting direction for future work but falls outside the scope of this paper.`

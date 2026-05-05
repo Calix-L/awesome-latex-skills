@@ -37,6 +37,7 @@ Systematic evaluation framework for academic papers. Run through these questions
 - [ ] For LLM-based methods: is there risk of evaluation data appearing in pre-training corpora?
 - [ ] Are train/test/validation splits clearly defined and non-overlapping?
 - [ ] For prompting experiments: are prompts cherry-picked or systematically designed?
+- [ ] Is the evaluation data publicly available for independent verification?
 
 ---
 
@@ -57,6 +58,8 @@ Systematic evaluation framework for academic papers. Run through these questions
 - [ ] Are all claimed contributions ablated?
 - [ ] Is the ablation design clean? (changing one thing at a time)
 - [ ] Are negative results reported? (things that didn't help)
+- [ ] Are ablations conducted on the same data split as main results?
+- [ ] Does each ablation isolate a single variable?
 
 ---
 
@@ -116,6 +119,9 @@ For each contribution, ask: what does the community gain from this paper that wa
 - [ ] Honest: Limitations acknowledged, not hidden in appendix
 - [ ] Figures informative: Self-contained captions, clear legends
 - [ ] Related work section helpful: organized thematically, not a laundry list
+- [ ] Terminology consistent: same term for same concept throughout
+- [ ] Notation consistent: same symbol for same variable throughout
+- [ ] Abstract accurately represents the paper's actual contributions
 
 ---
 

@@ -20,6 +20,9 @@ bash tests/run_tests.sh
 | SKILL.md triggers | Each SKILL.md has slash command trigger and 5+ triggers |
 | SKILL.md structure | Each SKILL.md has Role, When to Activate, Workflow, Guardrails, Reference Files sections, valid frontmatter, and 2+ reference files |
 | Chinese pattern coverage | Chinglish reference covers 10/10 major pattern categories |
+| Version consistency | All SKILL.md files have the same version number |
+| Reference file paths | All paths mentioned in SKILL.md Reference Files sections exist on disk |
+| Edge case content | Overleaf guidance, preprint expectations, Oxford comma, venue status |
 | Compile test | `broken_paper.tex` produces a `.log` file (requires pdflatex) |
 
 ## Fixtures

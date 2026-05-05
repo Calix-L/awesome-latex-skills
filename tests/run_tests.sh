@@ -356,6 +356,80 @@ test_skill_structure() {
     done
 }
 
+test_version_consistency() {
+    echo ""
+    echo "=== Testing Version Consistency ==="
+
+    local expected="1.1.0"
+
+    for skill_dir in "$SCRIPT_DIR/../"*/; do
+        local skill=$(basename "$skill_dir")
+        local skill_md="$skill_dir/SKILL.md"
+        [ -f "$skill_md" ] || continue
+
+        local version=$(grep '^version:' "$skill_md" | head -1 | sed 's/version: *//')
+        if [ "$version" = "$expected" ]; then
+            pass "$skill version is $expected"
+        else
+            fail "$skill version is '$version' (expected $expected)"
+        fi
+    done
+}
+
+test_reference_paths() {
+    echo ""
+    echo "=== Testing Reference File Paths ==="
+
+    for skill_dir in "$SCRIPT_DIR/../"*/; do
+        local skill=$(basename "$skill_dir")
+        local skill_md="$skill_dir/SKILL.md"
+        [ -f "$skill_md" ] || continue
+
+        # Extract reference paths from SKILL.md (lines like `references/foo.md`)
+        local refs=$(grep -oE '`references/[^`]+\.md`' "$skill_md" | tr -d '`' | sort -u)
+        for ref in $refs; do
+            if [ -f "$skill_dir/$ref" ]; then
+                pass "$skill reference exists: $ref"
+            else
+                fail "$skill reference missing: $ref"
+            fi
+        done
+    done
+}
+
+test_edge_case_content() {
+    echo ""
+    echo "=== Testing Edge Case Content ==="
+
+    # Overleaf in latex-rescue
+    if grep -qi "Overleaf" "$SCRIPT_DIR/../latex-rescue/SKILL.md"; then
+        pass "latex-rescue has Overleaf guidance"
+    else
+        fail "latex-rescue missing Overleaf guidance"
+    fi
+
+    # Preprint/venue guidance in paper-read
+    if grep -qi "preprint" "$SCRIPT_DIR/../paper-read/SKILL.md"; then
+        pass "paper-read has preprint guidance"
+    else
+        fail "paper-read missing preprint guidance"
+    fi
+
+    # Oxford comma in style-guardrails
+    if grep -qi "Oxford.*comma\|serial.*comma" "$SCRIPT_DIR/../latex-polish/references/style-guardrails.md"; then
+        pass "latex-polish has Oxford comma guidance"
+    else
+        fail "latex-polish missing Oxford comma guidance"
+    fi
+
+    # Venue status guidance in reading-framework
+    if grep -qi "venue.*status\|peer-reviewed.*preprint" "$SCRIPT_DIR/../paper-read/references/reading-framework.md"; then
+        pass "reading-framework has venue status guidance"
+    else
+        fail "reading-framework missing venue status guidance"
+    fi
+}
+
 # --- Main ---
 
 echo "======================================"
@@ -376,6 +450,9 @@ test_agent_configs
 test_skill_triggers
 test_skill_structure
 test_chinese_pattern_coverage
+test_version_consistency
+test_reference_paths
+test_edge_case_content
 
 if $HAS_LATEX; then
     test_rescue_compile

@@ -30,7 +30,24 @@ Use both. Character-level data is better for precise positioning (subscripts, fr
 | Γ (U+0393) | Gamma | `\Gamma` |
 | Δ (U+0394) | Delta | `\Delta` |
 | Σ (U+03A3) | Sigma | `\Sigma` |
-| Ω (U+03A9) | Omega | `\Omega` |
+| ζ (U+03B6) | zeta | `\zeta` |
+| η (U+03B7) | eta | `\eta` |
+| ι (U+03B9) | iota | `\iota` |
+| κ (U+03BA) | kappa | `\kappa` |
+| ν (U+03BD) | nu | `\nu` |
+| ξ (U+03BE) | xi | `\xi` |
+| π (U+03C0) | pi | `\pi` |
+| ρ (U+03C1) | rho | `\rho` |
+| τ (U+03C4) | tau | `\tau` |
+| υ (U+03C5) | upsilon | `\upsilon` |
+| χ (U+03C7) | chi | `\chi` |
+| ψ (U+03C8) | psi | `\psi` |
+| Ψ (U+03A8) | Psi | `\Psi` |
+| Φ (U+03A6) | Phi | `\Phi` |
+| ϵ (U+03F5) | varepsilon | `\varepsilon` |
+| ϑ (U+03D1) | vartheta | `\vartheta` |
+| ϱ (U+03F1) | varrho | `\varrho` |
+| ς (U+03C2) | varsigma | `\varsigma` |
 
 ### Operators and Symbols
 
@@ -79,6 +96,19 @@ Use both. Character-level data is better for precise positioning (subscripts, fr
 | ∥ (U+2225) | `\|` (parallel) |
 | ⟨ (U+27E8) | `\langle` |
 | ⟩ (U+27E9) | `\rangle` |
+| ⊕ (U+2295) | `\oplus` |
+| ⊗ (U+2297) | `\otimes` |
+| ⊙ (U+2299) | `\odot` |
+| ⊢ (U+22A2) | `\vdash` |
+| ⊨ (U+22A8) | `\models` |
+| △ (U+25B3) | `\triangle` |
+| ◇ (U+25C7) | `\Diamond` |
+| † (U+2020) | `\dagger` |
+| ‡ (U+2021) | `\ddagger` |
+| ⋯ (U+22EF) | `\cdots` |
+| … (U+2026) | `\ldots` |
+| ⋮ (U+22EE) | `\vdots` |
+| ⋱ (U+22F1) | `\ddots` |
 
 ### Decorative Accents
 
