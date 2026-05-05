@@ -206,6 +206,21 @@ If an error is not in this catalog:
 3. Apply minimal fix
 4. If fails → consult `debug-workflow.md`
 
+## Common Error Chains
+
+One real error often causes 5-50 phantom errors. Recognize these to avoid wasting time:
+
+| First (real) error | Phantom errors it causes | Fix only |
+|---|---|---|
+| `Missing $ inserted` on line N | `Missing } inserted` on N+1, N+2, ... | Line N: wrap in `$...$` |
+| `Undefined control sequence \textbff` | `Missing }`, `Paragraph ended before` | Line: `\textbff` → `\textbf` |
+| Missing `}` in preamble | `Emergency stop` + all content fails | Add the `}` |
+| Wrong engine (fontspec + pdflatex) | 20+ `Font not found` errors | Switch to `xelatex` |
+| Stale `.aux` | `Reference undefined` × many | Delete `.aux`, recompile twice |
+| `\hline` outside tabular | `Misplaced \noalign` + `Extra alignment tab` | Move `\hline` inside table env |
+
+**Rule**: If 10+ errors appear, fix ONLY the first one, then recompile. The rest usually vanish.
+
 ## Package → Command Mapping
 
 When `Undefined control sequence \X` appears and it's not a typo, the command likely comes from a missing package:

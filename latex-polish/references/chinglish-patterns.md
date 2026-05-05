@@ -139,6 +139,10 @@ CN 让/使 patterns don't translate to "make" or "let" in academic English.
 | "we firstly..." | → "First, we..." / "We first..." |
 | "comparing with" | → "compared with" / "in comparison to" |
 | "it is obvious that" | → delete — if obvious, state it without preamble |
+| "has a great influence on" | → "substantially affects" / "significantly impacts" |
+| "gives a good performance" | → "performs well" / "achieves strong performance" |
+| "in order to" | → "to" (almost always shorter and identical in meaning) |
+| "a large number of" | → "many" / "numerous" |
 
 ### 13. Subject-Verb Inversion in Clauses
 
@@ -174,6 +178,29 @@ Instead, use:
 Don't: "In summary, we have done X, Y, and Z." (this is a list, not a conclusion)
 Do: "We have shown that [key finding], enabled by [key mechanism], advancing [broader impact]."
 
+### 17. "Based on" Misuse
+
+"Based on" is overused as a sentence opener when the real relationship is methodological, not foundational.
+
+| Wrong | Right |
+|-------|-------|
+| Based on the observation that X, we propose Y | Motivated by the observation that X, we propose Y |
+| Based on this, we conclude... | We therefore conclude... / These results suggest... |
+| The method is based on transformer | The method uses a transformer / builds on a transformer |
+| Based on our analysis | Our analysis shows / We find that |
+
+### 18. Redundant "the" with Abstract Nouns
+
+CN speakers often add "the" before abstract or uncountable nouns where English omits it.
+
+| Wrong | Right |
+|-------|-------|
+| the research on NLP | research on NLP |
+| the evidence suggests | evidence suggests (or: the evidence, if referring to specific evidence just introduced) |
+| in the practice | in practice |
+| in the nature | in nature |
+| the society | society (general); the society (specific organization) |
+
 ---
 
 ## Quick-Fix Checklist
@@ -187,5 +214,7 @@ When polishing for a Chinese author, run through these checks:
 6. Prepositions are correct (use list above)
 7. No "make sb. to do" constructions
 8. No sentence-initial "So"
-9. Redundancy words removed (research field → field, etc.)
+9. Redundancy words removed (research field → field, in order to → to, etc.)
 10. No 1→2→3 rigid paragraph structure
+11. "Based on" not overused as sentence opener
+12. No redundant "the" before abstract nouns

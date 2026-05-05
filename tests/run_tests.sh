@@ -293,6 +293,8 @@ test_chinese_pattern_coverage() {
         "Wrong Prepositions"
         "Commonly Confused"
         "Redundancy"
+        "Based on"
+        "Redundant.*the"
     )
 
     local matched=0
@@ -305,12 +307,12 @@ test_chinese_pattern_coverage() {
     done
 
     echo "  Reference covers $matched/${total} major pattern categories"
-    if [ "$matched" -ge 8 ]; then
-        pass "Comprehensive chinglish reference ($matched/10 categories)"
-    elif [ "$matched" -ge 5 ]; then
-        pass "Adequate chinglish reference ($matched/10 categories)"
+    if [ "$matched" -ge 10 ]; then
+        pass "Comprehensive chinglish reference ($matched/12 categories)"
+    elif [ "$matched" -ge 8 ]; then
+        pass "Adequate chinglish reference ($matched/12 categories)"
     else
-        warn "Only $matched/10 categories covered"
+        warn "Only $matched/12 categories covered"
     fi
 }
 
@@ -462,6 +464,44 @@ test_config_consistency() {
     done
 }
 
+test_reference_depth() {
+    echo ""
+    echo "=== Testing Reference File Depth ==="
+
+    # Error catalog should have error chains section
+    local catalog="$SCRIPT_DIR/../latex-rescue/references/error-catalog.md"
+    if grep -qi "error chain\|Common Error Chain" "$catalog"; then
+        pass "error-catalog has Common Error Chains section"
+    else
+        fail "error-catalog missing Common Error Chains section"
+    fi
+
+    # Debug workflow should have error chains
+    local debug="$SCRIPT_DIR/../latex-rescue/references/debug-workflow.md"
+    if grep -qi "error chain\|Common Error Chain" "$debug"; then
+        pass "debug-workflow has error chains section"
+    else
+        fail "debug-workflow missing error chains section"
+    fi
+
+    # PDF extraction should have OCR fallback
+    local pdf_guide="$SCRIPT_DIR/../pdf2tex/references/pdf-extraction-guide.md"
+    if grep -qi "OCR\|Tesseract\|scanned" "$pdf_guide"; then
+        pass "pdf-extraction-guide has OCR fallback"
+    else
+        fail "pdf-extraction-guide missing OCR fallback"
+    fi
+
+    # Chinglish should have 18 categories (### headings)
+    local chinglish="$SCRIPT_DIR/../latex-polish/references/chinglish-patterns.md"
+    local cat_count=$(grep -c '^### [0-9]' "$chinglish" 2>/dev/null || echo "0")
+    if [ "$cat_count" -ge 18 ]; then
+        pass "chinglish-patterns has $cat_count numbered categories"
+    else
+        fail "chinglish-patterns has only $cat_count numbered categories (expected 18+)"
+    fi
+}
+
 # --- Main ---
 
 echo "======================================"
@@ -486,6 +526,7 @@ test_version_consistency
 test_reference_paths
 test_edge_case_content
 test_config_consistency
+test_reference_depth
 
 if $HAS_LATEX; then
     test_rescue_compile

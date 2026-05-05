@@ -132,3 +132,68 @@ For two-column PDFs:
 - Text blocks with x0 > page_width/2 → right column
 - Combine: read all left-column blocks top-to-bottom, then right-column blocks top-to-bottom
 - Watch for spanning elements (figures, wide tables) that cross the column boundary
+
+### Column Detection with pymupdf
+
+```python
+import fitz
+
+doc = fitz.open("paper.pdf")
+page = doc[0]
+page_width = page.rect.width
+
+left_blocks = []
+right_blocks = []
+
+for block in page.get_text("dict")["blocks"]:
+    if block["type"] != 0:
+        continue
+    x0 = block["bbox"][0]
+    mid = page_width / 2
+    if x0 < mid - 10:  # -10 tolerance for slight misalignment
+        left_blocks.append(block)
+    elif x0 > mid + 10:
+        right_blocks.append(block)
+    else:
+        # Spanning block — likely a figure or wide equation
+        # Treat as full-width, place in reading order
+        pass
+
+# Sort each column by y-position, then concatenate
+left_blocks.sort(key=lambda b: b["bbox"][1])
+right_blocks.sort(key=lambda b: b["bbox"][1])
+ordered_blocks = left_blocks + right_blocks
+```
+
+## OCR Fallback (Scanned PDFs)
+
+If the PDF contains no extractable text (scanned document), use Tesseract OCR:
+
+```bash
+# Check if PDF is scanned (no text layer)
+pdftotext paper.pdf - | wc -w
+# If output is near 0, it's scanned
+
+# Convert PDF pages to images, then OCR
+pip install pytesseract pillow pdf2image
+
+# Requires system install: tesseract-ocr, poppler-utils
+```
+
+```python
+from pdf2image import convert_from_path
+import pytesseract
+
+pages = convert_from_path("paper.pdf", dpi=300)
+for i, page in enumerate(pages):
+    text = pytesseract.image_to_string(page, lang="eng")
+    # Save or process text
+    with open(f"page_{i+1}.txt", "w") as f:
+        f.write(text)
+```
+
+**Limitations of OCR**:
+- Math expressions will be garbled → flag all OCR'd math with `% [OCR: verify]`
+- Table structure is lost → manual reconstruction required
+- Accuracy ~95-98% for clean scans, drops for noisy or handwritten content
+- Always warn the user that OCR output needs more manual review than text-extracted content

@@ -158,3 +158,71 @@ When escalating, provide:
 2. Where it is (file:line)
 3. What might fix it (with your best guess first)
 4. What you need from the user to proceed
+
+## Common Error Chains
+
+One real error often cascades into many reported errors. Recognizing these chains avoids fixing phantom errors.
+
+### Chain 1: Missing `$` → cascading "Missing } inserted"
+
+```
+! Missing $ inserted
+(l.42) x_i is important
+! Missing } inserted
+(l.42) x_i is important
+! Extra }, or forgotten $
+(l.43) The result shows...
+```
+
+**Fix**: Only fix line 42 (`x_i` → `$x_i$`). The errors on line 43+ are phantom.
+
+### Chain 2: Undefined control sequence → everything after breaks
+
+```
+! Undefined control sequence
+(l.10) \textbff{bold text}
+! Missing } inserted
+(l.10) \textbff{bold text}
+! Paragraph ended before \textbf was complete
+(l.11) Next sentence here...
+```
+
+**Fix**: Only fix `\textbff` → `\textbf`. All subsequent errors clear.
+
+### Chain 3: Missing `}` in preamble → entire document fails
+
+```
+! Missing } inserted
+(l.5) \usepackage[utf8]{inputenc
+! Emergency stop
+```
+
+**Fix**: Add the missing `}`. One character fix, all errors disappear.
+
+### Chain 4: Wrong engine → font errors everywhere
+
+```
+! Font \TU/cmr/m/n/10 not found
+(l.1) \documentclass{article}
+! ... (20+ more font errors)
+```
+
+**Fix**: The document uses `fontspec` but was compiled with `pdflatex`. Switch to `xelatex`.
+
+### Chain 5: Stale `.aux` → undefined references + missing labels
+
+```
+LaTeX Warning: Reference `fig:arch' on page 3 undefined
+LaTeX Warning: Reference `tab:results' on page 5 undefined
+LaTeX Warning: Citation `smith2023' on page 6 undefined
+```
+
+**Fix**: Delete `.aux`, `.bbl`, `.blg`, recompile twice. If using bibtex, run `bibtex` between the two compilations.
+
+### How to Recognize a Chain
+
+If you see 10+ errors, check:
+1. Is the first error a "Missing $", "Missing }", or "Undefined control sequence"? → Fix only that one.
+2. Do all errors start at the same line? → It's a chain from that line.
+3. Are all errors about fonts? → Wrong engine.
+4. Are all errors "undefined reference" or "undefined citation"? → Stale aux files.

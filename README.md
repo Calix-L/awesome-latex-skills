@@ -39,7 +39,7 @@ Every researcher who uses LaTeX knows the pain: **47 compilation errors at 2 AM*
 <tr>
 <td align="center">:pencil2:</td>
 <td><strong><a href="./latex-polish/SKILL.md">latex-polish</a></strong></td>
-<td>Polish academic writing — 16 Chinglish categories, 100+ phrasebank templates, 3 intensity levels</td>
+<td>Polish academic writing — 18 Chinglish categories, 100+ phrasebank templates, 3 intensity levels</td>
 </tr>
 <tr>
 <td align="center">:repeat:</td>
@@ -65,7 +65,7 @@ Every researcher who uses LaTeX knows the pain: **47 compilation errors at 2 AM*
 |---|---|
 | Error patterns cataloged | 80+ |
 | Package conflicts documented | 14 known pairs |
-| Chinglish pattern categories | 16 |
+| Chinglish pattern categories | 18 |
 | Phrasebank sentence templates | 100+ |
 | Venue formatting rules | 11 |
 | Critical appraisal checklist items | 43 |

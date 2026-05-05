@@ -23,6 +23,7 @@ All notable changes to awesome-latex-skills.
 - **Reference path existence test** — all paths mentioned in SKILL.md exist on disk
 - **Edge case content test** — verifies Overleaf, preprint, Oxford comma, venue status guidance
 - **Config consistency test** — all config.yaml have file_patterns, slash triggers, platforms
+- **Reference depth test** — error chains, OCR fallback, chinglish category count
 - **CHANGELOG.md** — tracking project changes
 - **CI version consistency step** in test.yml
 - **Venue status reading guidance** in reading-framework — detailed per-status reading strategy
@@ -40,7 +41,7 @@ All notable changes to awesome-latex-skills.
 - All SKILL.md versions bumped from 1.0.0 to 1.1.0
 - Fixed cross-reference: latex-rescue environment lookup now points to error-catalog.md (not package-conflicts.md)
 - paper-read SKILL.md now cross-references reading-framework's venue status section
-- Test suite expanded from 103 to 142 tests
+- Test suite expanded from 103 to 146 tests
 
 ## v1.0.0 — 2025-05-04
 
