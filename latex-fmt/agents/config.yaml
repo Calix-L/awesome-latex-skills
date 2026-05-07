@@ -18,5 +18,7 @@ auto_activate:
     - "改成.*模板"
     - "format for KDD"
     - "reformat for COLING"
+    - "format for SIGIR"
+    - "format for Interspeech"
     file_patterns:
     - "*.tex"

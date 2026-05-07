@@ -1,7 +1,7 @@
 ---
 name: latex-polish
 description: Polish academic writing in LaTeX files. Enhances clarity, fixes grammar, improves academic style, and eliminates Chinglish patterns. Operates on text content while preserving LaTeX commands, math, citations, and references.
-version: 1.1.0
+version: 1.2.0
 triggers:
   - "polish my paper"
   - "improve academic writing"
@@ -139,7 +139,7 @@ Make edits directly in the `.tex` file:
 
 After all edits, verify the file still compiles:
 ```bash
-pdflatex -interaction=nonstopmode main.tex
+pdflatex -interaction=nonstopmode main.tex && pdflatex -interaction=nonstopmode main.tex
 ```
 If compilation fails (new errors introduced by editing), use latex-rescue to diagnose. Common polish-caused breaks: missing `}` after rewriting a sentence inside `\textbf{}`, accidentally deleting a `%` comment, or breaking a `\cite{}` key.
 

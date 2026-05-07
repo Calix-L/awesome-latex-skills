@@ -2,6 +2,27 @@
 
 All notable changes to awesome-latex-skills.
 
+## v1.2.0 — 2025-05-07
+
+### Fixed
+- CHANGELOG test count corrected from 151 to 162
+- latex-fmt SKILL.md now lists ECCV, COLING, and Interspeech as double-blind venues
+- latex-polish SKILL.md verification step now runs pdflatex twice for cross-references
+- error-catalog Quick-Map table now includes Encoding Errors and Font Errors entries
+- Critical appraisal count updated from 43 to 50+ to reflect v1.1.0 additions
+- tests/README.md corrected chinglish category count from 10/10 to 18
+
+### Added
+- Cross-skill references in latex-rescue SKILL.md (suggests `/latex-polish` and `/latex-fmt` after fixing)
+- Cross-skill references in pdf2tex SKILL.md (suggests `/latex-rescue`, `/latex-polish`, `/latex-fmt` after reconstruction)
+- Venue-specific triggers in latex-fmt SKILL.md and config.yaml (`format for SIGIR`, `format for Interspeech`)
+- Test: error catalog covers encoding and font errors
+- Test: latex-polish recommends double compilation for verification
+- Test: latex-fmt SKILL.md identifies double-blind venues correctly
+- Test: latex-rescue and pdf2tex cross-reference other skills
+- Test: latex-fmt config has venue-specific triggers
+- Test suite expanded from 162 to 168 tests
+
 ## v1.1.0 — 2025-05-05
 
 ### Added
@@ -38,7 +59,7 @@ All notable changes to awesome-latex-skills.
 - All SKILL.md versions bumped from 1.0.0 to 1.1.0
 - Fixed cross-reference: latex-rescue environment lookup now points to error-catalog.md (not package-conflicts.md)
 - paper-read SKILL.md now cross-references reading-framework's venue status section
-- Test suite expanded from 103 to 151 tests
+- Test suite expanded from 103 to 162 tests
 
 ## v1.0.0 — 2025-05-04
 

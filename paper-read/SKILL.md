@@ -1,7 +1,7 @@
 ---
 name: paper-read
 description: Read, analyze, and extract knowledge from academic papers. Handles PDFs and arXiv links. Produces structured summaries, identifies core contributions, evaluates methodology, and enables cross-paper comparison.
-version: 1.1.0
+version: 1.2.0
 triggers:
   - "read this paper"
   - "summarize this paper"

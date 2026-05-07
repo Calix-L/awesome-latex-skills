@@ -19,7 +19,7 @@
 
 <a href="https://github.com/Calix-L/awesome-latex-skills/actions"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="CI"></a>
 <img src="https://img.shields.io/badge/skills-5-blue" alt="5 skills">
-<img src="https://img.shields.io/badge/tests-162_passing-brightgreen" alt="162 tests">
+<img src="https://img.shields.io/badge/tests-168_passing-brightgreen" alt="168 tests">
 <img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=social" alt="Stars">
 <img src="https://img.shields.io/badge/license-MIT-yellow" alt="MIT">
 
@@ -68,7 +68,7 @@
 <tr>
 <td align="center">:book:</td>
 <td><strong><a href="./paper-read/SKILL.md">paper-read</a></strong></td>
-<td>论文阅读分析 — 速读 / 精读 / 深度审计，43 项评审指标，假设审计</td>
+<td>论文阅读分析 — 速读 / 精读 / 深度审计，50+ 项评审指标，假设审计</td>
 </tr>
 <tr>
 <td align="center">:wrench:</td>
@@ -80,7 +80,7 @@
 | | | | |
 |---|---|---|---|
 | 80+ 错误模式 | 14 种包冲突 | 18 类中式英语 | 100+ phrasebank 模板 |
-| 15 个会议规则 | 43 项评审指标 | 97+ 数学符号映射 | 15 个参考文件 |
+| 15 个会议规则 | 50+ 项评审指标 | 97+ 数学符号映射 | 15 个参考文件 |
 
 ---
 

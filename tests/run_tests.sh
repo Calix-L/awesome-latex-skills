@@ -86,6 +86,18 @@ test_rescue_error_catalog_coverage() {
     else
         warn "Environment mismatch coverage could be improved"
     fi
+
+    if grep -qi 'Encoding\|Unicode\|UTF-8' "$catalog"; then
+        pass "Error catalog covers encoding errors"
+    else
+        warn "Encoding error coverage could be improved"
+    fi
+
+    if grep -qi 'Font.*not found\|fontenc' "$catalog"; then
+        pass "Error catalog covers font errors"
+    else
+        warn "Font error coverage could be improved"
+    fi
 }
 
 test_rescue_expected_fix() {
@@ -195,6 +207,14 @@ test_paper_read_coverage() {
         fi
     done
 
+    # Check that polish SKILL.md recommends double compile
+    local polish_skill="$SCRIPT_DIR/../latex-polish/SKILL.md"
+    if grep -q 'pdflatex.*&&.*pdflatex' "$polish_skill" 2>/dev/null; then
+        pass "latex-polish SKILL.md recommends double compilation for verification"
+    else
+        warn "latex-polish SKILL.md should recommend double compilation"
+    fi
+
     local fixture="$FIXTURES/read/sample_paper.md"
     if [ -f "$fixture" ]; then
         pass "paper-read has test fixture"
@@ -256,6 +276,21 @@ test_agent_configs() {
             fail "$skill config.yaml missing slash command trigger"
         fi
     done
+
+    # Check latex-fmt has triggers for all 15 venues
+    local fmt_config="$SCRIPT_DIR/../latex-fmt/agents/config.yaml"
+    local fmt_venues=("NeurIPS\|neurips" "ICML\|icml" "CVPR\|cvpr" "ACL\|acl" "IEEE\|ieee" "AAAI\|aaai" "ICLR\|iclr" "ECCV\|eccv" "COLING\|coling" "KDD\|kdd" "SIGIR\|sigir" "Interspeech\|interspeech")
+    local matched_venues=0
+    for venue_pattern in "${fmt_venues[@]}"; do
+        if grep -qi "$venue_pattern" "$fmt_config" 2>/dev/null; then
+            matched_venues=$((matched_venues + 1))
+        fi
+    done
+    if [ "$matched_venues" -ge 10 ]; then
+        pass "latex-fmt config has triggers for $matched_venues/12 checked venues"
+    else
+        warn "latex-fmt config only has triggers for $matched_venues/12 checked venues"
+    fi
 }
 
 test_skill_triggers() {
@@ -369,7 +404,7 @@ test_version_consistency() {
     echo ""
     echo "=== Testing Version Consistency ==="
 
-    local expected="1.1.0"
+    local expected="1.2.0"
 
     for skill_dir in "$SCRIPT_DIR/../"*/; do
         local skill=$(basename "$skill_dir")
@@ -546,6 +581,20 @@ test_reference_depth() {
     else
         fail "paper-read SKILL.md missing cross-references to other skills"
     fi
+
+    local rescue_skill="$SCRIPT_DIR/../latex-rescue/SKILL.md"
+    if grep -qi "latex-polish\|latex-fmt" "$rescue_skill"; then
+        pass "latex-rescue SKILL.md cross-references other skills"
+    else
+        fail "latex-rescue SKILL.md missing cross-references to other skills"
+    fi
+
+    local pdf2tex_skill="$SCRIPT_DIR/../pdf2tex/SKILL.md"
+    if grep -qi "latex-rescue\|latex-polish\|latex-fmt" "$pdf2tex_skill"; then
+        pass "pdf2tex SKILL.md cross-references other skills"
+    else
+        fail "pdf2tex SKILL.md missing cross-references to other skills"
+    fi
 }
 
 test_fmt_expected_output() {
@@ -587,6 +636,16 @@ test_fmt_expected_output() {
         pass "post_neurips.tex flags missing Broader Impact"
     else
         warn "post_neurips.tex does not flag Broader Impact"
+    fi
+
+    # SKILL.md should list double-blind venues correctly
+    local skill_md="$SCRIPT_DIR/../latex-fmt/SKILL.md"
+    if grep -qi "ECCV.*double-blind\|double-blind.*ECCV" "$skill_md"; then
+        pass "latex-fmt SKILL.md identifies ECCV as double-blind"
+    elif grep -qi "ECCV" "$skill_md" && grep -qi "double-blind" "$skill_md"; then
+        pass "latex-fmt SKILL.md mentions ECCV and double-blind"
+    else
+        warn "latex-fmt SKILL.md may not identify ECCV as double-blind"
     fi
 }
 

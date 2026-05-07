@@ -1,7 +1,7 @@
 ---
 name: latex-rescue
 description: Diagnose and fix LaTeX compilation errors. Handles undefined control sequences, missing brackets, math mode violations, package conflicts, undefined references, and environment mismatches.
-version: 1.1.0
+version: 1.2.0
 triggers:
   - "fix my LaTeX errors"
   - "论文编译报错"
@@ -254,6 +254,10 @@ Compilation: ✓ clean / 0 errors / 3 warnings
 - For `undefined-ref` errors, do NOT invent reference keys. Tell the user which refs are missing.
 - NEVER delete blocks of content to eliminate errors. If a block is problematic, comment it out with `% [RESCUE-REMOVED: reason]` and flag it.
 - NEVER edit `.sty`, `.cls`, or `.bst` files shipped with the template. Only edit user `.tex` files.
+
+**AFTER FIXING:**
+- If the user needs to polish the text after fixing errors, suggest `/latex-polish`
+- If the user needs to reformat for a different venue, suggest `/latex-fmt`
 
 ## Advanced Scenarios
 

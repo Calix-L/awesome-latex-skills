@@ -1,7 +1,7 @@
 ---
 name: latex-fmt
 description: Reformat LaTeX papers for target journals and conferences. Handles document class changes, margin/page adjustments, citation style conversion, figure/table reformatting, and compliance checking against venue-specific requirements.
-version: 1.1.0
+version: 1.2.0
 triggers:
   - "format for journal"
   - "apply template"
@@ -12,6 +12,8 @@ triggers:
   - "switch to ACL style"
   - "format for KDD"
   - "reformat for COLING"
+  - "format for SIGIR"
+  - "format for Interspeech"
   - "/latex-fmt"
 ---
 
@@ -232,7 +234,7 @@ pdflatex main && biber main && pdflatex main && pdflatex main
 
 ### Phase 6: Anonymization (double-blind venues only)
 
-For NeurIPS, ICML, CVPR, ACL, ICLR, and other double-blind venues:
+For NeurIPS, ICML, CVPR, ACL, ICLR, ECCV, COLING, Interspeech, and other double-blind venues:
 
 1. Replace `\author{...}` with `\author{Anonymous}`
 2. Comment out `\section*{Acknowledgments}` and its content

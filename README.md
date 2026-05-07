@@ -21,7 +21,7 @@
 
 <a href="https://github.com/Calix-L/awesome-latex-skills/actions"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="CI"></a>
 <img src="https://img.shields.io/badge/skills-5-blue" alt="5 skills">
-<img src="https://img.shields.io/badge/tests-162_passing-brightgreen" alt="162 tests">
+<img src="https://img.shields.io/badge/tests-168_passing-brightgreen" alt="168 tests">
 <img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=social" alt="Stars">
 <img src="https://img.shields.io/badge/license-MIT-yellow" alt="MIT">
 
@@ -68,7 +68,7 @@ No LaTeX expertise required. The skill handles the semicolons.
 <tr>
 <td align="center">:book:</td>
 <td><strong><a href="./paper-read/SKILL.md">paper-read</a></strong></td>
-<td>Read & analyze papers — skim / read / deep, 43-item critical appraisal, assumption auditing</td>
+<td>Read & analyze papers — skim / read / deep, 50+ critical appraisal items, assumption auditing</td>
 </tr>
 <tr>
 <td align="center">:wrench:</td>
@@ -80,7 +80,7 @@ No LaTeX expertise required. The skill handles the semicolons.
 | | | | |
 |---|---|---|---|
 | 80+ error patterns | 14 package conflicts | 18 Chinglish categories | 100+ phrasebank templates |
-| 15 venue rules | 43 appraisal items | 97+ glyph mappings | 15 reference files |
+| 15 venue rules | 50+ appraisal items | 97+ glyph mappings | 15 reference files |
 
 ---
 

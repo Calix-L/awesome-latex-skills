@@ -24,6 +24,8 @@ Look up the log message here to jump to the right section:
 | `Too many }'s` / `Too few }'s` | Brace mismatch | Bracket/Brace Errors |
 | `Misplaced \hline` | Table formatting | Table Errors |
 | `Extra alignment tab` | Too many `&` in table row | Table Errors |
+| `Unicode char not set up` | Special character encoding | Encoding Errors |
+| `Font ... not found` | Missing font package | Font Errors |
 
 ## Typo Corrections (auto-fix)
 

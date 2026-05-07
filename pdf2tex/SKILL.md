@@ -1,7 +1,7 @@
 ---
 name: pdf2tex
 description: Convert PDF documents back into editable LaTeX source code. Extracts text, math, tables, figures, and structure. Uses pymupdf + AI for intelligent reconstruction.
-version: 1.1.0
+version: 1.2.0
 triggers:
   - "convert pdf to latex"
   - "pdf to tex"
@@ -269,6 +269,11 @@ Based on the extracted structure, build the .tex file.
 - Generate compilable LaTeX — the user should be able to run `pdflatex` immediately
 - Mark uncertain constructions with `% [UNCERTAIN: description]`
 - Leave placeholder cite keys that are easy to find-and-replace later
+
+**AFTER RECONSTRUCTION:**
+- If the reconstructed .tex has compilation errors, suggest running `/latex-rescue` to fix them
+- If the user wants to polish the reconstructed text, suggest `/latex-polish`
+- If the user needs to format for a specific venue, suggest `/latex-fmt`
 
 **BOUNDARY CASES:**
 - "Scanned PDF" (image-based) → explain that OCR is needed (tesseract), not standard extraction. See `references/pdf-extraction-guide.md` for OCR fallback instructions.
