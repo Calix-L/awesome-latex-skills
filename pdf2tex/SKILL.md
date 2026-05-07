@@ -227,7 +227,7 @@ Based on the extracted structure, build the .tex file.
    - Check page count matches
    - Check that all sections exist
    - Check that references resolve
-5. Report what was recovered and what needs manual attention
+6. Report what was recovered and what needs manual attention
 
 ### Phase 7: Report
 

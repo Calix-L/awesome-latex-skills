@@ -224,3 +224,92 @@ Both Nature and Science have their own submission systems with custom templates.
 - Rolling submissions (no deadline)
 - Journal-style review process (not conference)
 - No supplementary material upload — appendices go in main PDF
+
+---
+
+# COLING 2026
+
+> COLING uses a custom template released on their website before each edition.
+
+## Document Class
+```latex
+\documentclass[conference]{article}
+\usepackage{coling}
+```
+
+## Page Limit
+- Typically 8 pages main content + unlimited references
+- Appendices allowed after references
+
+## Unique
+- One of the oldest NLP conferences (alternates with LREC-COLING in recent years)
+- Double-blind review: anonymize all submissions
+- Author-year citation style (natbib)
+- Template may change between editions — always check the official site
+
+---
+
+# KDD 2026
+
+> KDD (ACM SIGKDD) uses the ACM Master Template.
+
+## Document Class
+```latex
+\documentclass[sigconf]{acmart}
+```
+
+## Page Limit
+- Research Track: 10 pages + unlimited references
+- Applied Data Science Track: 10 pages + unlimited references
+- Appendices allowed after references
+
+## Unique
+- Uses ACM publishing format (acmart class)
+- CCS concepts required: `\ccsdesc[...]{...}`
+- ACM Reference Format citation required on first page
+- Not double-blind (author names visible during review)
+- Must include "CCS Concepts" and "Keywords" sections
+
+---
+
+# SIGIR 2026
+
+> SIGIR (ACM SIGIR) uses the ACM Master Template (short or long papers).
+
+## Document Class
+```latex
+\documentclass[sigconf]{acmart}
+```
+
+## Page Limit
+- Full papers: 8 pages + unlimited references
+- Short papers: 4 pages + unlimited references
+
+## Unique
+- Uses ACM publishing format (acmart class)
+- CCS concepts required
+- Not double-blind
+- Author-year citation style (ACM format)
+- Reproducibility badge encouraged (appendix with code/data details)
+
+---
+
+# Interspeech 2026
+
+> Interspeech uses a custom template provided by ISCA.
+
+## Document Class
+```latex
+\documentclass{interspeech}
+```
+
+## Page Limit
+- Typically 5 pages main content + unlimited references
+- 6th page allowed for references only (similar to AAAI 7+2 format)
+
+## Unique
+- Uses ISCA template (custom .cls, not standard LaTeX class)
+- Double-blind review: anonymize all submissions
+- Strict page limit — exceeding even by a few lines causes desk reject
+- Audio samples encouraged as supplementary material
+- No appendices in main PDF

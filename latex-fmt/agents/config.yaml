@@ -16,5 +16,7 @@ auto_activate:
     - "/latex-fmt"
     - "投稿格式化"
     - "改成.*模板"
+    - "format for KDD"
+    - "reformat for COLING"
     file_patterns:
     - "*.tex"

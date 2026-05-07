@@ -1,5 +1,7 @@
 <div align="center">
 
+[中文文档](./README_CN.md)
+
 <img src="./assets/banner.svg" alt="awesome-latex-skills" width="100%">
 
 <br>
@@ -19,7 +21,7 @@
 
 <a href="https://github.com/Calix-L/awesome-latex-skills/actions"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="CI"></a>
 <img src="https://img.shields.io/badge/skills-5-blue" alt="5 skills">
-<img src="https://img.shields.io/badge/tests-151_passing-brightgreen" alt="151 tests">
+<img src="https://img.shields.io/badge/tests-162_passing-brightgreen" alt="162 tests">
 <img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=social" alt="Stars">
 <img src="https://img.shields.io/badge/license-MIT-yellow" alt="MIT">
 
@@ -47,7 +49,7 @@
 <tr>
 <td align="center">:repeat:</td>
 <td><strong><a href="./latex-fmt/SKILL.md">latex-fmt</a></strong></td>
-<td>Reformat between 11 venues — NeurIPS · ICML · CVPR · ACL · ICLR · ECCV · AAAI · TMLR · IEEE · Nature · Science</td>
+<td>Reformat between 15 venues — NeurIPS · ICML · CVPR · ACL · ICLR · ECCV · AAAI · TMLR · IEEE · Nature · Science · COLING · KDD · SIGIR · Interspeech</td>
 </tr>
 <tr>
 <td align="center">:book:</td>
@@ -64,7 +66,7 @@
 | | | | |
 |---|---|---|---|
 | 80+ error patterns | 14 package conflicts | 18 Chinglish categories | 100+ phrasebank templates |
-| 11 venue rules | 43 appraisal items | 97+ glyph mappings | 15 reference files |
+| 11→15 venue rules | 43 appraisal items | 97+ glyph mappings | 15 reference files |
 
 ---
 

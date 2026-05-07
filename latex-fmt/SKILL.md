@@ -10,6 +10,8 @@ triggers:
   - "投稿格式化"
   - "改成CVPR模板"
   - "switch to ACL style"
+  - "format for KDD"
+  - "reformat for COLING"
   - "/latex-fmt"
 ---
 
@@ -50,6 +52,8 @@ Load the right template config from `references/templates/venue-guide.md` which 
 - Required packages
 - Venue-specific commands (`\usepackage[review]{...}` variations)
 
+> **Year check**: Always verify the current year's template on the venue's official website before applying. The `.cls`/`.sty` files may have been updated since this guide was written (e.g. `neurips_2025` → `neurips_2026`).
+
 #### 2.2 Package Adjustments
 
 Some venues forbid certain packages or require specific ones:
@@ -63,6 +67,10 @@ Some venues forbid certain packages or require specific ones:
 | AAAI | `fullpage`, `geometry`, `setspace` | `aaai25` |
 | ICLR | `geometry` (discouraged) | `iclr2025` (official .sty) |
 | IEEE | `fullpage`, `geometry` | `IEEEtran` |
+| COLING | — | `coling` |
+| KDD | — | `acmart` (sigconf) |
+| SIGIR | — | `acmart` (sigconf) |
+| Interspeech | — | `interspeech` |
 
 After the document class change is applied, recompile and fix any resulting errors using the `latex-rescue` workflow before continuing.
 
@@ -118,6 +126,30 @@ Abstract → Introduction → Related Work → Method → Experiments → Conclu
 ```
 No page limit. Uses OpenReview. **Not double-blind** — authors are visible during review.
 
+**COLING**:
+```
+Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References
+```
+Typically 8 pages + unlimited references. Double-blind review.
+
+**KDD**:
+```
+Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References
+```
+10 pages + unlimited references. Uses ACM format (`acmart` sigconf). **Not double-blind**. CCS Concepts and Keywords sections required.
+
+**SIGIR**:
+```
+Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References
+```
+Full papers: 8 pages, Short papers: 4 pages. Uses ACM format. **Not double-blind**. CCS Concepts required.
+
+**Interspeech**:
+```
+Abstract → Introduction → Related Work → Method → Experiments → Conclusion → References
+```
+5 pages + 1 page for references only (6 total). Double-blind review. Uses ISCA template.
+
 If the current paper is missing a required section, flag it but don't invent content.
 
 #### 3.2 Anonymization Reminder
@@ -138,6 +170,10 @@ For double-blind venues, anonymize BOTH the main PDF and supplementary material.
 | ICLR | No strict limit | — (but reviewers stop reading at 10) |
 | Nature | ~1,500-3,000 words | Methods, references |
 | Science | ~2,000-5,000 words | Supplementary |
+| COLING | 8 pages | References, appendices |
+| KDD | 10 pages | References, appendices |
+| SIGIR | 8 pages (full) / 4 pages (short) | References, appendices |
+| Interspeech | 5 pages + 1 ref page | 6th page for references only |
 
 To check page count, compile with the target template and check:
 ```bash
@@ -166,6 +202,10 @@ If over the limit, suggest cuts in this priority order:
 | AAAI | `\bibliographystyle{aaai25}` | bibtex | Provided in template |
 | ICLR | Author's choice | bibtex/biber | Consistency is what matters |
 | IEEE | `\bibliographystyle{IEEEtran}` | bibtex | Strict IEEE format |
+| COLING | natbib author-year | bibtex | Check template for exact .bst |
+| KDD | `\bibliographystyle{ACM-Reference-Format}` | bibtex | ACM format via acmart |
+| SIGIR | `\bibliographystyle{ACM-Reference-Format}` | bibtex | ACM format via acmart |
+| Interspeech | ISCA format | bibtex | Provided in interspeech.cls |
 
 When converting between styles:
 
@@ -268,5 +308,5 @@ Compliance checklist: 11/12 pass
 
 ## Reference Files
 
-- **`references/templates/venue-guide.md`** — Per-venue template configurations (NeurIPS, ICML, CVPR, ACL, IEEE, Nature, Science, AAAI, ICLR, ECCV, TMLR)
+- **`references/templates/venue-guide.md`** — Per-venue template configurations (NeurIPS, ICML, CVPR, ACL, IEEE, Nature, Science, AAAI, ICLR, ECCV, TMLR, COLING, KDD, SIGIR, Interspeech)
 - **`references/formatting-rules.md`** — General formatting rules applicable across venues

@@ -10,7 +10,7 @@ triggers:
   - "论文速读"
   - "what does this paper say"
   - "explain this paper"
-  - "arxiv"
+  - "arxiv paper"
   - "/paper-read"
 ---
 

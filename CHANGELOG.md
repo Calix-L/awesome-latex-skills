@@ -33,16 +33,6 @@ All notable changes to awesome-latex-skills.
 - **Reference depth test** — error chains, OCR fallback, chinglish category count
 - **CHANGELOG.md** — tracking project changes
 - **CI version consistency step** in test.yml
-- **Venue status reading guidance** in reading-framework — detailed per-status reading strategy
-- **Reviewer response templates** in academic-phrasebank — acknowledging feedback, addressing concerns, declining changes
-- **Dataset/benchmark paper type** in reading-framework
-- **18 Greek letter variants** in math-reconstruction (varepsilon, vartheta, varrho, varsigma, etc.)
-- **14 operator/symbol mappings** in math-reconstruction (oplus, otimes, dagger, cdots, etc.)
-- **6 critical appraisal items** — data verification, ablation isolation, terminology/notation/abstract consistency
-- **file_patterns** in latex-fmt and paper-read config.yaml (consistency with other skills)
-- **Version consistency test** — all SKILL.md versions match
-- **Reference path existence test** — all paths mentioned in SKILL.md exist on disk
-- **Edge case content test** — verifies Overleaf, preprint, Oxford comma, venue status guidance
 
 ### Changed
 - All SKILL.md versions bumped from 1.0.0 to 1.1.0

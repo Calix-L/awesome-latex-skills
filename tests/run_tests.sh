@@ -156,7 +156,7 @@ test_fmt_templates() {
         return
     fi
 
-    local venues=("NeurIPS" "ICML" "CVPR" "ACL" "IEEE" "Nature" "Science" "AAAI" "ICLR" "ECCV" "TMLR")
+    local venues=("NeurIPS" "ICML" "CVPR" "ACL" "IEEE" "Nature" "Science" "AAAI" "ICLR" "ECCV" "TMLR" "COLING" "KDD" "SIGIR" "Interspeech")
     for venue in "${venues[@]}"; do
         if grep -qi "$venue" "$guide"; then
             pass "Venue guide covers: $venue"
@@ -229,6 +229,13 @@ test_pdf2tex_coverage() {
             fail "Missing reference file: $ref"
         fi
     done
+
+    local fixture="$FIXTURES/pdf2tex/sample_extraction.md"
+    if [ -f "$fixture" ]; then
+        pass "pdf2tex has test fixture"
+    else
+        warn "pdf2tex has no test fixture"
+    fi
 }
 
 test_agent_configs() {
@@ -541,6 +548,96 @@ test_reference_depth() {
     fi
 }
 
+test_fmt_expected_output() {
+    echo ""
+    echo "=== Testing latex-fmt: Expected Output ==="
+
+    local pre="$FIXTURES/fmt/pre_neurips.tex"
+    local post="$FIXTURES/fmt/post_neurips.tex"
+
+    if [ -f "$post" ]; then
+        pass "post_neurips.tex exists"
+    else
+        fail "post_neurips.tex not found"
+        return
+    fi
+
+    # Pre has cvpr, post should have neurips
+    if grep -qi "neurips" "$post"; then
+        pass "post_neurips.tex has neurips documentclass"
+    else
+        fail "post_neurips.tex missing neurips documentclass"
+    fi
+
+    # Post should NOT have banned packages
+    if grep -q '\\usepackage{geometry}' "$post" 2>/dev/null; then
+        fail "post_neurips.tex still has geometry package"
+    else
+        pass "post_neurips.tex removed geometry package"
+    fi
+
+    if grep -q '\\usepackage{setspace}' "$post" 2>/dev/null; then
+        fail "post_neurips.tex still has setspace package"
+    else
+        pass "post_neurips.tex removed setspace package"
+    fi
+
+    # Post should flag Broader Impact
+    if grep -qi "broader impact\|FLAGGED" "$post"; then
+        pass "post_neurips.tex flags missing Broader Impact"
+    else
+        warn "post_neurips.tex does not flag Broader Impact"
+    fi
+}
+
+test_polish_sample_patterns() {
+    echo ""
+    echo "=== Testing latex-polish: Sample Pattern Coverage ==="
+
+    local sample="$FIXTURES/polish/chinglish_sample.tex"
+    local chinglish="$SCRIPT_DIR/../latex-polish/references/chinglish-patterns.md"
+
+    # Check that the sample actually contains the patterns described in the reference
+    local patterns_in_sample=0
+    local total_patterns=6
+
+    # "can achieve" (overuse of can)
+    if grep -qi "can achieve\|can learn\|can get" "$sample"; then
+        patterns_in_sample=$((patterns_in_sample + 1))
+    fi
+
+    # "According to" overuse
+    if grep -qi "according to" "$sample"; then
+        patterns_in_sample=$((patterns_in_sample + 1))
+    fi
+
+    # "make/let" constructions
+    if grep -qi "makes the\|make the" "$sample"; then
+        patterns_in_sample=$((patterns_in_sample + 1))
+    fi
+
+    # Missing articles
+    if grep -qi "result shows\|in experiment" "$sample"; then
+        patterns_in_sample=$((patterns_in_sample + 1))
+    fi
+
+    # Subject-verb agreement
+    if grep -qi "demonstrates\|have several" "$sample"; then
+        patterns_in_sample=$((patterns_in_sample + 1))
+    fi
+
+    # "Based on" misuse
+    if grep -qi "based from\|based on" "$sample"; then
+        patterns_in_sample=$((patterns_in_sample + 1))
+    fi
+
+    if [ "$patterns_in_sample" -ge 4 ]; then
+        pass "Chinglish sample covers $patterns_in_sample/$total_patterns pattern categories"
+    else
+        warn "Chinglish sample only covers $patterns_in_sample/$total_patterns pattern categories"
+    fi
+}
+
 # --- Main ---
 
 echo "======================================"
@@ -554,7 +651,9 @@ check_pdflatex && HAS_LATEX=true || true
 test_rescue_error_catalog_coverage
 test_rescue_expected_fix
 test_polish_rules_exist
+test_polish_sample_patterns
 test_fmt_templates
+test_fmt_expected_output
 test_paper_read_coverage
 test_pdf2tex_coverage
 test_agent_configs

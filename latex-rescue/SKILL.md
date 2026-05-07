@@ -187,7 +187,8 @@ bibtex main && \
 pdflatex -interaction=nonstopmode -file-line-error main.tex && \
 pdflatex -interaction=nonstopmode -file-line-error main.tex
 
-# If project uses no bibliography, a single pass suffices for checking errors:
+# If project uses no bibliography, run twice for cross-references:
+pdflatex -interaction=nonstopmode -file-line-error main.tex && \
 pdflatex -interaction=nonstopmode -file-line-error main.tex
 ```
 

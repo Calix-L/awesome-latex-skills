@@ -44,7 +44,6 @@ Look up the log message here to jump to the right section:
 | `\capton` | `\caption` |
 | `\incluegraphics` | `\includegraphics` |
 | `\centeringg` | `\centering` |
-| `\usepackge` | `\usepackage` |
 | `\documnetclass` | `\documentclass` |
 | `\begn{document}` | `\begin{document}` |
 | `\end{docment}` | `\end{document}` |
@@ -75,7 +74,7 @@ These appear inside `\begin{...}` or `\end{...}`. Fix the environment name:
 
 | Wrong | Correct | Note |
 |-------|---------|------|
-| `\refrence` | `\bibliography` or `\bibliographystyle` | `\reference` is not a LaTeX command; infer from context |
+| `\refrence` | `\ref` | Misspelled `\ref`; not `\bibliography` |
 
 ## Math Mode Errors
 

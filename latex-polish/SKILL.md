@@ -176,7 +176,7 @@ Suggestions for author review:
 
 ## Chinese Scholar Special Attention
 
-Chinese authors have specific recurring issues. Watch for these and fix proactively. See `references/chinglish-patterns.md` for the full catalog of 16 pattern categories.
+Chinese authors have specific recurring issues. Watch for these and fix proactively. See `references/chinglish-patterns.md` for the full catalog of 18 pattern categories.
 
 ### Top-priority fixes (most common and most damaging):
 

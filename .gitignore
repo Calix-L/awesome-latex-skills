@@ -17,9 +17,21 @@
 *.nav
 *.snm
 *.vrb
+*.lof
+*.lot
+*.acn
+*.acr
+*.glo
+*.gls
+*.ist
 
 # PDF output
 *.pdf
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
 
 # OS
 .DS_Store

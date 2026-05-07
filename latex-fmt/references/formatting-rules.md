@@ -115,6 +115,10 @@ These are commonly banned by venue templates:
 | TMLR | — | — | Author's choice |
 | Nature | — | Methods, Data Availability | Nature style |
 | Science | — | Methods, References | Science style |
+| COLING | — | — | natbib (author-year) |
+| KDD | — | CCS Concepts, Keywords | ACM format |
+| SIGIR | — | CCS Concepts | ACM format |
+| Interspeech | — | — | ISCA format |
 
 ## Pre-Submission Checks
 
