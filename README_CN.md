@@ -9,7 +9,7 @@
 > *凌晨 2 点，47 个编译错误。审稿人一句"English needs improvement。"*
 > *CVPR 被拒，周五前要改成 ICML 格式。*
 
-**awesome-latex-skills** 让任何 AI 拥有处理这些问题的领域专家能力——结构化工作流、精选知识库、严格防护栏，这是普通 Prompt 做不到的。
+**awesome-latex-skills** 让任何 AI 拥有 LaTeX 领域专家能力——结构化工作流、精选知识库、严格防护栏，这是普通 Prompt 做不到的。
 
 <br>
 
@@ -23,13 +23,27 @@
 <img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=social" alt="Stars">
 <img src="https://img.shields.io/badge/license-MIT-yellow" alt="MIT">
 
+[English](./README.md)
+
 </div>
 
 ---
 
-**[技能一览](#技能一览) · [效果演示](#效果演示) · [组合工作流](#组合工作流) · [快速上手](#快速上手) · [平台兼容](#平台兼容) · [更新日志](./CHANGELOG.md) · [参与贡献](./CONTRIBUTING.md)**
+**[10 秒了解](#10-秒了解) · [技能一览](#技能一览) · [效果演示](#效果演示) · [组合工作流](#组合工作流) · [快速上手](#快速上手) · [平台兼容](#平台兼容)**
 
-[English](./README.md)
+---
+
+## 10 秒了解
+
+你描述问题，Skill 给出修复。
+
+- **凌晨 2 点，47 个编译错误** — `latex-rescue` 自动纠正拼写、修复不匹配环境、解决包冲突。80+ 模式，零手动修改。
+- **审稿人写了句"English needs improvement"** — `latex-polish` 纠正 18 类中式英语，应用 100+ 学术短语模板，添加适当 hedging。3 档强度可选。
+- **CVPR 被拒，周五前要改成 ICML 格式** — `latex-fmt` 切换 `\documentclass`，移除禁用包，匿名化处理，检查页数限制。覆盖 15 个会议。
+- **待读列表 50 篇论文** — `paper-read` 30 秒速读 5 要点，5 分钟结构化分析，15 分钟完整评审。
+- **源码丢了，只剩 PDF** — `pdf2tex` 从编译后的 PDF 重建 LaTeX。97+ 数学符号映射、表格重建、7 阶段流水线。
+
+不需要 LaTeX 专业知识。Skill 帮你搞定分号。
 
 ---
 
@@ -74,13 +88,14 @@
 
 你试过让 ChatGPT 修 LaTeX。它会猜。它会漏。它还会改你的数学公式。
 
-| 场景 | 普通 Prompt | 使用 Skill 包 |
+| 你说... | 普通 LLM 会... | Skill 包会... |
 |---|---|---|
 | `\beginn{table}` | "这是个有趣的拼写错误" | 自动纠正为 `\begin{table}` |
 | "According to the experiment" | 照单全收 | 标记 overuse，推荐替代表达 |
 | 投稿 NeurIPS | 忘记 Broader Impact | 自动检测缺失的必填章节 |
 | PDF → LaTeX | 生成乱码标记 | 7 阶段流水线 + 验证 |
 | 没有 natbib 却用 `\citep{}` | 直接忽略 | 检测缺失包，自动添加 |
+| "帮我润色论文" | 全文重写 | 最小改动，保留数学公式和命令 |
 
 Skill 注入了**数百条领域专用规则**，这些规则 LLM 无法仅靠记忆可靠地调用。每个 Skill = 结构化工作流 + 领域知识 + 防护栏。同样的输入，每次都是专家级的输出。
 

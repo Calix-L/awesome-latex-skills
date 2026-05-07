@@ -11,7 +11,7 @@
 > *47 compilation errors at 2 AM. A reviewer who writes "English needs improvement."*
 > *A CVPR reject that needs to become an ICML submission by Friday.*
 
-**awesome-latex-skills** gives any AI agent the domain expertise to handle these — structured workflows, curated references, and guardrails that raw prompts can't replicate.
+**awesome-latex-skills** turns any AI agent into a LaTeX expert — structured workflows, curated knowledge, and guardrails that raw prompts can't replicate.
 
 <br>
 
@@ -29,7 +29,21 @@
 
 ---
 
-**[Skills](#skills) · [Demos](#demos) · [Workflows](#workflows) · [Quick Start](#quick-start) · [Compatibility](#compatibility) · [Changelog](./CHANGELOG.md) · [Contributing](./CONTRIBUTING.md)**
+**[10-Second Pitch](#10-second-pitch) · [Skills](#skills) · [Demos](#demos) · [Workflows](#workflows) · [Quick Start](#quick-start) · [Compatibility](#compatibility)**
+
+---
+
+## 10-Second Pitch
+
+You describe the problem. The skill produces the fix.
+
+- **47 compilation errors at 2 AM** — `latex-rescue` auto-corrects typos, fixes mismatched environments, resolves package conflicts. 80+ patterns, zero manual edits.
+- **"English needs improvement" from Reviewer #2** — `latex-polish` fixes 18 categories of Chinglish, applies 100+ academic phrasebank templates, adds proper hedging. 3 intensity levels.
+- **CVPR rejected, ICML deadline Friday** — `latex-fmt` switches `\documentclass`, removes banned packages, anonymizes, checks page limits. 15 venues covered.
+- **50 papers in your reading list** — `paper-read` produces a 5-bullet skim in 30 seconds, a structured analysis in 5 minutes, or a full critical review in 15.
+- **Lost the .tex, only the PDF** — `pdf2tex` rebuilds LaTeX from any compiled PDF. 97+ math glyph mappings, table reconstruction, 7-phase pipeline.
+
+No LaTeX expertise required. The skill handles the semicolons.
 
 ---
 
@@ -66,7 +80,7 @@
 | | | | |
 |---|---|---|---|
 | 80+ error patterns | 14 package conflicts | 18 Chinglish categories | 100+ phrasebank templates |
-| 11→15 venue rules | 43 appraisal items | 97+ glyph mappings | 15 reference files |
+| 15 venue rules | 43 appraisal items | 97+ glyph mappings | 15 reference files |
 
 ---
 
@@ -74,13 +88,14 @@
 
 You've tried asking ChatGPT to fix your LaTeX. It guesses. It misses things. It changes your math.
 
-| What happens | Raw LLM | With skill pack |
+| You say... | What the raw LLM does | What the skill pack does |
 |---|---|---|
 | `\beginn{table}` | "That's an interesting typo" | Auto-corrects to `\begin{table}` |
 | "According to the experiment" | Accepts it | Flags overuse, suggests alternatives |
-| NeurIPS submission | Forgets Broader Impact | Flags missing required section |
-| PDF → LaTeX | Produces broken markup | 7-phase pipeline with verification |
+| "Format for NeurIPS" | Forgets Broader Impact | Flags missing required section |
+| "Convert this PDF to LaTeX" | Produces broken markup | 7-phase pipeline with verification |
 | `\citep{}` without natbib | Silently ignores | Detects missing package, adds it |
+| "Polish my paper" | Rewrites everything | Minimal edits, preserves math & commands |
 
 Skills inject **hundreds of domain-specific rules** that LLMs can't reliably recall from memory. Each skill = structured workflow + reference knowledge + guardrails. Same input, same expert output, every time.
 
@@ -159,7 +174,7 @@ Skills compose into pipelines for real academic scenarios:
 | Deadline crunch | `/latex-rescue` | Crash → rescue → compile |
 | Review turnaround | `/latex-polish` → `/latex-fmt` | Draft → polish → format → submit |
 | Rebuttal reformat | `/latex-polish` → `/latex-fmt` | CVPR reject → polish → reformat for ICML |
-| Lost source | `/pdf2tex` → `/latex-rescue` | PDF → reconstruct → fix → polish |
+| Lost source | `/pdf2tex` → `/latex-rescue` | PDF → reconstruct → fix → compile |
 | New paper | `/paper-read` → `/latex-polish` → `/latex-fmt` | Read papers → polish → format for venue |
 | Overleaf | `/latex-rescue` | Paste error log → get fixes |
 
