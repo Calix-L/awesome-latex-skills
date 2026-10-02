@@ -4,8 +4,7 @@ type: skill
 skill_file: pdf2tex/SKILL.md
 platforms:
   claude_code: {}
-  openai:
-    model: gpt-4.1
+  openai: {}
 auto_activate:
   - triggers:
     - "convert.*pdf.*(tex|latex)"
