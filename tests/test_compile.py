@@ -245,8 +245,8 @@ class CompilationTests(unittest.TestCase):
                         "Spread is blank", "entry was not recovered", "retained as (7)"):
             self.assertIn(visible, text)
 
-        def word(value):
-            matches = [item for item in words if item[4] == value]
+        def word(value, above=None):
+            matches = [item for item in words if item[4] == value and (above is None or item[1] < above)]
             self.assertEqual(len(matches), 1, (value, matches))
             return matches[0]
 
@@ -258,7 +258,7 @@ class CompilationTests(unittest.TestCase):
         self.assertIn("--", [item[4] for item in row])
         self.assertIn("Not", [item[4] for item in row])
         self.assertAlmostEqual(next(item[0] for item in row if item[4] == "Not"), measured[0], places=3)
-        spread_header = word("Spread")
+        spread_header = word("Spread", above=mean[1])
         left, right = min(spread[0], spread_header[0]), max(spread[2], spread_header[2])
         self.assertFalse(any(left < (item[0] + item[2]) / 2 < right for item in row), row)
 
