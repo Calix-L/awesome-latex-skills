@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
-from install import REPO, SKILLS, RECEIPT, bundle_files, default_destination, install, main
+from install import REPO, SKILLS, RECEIPT, LOCK, bundle_files, default_destination, install, main, installation_lock
 
 
 class InstallerTests(unittest.TestCase):
@@ -136,6 +136,44 @@ class InstallerTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "symlink"):
             install(REPO, self.destination, ["latex-fmt"])
         self.assertEqual(list(outside.iterdir()), [])
+
+    def test_concurrent_cli_is_blocked_and_can_retry_after_lock_release(self):
+        self.destination.mkdir(parents=True)
+        with installation_lock(self.destination):
+            original = (self.destination / LOCK).read_bytes()
+            command = [sys.executable, "-I", "-S", str(REPO / "scripts/install.py"),
+                       "--dest", str(self.destination), "--skill", "latex-fmt"]
+            result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn("lock exists", result.stderr)
+            self.assertEqual((self.destination / LOCK).read_bytes(), original)
+            self.assertFalse((self.destination / "latex-fmt").exists())
+        result = subprocess.run(command, capture_output=True, text=True, timeout=30)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse((self.destination / LOCK).exists())
+
+    def test_dry_run_never_removes_an_existing_lock(self):
+        self.destination.mkdir(parents=True)
+        lock = self.destination / LOCK
+        lock.write_text("stale or active; preserve", encoding="utf-8")
+        before = lock.read_bytes()
+        self.assertEqual(install(REPO, self.destination, ["latex-fmt"], dry_run=True), [("latex-fmt", "install")])
+        self.assertEqual(lock.read_bytes(), before)
+        with self.assertRaisesRegex(ValueError, "lock exists"):
+            install(REPO, self.destination, ["latex-fmt"])
+        self.assertEqual(lock.read_bytes(), before)
+
+    def test_lock_releases_on_interrupt_without_deleting_a_replacement(self):
+        self.destination.mkdir(parents=True)
+        with self.assertRaises(KeyboardInterrupt):
+            with installation_lock(self.destination):
+                raise KeyboardInterrupt()
+        self.assertFalse((self.destination / LOCK).exists())
+        with installation_lock(self.destination):
+            lock = self.destination / LOCK
+            lock.rename(self.destination / "old-lock")
+            lock.write_text("other owner", encoding="utf-8")
+        self.assertEqual(lock.read_text(), "other owner")
 
 
 class UpdateTests(unittest.TestCase):

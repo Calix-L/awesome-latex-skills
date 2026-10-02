@@ -101,6 +101,10 @@ python scripts/install.py --agent codex --update
 （`adopt`）。不同的旧版本需先备份并移走，或选择新目录。`--dry-run`
 不会写入文件或安装记录。Claude Code 使用 `--agent claude`。
 
+同一技能目录的写入使用互斥锁；第二个安装进程会停止并报告锁的位置，避免并发
+更新相互覆盖。进程异常终止后，确认原安装器已停止，再手动移除
+`.awesome-latex-skills.lock`；工具不会自动让仍在使用的锁过期。
+
 </details>
 
 <details>
@@ -222,12 +226,16 @@ python scripts/doctor.py --skill pdf2tex --json
 ```sh
 python latex-rescue/scripts/check_build.py path/to/paper.tex --output fresh-build
 python latex-rescue/scripts/check_build.py path/to/paper.tex --output fresh-bib-build --engine xelatex --backend biber
+python latex-rescue/scripts/check_build.py path/to/paper.tex --output final-check --until-stable --require-resolved
 ```
 
 选择项目实际的引擎和参考文献后端；不需要后端时省略 `--backend`。
 目标必须是新目录。工具保存每次运行的日志、终端输出、辅助文件、PDF 和
 `build-report.json`，记录退出码与最终诊断。工具关闭 shell escape，遇到失败或超时
-即停止。构建成功仍可能存在未解析引用或排版警告。
+即停止。输出名默认沿用根文件名，并支持常规嵌套章节。
+`--until-stable` 在限定次数内检查辅助文件是否稳定；`--require-resolved` 会将
+已识别的未解析引用或重跑请求视为检查失败。不加该选项时，构建成功仍可能存在
+未解析引用或排版警告。
 
 只安装 `latex-rescue` 也会包含这个独立脚本。自定义构建流程应继续使用项目
 原有命令。参数和报告的适用范围见[构建指南](./latex-rescue/references/build-check.md)。
@@ -241,11 +249,13 @@ python latex-rescue/scripts/check_build.py path/to/paper.tex --output fresh-bib-
 
 ```sh
 python -m pip install -r pdf2tex/requirements.txt
-python pdf2tex/scripts/extract_pdf.py paper.pdf --output extraction --pages 1-3,5 --images
+python pdf2tex/scripts/extract_pdf.py paper.pdf --output extraction --pages 1-3,5 --images --render
 ```
 
 不加 `--pages` 时提取全部页面；`--images` 可选。目标必须是新目录。
 输出包含按页分隔的 UTF-8 文本、布局／字体／页码／元数据 JSON，以及可选的嵌入图片。
+`--render` 额外保存所选页面的 PNG 预览，默认 144 DPI；`--dpi` 可选 72–300，
+每页最多 2000 万像素，便于核对公式、矢量图和完整图组。
 工具保留原始 PDF，标记无文本页面，记录重复图片的各次位置和独立透明蒙版。
 
 这一步不执行 OCR，也不自动生成 LaTeX。多栏顺序、公式、表格与完整图组仍需

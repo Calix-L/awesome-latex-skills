@@ -75,6 +75,48 @@ class PdfExtractionTests(unittest.TestCase):
         report = extract_pdf.extract(self.pdf, self.output)
         self.assertEqual(report["images"], [])
         self.assertFalse((self.output / "images").exists())
+        self.assertFalse((self.output / "pages").exists())
+        self.assertTrue(all(page["preview"] is None for page in report["pages"]))
+
+    def test_selected_page_previews_keep_numbers_pixels_and_annotations(self):
+        with pymupdf.open(self.pdf) as doc:
+            page = doc[1]
+            page.draw_rect(pymupdf.Rect(100, 180, 250, 250), color=(1, 0, 0), fill=(1, 0, 0))
+            page.add_rect_annot(pymupdf.Rect(280, 180, 350, 250)).update()
+            page.set_rotation(90)
+            doc.saveIncr()
+        before = self.pdf.read_bytes()
+        report = extract_pdf.extract(self.pdf, self.output, "2-3", render=True, dpi=72)
+        self.assertEqual({p.name for p in (self.output / "pages").iterdir()}, {"page-0002.png", "page-0003.png"})
+        with pymupdf.open(self.pdf) as original:
+            for page in report["pages"]:
+                preview = page["preview"]
+                saved = pymupdf.Pixmap(self.output / preview["file"])
+                expected = original[page["page"] - 1].get_pixmap(dpi=72, colorspace=pymupdf.csRGB, alpha=False, annots=True)
+                self.assertEqual((saved.width, saved.height), (preview["width"], preview["height"]))
+                self.assertEqual(saved.samples, expected.samples)
+                self.assertEqual(saved.alpha, 0)
+        self.assertEqual(self.pdf.read_bytes(), before)
+
+    def test_invalid_or_excessive_preview_resolution_publishes_nothing(self):
+        for value in (0, 71, 301, float("nan"), 144.5, True):
+            with self.subTest(dpi=value), self.assertRaises(ValueError):
+                extract_pdf.extract(self.pdf, self.output, render=True, dpi=value)
+        oversized = self.root / "oversized.pdf"
+        with pymupdf.open() as doc:
+            doc.new_page(width=6000, height=6000)
+            doc.save(oversized)
+        with self.assertRaisesRegex(ValueError, "pixels"):
+            extract_pdf.extract(oversized, self.output, render=True, dpi=72)
+        self.assertFalse(self.output.exists())
+        self.assertEqual(list(self.root.glob(".pdf2tex-*")), [])
+
+    def test_rendering_failure_leaves_no_partial_output(self):
+        with patch.object(pymupdf.Page, "get_pixmap", side_effect=RuntimeError("render failed")):
+            with self.assertRaisesRegex(RuntimeError, "render failed"):
+                extract_pdf.extract(self.pdf, self.output, render=True)
+        self.assertFalse(self.output.exists())
+        self.assertEqual(list(self.root.glob(".pdf2tex-*")), [])
 
     def test_image_deduplication_placements_and_soft_mask(self):
         report = extract_pdf.extract(self.pdf, self.output, images=True)
@@ -118,10 +160,11 @@ class PdfExtractionTests(unittest.TestCase):
         destination = self.root / "skills"
         install(ROOT, destination, ["pdf2tex"])
         result = subprocess.run([sys.executable, str(destination / "pdf2tex" / "scripts" / "extract_pdf.py"),
-                                 str(self.pdf), "--output", str(self.output), "--pages", "2"],
+                                 str(self.pdf), "--output", str(self.output), "--pages", "2", "--render", "--dpi", "72"],
                                 cwd=self.root, capture_output=True, text=True, timeout=30)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads((self.output / "layout.json").read_text())["selected_pages"], [2])
+        self.assertTrue((self.output / "pages/page-0002.png").is_file())
 
     def test_missing_dependency_has_actionable_error_and_help_still_works(self):
         command = [sys.executable, "-I", "-S", str(SCRIPT)]

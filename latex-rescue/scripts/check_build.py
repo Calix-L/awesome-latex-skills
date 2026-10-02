@@ -14,6 +14,30 @@ import sys
 
 ENGINES = ("pdflatex", "xelatex", "lualatex")
 BACKENDS = ("bibtex", "biber")
+AUXILIARY_SUFFIXES = {".aux", ".toc", ".lof", ".lot", ".out", ".bcf", ".bbl", ".nav", ".snm"}
+
+
+def log_state(text):
+    normalized = " ".join(text.split())
+    return {
+        "rerun_requested": bool(re.search(r"Rerun to get|Label\(s\) may have changed|Please (?:\(re\))?run (?:Biber|LaTeX)|Rerun LaTeX", normalized, re.I)),
+        "unresolved_references": bool(re.search(r"(?:Reference|Citation) .{0,500}? undefined|There were undefined (?:references|citations)", normalized, re.I)),
+    }
+
+
+def auxiliary_hashes(output):
+    return {path.relative_to(output).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in output.rglob("*") if path.is_file() and path.suffix in AUXILIARY_SUFFIXES}
+
+
+def prepare_include_directories(project, output):
+    """Mirror local TeX file directories so nested include auxiliary files can open."""
+    for path in project.rglob("*.tex"):
+        relative = path.relative_to(project)
+        if ".git" in relative.parts or path.resolve().is_relative_to(output):
+            continue
+        if path.is_file() and path.resolve().is_relative_to(project):
+            (output / relative.parent).mkdir(parents=True, exist_ok=True)
 
 
 def diagnostics(text):
@@ -33,7 +57,8 @@ def diagnostics(text):
     return findings
 
 
-def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=60):
+def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=60,
+          jobname=None, until_stable=False, require_resolved=False):
     source = Path(source).expanduser().resolve()
     output = Path(output).expanduser().resolve()
     if not source.is_file() or source.suffix.lower() != ".tex":
@@ -42,9 +67,14 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
         raise ValueError("Root filename contains unsupported TeX command-line characters")
     if engine not in ENGINES or backend not in (None, *BACKENDS):
         raise ValueError("Unsupported engine or bibliography backend")
-    passes = (3 if backend else 2) if passes is None else passes
+    jobname = source.stem if jobname is None else jobname
+    if not isinstance(jobname, str) or not jobname.strip() or jobname in (".", "..") or any(char in jobname for char in '\n\r"{}%#\\/'):
+        raise ValueError("Job name must be a nonempty filename without TeX control characters or path separators")
+    passes = (5 if until_stable else 3 if backend else 2) if passes is None else passes
     if not isinstance(passes, int) or not 1 <= passes <= 5 or (backend and passes < 2):
         raise ValueError("Use 1–5 engine passes; a bibliography build needs at least 2")
+    if until_stable and passes < 2:
+        raise ValueError("Convergence checking needs at least 2 engine passes")
     if not math.isfinite(timeout) or timeout <= 0:
         raise ValueError("Timeout must be a finite positive number of seconds")
     if output.exists():
@@ -59,20 +89,25 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
     # mkdir is the reservation: do not replace a directory created after preflight.
     output.mkdir(parents=True, exist_ok=False)
     report = {
-        "schema": 1, "source": str(source),
+        "schema": 2, "source": str(source), "jobname": jobname,
         "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
         "engine": engine, "backend": backend, "requested_passes": passes,
         "output": str(output), "steps": [], "status": "failed", "pdf": None,
         "diagnostics": [], "failure": None,
+        "until_stable": until_stable, "require_resolved": require_resolved,
+        "auxiliary_stable": None, "rerun_requested": False, "unresolved_references": False,
+        "source_unchanged": None,
     }
     environment = os.environ.copy()
     for variable in ("TEXINPUTS", "BIBINPUTS", "BSTINPUTS"):
         environment[variable] = str(source.parent) + os.pathsep + environment.get(variable, "")
 
     def run(command, cwd, name, native_log):
-        capture = output / f"{name}.txt"
+        evidence = output / "logs"
+        evidence.mkdir(exist_ok=True)
+        capture = evidence / f"{name}.txt"
         step = {"command": command, "cwd": str(cwd), "exit_code": None,
-                "timed_out": False, "transcript": capture.name, "log": None}
+                "timed_out": False, "transcript": capture.relative_to(output).as_posix(), "log": None}
         report["steps"].append(step)
         # A failed later pass must not inherit the preceding pass's native log.
         if native_log.exists():
@@ -90,54 +125,80 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
             except OSError as exc:
                 report["failure"] = f"{name} could not launch: {exc}"
         if native_log.is_file():
-            saved = output / f"{name}{native_log.suffix}"
+            saved = evidence / f"{name}{native_log.suffix}"
             shutil.copyfile(native_log, saved)
-            step["log"] = saved.name
+            step["log"] = saved.relative_to(output).as_posix()
         if step["exit_code"] != 0:
             report["failure"] = report["failure"] or f"{name} exited with {step['exit_code']}"
             return False
         return True
 
     try:
+        prepare_include_directories(source.parent, output)
+        previous_auxiliary = None
         for number in range(1, passes + 1):
+            # Each successful pass must produce its own PDF, not inherit an earlier one.
+            prior_pdf = output / f"{jobname}.pdf"
+            if prior_pdf.exists():
+                prior_pdf.unlink()
             # Quotes are interpreted by TeX's filename scanner, not a shell.
             filename = f'"./{source.name}"' if " " in source.name else f"./{source.name}"
             command = [executables[engine], "-no-shell-escape", "-interaction=nonstopmode",
-                       "-halt-on-error", "-file-line-error", "-recorder", "-jobname=document",
+                       "-halt-on-error", "-file-line-error", "-recorder", f"-jobname={jobname}",
                        f"-output-directory={output}", filename]
-            if not run(command, source.parent, f"engine-{number:02}", output / "document.log"):
+            if not run(command, source.parent, f"engine-{number:02}", output / f"{jobname}.log"):
                 break
+            current_auxiliary = auxiliary_hashes(output)
+            report["auxiliary_stable"] = bool(current_auxiliary) and current_auxiliary == previous_auxiliary if previous_auxiliary is not None else None
+            previous_auxiliary = current_auxiliary
+            report.update(log_state((output / f"{jobname}.log").read_text(encoding="utf-8", errors="replace")
+                                    if (output / f"{jobname}.log").is_file() else ""))
             if number == 1 and backend:
-                control = output / ("document.aux" if backend == "bibtex" else "document.bcf")
+                control = output / f"{jobname}{'.aux' if backend == 'bibtex' else '.bcf'}"
                 if not control.is_file():
                     report["failure"] = f"Requested {backend}, but {control.name} was not generated"
                     break
                 if backend == "bibtex":
-                    command, cwd = [executables[backend], "document"], output
+                    argument = f'"{jobname}"' if " " in jobname else jobname
+                    command, cwd = [executables[backend], argument], output
                 else:
                     command = [executables[backend], f"--input-directory={output}",
-                               f"--output-directory={output}", "document"]
+                               f"--output-directory={output}", jobname]
                     cwd = source.parent
-                if not run(command, cwd, "bibliography", output / "document.blg"):
+                if not run(command, cwd, "bibliography", output / f"{jobname}.blg"):
                     break
+            if until_stable and report["auxiliary_stable"] and not report["rerun_requested"]:
+                break
         if report["steps"]:
             last_engine = next(step for step in reversed(report["steps"]) if step["command"][0] == executables[engine])
             log = output / (last_engine["log"] or last_engine["transcript"])
-            report["diagnostics"] = diagnostics(log.read_text(encoding="utf-8", errors="replace"))
-        pdf = output / "document.pdf"
+            final_text = log.read_text(encoding="utf-8", errors="replace")
+            report["diagnostics"] = diagnostics(final_text)
+            report.update(log_state(final_text))
+        pdf = output / f"{jobname}.pdf"
         valid_pdf = False
         if pdf.is_file():
             with pdf.open("rb") as stream:
                 valid_pdf = stream.read(5) == b"%PDF-"
         if not report["failure"]:
+            report["source_unchanged"] = hashlib.sha256(source.read_bytes()).hexdigest() == report["source_sha256"]
             if any(item["severity"] == "error" for item in report["diagnostics"]):
                 report["failure"] = "Final engine log contains TeX errors"
+            elif not report["source_unchanged"]:
+                report["failure"] = "Root source changed during the build; output cannot be verified against its starting hash"
             elif not valid_pdf:
                 report["failure"] = "Engine did not produce a PDF with a valid header"
+            elif until_stable and (not report["auxiliary_stable"] or report["rerun_requested"]):
+                report["failure"] = "Auxiliary files or rerun requests did not settle within the engine-pass limit"
+            elif require_resolved and (report["unresolved_references"] or report["rerun_requested"]):
+                report["failure"] = "Final log contains unresolved references/citations or rerun requests"
             else:
                 report["status"], report["pdf"] = "success", pdf.name
     except KeyboardInterrupt:
         report["failure"] = "Build interrupted; compilation is unverified"
+        raise
+    except (OSError, ValueError) as exc:
+        report["failure"] = f"Build evidence could not be completed: {exc}"
         raise
     finally:
         (output / "build-report.json").write_text(json.dumps(report, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
@@ -150,11 +211,15 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, required=True, help="New directory for PDF, logs, and JSON evidence")
     parser.add_argument("--engine", choices=ENGINES, default="pdflatex")
     parser.add_argument("--backend", choices=BACKENDS, help="Explicit bibliography backend; omitted means none")
-    parser.add_argument("--passes", type=int, help="1–5 engine passes; default 2, or 3 with a backend")
+    parser.add_argument("--passes", type=int, help="1–5 engine passes; default 2, 3 with a backend, or maximum 5 with --until-stable")
     parser.add_argument("--timeout", type=float, default=60, help="Seconds per engine/backend process (default 60)")
+    parser.add_argument("--jobname", help="Output basename; default: root filename without .tex")
+    parser.add_argument("--until-stable", action="store_true", help="Stop on settled auxiliary files and rerun requests; default maximum 5 passes")
+    parser.add_argument("--require-resolved", action="store_true", help="Fail if final references/citations or rerun requests remain")
     args = parser.parse_args(argv)
     try:
-        report = build(args.source, args.output, args.engine, args.backend, args.passes, args.timeout)
+        report = build(args.source, args.output, args.engine, args.backend, args.passes, args.timeout,
+                       args.jobname, args.until_stable, args.require_resolved)
     except (OSError, ValueError) as exc:
         print(f"Build check: {exc}", file=sys.stderr)
         return 2

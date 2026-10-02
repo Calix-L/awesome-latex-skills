@@ -96,7 +96,7 @@ class CompilationTests(unittest.TestCase):
         self.assertEqual(report["status"], "success", report)
         self.assertEqual(len(report["steps"]), 4)
         self.assertFalse(any("undefined" in d["message"] for d in report["diagnostics"]), report)
-        self.assertTrue((self.work / "bibliography build/document.bbl").is_file())
+        self.assertTrue((self.work / "bibliography build/paper name.bbl").is_file())
 
     def test_bundled_build_helper_resolves_biber_with_project_local_bibliography(self):
         if not shutil.which("biber"):
@@ -111,4 +111,44 @@ class CompilationTests(unittest.TestCase):
         report = check_build.build(source, self.work / "biber build", backend="biber")
         self.assertEqual(report["status"], "success", report)
         self.assertFalse(any("undefined" in d["message"] for d in report["diagnostics"]), report)
-        self.assertTrue((self.work / "biber build/document.bbl").is_file())
+        self.assertTrue((self.work / "biber build/biber paper.bbl").is_file())
+
+    def test_nested_includes_and_root_jobname_build_without_source_artifacts(self):
+        source = self.work / "submission.tex"
+        source.write_text(r"\documentclass{article}\begin{document}"
+                          r"\input{\jobname-content}\include{chapters/one}"
+                          r"See section~\ref{sec:one}.\end{document}", encoding="utf-8")
+        (self.work / "submission-content.tex").write_text("Main content.", encoding="utf-8")
+        (self.work / "chapters").mkdir()
+        (self.work / "chapters/one.tex").write_text(r"\section{One}\label{sec:one}Chapter content.", encoding="utf-8")
+        report = check_build.build(source, self.work / "nested build", until_stable=True, require_resolved=True)
+        self.assertEqual(report["status"], "success", report)
+        self.assertEqual(report["pdf"], "submission.pdf")
+        self.assertTrue(report["auxiliary_stable"])
+        self.assertTrue((self.work / "nested build/chapters/one.aux").is_file())
+        self.assertFalse((self.work / "chapters/one.aux").exists())
+        self.assertFalse((self.work / "submission.aux").exists())
+
+    def test_strict_check_rejects_real_unresolved_reference(self):
+        source = self.work / "strict.tex"
+        source.write_text(r"\documentclass{article}\begin{document}See~\ref{author:missing}.\end{document}", encoding="utf-8")
+        report = check_build.build(source, self.work / "strict build", require_resolved=True)
+        self.assertEqual(report["status"], "failed", report)
+        self.assertTrue(report["unresolved_references"])
+        self.assertTrue((self.work / "strict build/strict.pdf").is_file())
+
+    def test_unicode_engines_compile_fontspec_with_bounded_settling(self):
+        source = self.work / "unicode.tex"
+        source.write_text("\\documentclass{article}\\usepackage{fontspec}"
+                          "\\begin{document}Hôtel. $\\alpha+\\beta$.\\end{document}", encoding="utf-8")
+        for engine in ("xelatex", "lualatex"):
+            with self.subTest(engine=engine):
+                if not shutil.which(engine):
+                    if os.environ.get("LATEX_SKILLS_REQUIRE_TEX") == "1":
+                        self.fail(f"{engine} is required for the real engine CI case")
+                    continue
+                report = check_build.build(source, self.work / engine, engine=engine,
+                                           until_stable=True, require_resolved=True, timeout=120)
+                self.assertEqual(report["status"], "success", report)
+                self.assertTrue(report["auxiliary_stable"])
+                self.assertEqual(report["pdf"], "unicode.pdf")

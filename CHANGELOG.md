@@ -5,6 +5,10 @@ All notable changes to awesome-latex-skills.
 ## Unreleased
 
 ### Added
+- Exclusive installer locks with cross-process conflict checks, revalidated plans, and explicit interrupted-process recovery guidance.
+- Optional selected-page PNG previews with source page numbers, rotation/annotations, configurable DPI, and bounded raster size.
+- Bounded auxiliary convergence and strict unresolved-reference checks, with root-source change detection and schema-2 build reports.
+- Mandatory XeLaTeX/LuaLaTeX fontspec integration checks alongside pdfLaTeX, BibTeX, and Biber.
 - Bundled fresh-build checker with selected engine/backend, per-pass logs, timeout and interruption evidence, JSON reports, and stale-PDF protection.
 - Real pdfLaTeX/BibTeX/Biber integration cases plus portable build-failure tests and installed-helper coverage.
 - Opt-in managed updates with SHA-256 receipts, legacy adoption, local edit protection, interrupted-update rollback, and preserved recovery files.
@@ -20,6 +24,8 @@ All notable changes to awesome-latex-skills.
 - CI matrix for Windows, macOS, and Linux plus mandatory TeX fixture compilation.
 
 ### Fixed
+- Build output names now follow the root document by default; explicit job names and nested include auxiliary directories are supported.
+- Engine passes cannot reuse an earlier pass's PDF, and per-step logs use a separate directory to avoid output-basename collisions.
 - Rescue references now preserve bibliography artifacts, distinguish modern input encoding from font support, avoid guessed conversions and success-rate claims, correct glossary hyperlink load order, and retain official template package choices.
 - Polishing examples no longer introduce unsupplied significance or automatically weaken warranted universal claims.
 - Documentation checks now parse Markdown links and headings rather than relying on link regexes; reference links, titles, code fences, nested relative paths, HTML srcset, UTF-8 errors, and invalid SVG dimensions are covered.

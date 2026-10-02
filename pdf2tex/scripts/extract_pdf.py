@@ -5,10 +5,13 @@ import argparse
 import hashlib
 import importlib
 import json
+import math
 from pathlib import Path
 import re
 import sys
 import tempfile
+
+MAX_PREVIEW_PIXELS = 20_000_000
 
 
 def load_pymupdf():
@@ -50,11 +53,13 @@ def file_hash(path):
     return digest.hexdigest()
 
 
-def extract(pdf, output, pages=None, images=False):
+def extract(pdf, output, pages=None, images=False, render=False, dpi=144):
     pdf = Path(pdf).expanduser().resolve()
     output = Path(output).expanduser().absolute()
     if not pdf.is_file():
         raise ValueError(f"PDF does not exist: {pdf}")
+    if not isinstance(dpi, int) or isinstance(dpi, bool) or not 72 <= dpi <= 300:
+        raise ValueError("Preview resolution must be an integer from 72 to 300 DPI")
     if output.exists() or output.is_symlink():
         raise ValueError(f"Output already exists; choose a new directory: {output}")
     output = output.resolve()
@@ -66,7 +71,7 @@ def extract(pdf, output, pages=None, images=False):
             raise ValueError("PDF requires a password; supply an authorized decrypted copy")
         indexes = select_pages(pages, doc.page_count)
         report = {
-            "schema_version": 1, "source": pdf.name, "source_sha256": file_hash(pdf),
+            "schema_version": 2, "source": pdf.name, "source_sha256": file_hash(pdf),
             "extractor": {"name": "PyMuPDF", "version": pymupdf.VersionBind},
             "page_count": doc.page_count, "selected_pages": [i + 1 for i in indexes],
             "metadata": doc.metadata, "toc": doc.get_toc(), "pages": [], "images": [],
@@ -85,10 +90,22 @@ def extract(pdf, output, pages=None, images=False):
                 text = page.get_text("text", sort=True)
                 record = {"page": index + 1, "width": layout["width"], "height": layout["height"],
                           "rotation": page.rotation, "blocks": layout["blocks"],
-                          "text_status": "available" if text.strip() else "no-text", "images": []}
+                          "text_status": "available" if text.strip() else "no-text", "images": [], "preview": None}
                 if not text.strip():
                     report["warnings"].append(f"Page {index + 1} has no extractable text; it may be blank, graphic-only, or need OCR. Inspect the PDF.")
                 text_pages.append(f"=== Page {index + 1} ===\n{text}")
+                if render:
+                    width = math.ceil(page.rect.width * dpi / 72) + 2
+                    height = math.ceil(page.rect.height * dpi / 72) + 2
+                    if width * height > MAX_PREVIEW_PIXELS:
+                        raise ValueError(f"Page {index + 1} preview exceeds {MAX_PREVIEW_PIXELS:,} pixels; use a lower --dpi or select other pages")
+                    filename = f"pages/page-{index + 1:04}.png"
+                    (bundle / "pages").mkdir(exist_ok=True)
+                    pixmap = page.get_pixmap(dpi=dpi, colorspace=pymupdf.csRGB, alpha=False, annots=True)
+                    pixmap.save(bundle / filename)
+                    record["preview"] = {"file": filename, "width": pixmap.width,
+                                         "height": pixmap.height, "dpi": dpi, "annotations": True}
+                    del pixmap
                 if images:
                     for info in page.get_image_info(xrefs=True):
                         xref = info["xref"]
@@ -128,9 +145,11 @@ def main(argv=None):
     parser.add_argument("--output", type=Path, required=True, help="New output directory; never reuse an existing directory")
     parser.add_argument("--pages", help="1-based page numbers/ranges, e.g. 1-3,5; default: all")
     parser.add_argument("--images", action="store_true", help="Export visible embedded raster images, including separate soft masks")
+    parser.add_argument("--render", action="store_true", help="Save selected whole-page PNG previews for visual comparison; no OCR")
+    parser.add_argument("--dpi", type=int, default=144, help="Preview resolution, 72–300 DPI (default 144); 20 million pixels maximum per page")
     args = parser.parse_args(argv)
     try:
-        report = extract(args.pdf, args.output, args.pages, args.images)
+        report = extract(args.pdf, args.output, args.pages, args.images, args.render, args.dpi)
     except (OSError, ValueError, RuntimeError) as exc:
         print(f"Extraction failed: {exc}", file=sys.stderr)
         return 1

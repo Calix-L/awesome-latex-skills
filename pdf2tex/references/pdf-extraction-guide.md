@@ -12,10 +12,23 @@ It does not perform OCR, infer the original source, or reconstruct LaTeX.
 | `text.txt` | Text with original selected-page numbers; no semantic cleanup. |
 | `layout.json` | Source SHA-256, tool version, metadata, bookmarks, page dimensions/rotation, raw text blocks/spans/font data, image placements, and warnings. |
 | `images/` (optional) | Unique embedded raster images and separately recorded soft masks. |
+| `pages/` (optional) | Selected whole-page RGB PNG previews, with original page numbers, rotation/crop handling, annotations, and dimensions/DPI recorded in JSON. |
 
 Page selection is one-based: `--pages 1-3,5`. Duplicates are removed and pages
 remain in document order. Without `--pages`, all pages are selected. Existing
 output directories are refused. Use a different destination for each attempt.
+
+For visual evidence including vectors and composite figures:
+
+```sh
+python pdf2tex/scripts/extract_pdf.py paper.pdf --output evidence --pages 1-3 --images --render --dpi 144
+```
+
+`--render` saves whole pages, not segmented figures or OCR text. `--dpi` accepts
+72–300 (default 144); previews exceeding 20 million pixels per page are refused
+before rendering. Lower the DPI or select other pages. Rendering failure publishes
+no partial bundle. Preview annotations are included; account for them when comparing
+publication artwork. `layout.json` schema 2 adds each page's optional `preview` record.
 
 ## Inspect text and fonts
 
@@ -70,6 +83,8 @@ Soft masks are exported separately and referenced in JSON. Recombine a mask
 with its image, or render a crop of the figure, before treating it as a recovered
 asset. Inline images without usable xrefs are flagged. Compare colors,
 transparency, orientation, labels, and panel boundaries with the original page.
+Whole-page previews from `--render` retain visible vector/raster compositions for
+comparison; they are not a substitute for selecting the correct figure region.
 
 Background: [PyMuPDF image recipes](https://pymupdf.readthedocs.io/en/latest/recipes-images.html).
 

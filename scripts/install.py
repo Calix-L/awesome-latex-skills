@@ -2,6 +2,8 @@
 """Install skill bundles with Python's standard library (Python 3.10+)."""
 
 import argparse
+from contextlib import contextmanager
+from datetime import datetime, timezone
 import hashlib
 import json
 import os
@@ -9,10 +11,12 @@ from pathlib import Path
 import shutil
 import sys
 import tempfile
+import uuid
 
 SKILLS = ("latex-rescue", "latex-polish", "latex-fmt", "paper-read", "pdf2tex")
 REPO = Path(__file__).resolve().parents[1]
 RECEIPT = ".awesome-latex-skills-install.json"
+LOCK = ".awesome-latex-skills.lock"
 
 
 def default_destination(agent):
@@ -62,10 +66,33 @@ def managed(folder, name, files):
         return False
 
 
-def install(repo, destination, skills, dry_run=False, update=False):
-    """Stage a whole batch; update only bundles matching their install receipt."""
-    repo = Path(repo).resolve()
-    destination = Path(destination).expanduser().resolve()
+@contextmanager
+def installation_lock(destination):
+    """Exclusive creation works across supported OSes; never guess a stale timeout."""
+    path = destination / LOCK
+    token = uuid.uuid4().hex
+    try:
+        stream = path.open("x", encoding="utf-8")
+    except FileExistsError as exc:
+        raise ValueError(f"Installation lock exists: {path}. Another installer may be active. If it was interrupted, confirm it has stopped before manually removing this lock.") from exc
+    identity = os.fstat(stream.fileno())
+    try:
+        with stream:
+            json.dump({"schema": 1, "token": token, "pid": os.getpid(),
+                       "started_at": datetime.now(timezone.utc).isoformat()}, stream)
+            stream.write("\n")
+        yield
+    finally:
+        stream.close()
+        try:
+            current = path.stat()
+            if (current.st_dev, current.st_ino) == (identity.st_dev, identity.st_ino):
+                path.unlink()
+        except FileNotFoundError:
+            pass
+
+
+def installation_plan(repo, destination, skills, update):
     if destination.is_relative_to(repo):
         raise ValueError("Installation destination must be outside the source repository")
     if destination.exists() and not destination.is_dir():
@@ -94,9 +121,10 @@ def install(repo, destination, skills, dry_run=False, update=False):
             plan.append((name, files, action, snapshot(target)))
         else:
             plan.append((name, files, "install", None))
-    if dry_run or all(action == "unchanged" for _, _, action, _ in plan):
-        return [(name, action) for name, _, action, _ in plan]
-    destination.mkdir(parents=True, exist_ok=True)
+    return plan
+
+
+def publish(destination, plan):
     staged = Path(tempfile.mkdtemp(prefix=".latex-skills-", dir=destination))
     cleanup = True
     journal = []
@@ -147,6 +175,22 @@ def install(repo, destination, skills, dry_run=False, update=False):
         if cleanup:
             shutil.rmtree(staged)
     return [(name, action) for name, _, action, _ in plan]
+
+
+def install(repo, destination, skills, dry_run=False, update=False):
+    """Preflight the batch, lock cooperating writers, then recheck and publish."""
+    repo = Path(repo).resolve()
+    destination = Path(destination).expanduser().resolve()
+    selected = tuple(dict.fromkeys(skills))
+    plan = installation_plan(repo, destination, selected, update)
+    if dry_run or all(action == "unchanged" for _, _, action, _ in plan):
+        return [(name, action) for name, _, action, _ in plan]
+    destination.mkdir(parents=True, exist_ok=True)
+    with installation_lock(destination):
+        plan = installation_plan(repo, destination, selected, update)
+        if all(action == "unchanged" for _, _, action, _ in plan):
+            return [(name, action) for name, _, action, _ in plan]
+        return publish(destination, plan)
 
 
 def main(argv=None):

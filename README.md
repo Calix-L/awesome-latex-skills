@@ -105,6 +105,11 @@ match the current checkout (`adopt`). Back up and move differing old copies away
 or choose a new destination. `--dry-run` writes neither files nor receipts.
 Use `--agent claude` for Claude Code.
 
+Writers to the same skills directory use an exclusive lock. A second installer
+stops with the lock path instead of racing an update. After an unhandled process
+termination, confirm the original installer has stopped before removing its
+`.awesome-latex-skills.lock`; active locks are never automatically expired.
+
 </details>
 
 <details>
@@ -234,13 +239,17 @@ For a conventional root document, from the repository root:
 ```sh
 python latex-rescue/scripts/check_build.py path/to/paper.tex --output fresh-build
 python latex-rescue/scripts/check_build.py path/to/paper.tex --output fresh-bib-build --engine xelatex --backend biber
+python latex-rescue/scripts/check_build.py path/to/paper.tex --output final-check --until-stable --require-resolved
 ```
 
 Choose the actual engine and bibliography backend; omit `--backend` when none
 is needed. The output directory must be new. The helper retains per-pass logs,
 transcripts, auxiliary files, PDF, and `build-report.json`, including process
 exit codes and final diagnostics. It disables shell escape and stops on a failed
-step or timeout. Success can still have unresolved citations or layout warnings.
+step or timeout. Output follows the root filename, and ordinary nested chapters
+are supported. `--until-stable` bounds auxiliary settling; `--require-resolved`
+fails on recognized unresolved citations/references or rerun requests. Without
+that flag, success can still have unresolved citations or layout warnings.
 
 The standalone helper is included when installing only `latex-rescue`. Keep the
 project's existing build command for custom workflows. See the
@@ -255,12 +264,14 @@ From the repository root:
 
 ```sh
 python -m pip install -r pdf2tex/requirements.txt
-python pdf2tex/scripts/extract_pdf.py paper.pdf --output extraction --pages 1-3,5 --images
+python pdf2tex/scripts/extract_pdf.py paper.pdf --output extraction --pages 1-3,5 --images --render
 ```
 
 Omit `--pages` to select all pages; `--images` is optional. Use a new output
 directory. The result includes page-delimited UTF-8 text, layout/font/page/
-metadata JSON, and optional embedded images. The input stays unchanged. Blank
+metadata JSON, optional embedded images, and selected whole-page PNG previews
+with `--render`. Preview resolution is 144 DPI by default (`--dpi 72-300`), with
+a 20-million-pixel limit per page. The input stays unchanged. Blank
 text layers, repeated image placements, and separate soft masks are recorded.
 
 This step performs no OCR or automatic LaTeX reconstruction. Check column order,

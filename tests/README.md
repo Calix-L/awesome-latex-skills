@@ -15,7 +15,7 @@ To run one area: `python -m unittest discover -s tests -p test_install.py -v`.
 
 - **Installation:** complete resource roundtrip, selected skills, dry runs,
   repeat installs, existing edits, batch preflight, rollback, paths with spaces,
-  custom Codex home, invalid paths, CLI failures, and symlink refusal. Managed-update tests cover upstream additions/removals, local edit protection, adoption, receipts, interrupted updates, and recovery-file preservation.
+  custom Codex home, invalid paths, CLI failures, and symlink refusal. Managed-update tests cover upstream additions/removals, local edit protection, adoption, receipts, interrupted updates, and recovery-file preservation. Cross-process lock tests verify refusal, retry after release, dry-run behavior, interruption, and replacement-lock preservation.
 - **Bundles:** parse YAML; check supported frontmatter, matching names, shared
   versions, agent metadata, and local resource links. Mutation tests confirm
   broken bundles are rejected.
@@ -24,23 +24,24 @@ To run one area: `python -m unittest discover -s tests -p test_install.py -v`.
   formatted/Chinese/duplicate/setext heading anchors, self-contained selected-skill
   resources, nested documentation, UTF-8 failures, and finite positive SVG viewboxes.
   Markdown is parsed with markdown-it-py; code examples are not treated as live links.
-- **PDF extraction:** generate real PDFs with Unicode, columns, raster images, transparency masks, blank pages, and encryption; test page coverage, metadata, deduplication, existing outputs, publication failure, and execution from an installed bundle. No OCR service is used.
+- **PDF extraction:** generate real PDFs with Unicode, columns, raster/vector graphics, annotations, rotation, transparency masks, blank pages, and encryption; test page coverage, metadata, deduplication, whole-page preview pixels, DPI/size limits, existing outputs, failed rendering/publication, and execution from an installed bundle. No OCR service is used.
 - **Prerequisites:** distinguish required local dependencies from advisory tools
   and manual checks; verify machine-readable reports and missing-tool exit codes.
 - **Compilation:** generate figure assets in an isolated temporary directory;
   require the broken fixture to fail; build the corrected fixture twice and check
   exit codes, PDF output, TeX errors, and resolved/unresolved references. Run the
-  bundled checker with real pdfLaTeX, BibTeX, and Biber, including filenames/output
-  paths with spaces, local inputs, and bibliography lookup.
+  bundled checker with real pdfLaTeX, XeLaTeX, LuaLaTeX, BibTeX, and Biber, including
+  filenames/output paths with spaces, local/nested inputs, root job names, bibliography
+  lookup, fontspec, bounded auxiliary settling, and strict unresolved-reference failures.
 - **Build evidence:** portable tests cover existing/stale outputs, zero/nonzero
   exits with invalid PDFs or error logs, missing tools, explicit backend sequencing,
   launch failure, interruption, per-pass timeout/log retention, and installed-helper
-  execution. XeLaTeX/LuaLaTeX command selection is supported but is not exercised
-  by the real-engine CI job.
+  execution. Tests also verify output basenames, explicit job names, bounded settling,
+  strict references, changed-root detection, and source preservation.
 
 Compilation explicitly skips if `pdflatex` is unavailable locally. Set
 `LATEX_SKILLS_REQUIRE_TEX=1` to fail when the compiler is missing; CI's Linux compile
-job does this and requires Biber for its bibliography case. Portable checks run on Linux, Windows, and macOS with Python 3.10
+job does this and requires all three engines and Biber for its integration cases. Portable checks run on Linux, Windows, and macOS with Python 3.10
 and 3.13. Ubuntu/Python 3.10 also checks the minimum supported PyMuPDF 1.24.10; other portable jobs use the resolved current version. No build artifacts are written into the repository.
 
 These checks validate packaging and fixture behavior. They do **not** measure an

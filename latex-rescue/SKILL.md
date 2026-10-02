@@ -78,6 +78,9 @@ For a conventional root document without custom build steps, the bundled
 engine/backend passes. Run `scripts/check_build.py` with the actual root,
 selected engine/backend, and a new `--output` directory. Preserve configured
 build systems for projects beyond that helper's scope.
+Its default job name follows the root file. Use `--until-stable` for bounded
+auxiliary settling and `--require-resolved` when unresolved references must fail
+the check; these flags do not decide missing reference targets for the author.
 
 Read the final logs and inspect the resulting PDF when rendering tools are
 available. Report build failure separately from unresolved references, duplicate
