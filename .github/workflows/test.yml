@@ -16,6 +16,10 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python: ['3.10', '3.13']
+        include:
+          - os: ubuntu-latest
+            python: '3.10'
+            pymupdf: '1.24.10'
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -23,6 +27,9 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: python -m pip install -r requirements-dev.txt
+      - name: Check minimum supported PyMuPDF
+        if: matrix.pymupdf
+        run: python -m pip install "PyMuPDF==${{ matrix.pymupdf }}"
       - run: python scripts/validate_repo.py
       - run: python -m unittest discover -s tests -v
 

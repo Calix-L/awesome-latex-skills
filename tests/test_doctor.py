@@ -3,6 +3,7 @@ import io
 import json
 from pathlib import Path
 import sys
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
@@ -54,6 +55,12 @@ class DoctorTests(unittest.TestCase):
     @patch("doctor.importlib.import_module", return_value=object())
     def test_unrelated_fitz_module_is_not_accepted(self, probe):
         self.assertFalse(pdf_available())
+
+    def test_pdf_dependency_version_matches_the_bundled_helper(self):
+        for version, expected in (("1.24.9", False), ("1.24.10", True), ("1.27.2.3", True), ("2.0.0", False), ("unknown", False)):
+            module = SimpleNamespace(open=lambda: None, Document=object, VersionBind=version)
+            with self.subTest(version=version), patch("doctor.importlib.import_module", return_value=module):
+                self.assertEqual(pdf_available(), expected)
 
     @patch("doctor.shutil.which", return_value=None)
     def test_json_report_and_exit_status_agree(self, probe):

@@ -4,6 +4,7 @@
 import argparse
 import importlib
 import json
+import re
 import shutil
 import sys
 
@@ -11,14 +12,14 @@ from install import SKILLS
 
 
 def pdf_available():
-    for name in ("pymupdf", "fitz"):
-        try:
-            module = importlib.import_module(name)
-            if all(hasattr(module, attr) for attr in ("open", "Document", "VersionBind")):
-                return True
-        except (ImportError, OSError):
-            continue
-    return False
+    try:
+        module = importlib.import_module("pymupdf")
+        if not all(hasattr(module, attr) for attr in ("open", "Document", "VersionBind")):
+            return False
+        version = re.match(r"^(\d+)\.(\d+)\.(\d+)", str(module.VersionBind))
+        return bool(version and (1, 24, 10) <= tuple(map(int, version.groups())) < (2, 0, 0))
+    except (ImportError, OSError):
+        return False
 
 
 def diagnose(skills, engine="pdflatex", backend=None):
@@ -55,7 +56,7 @@ def diagnose(skills, engine="pdflatex", backend=None):
         present = pdf_available()
         checks.append({
             "name": "pymupdf", "status": "available" if present else "missing", "required": "pdf2tex" in selected,
-            "detail": "PyMuPDF imports successfully" if present else "For local PDF extraction: python -m pip install pymupdf",
+            "detail": "Supported PyMuPDF imports successfully" if present else 'For the bundled PDF helper: python -m pip install "PyMuPDF>=1.24.10,<2"',
         })
     if "latex-fmt" in selected:
         checks.append({
