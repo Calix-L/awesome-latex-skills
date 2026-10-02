@@ -5,6 +5,10 @@ All notable changes to awesome-latex-skills.
 ## Unreleased
 
 ### Added
+- Opt-in managed updates with SHA-256 receipts, legacy adoption, local edit protection, interrupted-update rollback, and preserved recovery files.
+- Bundled page-aware PDF extraction CLI with selected pages, UTF-8 text, layout evidence, optional deduplicated images, and separate soft masks.
+- Real PDF behavior tests and minimum-supported PyMuPDF coverage in the existing cross-platform CI matrix.
+- Validation of nested documentation, skill reference anchors, and self-contained selected-skill resources.
 - Redesigned bilingual READMEs with an editorial LaTeX wordmark, outlined typography, responsive light/dark covers, a numbered task catalog, and expandable setup/FAQ sections.
 - Read-only prerequisite doctor with explicit engine/backend choices and JSON output.
 - README link/anchor and SVG validation, plus prerequisite behavior regression tests.
@@ -14,6 +18,9 @@ All notable changes to awesome-latex-skills.
 - CI matrix for Windows, macOS, and Linux plus mandatory TeX fixture compilation.
 
 ### Fixed
+- Skill instructions now distinguish evidence from inference, preserve modality and claim strength, and avoid reading-time promises and venue-status shortcuts.
+- PDF guidance retains spanning blocks, uses current font APIs, and avoids guessing original engines/classes or fixed OCR accuracy.
+- Reference repair guidance preserves unknown keys and does not assign arbitrary targets; PR template links and checks work across platforms.
 - Corrected fixtures preserve table data, unresolved citation/label keys, and ambiguous math rather than silently deleting or guessing content.
 - NeurIPS examples load a style package with `article`; official rules determine impact discussion, checklist location, and review/final length.
 - Corrected KDD 2026 research and TMLR anonymity guidance with dated official sources; other venue rules are verified for the requested target before use.

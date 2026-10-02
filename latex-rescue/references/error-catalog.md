@@ -180,8 +180,8 @@ These appear inside `\begin{...}` or `\end{...}`. Fix the environment name:
 
 | Error | Pattern | Fix |
 |-------|---------|-----|
-| `Reference 'X' on page Y undefined` | `\ref{label}` without `\label{label}` | Add `\label{label}` after `\caption{}` or section |
-| `Label 'X' multiply defined` | Duplicate `\label{label}` | Rename one of them |
+| `Reference 'X' on page Y undefined` | `\ref{label}` without `\label{label}` | Rebuild required passes; locate the intended target. Preserve the key and flag a genuinely missing label rather than assigning an arbitrary target |
+| `Label 'X' multiply defined` | Duplicate `\label{label}` | Identify both targets and affected references; propose a consistent correction for author review |
 | `\cref format for label type X undefined` | cleveref doesn't know label type | Define with `\crefname{}{}{}` |
 
 ## Counter Errors

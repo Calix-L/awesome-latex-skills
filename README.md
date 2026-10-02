@@ -78,12 +78,32 @@ python scripts/install.py --agent codex --skill latex-rescue
 python scripts/install.py --dest "path/to/skills" --skill paper-read
 ```
 
-Each installation includes the entrypoint, references, and agent metadata.
+Each installation includes the entrypoint, references, scripts, and agent metadata.
 Default destinations are `~/.claude/skills/` for Claude Code and
 `$CODEX_HOME/skills/` for Codex (default `~/.codex/skills/`).
-Identical bundles stay untouched. If an existing bundle differs, the installer
-stops the batch before writing. Back up and move the old bundle away before an
-update, or choose another destination.
+Identical bundles stay untouched; ordinary installation never replaces differing content.
+
+</details>
+
+<details>
+<summary><strong>Update installed skills safely</strong></summary>
+
+```sh
+git pull --ff-only
+python scripts/install.py --agent codex --update --dry-run
+python scripts/install.py --agent codex --update
+```
+
+New installations record file SHA-256 hashes. `--update` replaces only bundles
+that still match their receipt; local edits, additions, or deletions stop the
+whole batch. There is no force-overwrite mode. Failed or interrupted updates
+attempt to restore the old directories; failed rollback preserves recovery files
+and reports their location.
+
+Manually copied bundles without receipts can be adopted only when they exactly
+match the current checkout (`adopt`). Back up and move differing old copies away,
+or choose a new destination. `--dry-run` writes neither files nor receipts.
+Use `--agent claude` for Claude Code.
 
 </details>
 
@@ -199,12 +219,33 @@ python scripts/doctor.py --skill pdf2tex --json
 |---|---|---|
 | Compile or verify formatting | Project's TeX engine; selected bibliography backend | Diagnose from supplied logs; report compilation as unverified |
 | Polish pasted text / read supplied text | No TeX compiler required | Editing/reading can proceed; PDF verification is separate |
-| Extract a text-based PDF | PyMuPDF: `python -m pip install pymupdf` | Supply extracted text or configure an extraction tool |
+| Extract a text-based PDF | PyMuPDF: `python -m pip install -r pdf2tex/requirements.txt` | Supply extracted text or configure an extraction tool |
 | Recover a scanned PDF | A separate OCR workflow | Standard text extraction is insufficient |
 | Apply venue rules | Official kit and author instructions | Mark unresolved rules unverified |
 
 The doctor checks local dependencies. It does not install software, compile a
 document, or certify submission readiness.
+
+<details>
+<summary><strong>Extract PDF evidence before reconstruction</strong></summary>
+
+From the repository root:
+
+```sh
+python -m pip install -r pdf2tex/requirements.txt
+python pdf2tex/scripts/extract_pdf.py paper.pdf --output extraction --pages 1-3,5 --images
+```
+
+Omit `--pages` to select all pages; `--images` is optional. Use a new output
+directory. The result includes page-delimited UTF-8 text, layout/font/page/
+metadata JSON, and optional embedded images. The input stays unchanged. Blank
+text layers, repeated image placements, and separate soft masks are recorded.
+
+This step performs no OCR or automatic LaTeX reconstruction. Check column order,
+math, tables, and complete figure panels against the original pages. See the
+[PDF extraction guide](./pdf2tex/references/pdf-extraction-guide.md).
+
+</details>
 
 <a id="faq"></a>
 
@@ -239,10 +280,11 @@ need comparison against the original; scanned pages need OCR first.
 <details>
 <summary><strong>What does a passing CI badge prove?</strong></summary>
 
-CI validates bundle metadata, local resource and README links, SVG assets,
-installation behavior, prerequisite reports, data-preserving fixtures, and real
-TeX compilation. Portable checks run on Windows, macOS, and Linux with Python
-3.10 and 3.13. It does not certify an AI agent's editing quality or a manuscript's
+CI validates bundle metadata, self-contained resources and documentation links,
+SVG assets, installation and managed updates, real PDF extraction, prerequisite
+reports, data-preserving fixtures, and real TeX compilation. Portable checks run
+on Windows, macOS, and Linux with Python 3.10 and 3.13, including the minimum
+supported PyMuPDF version. It does not certify an AI agent's editing quality or a manuscript's
 compliance with current venue rules. See [the test guide](./tests/README.md).
 
 </details>

@@ -1,6 +1,6 @@
 # Contributing
 
-Every error pattern, phrasebank entry, and Chinglish fix directly improves output quality.
+Contributions should solve a demonstrated problem and preserve scientific meaning. A phrasebank example is a wording option, not evidence for a new claim.
 
 ## How to Add
 
@@ -51,3 +51,17 @@ Every error pattern, phrasebank entry, and Chinglish fix directly improves outpu
 ## Code of Conduct
 
 Be respectful and constructive. Report issues to zhenxinlin290@gmail.com.
+## Adding executable helpers
+
+Put a helper inside the skill that needs it so selected installations remain
+self-contained. State optional dependencies and use paths suitable for Windows,
+macOS, and Linux. Do not write generated artifacts into the source bundle.
+
+Test observable behavior with isolated temporary inputs and outputs: preserved
+scientific tokens, failed operations, existing user files, page provenance, or
+required build results. A test matching an instruction's wording does not
+establish agent editing quality. Document any external/manual verification.
+
+For installer changes, test the full batch and both ordinary failure and rollback
+failure. Keep install receipts out of source bundles. For reference changes,
+validate links/anchors and keep required resources within the skill directory.

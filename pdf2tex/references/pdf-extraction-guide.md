@@ -1,199 +1,102 @@
 # PDF Extraction Guide
 
-## Python Libraries
+## Start with the bundled helper
 
-### pymupdf (fitz) — primary tool
+Use [extract_pdf.py](../scripts/extract_pdf.py) for repeatable extraction and
+[requirements.txt](../requirements.txt) for its optional dependency. It writes
+page-delimited UTF-8 text and a JSON evidence report to a new output directory.
+It does not perform OCR, infer the original source, or reconstruct LaTeX.
 
-```python
-import fitz
-
-# Open PDF
-doc = fitz.open("paper.pdf")
-print(f"Pages: {doc.page_count}")
-print(f"Metadata: {doc.metadata}")
-
-# Metadata fields: title, author, subject, keywords, creator, producer, format, encryption
-# "creator" often contains the TeX engine: "LaTeX with hyperref" / "XeTeX 0.9999" / "LuaHBTeX"
-# "producer" may have: "pdfTeX-1.40.25" → engine + version
-
-# ── Text extraction ──
-for page_num, page in enumerate(doc):
-    # Method 1: dict format with position + font data (recommended)
-    blocks = page.get_text("dict")["blocks"]
-    for block in blocks:
-        if block["type"] == 0:  # text block
-            bbox = block["bbox"]  # (x0, y0, x1, y1)
-            for line in block["lines"]:
-                spans = line["spans"]
-                for span in spans:
-                    text = span["text"]
-                    font = span["font"]
-                    size = round(span["size"], 1)
-                    flags = span["flags"]  # bitfield: 2^0=superscript, 2^1=italic, 2^2=serifed, 2^3=bold, 2^4=mono
-                    color = span["color"]  # RGB as int
-                    origin = span["origin"]  # (x, y) baseline
-                    # Use these features to classify text type
-
-    # Method 2: plain text (lossy, only for quick checks)
-    plain_text = page.get_text("text")
-
-    # Method 3: HTML (sometimes useful for structure)
-    html = page.get_text("html")
-
-# ── Image extraction ──
-for page_num, page in enumerate(doc):
-    images = page.get_images(full=True)
-    for img_idx, img in enumerate(images):
-        xref = img[0]  # reference number
-        base_image = doc.extract_image(xref)
-        img_bytes = base_image["image"]
-        ext = base_image["ext"]  # 'png', 'jpeg', 'tiff', 'jp2'
-        width = base_image["width"]
-        height = base_image["height"]
-        colorspace = base_image["colorspace"]
-        # Save: figures/figure_p{page_num+1}_{img_idx+1}.{ext}
-        with open(f"figures/figure_p{page_num+1}_{img_idx+1}.{ext}", "wb") as f:
-            f.write(img_bytes)
-
-# ── Table of Contents ──
-toc = doc.get_toc()  # list of [level, title, page_num]
-# level 1 = section, level 2 = subsection, level 3 = subsubsection
-# Only works if PDF has a generated ToC (most LaTeX PDFs do)
-
-# ── Links and annotations ──
-for page in doc:
-    for link in page.get_links():
-        uri = link.get("uri")  # URL
-        page_to = link.get("page")  # internal link target page
-        rect = link.get("from")  # clickable area
-
-# ── Font list ──
-# pymupdf can't list all fonts directly; use system call:
-# pdffonts paper.pdf (poppler-utils)
-```
-
-### pdfplumber — for table extraction
-
-```python
-import pdfplumber
-
-with pdfplumber.open("paper.pdf") as pdf:
-    for page in pdf.pages:
-        # Extract tables with borders
-        tables = page.extract_tables()
-        for table in tables:
-            # table is list of rows, each row is list of cell strings
-            pass
-
-        # Horizontal/vertical ruling lines
-        lines = page.lines
-        rects = page.rects
-        edges = page.edges  # bounding edges of drawn rectangles
-
-        # Extract words with position
-        words = page.extract_words()
-        for w in words:
-            text = w["text"]
-            x0, top, x1, bottom = w["x0"], w["top"], w["x1"], w["bottom"]
-```
-
-## Font Classification
-
-Use font names from `pdffonts` or span data to classify:
-
-| Font name contains | Means | Packages |
-|---|---|---|
-| CM / CMR / CMBX | Computer Modern | default (no package) |
-| LMRoman / LMSans | Latin Modern | `\usepackage{lmodern}` |
-| NimbusRom / Times | Times clone | `\usepackage{mathptmx}` or `txfonts` |
-| NimbusSan / Helvetica | Sans-serif clone | `\usepackage{helvet}` |
-| DejaVu / FreeSerif | Free font family | `\usepackage{dejavu}` (xelatex) |
-| Custom .ttf/.otf name | System font | `\setmainfont{...}` (xelatex/lualatex) |
-
-## Encoding Issues
-
-Common ligature/encoding problems when extracting from PDF:
-
-| PDF glyph | Actual characters |
+| Output | Evidence retained |
 |---|---|
-| fi (ligature) | "f" + "i" (two chars) |
-| fl (ligature) | "f" + "l" |
-| ff (ligature) | "f" + "f" |
-| en-dash (–) | `--` in LaTeX source |
-| em-dash (—) | `---` in LaTeX source |
-| Left/right quotes | `` ` `` or `'` in source |
+| `text.txt` | Text with original selected-page numbers; no semantic cleanup. |
+| `layout.json` | Source SHA-256, tool version, metadata, bookmarks, page dimensions/rotation, raw text blocks/spans/font data, image placements, and warnings. |
+| `images/` (optional) | Unique embedded raster images and separately recorded soft masks. |
 
-Map glyph Unicode codepoints back to LaTeX input encoding.
+Page selection is one-based: `--pages 1-3,5`. Duplicates are removed and pages
+remain in document order. Without `--pages`, all pages are selected. Existing
+output directories are refused. Use a different destination for each attempt.
 
-## Multi-Column Handling
+## Inspect text and fonts
 
-For two-column PDFs:
-- Text blocks with x0 < page_width/2 → left column
-- Text blocks with x0 > page_width/2 → right column
-- Combine: read all left-column blocks top-to-bottom, then right-column blocks top-to-bottom
-- Watch for spanning elements (figures, wide tables) that cross the column boundary
-
-### Column Detection with pymupdf
+The preferred import name is `pymupdf`; avoid the unrelated package named `fitz`.
+For targeted inspection:
 
 ```python
-import fitz
+import pymupdf
 
-doc = fitz.open("paper.pdf")
-page = doc[0]
-page_width = page.rect.width
-
-left_blocks = []
-right_blocks = []
-
-for block in page.get_text("dict")["blocks"]:
-    if block["type"] != 0:
-        continue
-    x0 = block["bbox"][0]
-    mid = page_width / 2
-    if x0 < mid - 10:  # -10 tolerance for slight misalignment
-        left_blocks.append(block)
-    elif x0 > mid + 10:
-        right_blocks.append(block)
-    else:
-        # Spanning block — likely a figure or wide equation
-        # Treat as full-width, place in reading order
-        pass
-
-# Sort each column by y-position, then concatenate
-left_blocks.sort(key=lambda b: b["bbox"][1])
-right_blocks.sort(key=lambda b: b["bbox"][1])
-ordered_blocks = left_blocks + right_blocks
+with pymupdf.open("paper.pdf") as doc:
+    page = doc[0]
+    flags = pymupdf.TEXTFLAGS_DICT & ~pymupdf.TEXT_PRESERVE_IMAGES
+    evidence = page.get_text("dict", flags=flags, sort=False)
+    print(page.get_fonts(full=True))
+    for block in evidence["blocks"]:
+        for line in block["lines"]:
+            for span in line["spans"]:
+                print(span["text"], span["font"], span["size"], span["bbox"])
 ```
 
-## OCR Fallback (Scanned PDFs)
+Span font names and page font resources help interpret headings and notation.
+Subset prefixes and font substitutions can obscure the original font choice.
+Neither font format nor the PDF creator string proves the TeX engine, document
+class, or package list. Record those choices as inferred when reconstructing.
 
-If the PDF contains no extractable text (scanned document), use Tesseract OCR:
+API details: [PyMuPDF Page reference](https://pymupdf.readthedocs.io/en/latest/page.html).
 
-```bash
-# Check if PDF is scanned (no text layer)
-pdftotext paper.pdf - | wc -w
-# If output is near 0, it's scanned
+## Reading order and columns
 
-# Convert PDF pages to images, then OCR
-pip install pytesseract pillow pdf2image
+`get_text("text", sort=True)` sorts geometrically; it cannot establish semantic
+reading order for every layout. The helper keeps original block evidence in JSON
+so a reconstruction does not depend solely on that sorted text.
 
-# Requires system install: tesseract-ocr, poppler-utils
-```
+For columns, inspect both `x0` and `x1`, not just a block's left edge. Keep
+full-width titles, equations, and captions. Determine vertical bands separated
+by spanning elements, then read each band in its actual column order. Preserve
+every block and flag overlapping or ambiguous regions rather than dropping them.
+Rotated pages and mixed layouts require visual checking.
+
+Do not join hyphenated words or remove repeated lines until confirming the page
+layout. A hyphen can belong to a scientific term and repeated text can be meaningful.
+
+Background: [PyMuPDF text recipes](https://pymupdf.readthedocs.io/en/latest/recipes-text.html).
+
+## Images and figure appearance
+
+An embedded image is not necessarily an entire figure. A figure can combine
+vector lines, labels, raster panels, and a caption. The helper deduplicates
+embedded images by xref and records each visible placement on selected pages.
+
+Soft masks are exported separately and referenced in JSON. Recombine a mask
+with its image, or render a crop of the figure, before treating it as a recovered
+asset. Inline images without usable xrefs are flagged. Compare colors,
+transparency, orientation, labels, and panel boundaries with the original page.
+
+Background: [PyMuPDF image recipes](https://pymupdf.readthedocs.io/en/latest/recipes-images.html).
+
+## Tables
+
+Table text alone does not encode cell boundaries or merged-cell meaning. Use
+the span coordinates, ruling lines, and rendered page to reconstruct rows and
+columns. `Page.find_tables()` or a separately installed table-extraction tool
+can provide candidates; preserve empty cells and verify merged regions.
+See [table reconstruction](table-reconstruction.md) for content checks.
+
+## OCR when a page has no text
+
+No extractable text does not prove that a page is scanned; inspect blank and
+graphic-only pages first. When OCR is appropriate, configure Tesseract and the
+needed language data separately. PyMuPDF can create a reusable OCR TextPage:
 
 ```python
-from pdf2image import convert_from_path
-import pytesseract
-
-pages = convert_from_path("paper.pdf", dpi=300)
-for i, page in enumerate(pages):
-    text = pytesseract.image_to_string(page, lang="eng")
-    # Save or process text
-    with open(f"page_{i+1}.txt", "w") as f:
-        f.write(text)
+with pymupdf.open("scan.pdf") as doc:
+    page = doc[0]
+    ocr_page = page.get_textpage_ocr(language="eng", dpi=300, full=True)
+    text = page.get_text("text", textpage=ocr_page)
 ```
 
-**Limitations of OCR**:
-- Math expressions will be garbled → flag all OCR'd math with `% [OCR: verify]`
-- Table structure is lost → manual reconstruction required
-- Accuracy ~95-98% for clean scans, drops for noisy or handwritten content
-- Always warn the user that OCR output needs more manual review than text-extracted content
+Preserve page provenance and distinguish OCR text from the native text layer.
+OCR quality depends on language, resolution, layout, and symbols; no fixed
+accuracy is assumed. Verify math and tables against the scan. The bundled
+extractor does not invoke OCR or install its dependencies.
+
+Setup details: [PyMuPDF OCR guide](https://pymupdf.readthedocs.io/en/latest/recipes-ocr.html).

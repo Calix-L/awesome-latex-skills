@@ -1,239 +1,71 @@
 ---
 name: latex-polish
-description: Polish academic writing in LaTeX files. Enhances clarity, fixes grammar, improves academic style, and eliminates Chinglish patterns. Operates on text content while preserving LaTeX commands, math, citations, and references.
+description: Edit academic prose in LaTeX manuscripts or supplied text at light, moderate, or strict intensity. Improve grammar and clarity while preserving scientific claims, uncertainty, numbers, citations, and LaTeX structure.
 metadata:
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
-## Role
+## Scope and intensity
 
-You are an academic writing editor specialized in scientific papers. You understand the conventions of top-tier venues (Nature, Science, NeurIPS, ACL, CVPR). You improve clarity and impact while preserving the author's voice and technical content.
+Edit the requested text, section, or manuscript. Infer scope from the request;
+ask only when a missing preference changes the work. Default to `moderate`.
 
-## When to Activate
+| Level | Editing scope |
+|---|---|
+| `light` | Grammar, spelling, articles, agreement, and necessary syntax fixes. |
+| `moderate` | Light edits plus clearer phrasing, concision, and sentence flow. |
+| `strict` | Moderate edits plus stronger paragraph organization within the requested scope. |
 
-Activate when the user:
-- Asks to polish or improve academic text
-- Shows you a LaTeX manuscript for editing
-- Requests grammar/style improvement for a paper
-- Invokes `/latex-polish`
+No level authorizes changing findings, adding evidence, or making a paper
+"publication ready" by declaration. Use the author's chosen English variant,
+terminology, and venue requirements when supplied.
 
-## Core Principles
+## Preserve meaning and source structure
 
-### What to Improve
+- Preserve numbers, units, uncertainty, causal direction, comparisons, named
+  entities, and the distinction between relative percentages and percentage points.
+- Keep modality and scope: `can`, `may`, `suggests`, and `under these conditions`
+  may carry scientific meaning. Removing them can turn a capability into an
+  observed result or a qualified claim into a universal claim.
+- Do not add significance tests, p-values, citations, mechanisms, novelty, or
+  broader-impact claims. Flag missing evidence for the author instead.
+- Preserve citation/reference/label keys, bibliography records, equations,
+  macro definitions, file paths, comments, and quoted material. Treat LaTeX
+  arguments by their role, not by a blanket regular-expression replacement.
+- Prose inside `\emph{}`, `\textbf{}`, headings, or captions may be edited when
+  it falls within scope; retain the command, options, braces, keys, and math.
+  Leave verbatim, listings, minted, and inline code untouched.
+- Keep an already clear sentence. Formality does not require heavier synonyms,
+  and sentence length alone is not a reason to split it.
 
-1. **Clarity** — replace vague language with precise terms
-2. **Conciseness** — remove filler words, combine redundant sentences
-3. **Flow** — ensure logical progression between sentences and paragraphs
-4. **Academic register** — elevate informal/colloquial phrases to scholarly tone
-5. **Grammar** — fix grammatical errors (subject-verb agreement, tense consistency, article usage)
-6. **Hedging** — add appropriate hedging where claims are too absolute
+## Edit with relevant guidance
 
-### What to Preserve
+Read supporting material only as needed:
 
-1. **Technical content** — never change the scientific meaning
-2. **Author's voice** — don't homogenize distinctive writing
-3. **LaTeX commands** — all `\cite{}`, `\ref{}`, `\label{}`, math, figures, tables remain untouched
-4. **Named entities** — model names, dataset names, proper nouns stay as-is
-5. **Quotations** — quoted text from external sources stays verbatim
+- [Style guardrails](references/style-guardrails.md): voice, clarity, notation,
+  consistency, and claim strength. These are editing choices, not universal laws.
+- [Section anatomy](references/section-anatomy.md): section-specific purposes;
+  adapt to the article type and the verified target requirements.
+- [Chinglish patterns](references/chinglish-patterns.md): common constructions
+  when they actually occur; do not infer errors from the author's identity.
+- [Academic phrasebank](references/academic-phrasebank.md): optional phrasing
+  patterns. Fill only with claims already supported by the manuscript.
 
-### Your Style Target
+Lead results prose with the finding and its actual evidence. Improve method
+descriptions without inventing missing reproducibility details. Suggest missing
+limitations or ethics content for author review; formatting requirements belong
+to the specified venue/year/track/stage, not to generic prose polishing.
 
-Aim for the style of well-written papers in top venues:
-- Each paragraph has a clear topic sentence
-- Each sentence follows logically from the previous one
-- Technical terms are used consistently throughout
-- Claims are appropriately hedged (`suggest`, `indicate`, `demonstrate` vs `prove`)
-- No filler: `It is worth noting that...` → delete and just state the fact
-- Active voice where appropriate, but passive voice OK for methods
+## Verify and deliver
 
-## Workflow
+Review the diff for accidental changes to meaning, scientific tokens, commands,
+and argument balance. For a local project, use its configured engine/backend to
+check compilation when available. For pasted text or missing build tools, mark
+compilation as not performed or unverified rather than claiming success.
 
-### Phase 1: Assess Scope
-
-Ask the user (or infer from context):
-- **Scope**: entire paper, specific section, or specific paragraphs
-- **Level**: `light` (grammar only), `moderate` (grammar + style, default), `strict` (top-venue level)
-- **Preferences**: any style preferences. If unspecified, default to `moderate`.
-
-### Phase 2: Analyze
-
-1. Read the target `.tex` file(s)
-2. Identify all LaTeX commands to skip: `\section{}`, `\cite{}`, `\ref{}`, `\begin{equation}` blocks, `\includegraphics{}`, `\label{}`
-   - For wrapping commands like `\textbf{}`, `\emph{}`, `\textit{}`: preserve the command itself but you MAY polish the text argument inside
-3. Extract text blocks that need polishing
-4. Note section type — each section has its own conventions (see `references/section-anatomy.md`)
-5. Quick-scan for common issues before deep reading: check top-6 Chinglish patterns (articles, subject-verb, "can", "according to", "based on", redundancy), filler phrases from `references/style-guardrails.md`, and tense consistency
-
-### Phase 3: Polish (Section-Aware)
-
-Apply different strategies per section. Consult `references/section-anatomy.md` for detailed guidance. When rewriting a sentence, consult `references/academic-phrasebank.md` for section-appropriate phrasing templates. Apply `references/style-guardrails.md` rules throughout.
-
-**Level-dependent behavior**:
-- **Light**: Fix grammar only — subject-verb agreement, article usage, tense, typos. Do NOT restructure sentences or change word choice unless grammatically necessary.
-- **Moderate**: Grammar + style — fix grammar, improve word choice, tighten phrasing, add transitions, ensure academic register. Restructure only when meaning is unclear.
-- **Strict**: Top-venue standard — all of moderate plus: restructure weak openings, convert laundry lists to thematic paragraphs, add hedging to overclaimed statements, enforce publication-ready phrasing throughout.
-
-#### Abstract
-- 150-250 words typical (varies by venue from 150-300). Ensure 4 components: background gap, approach, key results, implication.
-- Every sentence must carry weight. Cut ruthlessly.
-- Check: if someone reads only the abstract, do they understand the contribution?
-
-#### Introduction
-- Classic funnel structure: broad problem → specific gap → our solution → contributions
-- The last paragraph should list contributions clearly
-- Check: does the first sentence hook the reader? ("X is an important problem" is a weak hook.)
-
-#### Related Work
-- Group citations thematically, not chronologically
-- Each paragraph should end with: what's still missing (the gap YOU fill)
-- Avoid laundry-list style: "A did X. B did Y. C did Z."
-
-#### Method
-- Consistency above all. Use the exact same term for the same concept everywhere.
-- Each component should have a brief justification (`We use X because...`)
-- Passive voice is acceptable here
-
-#### Experimental Setup / Implementation Details
-- Must enable exact reproduction: datasets, baselines, metrics, hyperparameters, hardware
-- Each baseline should cite its origin AND note if you re-implemented
-- Metrics need a formula or citation
-- Check: could someone reproduce your results from this section alone?
-
-#### Results / Experiments
-- Lead with the finding, then show the evidence
-- Compare against baselines explicitly: `Our method outperforms X by Y%`
-- Don't just report numbers — explain what they mean
-
-#### Discussion / Conclusion
-- Start with a clear summary of contribution (mirror abstract)
-- Acknowledge limitations honestly (this builds credibility)
-- Future work should be specific, not generic ("exploring X directions" is too vague)
-
-#### Broader Impact / Ethics
-- Required by NeurIPS, encouraged by ICML and others
-- Must cover both positive applications AND potential harms — writing only positive impact is a red flag
-- Avoid generic boilerplate ("AI can be used for good or bad") — be specific about THIS work's implications
-- Equity and access: who might be excluded or disadvantaged?
-
-#### Acknowledgments
-- Camera-ready only — must be REMOVED in anonymous submission
-- Keep brief: funders, specific contributors, compute resources
-- Don't over-acknowledge (reviewers don't need your life story)
-
-### Phase 4: Apply Changes
-
-Make edits directly in the `.tex` file:
-1. Alter only the text — commands, math, and references are immutable
-2. For each change, ensure you can explain WHY
-3. If a sentence is already good, leave it alone. Over-polishing is worse than under-polishing
-4. In strict mode: you may restructure sentences within a paragraph, but NEVER reorder paragraphs, add claims between sections, or alter the paper's logical argument
-
-### Phase 5: Verify Compilation
-
-After all edits, use the project's existing engine and bibliography build to verify the file still compiles. For a pdfLaTeX project without a bibliography backend:
-```bash
-pdflatex -interaction=nonstopmode main.tex && pdflatex -interaction=nonstopmode main.tex
-```
-If no compiler is available, report compilation as unverified. If compilation fails (new errors introduced by editing), use latex-rescue to diagnose. Common polish-caused breaks: missing `}` after rewriting a sentence inside `\textbf{}`, accidentally deleting a `%` comment, or breaking a `\cite{}` key.
-
-### Phase 6: Report
-
-Present changes as a numbered list with before/after for each, so the user can approve or revert individual edits:
-
-After polishing, provide:
-```
-=== Polish Summary ===
-
-Section: sections/intro.tex
-Level: moderate
-Changes: 23 edits across 14 sentences
-Compilation: PASS (0 new errors)
-
-Changes (review each):
-  1. L12: "can achieves" → "achieves" (subject-verb agreement)
-  2. L14: "According to the experiment" → "Experiments show that" (according-to overuse)
-  3. L18: "research field" → "field" (redundancy)
-  ...
-
-Key improvements:
-  - Tightened opening hook (3 sentences → 1)
-  - Converted laundry-list related work into thematic groups
-  - Added hedging to 2 overclaimed statements
-  - Fixed 4 tense inconsistencies
-  - Replaced 6 informal phrases with academic register
-
-Suggestions for author review:
-  - L42: "significantly outperforms" → consider adding p-value
-  - L87: Claim about generalization needs a citation or experimental support
-```
-
-## Chinese Scholar Special Attention
-
-Chinese authors have specific recurring issues. Watch for these and fix proactively. See `references/chinglish-patterns.md` for the full catalog of 18 pattern categories.
-
-### Top-priority fixes (most common and most damaging):
-
-**Article omission** — Chinese has no articles; add `a/an/the` rigorously:
-```
-"Result shows that..."  → "The result shows that..."
-"We propose novel approach" → "We propose a novel approach"
-"In experiment, we found" → "In the experiment, we found"
-```
-
-**Subject-verb agreement** — Chinese verbs don't inflect; check every pair:
-```
-"The results demonstrates" → "The results demonstrate"
-"Each method have" → "Each method has"
-"The data was collected" → "The data were collected" (formal; "was" also acceptable)
-```
-
-**Overuse of "can"** — Chinese 可以 (can) maps to English "can" far too often:
-```
-"This method can solve the problem" → "This method solves the problem"
-"The model can achieve high accuracy" → "The model achieves high accuracy"
-"We can observe that" → "We observe that"
-```
-
-### Medium-priority fixes:
-
-**`According to` overuse**: vary with "As shown by", "X reported that", "Consistent with"
-```
-"According to the experiment" → "Experiments show that"
-"According to Table 1" → "Table 1 shows that"
-```
-
-**`Make/let` constructions**: "This allows X to Y" not "This makes X to Y"
-```
-"This makes the model to learn" → "This allows the model to learn"
-"The function makes the error reduce" → "The function reduces the error"
-```
-
-**Missing plural -s**: "several approaches" not "several approach"
-**Wrong prepositions**: "different from" not "different with"; "based on" not "based from"
-**`So` as conjunction**: replace with "Therefore,", "Thus,", "Consequently,"
-
-For the complete list with examples, see `references/chinglish-patterns.md`.
-
-## Guardrails
-
-**NEVER:**
-- Rewrite entire paragraphs when a light edit would suffice
-- Change technical terminology
-- Alter numbers, variable names, or equations
-- Add content the author didn't write (no fabricated citations or claims)
-- Change `\cite{}` key selections
-- Polish inside `\begin{verbatim}` or `\lstlisting` blocks
-
-**ALWAYS:**
-- Preserve mathematical notation exactly
-- Keep LaTeX comments (`%`) as-is
-- Respect cross-reference labels
-- Flag substantive issues (missing citations, weak logic) in Suggestions rather than silently fixing
-
-## Reference Files
-
-- **`references/academic-phrasebank.md`** — curated sentence templates for each paper section
-- **`references/section-anatomy.md`** — detailed conventions for each section type
-- **`references/style-guardrails.md`** — rules for academic register, voice, and tone
-- **`references/chinglish-patterns.md`** — Chinese-author-specific patterns to fix
-
+Return the edited text or changed files, intensity, representative before/after
+edits with reasons, substantive questions for the author, and observed build/
+visual-check status. Scale the explanation to the edit; a large manuscript can
+use a grouped change summary plus the full diff rather than an item for every word.
+If new compilation errors arose, repair the text edit or use `latex-rescue` when
+available. Preserve unrelated author changes during rollback.

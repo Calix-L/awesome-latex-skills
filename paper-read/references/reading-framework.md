@@ -1,6 +1,6 @@
 # Reading Framework
 
-## Skim Strategy (30 seconds)
+## Skim Strategy
 
 Goal: decide whether this paper is worth reading.
 
@@ -12,7 +12,7 @@ Goal: decide whether this paper is worth reading.
 
 After skim, you should know: the problem, the approach in one sentence, and whether you need to read more.
 
-## Read Strategy (5 minutes)
+## Read Strategy
 
 Goal: understand the method well enough to discuss it and apply the insights.
 
@@ -43,7 +43,7 @@ Goal: understand the method well enough to discuss it and apply the insights.
 - Are limitations discussed? (If not, this is a red flag.)
 - Is future work specific or generic?
 
-## Deep Read Strategy (15+ minutes)
+## Deep Read Strategy
 
 Goal: evaluate whether the paper's claims are supported, identify hidden assumptions, and find ideas for your own work.
 
@@ -106,36 +106,17 @@ Not all papers follow the standard method-experiment structure. Adjust your read
 - Evaluate: Will this dataset enable meaningful evaluation, or does it embed the authors' assumptions?
 - Key question: Does this dataset advance the field, or does it merely reflect existing biases at scale?
 
-## Venue Status and Expectations
+## Publication Status and Versions
 
-Adjust your reading confidence based on publication status:
+Record the inspected version and reported publication status. Apply the same
+claim/evidence criteria to preprints, workshops, conference papers, journals,
+and technical reports; peer review and author affiliation do not guarantee rigor.
+A preprint can report empirical findings, and a reviewed paper can contain errors.
 
-### Peer-Reviewed (NeurIPS/ICML/CVPR/ACL/ICLR/AAAI)
-- Claims have passed reviewer scrutiny — give benefit of the doubt on experimental rigor
-- Still verify: reviewers miss things, especially in supplementary material
-- Check for: reviewer rebuttals (ICLR/OpenReview) that may reveal weaknesses the authors addressed
-
-### Preprints (arXiv, SSRN, bioRxiv)
-- No peer review yet — be more skeptical
-- Common issues in preprints: missing baselines, incomplete ablations, overclaimed contributions
-- A preprint's claims are proposals, not findings
-- Check: has this been subsequently published at a venue? The published version may differ significantly
-
-### Workshop Papers
-- Typically early-stage work with incomplete experiments
-- Look for promising ideas rather than polished results
-- Check: has the work been extended to a full paper since the workshop?
-
-### Journal Versions
-- Often stronger than the conference version (more experiments, revisions based on reviewers)
-- Check if this is an extended version: "Journal version of [conference paper]"
-- Compare to the conference original if cited — what changed?
-- Journal versions may have additional theoretical guarantees or more comprehensive experiments
-
-### Technical Reports / White Papers
-- Industry reports may have access to resources academics don't — check if results are reproducible
-- May have commercial motivations — check for cherry-picked benchmarks
-- Often lack implementation details needed for reproduction
+When a later version or supplement is available, distinguish its changes from
+the version the user supplied. Do not infer publication status from an arXiv
+upload alone or assume a journal extension has stronger evidence. Inspect the
+actual differences in methods, experiments, assumptions, and conclusions.
 
 ## Reading for Implementation
 
@@ -151,8 +132,8 @@ When you're reading a paper to **reimplement** it (not just understand it), adju
 ### What to be skeptical of
 - Missing implementation details ("we use a standard transformer" — which variant? how many layers?)
 - "We found X worked best" without ablation — might be critical or might not matter
-- Architecture diagrams that don't match the text — the text is usually more accurate
-- Claims about simplicity — if it was simple, the paper wouldn't be 10 pages
+- Architecture diagrams that do not match the text — record the discrepancy and check code or supplementary evidence instead of assuming either is correct
+- Claims about simplicity — compare them with the actual dependencies, configuration, and implementation detail
 
 ### What to skip on first pass
 - Related work (unless you need to compare approaches)

@@ -39,11 +39,11 @@ class ValidationTests(unittest.TestCase):
         self.assertTrue(any("name must match" in e for e in validate(self.repo)))
 
     def test_unsupported_frontmatter_fails(self):
-        self.change("latex-fmt/SKILL.md", "name: latex-fmt", "version: 1.2.0\nname: latex-fmt")
+        self.change("latex-fmt/SKILL.md", "name: latex-fmt", "version: 1.3.0\nname: latex-fmt")
         self.assertTrue(any("unsupported frontmatter" in e for e in validate(self.repo)))
 
     def test_version_mismatch_fails(self):
-        self.change("latex-fmt/SKILL.md", 'version: "1.2.0"', 'version: "1.2.1"')
+        self.change("latex-fmt/SKILL.md", 'version: "1.3.0"', 'version: "1.3.1"')
         self.assertTrue(any("versions differ" in e for e in validate(self.repo)))
 
     def test_missing_referenced_resource_fails(self):
@@ -56,12 +56,34 @@ class ValidationTests(unittest.TestCase):
             stream.write("\n[Details](missing.md)\n")
         self.assertTrue(any("missing.md" in e for e in validate(self.repo)))
 
+    def test_broken_reference_anchor_fails(self):
+        path = self.repo / "latex-rescue" / "SKILL.md"
+        with path.open("a", encoding="utf-8") as stream:
+            stream.write("\n[Details](references/error-catalog.md#nonexistent-section)\n")
+        self.assertTrue(any("missing heading anchor" in e for e in validate(self.repo)))
+
+    def test_cross_bundle_resource_is_rejected_for_selected_installs(self):
+        path = self.repo / "latex-rescue" / "SKILL.md"
+        with path.open("a", encoding="utf-8") as stream:
+            stream.write("\n[Required resource](../pdf2tex/SKILL.md)\n")
+        self.assertTrue(any("outside this skill bundle" in e for e in validate(self.repo)))
+
+    def test_nested_project_documentation_is_checked(self):
+        folder = self.repo / "docs"
+        folder.mkdir()
+        (folder / "guide.md").write_text("[missing](lost.md)", encoding="utf-8")
+        self.assertTrue(any("lost.md" in e for e in validate(self.repo)))
+
+    def test_installation_receipt_cannot_enter_source_bundle(self):
+        (self.repo / "latex-rescue" / ".awesome-latex-skills-install.json").write_text("{}", encoding="utf-8")
+        self.assertTrue(any("installation receipts" in e for e in validate(self.repo)))
+
     def test_wrong_agent_entrypoint_fails(self):
         self.change("latex-fmt/agents/config.yaml", "skill_file: latex-fmt/SKILL.md", "skill_file: other/SKILL.md")
         self.assertTrue(any("skill_file" in e for e in validate(self.repo)))
 
     def test_nonmapping_metadata_fails_without_traceback(self):
-        self.change("latex-fmt/SKILL.md", 'metadata:\n  version: "1.2.0"', "metadata: []")
+        self.change("latex-fmt/SKILL.md", 'metadata:\n  version: "1.3.0"', "metadata: []")
         self.assertTrue(any("metadata must be a mapping" in e for e in validate(self.repo)))
 
     def test_broken_readme_image_is_rejected(self):

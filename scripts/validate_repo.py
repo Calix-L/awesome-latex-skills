@@ -11,7 +11,7 @@ import xml.etree.ElementTree as ET
 
 import yaml
 
-from install import REPO, SKILLS
+from install import REPO, SKILLS, RECEIPT
 
 
 def without_fences(text):
@@ -61,6 +61,8 @@ def validate(repo):
     versions = set()
     for name in SKILLS:
         folder = repo / name
+        if (folder / RECEIPT).exists():
+            errors.append(f"{name}: installation receipts belong in installed copies, not source bundles")
         source = folder / "SKILL.md"
         if not source.is_file():
             errors.append(f"{name}: missing SKILL.md")
@@ -108,6 +110,7 @@ def validate(repo):
         # Check actual resource paths, including links from supporting references.
         for document in folder.rglob("*.md"):
             content = document.read_text(encoding="utf-8")
+            errors.extend(validate_document(document, repo))
             paths = re.findall(r"\[[^\]]*\]\(([^\s)]+)\)", content)
             paths += re.findall(r"`((?:references|scripts|assets)/[^`\n]+)`", content)
             for raw in set(paths):
@@ -120,9 +123,14 @@ def validate(repo):
                 target = (base / local).resolve()
                 if not target.is_relative_to(repo) or not target.exists():
                     errors.append(f"{document.relative_to(repo)}: missing or external local resource {raw}")
+                elif not target.is_relative_to(folder):
+                    errors.append(f"{document.relative_to(repo)}: resource outside this skill bundle {raw}; selected installs must be self-contained")
     if len(versions) > 1:
         errors.append(f"Skill versions differ: {sorted(versions)}")
-    for document in repo.glob("*.md"):
+    for document in repo.rglob("*.md"):
+        relative = document.relative_to(repo)
+        if relative.parts[0] in SKILLS or ".git" in relative.parts:
+            continue
         errors.extend(validate_document(document, repo))
     for asset in (repo / "assets").glob("*.svg"):
         try:

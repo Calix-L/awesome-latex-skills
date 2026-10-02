@@ -11,7 +11,7 @@ Layout suggestions for ordinary LaTeX documents. Official venue templates and au
 ## Margins and Spacing
 
 - Default margin: 1 inch (2.54cm) all around when no template specifies otherwise.
-- Do NOT use `\usepackage{geometry}` unless you know the venue allows it (NeurIPS/ICML ban it).
+- Do NOT use `\usepackage{geometry}` unless you know the venue allows it (check the matching author kit).
 - Do NOT use `\usepackage{setspace}` or `\linespread` to adjust line spacing unless required.
 - Venue templates include their own spacing — trust the template.
 
@@ -29,7 +29,7 @@ Layout suggestions for ordinary LaTeX documents. Official venue templates and au
 - `\includegraphics[width=\textwidth]{fig.pdf}` — use relative width specifications, never absolute cm unless you have a very specific reason.
 - Place `\label{}` AFTER `\caption{}` inside figure environment.
 - Figure caption goes BELOW the figure.
-- Subfigure: use `\usepackage{subcaption}` (modern replacement for subfigure/subfig).
+- Subfigures: use the caption/subfigure package supported by the matching template; publisher kits may require specific alternatives.
 
 ## Tables
 
@@ -86,12 +86,13 @@ Layout suggestions for ordinary LaTeX documents. Official venue templates and au
 - Place AFTER references.
 - Use `\appendix` command to switch numbering to letters (`Appendix A`, `Appendix B`).
 - Appendices may contain supplementary experiments, derivations, implementation details.
-- Most venues allow unlimited appendices but reviewers are not obligated to read them.
+- Appendix limits, file placement, and review obligations depend on the official target instructions.
 
-## Common Prohibitions
+## Overrides to Review
 
-These are commonly banned by venue templates:
-- `\usepackage{geometry}` — banned by NeurIPS, ICML, CVPR, IEEE
+The following changes can conflict with a template. Check the actual target
+instructions before removing them; this is not a universal prohibited-package list:
+- `\usepackage{geometry}` — can override template margins
 - `\vspace{}`, `\vskip`, manual spacing hacks
 - `\enlargethispage{}`
 - Changing font sizes mid-document
@@ -145,5 +146,5 @@ project/
 | CVPR | Treating `cvpr.sty` as a document class | Follow the kit: `article` plus `\usepackage[review]{cvpr}` |
 | ACL | Forgetting `\usepackage[review]{acl}` | Required for anonymous submission |
 | IEEE | Removing funding/author macros by a blanket rule | Follow the specific conference/journal template |
-| AAAI | Using A4 paper | Must be letter: `\documentclass[letterpaper]{article}` |
+| AAAI | Using a paper size different from the matching kit | Follow the actual kit's document options and author instructions |
 | Any | Loading both `cite` and `natbib` | Remove `cite` — `natbib` supersedes it |

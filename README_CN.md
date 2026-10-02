@@ -78,10 +78,28 @@ python scripts/install.py --agent codex --skill latex-rescue
 python scripts/install.py --dest "path/to/skills" --skill paper-read
 ```
 
-每次安装都会包含入口、参考文件和 Agent 元数据。已有 Skill 内容相同时保持原样；
-内容不同时，整批安装会在写入前停止。更新前先备份并移走旧目录，或指定新路径。
+每次安装都会包含入口、参考文件、脚本和 Agent 元数据。
 默认目录为 Claude Code 的 `~/.claude/skills/` 和 Codex 的 `$CODEX_HOME/skills/`
-（未设置时为 `~/.codex/skills/`）。
+（未设置时为 `~/.codex/skills/`）。已有内容相同时保持原样；普通安装不会覆盖不同的内容。
+
+</details>
+
+<details>
+<summary><strong>安全更新已安装的技能</strong></summary>
+
+```sh
+git pull --ff-only
+python scripts/install.py --agent codex --update --dry-run
+python scripts/install.py --agent codex --update
+```
+
+新安装会记录各文件的 SHA-256。`--update` 只替换与安装记录完全一致的技能；
+本地改动、新增或删除的文件都会阻止整批更新，不提供强制覆盖选项。
+更新失败或被中断时尝试恢复旧目录；恢复失败时保留备份并报告位置。
+
+没有安装记录的手工复制版本，只有与当前源码完全相同时才能被接管
+（`adopt`）。不同的旧版本需先备份并移走，或选择新目录。`--dry-run`
+不会写入文件或安装记录。Claude Code 使用 `--agent claude`。
 
 </details>
 
@@ -190,11 +208,30 @@ python scripts/doctor.py --skill pdf2tex --json
 |---|---|---|
 | 编译或验证格式 | 项目的 TeX 引擎、已选择的参考文献后端 | 可根据提供的日志诊断；编译状态标记为未验证 |
 | 润色粘贴文本／阅读已提供文本 | 不需要 TeX 编译器 | 可继续处理文本；PDF 验证是另一步 |
-| 提取有文本层的 PDF | PyMuPDF：`python -m pip install pymupdf` | 提供提取文本，或配置提取工具 |
+| 提取有文本层的 PDF | PyMuPDF：`python -m pip install -r pdf2tex/requirements.txt` | 提供提取文本，或配置提取工具 |
 | 恢复扫描 PDF | 单独的 OCR 工作流 | 普通文本提取无法完成 |
 | 应用投稿规则 | 官方模板及作者指南 | 尚未确定的规则标记为未验证 |
 
 诊断命令只检查本地依赖，不安装软件、不编译文档，也不认证稿件已经满足投稿要求。
+
+<details>
+<summary><strong>先提取 PDF 证据，再重建 LaTeX</strong></summary>
+
+在仓库根目录运行：
+
+```sh
+python -m pip install -r pdf2tex/requirements.txt
+python pdf2tex/scripts/extract_pdf.py paper.pdf --output extraction --pages 1-3,5 --images
+```
+
+不加 `--pages` 时提取全部页面；`--images` 可选。目标必须是新目录。
+输出包含按页分隔的 UTF-8 文本、布局／字体／页码／元数据 JSON，以及可选的嵌入图片。
+工具保留原始 PDF，标记无文本页面，记录重复图片的各次位置和独立透明蒙版。
+
+这一步不执行 OCR，也不自动生成 LaTeX。多栏顺序、公式、表格与完整图组仍需
+根据原始页面核对。详见 [PDF 提取指南](./pdf2tex/references/pdf-extraction-guide.md)。
+
+</details>
 
 <a id="faq"></a>
 
@@ -203,7 +240,7 @@ python scripts/doctor.py --skill pdf2tex --json
 <details>
 <summary><strong>安装 Skill 会同时安装 LaTeX 或模型吗？</strong></summary>
 
-不会。安装器只复制指导文件。使用你已配置的 AI Agent 和 TeX 发行版；
+不会。安装器只复制技能文件。使用你已配置的 AI Agent 和 TeX 发行版；
 环境诊断命令会报告缺少的本地工具。
 
 </details>
@@ -227,7 +264,7 @@ Agent 应明确区分“提出修复方案”和“修复后已经重新编译�
 <details>
 <summary><strong>CI 通过能证明什么？</strong></summary>
 
-CI 验证元数据、本地资源和 README 链接、SVG 素材、安装行为、依赖诊断报告、
+CI 验证元数据、包内资源与文档链接、SVG 素材、安全安装与更新、真实 PDF 提取、依赖诊断报告、
 样例的数据保留，以及真实 TeX 编译。跨平台检查覆盖 Windows、macOS、Linux，
 使用 Python 3.10 和 3.13。它不认证 AI 的实际编辑质量，也不保证论文符合当前
 投稿规则。详见[测试说明](./tests/README.md)。

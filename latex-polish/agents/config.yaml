@@ -4,8 +4,7 @@ type: skill
 skill_file: latex-polish/SKILL.md
 platforms:
   claude_code: {}
-  openai:
-    model: gpt-4.1
+  openai: {}
 auto_activate:
   - triggers:
     - "polish.*paper"
