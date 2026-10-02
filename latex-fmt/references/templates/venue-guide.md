@@ -1,315 +1,76 @@
-# NeurIPS 2026
-
-> Verify the current year's `.cls` on the official NeurIPS site before starting. The 2026 template may not be released until mid-2026; until then, `neurips_2025` remains current.
-
-## Document Class
-```latex
-\documentclass{neurips_2025}
-% OR for preprint (reveals author names)
-% \documentclass[preprint]{neurips_2025}
-```
-
-## Required Packages
-The `neurips_2025.cls` already loads: `amsmath`, `amssymb`, `natbib`, `hyperref`, `booktabs`, `graphicx`, `xcolor`.
-
-Do NOT load: `fullpage`, `geometry`, `setspace` (conflicts with template). `enumitem` may cause spacing issues with some template versions — test before using.
-
-## Sections Required
-1. Abstract
-2. Introduction
-3. Related Work
-4. Method / Approach
-5. Experiments
-6. Conclusion
-7. Broader Impact (MANDATORY — flag if missing)
-8. Acknowledgments (ONLY in camera-ready, NOT in submission)
-9. References
-10. Checklist (separate file, required)
-
-## Page Limit
-- 9 pages main content
-- Unlimited references and appendices
-- Appendices after references
-
-## Anonymization
-- Remove all `\author{}` content (use `\author{Anonymous}` or leave empty)
-- Remove acknowledgments section
-- Check for self-references: "our prior work [1]" reveals identity
-- Remove funding information
-
-## Submission Tips
-- Checklist file must be uploaded as separate PDF
-- Use PDF figures only (no EPS)
-- Compile with pdflatex (strongly recommended; the template is designed for pdflatex). XeLaTeX may work for CJK authors but requires minor adjustments.
-
----
-
-# ICML 2026
-
-> The 2026 template may not be available until early 2026; `icml2025` remains current until the update.
-
-## Document Class
-```latex
-\documentclass{icml2025}
-```
-
-## Required Packages
-The `icml2025.sty` provides the official submission format. Do NOT override with custom packages.
-
-## Page Limit
-- 8 pages main + unlimited references and appendices
-
-## Anonymization
-- Double-blind review: remove all identifying information
-- Self-citations must be in third person ("Smith et al. [1] showed..." not "In our prior work [1]...")
-
-## Unique Requirements
-- Author contributions must be listed in camera-ready (not during review)
-- Code/data release encouraged but not required
-
----
-
-# CVPR 2026
-
-## Document Class
-```latex
-\documentclass[review]{cvpr}
-% For camera-ready
-% \documentclass[final]{cvpr}
-```
-
-## Page Limit
-- 8 pages main content (references do NOT count toward page limit since CVPR 2019)
-- Supplementary material upload is separate PDF
-
-## Unique Requirements
-- Figures should work in B&W print (many reviewers print)
-- Color is OK but ensure B&W readability
-
----
-
-# ACL / EMNLP 2026
-
-> ACL and EMNLP use the same template but have different page limits and requirements.
-
-## Document Class
-```latex
-\documentclass{article}
-\usepackage[review]{acl}    % For review/anonymous submission
-% \usepackage{acl}           % For camera-ready
-```
-
-## Page Limit
-- ACL: 8 pages + unlimited references and appendices
-- EMNLP: 8 pages + unlimited references and appendices
-
-## Unique Requirements
-- **Limitations section required** (ACL mandates it, EMNLP strongly encourages it)
-- Ethics/Broader Impact section encouraged
-- AI writing assistant disclosure: must state whether LLM was used
-
----
-
-# IEEE Template (Computer Society / Transactions)
-
-## Document Class
-```latex
-\documentclass[conference]{IEEEtran}
-```
-
-## Page Limit
-- Conference: typically 6-8 pages
-- Transactions: typically 8-14 pages (check specific journal)
-
-## Unique Requirements
-- Specific citation style: `\bibliographystyle{IEEEtran}`
-- No `\thanks{}` for conference papers
-- Author block has specific format — don't deviate
-
----
-
-# Nature / Science
-
-## Note
-Both Nature and Science have their own submission systems with custom templates. The templates are provided upon acceptance (or download from their sites). These are not standard LaTeX document classes — they are full custom class files.
-
-## Common for Both
-- Very strict length limits (body text ~1,500-3,000 words depending on article type; Nature uses word counts, not page limits)
-- Methods section is often placed at the end or as supplementary
-- Figures are usually reviewed separately from text
-- Extensive supplementary information expected
-
-## Key Differences from CS Venues
-- Adapting LaTeX to these templates is a major rewrite, not a simple `\documentclass` change
-- Flag to user: this requires substantial structural reorganization
-- Reference style: Nature uses `\bibliographystyle{naturemag}`, Science uses their own
-
----
-
-# AAAI 2026
-
-## Document Class
-```latex
-\documentclass[letterpaper]{article}
-\usepackage{aaai25}
-```
-
-## Page Limit
-- 7 pages + 2 extra pages for references only (9 total with refs)
-
-## Unique
-- Must use letter paper (not A4)
-- Strictly 2-column format
-- Abstract limited to 200 words
-
----
-
-# ICLR 2026
-
-## Document Class
-```latex
-\documentclass{article}
-\usepackage{iclr2025}   % Official template
-```
-
-## Page Limit
-- No strict limit, but reviewers stop reading at ~10 pages
-
-## Unique
-- OpenReview-based (pre-print visible during review)
-- Discussions happen publicly between reviewers and authors
-- Double-blind review: anonymize all submissions
-- Anonymization of supplementary material also required
-
----
-
-# ECCV 2026
-
-## Document Class
-```latex
-\documentclass[review]{eccv}
-% For camera-ready
-% \documentclass[final]{eccv}
-```
-
-## Page Limit
-- 14 pages main content + unlimited references
-- Supplementary material is a separate PDF upload
-
-## Anonymization
-- Double-blind review: remove all identifying information
-- Self-citations must be in third person
-
-## Unique
-- Figures should work in B&W print (reviewers may print)
-- Strong emphasis on reproducibility: code release expected
-- Uses `eccv.cls` which sets 2-column format
-
----
-
-# TMLR
-
-## Document Class
-```latex
-\documentclass{article}
-% TMLR uses standard article class with OpenReview formatting
-```
-
-## Page Limit
-- No strict page limit
-- Typical submissions: 10-20 pages
-
-## Unique
-- OpenReview-based (non-anonymous, NOT double-blind)
-- Rolling submissions (no deadline)
-- Journal-style review process (not conference)
-- No supplementary material upload — appendices go in main PDF
-
----
-
-# COLING 2026
-
-> COLING uses a custom template released on their website before each edition.
-
-## Document Class
-```latex
-\documentclass[conference]{article}
-\usepackage{coling}
-```
-
-## Page Limit
-- Typically 8 pages main content + unlimited references
-- Appendices allowed after references
-
-## Unique
-- One of the oldest NLP conferences (alternates with LREC-COLING in recent years)
-- Double-blind review: anonymize all submissions
-- Author-year citation style (natbib)
-- Template may change between editions — always check the official site
-
----
-
-# KDD 2026
-
-> KDD (ACM SIGKDD) uses the ACM Master Template.
-
-## Document Class
-```latex
-\documentclass[sigconf]{acmart}
-```
-
-## Page Limit
-- Research Track: 10 pages + unlimited references
-- Applied Data Science Track: 10 pages + unlimited references
-- Appendices allowed after references
-
-## Unique
-- Uses ACM publishing format (acmart class)
-- CCS concepts required: `\ccsdesc[...]{...}`
-- ACM Reference Format citation required on first page
-- Not double-blind (author names visible during review)
-- Must include "CCS Concepts" and "Keywords" sections
-
----
-
-# SIGIR 2026
-
-> SIGIR (ACM SIGIR) uses the ACM Master Template (short or long papers).
-
-## Document Class
-```latex
-\documentclass[sigconf]{acmart}
-```
-
-## Page Limit
-- Full papers: 8 pages + unlimited references
-- Short papers: 4 pages + unlimited references
-
-## Unique
-- Uses ACM publishing format (acmart class)
-- CCS concepts required
-- Not double-blind
-- Author-year citation style (ACM format)
-- Reproducibility badge encouraged (appendix with code/data details)
-
----
-
-# Interspeech 2026
-
-> Interspeech uses a custom template provided by ISCA.
-
-## Document Class
-```latex
-\documentclass{interspeech}
-```
-
-## Page Limit
-- Typically 5 pages main content + unlimited references
-- 6th page allowed for references only (similar to AAAI 7+2 format)
-
-## Unique
-- Uses ISCA template (custom .cls, not standard LaTeX class)
-- Double-blind review: anonymize all submissions
-- Strict page limit — exceeding even by a few lines causes desk reject
-- Audio samples encouraged as supplementary material
-- No appendices in main PDF
+# Venue Guide
+
+This is a source directory and a set of pitfalls, not an official template
+distribution. Select **venue + year + track/article type + review/preprint/final**
+before applying rules. Follow the exact linked author kit; a `.sty` is a package,
+not a document class. Do not invent filenames from the conference name.
+
+## Verified corrections (checked 2026-10-03)
+
+### NeurIPS 2026 main track
+
+- Use the year's style package with `article`, as shown in the official kit.
+- Review: 9 content pages; references, technical appendices, and checklist are
+  excluded. Camera-ready permits one additional content page.
+- Submit paper, references, appendices, and checklist in one PDF. The checklist
+  is not a separate required PDF upload.
+- Review submissions and linked/supplementary material must be anonymous.
+- A section specifically titled "Broader Impact" is not mandatory. Address
+  relevant impacts and complete the checklist without inventing claims.
+
+Sources: [2026 call and author-kit link](https://neurips.cc/Conferences/2026/CallForPapers),
+[main-track handbook](https://neurips.cc/Conferences/2026/MainTrackHandbook).
+
+### KDD 2026 research track, cycle 2
+
+- Anonymous review; the recommended class options are
+  `\documentclass[sigconf,anonymous,review]{acmart}`.
+- Main paper: 8 content pages, followed by references and optional appendix
+  without page limits. Camera-ready and other tracks have separate rules.
+- Do not carry an author-visible camera-ready preamble into review.
+
+Source: [research-track call](https://kdd2026.kdd.org/research-track-call-for-papers/).
+
+### TMLR
+
+- Double-blind review; submissions and supplementary materials are anonymous.
+- Use the official TMLR stylefile and template, not plain `article` alone.
+- Appendices can follow references; PDF/ZIP supplementary uploads are allowed
+  (up to 100 MB). Open reviewing does not mean authors are visible during review.
+
+Source: [author guide](https://jmlr.org/tmlr/author-guide.html).
+
+## Official entry points
+
+Rows below route to rules; they do not certify every current requirement.
+For venues not covered by the verified corrections above, read the relevant
+year/track's instructions and author kit before declaring compliance.
+
+| Venue | Official entry point | What to establish |
+|---|---|---|
+| NeurIPS | [2026 call](https://neurips.cc/Conferences/2026/CallForPapers) | Main vs datasets/evaluations vs position track; style options and checklist |
+| ICML | [2026 call](https://icml.cc/Conferences/2026/CallForPapers) | `article` plus official style package; review vs accepted mode and `.bst` |
+| CVPR | [2026 author guidelines](https://cvpr.thecvf.com/Conferences/2026/AuthorGuidelines) | `article` plus `cvpr` package; review/final options and supplement |
+| ACL / EMNLP | [ACL Rolling Review](https://aclrollingreview.org/cfp), [official style repository](https://github.com/acl-org/acl-style-files) | ARR/venue cycle, paper type, Limitations rules, and review option |
+| AAAI | [AAAI](https://aaai.org/) | Exact edition/track, official style, page budget, and banned packages |
+| ICLR | [ICLR](https://iclr.cc/) | Exact year's author guide, style package, length budget, and review mode |
+| ECCV | [2026 author guide](https://eccv.ecva.net/Conferences/2026/AuthorGuide) | Follow linked author kit; do not invent a two-column `eccv.cls` |
+| TMLR | [author guide](https://jmlr.org/tmlr/author-guide.html) | Official style and anonymous review; supplement rules |
+| IEEE | [template selector](https://template-selector.ieee.org/) | Specific conference/journal, class options, length, and author block |
+| Nature | [formatting guide](https://www.nature.com/nature/for-authors/formatting-guide) | Specific journal and article type; word counts, methods, figures |
+| Science | [author information](https://www.science.org/content/page/instructions-preparing-initial-manuscript) | Article type, manuscript stage, supplementary structure |
+| COLING | [International Committee on Computational Linguistics](https://www.coling.org/) | Exact edition/track, author kit, anonymity, and page limits |
+| KDD | [2026 research call](https://kdd2026.kdd.org/research-track-call-for-papers/) | Track/cycle, review vs final length, ACM options, and anonymity |
+| SIGIR | [2026 full papers](https://sigir2026.org/en-AU/pages/submissions/full-papers-track) | Full vs short papers, anonymity options, bibliography, and appendix limits |
+| Interspeech | [ISCA](https://www.isca-speech.org/) | Exact edition's template, reference-page allowance, anonymity, and audio supplement |
+
+If a page cannot be read, request the official kit or mark its rules unverified.
+SIGIR's full-paper page was reachable but not extractable during this update;
+this guide does not assert its current limits or anonymity options.
+
+## Historical template example
+
+The repository's `tests/fixtures/fmt/post_neurips.tex` demonstrates the NeurIPS
+2025 package-loading pattern, not a complete 2026 submission. Official templates
+and bibliography assets are deliberately not bundled. Obtain the requested kit
+and follow its sample document, including the bibliography and checklist.

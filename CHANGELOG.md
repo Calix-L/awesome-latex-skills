@@ -2,6 +2,36 @@
 
 All notable changes to awesome-latex-skills.
 
+## Unreleased
+
+### Added
+- Bundled fresh-build checker with selected engine/backend, per-pass logs, timeout and interruption evidence, JSON reports, and stale-PDF protection.
+- Real pdfLaTeX/BibTeX/Biber integration cases plus portable build-failure tests and installed-helper coverage.
+- Opt-in managed updates with SHA-256 receipts, legacy adoption, local edit protection, interrupted-update rollback, and preserved recovery files.
+- Bundled page-aware PDF extraction CLI with selected pages, UTF-8 text, layout evidence, optional deduplicated images, and separate soft masks.
+- Real PDF behavior tests and minimum-supported PyMuPDF coverage in the existing cross-platform CI matrix.
+- Validation of nested documentation, skill reference anchors, and self-contained selected-skill resources.
+- Redesigned bilingual READMEs with an editorial LaTeX wordmark, outlined typography, responsive light/dark covers, a numbered task catalog, and expandable setup/FAQ sections.
+- Read-only prerequisite doctor with explicit engine/backend choices and JSON output.
+- README link/anchor and SVG validation, plus prerequisite behavior regression tests.
+- Standard-library Python installer for Claude Code and Codex, including selected bundles, custom destinations, dry runs, idempotence, and conflict protection.
+- Native Codex UI metadata and supported skill frontmatter (`metadata.version`).
+- Portable YAML/resource validation and behavioral installer/validator tests.
+- CI matrix for Windows, macOS, and Linux plus mandatory TeX fixture compilation.
+
+### Fixed
+- Rescue references now preserve bibliography artifacts, distinguish modern input encoding from font support, avoid guessed conversions and success-rate claims, correct glossary hyperlink load order, and retain official template package choices.
+- Polishing examples no longer introduce unsupplied significance or automatically weaken warranted universal claims.
+- Documentation checks now parse Markdown links and headings rather than relying on link regexes; reference links, titles, code fences, nested relative paths, HTML srcset, UTF-8 errors, and invalid SVG dimensions are covered.
+- Skill instructions now distinguish evidence from inference, preserve modality and claim strength, and avoid reading-time promises and venue-status shortcuts.
+- PDF guidance retains spanning blocks, uses current font APIs, and avoids guessing original engines/classes or fixed OCR accuracy.
+- Reference repair guidance preserves unknown keys and does not assign arbitrary targets; PR template links and checks work across platforms.
+- Corrected fixtures preserve table data, unresolved citation/label keys, and ambiguous math rather than silently deleting or guessing content.
+- NeurIPS examples load a style package with `article`; official rules determine impact discussion, checklist location, and review/final length.
+- Corrected KDD 2026 research and TMLR anonymity guidance with dated official sources; other venue rules are verified for the requested target before use.
+- Rescue diagnostics no longer count only `!` errors, lose engine failures behind `tee`, or disable scientific content to obtain a build.
+- Bilingual installation docs explain full-resource access, prerequisites, existing-install conflicts, and verification limits.
+
 ## v1.2.0 — 2025-05-07
 
 ### Fixed

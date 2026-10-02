@@ -1,18 +1,18 @@
 # Debug Workflow for Stubborn LaTeX Errors
 
-## First 5 Minutes: Triage Checklist
+## Establish the Build Context
 
-Before diving into any fix, run these checks — they resolve 30-40% of cases instantly:
+Inspect the actual root, build configuration, and first causal diagnostic before editing:
 
 1. **Which engine?** Check for `fontspec` or `polyglossia` → must use XeLaTeX/LuaLaTeX, not pdflatex
    ```bash
    grep -rl 'fontspec\|polyglossia' *.tex  # → use xelatex
    ```
-2. **Stale auxiliary files?** Delete `.aux`, `.bbl`, `.blg`, `.log`, `.toc`, `.lof`, `.lot` and recompile. Many "undefined" errors are just stale caches.
-3. **How many errors total?** `grep -c '^!' build.log` — if 50+, focus on the FIRST 3 only; the rest are cascading
-4. **Encoding issues?** `file -I *.tex` (macOS) or `file -i *.tex` (Linux) — should be UTF-8. If not, convert with `iconv`
+2. **Stale auxiliary files?** Test fresh output in a temporary copy or with the [build checker](build-check.md). Retain the old logs and generated files. Do not delete `.bbl` indiscriminately: it may be the only available bibliography or a required submission artifact. Confirm which files can be regenerated.
+3. **How many errors total?** inspect engine exit status and the final log (`!` and `file.tex:line:` diagnostics); focus on the first error before chasing cascades
+4. **Encoding issues?** Inspect source bytes and build settings. A detector's guess is not proof of the original encoding; convert a copy only after establishing it and compare non-ASCII names/symbols.
 5. **Missing files?** `grep -c 'File.*not found' build.log` — missing `.sty`, `.cls`, `.bib`, or images cause cascading failures
-6. **BibTeX backend mismatch?** If `.bcf` exists → project uses biber. If `.aux` has `\citation` → project uses bibtex. Running the wrong backend causes "undefined citation" errors.
+6. **Bibliography backend mismatch?** Read project configuration and `biblatex`'s `backend=` option. An old `.bcf` or `.aux` reflects a previous build, not necessarily the current configuration. Use the selected backend after its control files are generated.
 
 ## When to Use
 
@@ -28,7 +28,7 @@ For large `.tex` files with unclear error sources:
 
 ### Step 1: Isolate the Problem Region
 
-Comment out the latter half of the document and recompile:
+In a disposable copy, isolate complete sections while preserving balanced structure. A possible technique is:
 ```latex
 % After \begin{document}
 ...first half...
@@ -41,7 +41,9 @@ Comment out the latter half of the document and recompile:
 If the error disappears, the problem is in the second half.
 If the error persists, the problem is in the first half.
 
-Binary search down to the problematic section, then paragraph, then line.
+Binary search down to the problematic region. Arbitrary `\iffalse` blocks can
+interact with conditionals and verbatim content. Keep all isolation edits out of
+the delivered source; removing content is not a final repair.
 
 ### Step 2: Minimal Reproducing Example (MRE)
 
@@ -61,14 +63,16 @@ If the MRE fails, the issue is in the isolated content itself.
 
 ### Step 3: Package Elimination
 
-Systematically comment out packages to find conflicts:
+In that temporary copy, test package interactions:
 ```latex
 % Comment each, one at a time:
 % \usepackage{foo}
 % \usepackage{bar}
 ```
 
-Recompile after each removal. If the error disappears, you've found the conflicting package.
+Recompile after each removal. If the error disappears, investigate that interaction;
+this does not establish equivalent fonts, citations, captions, or semantics.
+Preserve the official template's choices and consult the relevant package manual.
 
 ## Stubborn Error Types
 
@@ -88,27 +92,27 @@ Recompile after each removal. If the error disappears, you've found the conflict
 
 **Symptom**: `! Runaway argument? ... Paragraph ended before \foo was complete.`
 
-**Cause**: A fragile command in a moving argument (like `\caption` or `\section`).
+**Possible causes**: Missing braces/delimiters, unexpected paragraphs inside an
+argument, or a fragile command in a moving argument. Inspect the scanned command
+and its argument boundary before adding `\protect`.
 
-**Fix**:
+For an established moving-argument problem, use a documented robust command or
+an appropriate short title/caption. This example preserves the long caption while
+keeping the math command out of the list of figures:
 ```latex
-% Before (fragile command in moving argument)
-\caption{Results for \footnote{Details} testing}
-
-% After (protected)
-\caption{Results for \protect\footnote{Details} testing}
-
-% Alternative: use optional argument for short form
-\caption[Short form]{Long form with \protect\footnote{Details}}
+\caption[Results for alpha]{Results for $\alpha$}
 ```
 
-Note: If the command is also invalid outside math mode (e.g., `\alpha`), add `$...$` as well — that is a separate error from the fragile-command issue.
+Math mode and moving-argument robustness are separate issues. Simply protecting
+a `\footnote` in a caption does not ensure correct placement in a float; use the
+class/package's documented footnote mechanism and inspect the PDF.
 
 ### `Emergency stop` After Many Errors
 
 **Symptom**: `! Emergency stop.` after many other errors.
 
-**Fix**: Fix the first 3-5 errors in the log. The "emergency stop" is a symptom, not the cause. When LaTeX hits too many errors, it gives up.
+**Action**: Read preceding diagnostics. Missing input or an unavailable interactive
+response can also cause an emergency stop. Repair the causal issue and rebuild.
 
 ## Project-Specific Issues
 
@@ -116,9 +120,10 @@ Note: If the command is also invalid outside math mode (e.g., `\alpha`), add `$.
 
 **Symptom**: `! LaTeX Error: Missing \begin{document}.` when compiling `sections/intro.tex` directly.
 
-**Cause**: `\include`d files don't have preambles. They only work within `main.tex`.
+**Cause**: An included fragment without a preamble needs the actual root document.
 
-**Fix**: Always compile the main document (`main.tex`), never individual included files.
+**Fix**: Compile the configured root, whose name need not be `main.tex`. A fragment
+with its own supported standalone/subfiles setup may have a separate valid build.
 
 ### File encoding issues
 
@@ -126,15 +131,18 @@ Note: If the command is also invalid outside math mode (e.g., `\alpha`), add `$.
 
 **Fix**:
 1. Check file encoding: `file -I file.tex` (macOS) or `file -i file.tex` (Linux)
-2. If not UTF-8, convert: `iconv -f GB2312 -t UTF-8 file.tex > file_utf8.tex && mv file_utf8.tex file.tex`
-3. Verify `\usepackage[utf8]{inputenc}` is in preamble
+2. Establish the original encoding before converting a copy. Do not assume GB2312
+   or overwrite the original based on a detector's guess.
+3. Modern pdfLaTeX defaults to UTF-8; adding `inputenc` does not provide every
+   Unicode glyph. Distinguish decoding, font encoding, and missing glyphs. See the
+   [LaTeX release note](https://www.latex-project.org/news/2018/04/10/issue28-of-latex2e-news-released/).
 
 ### pdflatex vs xelatex vs lualatex
 
 **Symptom**: Compilation works with xelatex but not pdflatex (or vice versa).
 
 **Key differences**:
-- `pdflatex`: requires fontenc/inputenc, no system fonts
+- `pdflatex`: modern LaTeX defaults to UTF-8 input; font encoding and glyph support are separate choices
 - `xelatex`/`lualatex`: use fontspec, can access system fonts, native UTF-8
 
 **If the user has fontspec** in their document: use `xelatex` or `lualatex`. Don't try to make it work with pdflatex.
@@ -142,16 +150,20 @@ Note: If the command is also invalid outside math mode (e.g., `\alpha`), add `$.
 **Determine which engine to use**:
 ```bash
 grep -rl 'fontspec\|polyglossia' *.tex  # → use xelatex/lualatex
-grep -rl 'fontenc\|inputenc' *.tex       # → likely pdflatex
+# inputenc/fontenc alone do not establish the intended engine; read configuration
 ```
 
 ## When to Escalate to User
 
 Escalate to the user when:
 - The error requires domain knowledge (which experiment is described, what the figure should show)
-- There are 3+ possible fixes and they have different semantic meanings
+- Plausible fixes have different scientific or structural meanings
 - You need to know the intended document structure
-- The error involves specialized package (e.g. `tikz`, `pgfplots`, `circuitikz`) with their own syntax
+- Required source, assets, or build configuration cannot be obtained from the available project
+
+Unfamiliar package syntax alone calls for its installed/official manual, not an
+author decision. After three repair attempts without progress, retain the diff
+and logs and report the blocker with compilation unverified.
 
 When escalating, provide:
 1. What you found
@@ -174,7 +186,9 @@ One real error often cascades into many reported errors. Recognizing these chain
 (l.43) The result shows...
 ```
 
-**Fix**: Only fix line 42 (`x_i` → `$x_i$`). The errors on line 43+ are phantom.
+**Candidate**: If `x_i` denotes math in this context, wrap it as `$x_i$`. An underscore
+in a path, identifier, or literal listing needs a different repair. Rebuild before
+deciding which subsequent diagnostics were consequences.
 
 ### Chain 2: Undefined control sequence → everything after breaks
 
@@ -187,7 +201,8 @@ One real error often cascades into many reported errors. Recognizing these chain
 (l.11) Next sentence here...
 ```
 
-**Fix**: Only fix `\textbff` → `\textbf`. All subsequent errors clear.
+**Candidate**: Verify custom definitions, then fix a confirmed typo to `\textbf`.
+Rebuild and reassess remaining errors; not every later diagnostic shares a cause.
 
 ### Chain 3: Missing `}` in preamble → entire document fails
 
@@ -217,7 +232,10 @@ LaTeX Warning: Reference `tab:results' on page 5 undefined
 LaTeX Warning: Citation `smith2023' on page 6 undefined
 ```
 
-**Fix**: Delete `.aux`, `.bbl`, `.blg`, recompile twice. If using bibtex, run `bibtex` between the two compilations.
+**Action**: Verify the citation system, selected backend, control files, and resource
+paths. Test fresh output while preserving old artifacts, particularly `.bbl`.
+Run the configured backend after the first engine pass and further engine passes
+as needed; preserve genuinely unknown keys and flag them for the author.
 
 ### How to Recognize a Chain
 

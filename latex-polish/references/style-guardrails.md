@@ -1,5 +1,7 @@
 # Style Guardrails
 
+Use these patterns when they improve the requested text. Preserve the author's scientific meaning and chosen style; examples do not supply missing evidence.
+
 ## Register Rules
 
 ### Use Academic, Not Conversational
@@ -56,14 +58,18 @@ The model is trained...  Features are extracted...  The data was collected...
 - "This finding indicates a possible..."
 - "Our experiments are consistent with the hypothesis that..."
 
-**Don't hedge**: When your own results are clear.
-- Bad: "Our method seems to improve performance somewhat."
-- Good: "Our method improves F1 by 3.2 points (p < 0.01)."
+**Match the evidence**: Replace vague wording with the quantitative result only
+when the author supplied that result and its scope. Do not add an effect size,
+statistical significance, or greater certainty to make prose sound stronger.
+- Vague: "Our method seems to improve performance somewhat."
+- If supplied and supported: "On this benchmark, our method improves F1 by 3.2 points."
 
 **Overconfident to avoid**:
-- "proves" → "demonstrates" / "shows" (science doesn't prove)
-- "solves" → "addresses" / "mitigates" (you've made progress, not eliminated the problem)
-- "completely" / "always" / "never" → remove, these are rarely true
+- Use "proves" for a proof with stated assumptions; empirical evidence usually supports "shows", "demonstrates", or "suggests". Do not replace the verb without checking the claim type.
+- Check the scope of "solves" against the evidence; preserve it for a genuinely established solution and flag unsupported scope for review.
+- Check the scope of "completely", "always", and "never" against the evidence.
+  Preserve warranted universal statements (for example, a theorem under explicit
+  assumptions); flag unsupported scope rather than silently changing the claim.
 
 ---
 
@@ -170,11 +176,11 @@ Use the Oxford (serial) comma consistently throughout the paper:
 ## Quick Self-Review
 
 Before marking polishing as done, check:
-1. Can any sentence be split into two? (If so, do it)
-2. Is any sentence >2 lines? (flag it)
+1. Would splitting an overloaded sentence improve clarity without altering the relation between claims?
+2. Is the syntax clear? Line length depends on typesetting and is not a prose-quality threshold.
 3. Are all acronyms defined on first use?
 4. Is the same term used for the same concept everywhere?
 5. Did you remove "It is worth noting that", "Interestingly", "As a matter of fact"?
-6. Are you hedging claims where appropriate but not hedging your own results?
+6. Does the edited claim retain its original uncertainty, scope, and evidential strength?
 7. Are numbers formatted consistently? (digits vs spelled out, comma grouping, ranges with en-dash)
 8. Are compound modifiers hyphenated when attributive, unhyphenated when predicative?

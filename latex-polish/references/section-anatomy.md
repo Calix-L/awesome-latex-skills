@@ -129,7 +129,7 @@ Each paragraph:
 
 ## Limitations
 
-**Purpose**: Honest assessment of what the work does NOT address. Required at ACL, strongly encouraged at EMNLP and NeurIPS.
+**Purpose**: Honest assessment of what the work does NOT address. Placement and requirements depend on the specific venue/year/track/stage; verify the official instructions.
 
 **Structure**:
 1. **Scope limitations**: What problems/settings does the method NOT cover?
@@ -179,7 +179,7 @@ Each paragraph:
 
 ## Broader Impact / Ethics
 
-**Purpose**: Assess societal implications of the work. Required by NeurIPS, encouraged by ICML and others.
+**Purpose**: Assess societal implications of the work. Whether a statement or checklist is required, and where it belongs, depends on the official target instructions.
 
 **Structure**:
 1. **Positive applications**: Who benefits and how
@@ -197,7 +197,7 @@ Each paragraph:
 
 ## Acknowledgments
 
-**Purpose**: Credit non-author contributors and funders. Camera-ready only — NOT in anonymous submission.
+**Purpose**: Credit non-author contributors and funders. Include only when allowed by the specified submission stage; official anonymity rules determine whether identity-bearing acknowledgments must be omitted.
 
 **Structure**:
 1. Funding sources (grant numbers if applicable)

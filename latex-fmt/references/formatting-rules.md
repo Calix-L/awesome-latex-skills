@@ -1,17 +1,17 @@
 # Formatting Rules
 
-Universal LaTeX formatting best practices applicable across all venues.
+Layout suggestions for ordinary LaTeX documents. Official venue templates and author instructions take precedence; do not impose these suggestions on a compliant submission.
 
 ## Fonts
 
-- Default is 10pt or 11pt depending on venue. Never go below 9pt.
-- Use `\usepackage{lmodern}` for better PDF rendering (supersedes default Computer Modern).
+- Follow the official template's font and size; do not substitute fonts or shrink text to meet a limit.
+- In documents without a required template, `\usepackage{lmodern}` is an optional font choice.
 - For XeLaTeX/LuaLaTeX: `\usepackage{fontspec}`, set a professional font like `\setmainfont{Times New Roman}` for journals requesting Times.
 
 ## Margins and Spacing
 
 - Default margin: 1 inch (2.54cm) all around when no template specifies otherwise.
-- Do NOT use `\usepackage{geometry}` unless you know the venue allows it (NeurIPS/ICML ban it).
+- Do NOT use `\usepackage{geometry}` unless you know the venue allows it (check the matching author kit).
 - Do NOT use `\usepackage{setspace}` or `\linespread` to adjust line spacing unless required.
 - Venue templates include their own spacing — trust the template.
 
@@ -29,7 +29,7 @@ Universal LaTeX formatting best practices applicable across all venues.
 - `\includegraphics[width=\textwidth]{fig.pdf}` — use relative width specifications, never absolute cm unless you have a very specific reason.
 - Place `\label{}` AFTER `\caption{}` inside figure environment.
 - Figure caption goes BELOW the figure.
-- Subfigure: use `\usepackage{subcaption}` (modern replacement for subfigure/subfig).
+- Subfigures: use the caption/subfigure package supported by the matching template; publisher kits may require specific alternatives.
 
 ## Tables
 
@@ -66,14 +66,13 @@ Universal LaTeX formatting best practices applicable across all venues.
 
 ## Page Numbers
 
-- Double-blind submission: NO page numbers. Venue templates usually handle this automatically.
-- Camera-ready: page numbers OK.
+- Review and camera-ready page numbering follow the official template; anonymity alone does not determine numbering.
 - DO NOT manually add or remove page numbers — the template should control this.
 
 ## Abstract
 
 - Usually limited to 150-300 words (check venue; many cap at 250).
-- Place abstract section BEFORE `\maketitle` in many conference templates (NeurIPS, ICML). In standard `article` class, abstract comes AFTER `\maketitle`.
+- Follow the kit's sample for abstract placement. Standard `article` and NeurIPS examples place it after `\maketitle`; other kits can use custom title blocks.
 - No citations in abstract (exceptions: papers building directly on one prior work).
 
 ## Acknowledgments
@@ -87,12 +86,13 @@ Universal LaTeX formatting best practices applicable across all venues.
 - Place AFTER references.
 - Use `\appendix` command to switch numbering to letters (`Appendix A`, `Appendix B`).
 - Appendices may contain supplementary experiments, derivations, implementation details.
-- Most venues allow unlimited appendices but reviewers are not obligated to read them.
+- Appendix limits, file placement, and review obligations depend on the official target instructions.
 
-## Common Prohibitions
+## Overrides to Review
 
-These are commonly banned by venue templates:
-- `\usepackage{geometry}` — banned by NeurIPS, ICML, CVPR, IEEE
+The following changes can conflict with a template. Check the actual target
+instructions before removing them; this is not a universal prohibited-package list:
+- `\usepackage{geometry}` — can override template margins
 - `\vspace{}`, `\vskip`, manual spacing hacks
 - `\enlargethispage{}`
 - Changing font sizes mid-document
@@ -100,43 +100,17 @@ These are commonly banned by venue templates:
 - Manual page breaks in submission version
 - Color text (use `\textcolor` only for figures, not body text)
 
-## Per-Venue Quick Reference
+## Per-Venue Rules and Pre-Submission Checks
 
-| Venue | Banned Packages | Required Sections | Citation Style |
-|---|---|---|---|
-| NeurIPS | geometry, fullpage, setspace | Broader Impact | Handled by .cls |
-| ICML | geometry, fullpage | — | icml2025.bst |
-| CVPR | geometry, setspace | — | ieee_fullname.bst |
-| ACL | fullpage | Limitations | acl_natbib.bst |
-| AAAI | geometry, fullpage, setspace | — | aaai25.bst |
-| ICLR | geometry (discouraged) | — | Author's choice |
-| IEEE | geometry, fullpage | — | IEEEtran.bst |
-| ECCV | — | — | splncs04.bst |
-| TMLR | — | — | Author's choice |
-| Nature | — | Methods, Data Availability | Nature style |
-| Science | — | Methods, References | Science style |
-| COLING | — | — | natbib (author-year) |
-| KDD | — | CCS Concepts, Keywords | ACM format |
-| SIGIR | — | CCS Concepts | ACM format |
-| Interspeech | — | — | ISCA format |
+Use [the venue guide](templates/venue-guide.md) to locate official requirements
+for the exact year, track, and stage. Package restrictions, required sections,
+citation style, and anonymity are not universal.
 
-## Pre-Submission Checks
-
-Run these checks before submitting:
-
-```bash
-# Check for common banned packages
-grep -n '\\usepackage{geometry}\|\\usepackage{fullpage}\|\\usepackage{setspace}' main.tex
-
-# Check for identity-revealing text
-grep -in 'our prior work\|our previous work\|we previously' *.tex
-
-# Check for missing labels
-grep -n '\\ref{' *.tex | while read line; do
-  label=$(echo "$line" | grep -o '\\ref{[^}]*}' | sed 's/\\ref{//;s/}//')
-  grep -q "\\label{$label}" *.tex || echo "MISSING LABEL: $label"
-done
-```
+Source searches can identify candidates for review, but are not compliance tests.
+Inspect included `.tex` files and the rendered PDF. Confirm missing references
+from the final build log; a grep loop over `\ref` misses custom macros, included
+files, and escaped comments. Check actual content-page boundaries, metadata,
+supplements, and bibliography using the requested kit.
 
 ## Project Structure Conventions
 
@@ -158,8 +132,8 @@ project/
 ```
 
 **Rules**:
-- `main.tex` should contain ONLY preamble and `\input{}` calls — no body content
-- Each `\section{}` gets its own file
+- Small documents can remain in one file. Split sections only when it helps maintenance.
+- Preserve an existing working project structure rather than reorganizing it for its own sake.
 - Use `\input{sections/intro}` not `\include{sections/intro}` ( `\include` forces a page break and cannot be nested)
 - Images go in `figures/`, referenced as `\includegraphics{figures/fig1.pdf}`
 
@@ -169,8 +143,8 @@ project/
 |---|---|---|
 | NeurIPS | Adding `\usepackage{geometry}` | Template sets margins — remove it |
 | ICML | Using `\cite{}` with author-year style | Use `\citep{}` / `\citet{}` (natbib) |
-| CVPR | Missing `[review]` option in documentclass | Add `\documentclass[review]{cvpr}` for submission |
+| CVPR | Treating `cvpr.sty` as a document class | Follow the kit: `article` plus `\usepackage[review]{cvpr}` |
 | ACL | Forgetting `\usepackage[review]{acl}` | Required for anonymous submission |
-| IEEE | Using `\thanks{}` in conference papers | Not allowed — remove it |
-| AAAI | Using A4 paper | Must be letter: `\documentclass[letterpaper]{article}` |
+| IEEE | Removing funding/author macros by a blanket rule | Follow the specific conference/journal template |
+| AAAI | Using a paper size different from the matching kit | Follow the actual kit's document options and author instructions |
 | Any | Loading both `cite` and `natbib` | Remove `cite` — `natbib` supersedes it |

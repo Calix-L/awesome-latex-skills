@@ -1,6 +1,6 @@
 # Contributing
 
-Every error pattern, phrasebank entry, and Chinglish fix directly improves output quality.
+Contributions should solve a demonstrated problem and preserve scientific meaning. A phrasebank example is a wording option, not evidence for a new claim.
 
 ## How to Add
 
@@ -35,17 +35,33 @@ Every error pattern, phrasebank entry, and Chinglish fix directly improves outpu
 
 - Follow the existing table/format in the reference file
 - One entry per line, brief descriptions
-- Run `bash tests/run_tests.sh` — all must pass
-- If adding a new venue, update `venue-guide.md`, `formatting-rules.md` Per-Venue Quick Reference table, and SKILL.md if needed
+- Install `requirements-dev.txt`, run `python scripts/validate_repo.py` and `python -m unittest discover -s tests -v`; compilation skips locally without TeX and is required in CI
+- For venue rules, record the official URL, check date, year, track, and stage in `venue-guide.md`; mark unverified rules explicitly and update examples together
+- Keep versions in quoted `metadata.version` fields; put agent invocation hints in `agents/config.yaml`, not unsupported frontmatter fields
+- Add observable behavior tests for scripts; a matching keyword is not proof of a valid repair
 - If unsure, open an issue first
 
 ## Review Process
 
 1. Open a PR against `main`
-2. CI must pass (YAML validation + version consistency + test suite)
+2. CI must pass (portable metadata/installation tests across OSes + required Linux compilation)
 3. At least one review before merge
 4. Squash-merge preferred for single-logical-change PRs
 
 ## Code of Conduct
 
 Be respectful and constructive. Report issues to zhenxinlin290@gmail.com.
+## Adding executable helpers
+
+Put a helper inside the skill that needs it so selected installations remain
+self-contained. State optional dependencies and use paths suitable for Windows,
+macOS, and Linux. Do not write generated artifacts into the source bundle.
+
+Test observable behavior with isolated temporary inputs and outputs: preserved
+scientific tokens, failed operations, existing user files, page provenance, or
+required build results. A test matching an instruction's wording does not
+establish agent editing quality. Document any external/manual verification.
+
+For installer changes, test the full batch and both ordinary failure and rollback
+failure. Keep install receipts out of source bundles. For reference changes,
+validate links/anchors and keep required resources within the skill directory.

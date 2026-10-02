@@ -52,7 +52,7 @@ CN has no tense system. Ensure consistent tense usage.
 
 ### 5. Overuse of "can"
 
-CN uses 可以 (can) much more than English academic writing uses "can".
+Check whether "can" expresses capability, possibility, or an observed result. Keep it when removal would strengthen the claim. The alternatives below apply only when the manuscript already supports the stronger wording.
 
 | Wrong | Right |
 |-------|-------|
@@ -80,7 +80,9 @@ CN 让/使 patterns don't translate to "make" or "let" in academic English.
 | The function **makes** the error reduce | The function **reduces** the error |
 | It **makes us** understand | It **helps us** understand |
 
-### 8. "So" as Conjunction
+### 8. "So" and Transitions
+
+"So" is grammatical. The alternatives below are optional register choices, not automatic grammar corrections. Preserve the causal relation.
 
 | Wrong | Right |
 |-------|-------|

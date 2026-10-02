@@ -1,42 +1,62 @@
 # Tests
 
-## Run
+Python 3.10+ is required. From the repository root:
 
-```bash
-bash tests/run_tests.sh
+```sh
+python -m pip install -r requirements-dev.txt
+python scripts/validate_repo.py
+python -m unittest discover -s tests -v
 ```
 
-## What it checks
+On systems with Bash, `bash tests/run_tests.sh` runs the same checks.
+To run one area: `python -m unittest discover -s tests -p test_install.py -v`.
 
-| Test | What it validates |
-|---|---|
-| Error catalog coverage | `error-catalog.md` has entries, covers math mode, environment, encoding, and font errors |
-| Expected fix consistency | `expected_fixed.tex` exists, similar size to broken, has FLAGGED markers |
-| Polish reference completeness | All 4 reference files exist, chinglish patterns cover 18 categories |
-| Polish sample patterns | Chinglish sample fixture contains patterns described in reference |
-| Venue template coverage | Venue guide covers all 15 target venues |
-| Fmt expected output | `post_neurips.tex` has correct documentclass, removed banned packages, flags Broader Impact, double-blind venue coverage |
-| Paper-read coverage | Reference files exist, critical appraisal covers 4 key areas, double compile check |
-| pdf2tex coverage | All 4 reference files exist, test fixture present, cross-skill references |
-| Agent configs | Each skill has `config.yaml` with slash command trigger, latex-fmt has venue-specific triggers |
-| SKILL.md triggers | Each SKILL.md has slash command trigger and 5+ triggers |
-| SKILL.md structure | Each SKILL.md has Role, When to Activate, Workflow, Guardrails, Reference Files sections, valid frontmatter, and 2+ reference files |
-| Chinese pattern coverage | Chinglish reference covers 10/10 major pattern categories |
-| Version consistency | All SKILL.md files have the same version number |
-| Reference file paths | All paths mentioned in SKILL.md Reference Files sections exist on disk |
-| Edge case content | Overleaf guidance, preprint expectations, Oxford comma, venue status |
-| Config consistency | All config.yaml files have file_patterns, slash command triggers, and platforms section |
-| Cross-skill references | latex-rescue, pdf2tex cross-reference other skills; latex-polish cross-references latex-rescue |
-| Compile test | `broken_paper.tex` produces a `.log` file (requires pdflatex) |
+## What the checks prove
+
+- **Installation:** complete resource roundtrip, selected skills, dry runs,
+  repeat installs, existing edits, batch preflight, rollback, paths with spaces,
+  custom Codex home, invalid paths, CLI failures, and symlink refusal. Managed-update tests cover upstream additions/removals, local edit protection, adoption, receipts, interrupted updates, and recovery-file preservation.
+- **Bundles:** parse YAML; check supported frontmatter, matching names, shared
+  versions, agent metadata, and local resource links. Mutation tests confirm
+  broken bundles are rejected.
+- **Documentation:** check README navigation, local Markdown/HTML image links,
+  reference-style links, titled/parenthesized paths, multi-candidate `srcset`,
+  formatted/Chinese/duplicate/setext heading anchors, self-contained selected-skill
+  resources, nested documentation, UTF-8 failures, and finite positive SVG viewboxes.
+  Markdown is parsed with markdown-it-py; code examples are not treated as live links.
+- **PDF extraction:** generate real PDFs with Unicode, columns, raster images, transparency masks, blank pages, and encryption; test page coverage, metadata, deduplication, existing outputs, publication failure, and execution from an installed bundle. No OCR service is used.
+- **Prerequisites:** distinguish required local dependencies from advisory tools
+  and manual checks; verify machine-readable reports and missing-tool exit codes.
+- **Compilation:** generate figure assets in an isolated temporary directory;
+  require the broken fixture to fail; build the corrected fixture twice and check
+  exit codes, PDF output, TeX errors, and resolved/unresolved references. Run the
+  bundled checker with real pdfLaTeX, BibTeX, and Biber, including filenames/output
+  paths with spaces, local inputs, and bibliography lookup.
+- **Build evidence:** portable tests cover existing/stale outputs, zero/nonzero
+  exits with invalid PDFs or error logs, missing tools, explicit backend sequencing,
+  launch failure, interruption, per-pass timeout/log retention, and installed-helper
+  execution. XeLaTeX/LuaLaTeX command selection is supported but is not exercised
+  by the real-engine CI job.
+
+Compilation explicitly skips if `pdflatex` is unavailable locally. Set
+`LATEX_SKILLS_REQUIRE_TEX=1` to fail when the compiler is missing; CI's Linux compile
+job does this and requires Biber for its bibliography case. Portable checks run on Linux, Windows, and macOS with Python 3.10
+and 3.13. Ubuntu/Python 3.10 also checks the minimum supported PyMuPDF 1.24.10; other portable jobs use the resolved current version. No build artifacts are written into the repository.
+
+These checks validate packaging and fixture behavior. They do **not** measure an
+AI agent's editing quality or prove compliance with a venue's current rules.
 
 ## Fixtures
 
-| File | Purpose |
+| Path | Use |
 |---|---|
-| `fixtures/errors/broken_paper.tex` | Deliberate errors for latex-rescue |
-| `fixtures/errors/expected_fixed.tex` | Target output after rescue |
-| `fixtures/polish/chinglish_sample.tex` | Chinglish patterns for latex-polish |
-| `fixtures/fmt/pre_neurips.tex` | CVPR paper to convert for latex-fmt |
-| `fixtures/fmt/post_neurips.tex` | Expected output after NeurIPS conversion |
-| `fixtures/read/sample_paper.md` | Sample paper for paper-read analysis |
-| `fixtures/pdf2tex/sample_extraction.md` | Simulated PDF extraction data for pdf2tex |
+| `fixtures/errors/broken_paper.tex` | Deliberate syntax errors plus unresolved author decisions |
+| `fixtures/errors/expected_fixed.tex` | Compilable candidate retaining data, keys, and uncertainty markers |
+| `fixtures/polish/chinglish_sample.tex` | Manual writing evaluation |
+| `fixtures/fmt/pre_neurips.tex` / `post_neurips.tex` | Historical conversion example; official templates and bibliography not bundled |
+| `fixtures/read/sample_paper.md` | Manual reading evaluation |
+| `fixtures/pdf2tex/sample_extraction.md` | Manual reconstruction evaluation |
+
+The last four areas need an agent evaluation and artifact review; fixture
+presence alone is not an end-to-end test. Formatting examples must use the exact
+venue/year/track/stage requested by the author.
