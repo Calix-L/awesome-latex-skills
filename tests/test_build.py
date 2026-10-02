@@ -192,6 +192,12 @@ class BuildTests(unittest.TestCase):
                 self.assertEqual(report["pdf"], f"{expected}.pdf")
                 self.assertTrue((self.output / report["pdf"]).is_file())
 
+    def test_bibtex_receives_a_single_unquoted_jobname_argument(self):
+        report = self.run_build(backend="bibtex", jobname="paper with spaces")
+        self.assertEqual(report["status"], "success")
+        command, _ = self.calls[1]
+        self.assertEqual(command, ["/tools/bibtex", "paper with spaces"])
+
     def test_later_zero_exit_cannot_reuse_an_earlier_pass_pdf(self):
         def runner(command, **kwargs):
             if not self.calls:

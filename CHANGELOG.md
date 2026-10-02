@@ -26,6 +26,7 @@ All notable changes to awesome-latex-skills.
 ### Fixed
 - Build output names now follow the root document by default; explicit job names and nested include auxiliary directories are supported.
 - Engine passes cannot reuse an earlier pass's PDF, and per-step logs use a separate directory to avoid output-basename collisions.
+- BibTeX receives output basenames with spaces as a single literal argument; failing real-build tests include transcript excerpts for diagnosis.
 - Rescue references now preserve bibliography artifacts, distinguish modern input encoding from font support, avoid guessed conversions and success-rate claims, correct glossary hyperlink load order, and retain official template package choices.
 - Polishing examples no longer introduce unsupplied significance or automatically weaken warranted universal claims.
 - Documentation checks now parse Markdown links and headings rather than relying on link regexes; reference links, titles, code fences, nested relative paths, HTML srcset, UTF-8 errors, and invalid SVG dimensions are covered.

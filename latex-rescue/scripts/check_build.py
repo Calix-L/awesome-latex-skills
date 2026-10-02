@@ -159,8 +159,8 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
                     report["failure"] = f"Requested {backend}, but {control.name} was not generated"
                     break
                 if backend == "bibtex":
-                    argument = f'"{jobname}"' if " " in jobname else jobname
-                    command, cwd = [executables[backend], argument], output
+                    # subprocess already supplies one argument; BibTeX takes it literally.
+                    command, cwd = [executables[backend], jobname], output
                 else:
                     command = [executables[backend], f"--input-directory={output}",
                                f"--output-directory={output}", jobname]

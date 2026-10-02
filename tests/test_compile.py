@@ -1,5 +1,6 @@
 """Compile in isolated directories; never treat a produced log/PDF as success."""
 import os
+import json
 from pathlib import Path
 import re
 import shutil
@@ -43,6 +44,16 @@ class CompilationTests(unittest.TestCase):
     def copy_fixture(self, name):
         shutil.copyfile(FIXTURES / "errors" / name, self.work / name)
 
+    def assert_build_success(self, report):
+        if report["status"] == "success":
+            return
+        evidence = [json.dumps(report, indent=2)]
+        for step in report["steps"]:
+            transcript = Path(report["output"]) / step["transcript"]
+            if transcript.is_file():
+                evidence.append(f"{step['transcript']}:\n" + transcript.read_text(encoding="utf-8", errors="replace")[-4000:])
+        self.fail("\n\n".join(evidence))
+
     def test_broken_fixture_has_real_compilation_failure(self):
         self.copy_fixture("broken_paper.tex")
         result = self.compile("broken_paper.tex")
@@ -72,7 +83,7 @@ class CompilationTests(unittest.TestCase):
     def test_bundled_build_helper_uses_fresh_output_and_retains_warnings(self):
         self.copy_fixture("expected_fixed.tex")
         report = check_build.build(self.work / "expected_fixed.tex", self.work / "fresh build")
-        self.assertEqual(report["status"], "success", report)
+        self.assert_build_success(report)
         self.assertTrue(any("undefined" in d["message"] for d in report["diagnostics"]))
         self.assertFalse((self.work / "expected_fixed.pdf").exists())
         self.assertEqual(len(report["steps"]), 2)
@@ -93,7 +104,7 @@ class CompilationTests(unittest.TestCase):
         (self.work / "section.tex").write_text(r"A result~\cite{demo}.\label{sec:one} See~\ref{sec:one}.", encoding="utf-8")
         (self.work / "refs.bib").write_text("@article{demo, author={A. Author}, title={Test}, journal={Example}, year={2020}}", encoding="utf-8")
         report = check_build.build(source, self.work / "bibliography build", backend="bibtex")
-        self.assertEqual(report["status"], "success", report)
+        self.assert_build_success(report)
         self.assertEqual(len(report["steps"]), 4)
         self.assertFalse(any("undefined" in d["message"] for d in report["diagnostics"]), report)
         self.assertTrue((self.work / "bibliography build/paper name.bbl").is_file())
@@ -109,7 +120,7 @@ class CompilationTests(unittest.TestCase):
                           r"A result~\cite{demo}.\printbibliography\end{document}", encoding="utf-8")
         (self.work / "refs.bib").write_text("@article{demo, author={A. Author}, title={Test}, journal={Example}, year={2020}}", encoding="utf-8")
         report = check_build.build(source, self.work / "biber build", backend="biber")
-        self.assertEqual(report["status"], "success", report)
+        self.assert_build_success(report)
         self.assertFalse(any("undefined" in d["message"] for d in report["diagnostics"]), report)
         self.assertTrue((self.work / "biber build/biber paper.bbl").is_file())
 
@@ -122,7 +133,7 @@ class CompilationTests(unittest.TestCase):
         (self.work / "chapters").mkdir()
         (self.work / "chapters/one.tex").write_text(r"\section{One}\label{sec:one}Chapter content.", encoding="utf-8")
         report = check_build.build(source, self.work / "nested build", until_stable=True, require_resolved=True)
-        self.assertEqual(report["status"], "success", report)
+        self.assert_build_success(report)
         self.assertEqual(report["pdf"], "submission.pdf")
         self.assertTrue(report["auxiliary_stable"])
         self.assertTrue((self.work / "nested build/chapters/one.aux").is_file())
@@ -149,6 +160,6 @@ class CompilationTests(unittest.TestCase):
                     continue
                 report = check_build.build(source, self.work / engine, engine=engine,
                                            until_stable=True, require_resolved=True, timeout=120)
-                self.assertEqual(report["status"], "success", report)
+                self.assert_build_success(report)
                 self.assertTrue(report["auxiliary_stable"])
                 self.assertEqual(report["pdf"], "unicode.pdf")
