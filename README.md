@@ -40,10 +40,12 @@ python scripts/install.py --agent claude
 Using **Codex**? Change the last command to `python scripts/install.py --agent codex`.
 Use `python3` if that is your system's Python command.
 
-| Agent | Invoke after installation | Default destination |
-|---|---|---|
-| Claude Code | `/latex-rescue` or a natural-language request | `~/.claude/skills/` |
-| Codex | `$latex-rescue` or a natural-language request | `$CODEX_HOME/skills/`, default `~/.codex/skills/` |
+| Agent | Invoke after installation |
+|---|---|
+| Claude Code | `/latex-rescue` |
+| Codex | `$latex-rescue` |
+
+You can also describe the task in natural language.
 
 <details>
 <summary><strong>Install one skill, preview changes, or choose a destination</strong></summary>
@@ -60,6 +62,8 @@ python scripts/install.py --dest "path/to/skills" --skill paper-read
 ```
 
 Each installation includes the entrypoint, references, and agent metadata.
+Default destinations are `~/.claude/skills/` for Claude Code and
+`$CODEX_HOME/skills/` for Codex (default `~/.codex/skills/`).
 Identical bundles stay untouched. If an existing bundle differs, the installer
 stops the batch before writing. Back up and move the old bundle away before an
 update, or choose another destination.

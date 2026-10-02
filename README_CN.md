@@ -42,10 +42,12 @@ python scripts/install.py --agent claude
 使用 **Codex** 时，将最后一行改为 `python scripts/install.py --agent codex`。
 如果系统的 Python 命令是 `python3`，替换命令名即可。
 
-| Agent | 安装后的调用方式 | 默认安装位置 |
-|---|---|---|
-| Claude Code | `/latex-rescue` 或自然语言请求 | `~/.claude/skills/` |
-| Codex | `$latex-rescue` 或自然语言请求 | `$CODEX_HOME/skills/`，未设置时为 `~/.codex/skills/` |
+| Agent | 安装后的调用方式 |
+|---|---|
+| Claude Code | `/latex-rescue` |
+| Codex | `$latex-rescue` |
+
+也可以直接用自然语言描述任务。
 
 <details>
 <summary><strong>只安装一个 Skill、预览改动、指定安装目录</strong></summary>
@@ -63,6 +65,8 @@ python scripts/install.py --dest "path/to/skills" --skill paper-read
 
 每次安装都会包含入口、参考文件和 Agent 元数据。已有 Skill 内容相同时保持原样；
 内容不同时，整批安装会在写入前停止。更新前先备份并移走旧目录，或指定新路径。
+默认目录为 Claude Code 的 `~/.claude/skills/` 和 Codex 的 `$CODEX_HOME/skills/`
+（未设置时为 `~/.codex/skills/`）。
 
 </details>
 
