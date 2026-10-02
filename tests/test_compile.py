@@ -282,7 +282,9 @@ class CompilationTests(unittest.TestCase):
         first, second, nested = [script_offsets(label) for label in ("Order A:", "Order B:", "Nested:")]
         for symbol in first:
             for a, b in zip(first[symbol], second[symbol]):
-                self.assertAlmostEqual(a, b, places=3)
+                # Independent PDF positions are rounded; 0.01 pt is subpixel
+                # even at 300 DPI, far below the script-grouping difference.
+                self.assertAlmostEqual(a, b, delta=0.01)
         self.assertGreater(first["i"][1], 0)
         self.assertLess(first["2"][1], 0)
         self.assertGreater(abs(first["2"][1] - nested["2"][1]), 1)
