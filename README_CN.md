@@ -256,7 +256,9 @@ python pdf2tex/scripts/extract_pdf.py paper.pdf --output extraction --pages 1-3,
 输出包含按页分隔的 UTF-8 文本、布局／字体／页码／元数据 JSON，以及可选的嵌入图片。
 `--render` 额外保存所选页面的 PNG 预览，默认 144 DPI；`--dpi` 可选 72–300，
 每页最多 2000 万像素，便于核对公式、矢量图和完整图组。
-工具保留原始 PDF，标记无文本页面，记录重复图片的各次位置和独立透明蒙版。
+打开 `extraction/report.html` 即可离线并排核对页面与提取文本，查看页码导航、覆盖范围、
+警告和来源信息；报告适配窄屏与深色模式，分享时保留整个输出目录。
+工具保留原始 PDF，输入指纹发生变化时停止发布；标记无文本页面，记录重复图片位置和独立透明蒙版。
 
 这一步不执行 OCR，也不自动生成 LaTeX。多栏顺序、公式、表格与完整图组仍需
 根据原始页面核对。详见 [PDF 提取指南](./pdf2tex/references/pdf-extraction-guide.md)。

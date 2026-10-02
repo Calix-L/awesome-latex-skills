@@ -9,6 +9,7 @@ It does not perform OCR, infer the original source, or reconstruct LaTeX.
 
 | Output | Evidence retained |
 |---|---|
+| `report.html` | Offline page/text comparison, selected-page navigation, coverage, warnings, and expandable source metadata. Open directly in a browser; keep the entire directory together. |
 | `text.txt` | Text with original selected-page numbers; no semantic cleanup. |
 | `layout.json` | Source SHA-256, tool version, metadata, bookmarks, page dimensions/rotation, raw text blocks/spans/font data, image placements, and warnings. |
 | `images/` (optional) | Unique embedded raster images and separately recorded soft masks. |
@@ -28,7 +29,30 @@ python pdf2tex/scripts/extract_pdf.py paper.pdf --output evidence --pages 1-3 --
 72–300 (default 144); previews exceeding 20 million pixels per page are refused
 before rendering. Lower the DPI or select other pages. Rendering failure publishes
 no partial bundle. Preview annotations are included; account for them when comparing
-publication artwork. `layout.json` schema 2 adds each page's optional `preview` record.
+publication artwork. The schema-2 `layout.json` includes each page's optional
+`preview` record and `source_unchanged` fingerprint check.
+
+## Review offline
+
+Open `report.html` directly in a browser. With `--render`, each selected page
+appears beside its extracted text; without it, the report explains that a preview
+was not requested. Page navigation retains original PDF page numbers, including
+gaps in selected coverage. No-text pages are visible rather than silently omitted.
+The report adapts to narrow screens and dark mode and supports browser printing.
+
+The HTML includes its stylesheet and has no scripts, external fonts or remote
+resources. PDF text and metadata are escaped as text, never inserted as executable
+markup or source-supplied links. Previews, `text.txt` and `layout.json` use relative
+links; share the complete output directory, not just the HTML file.
+
+Source SHA-256 is checked before opening and again after extracting the selected
+pages. If it differs, no output bundle is published; retry with a stable copy.
+This detects ordinary concurrent edits, but does not lock or freeze the input or
+establish authenticity. The helper itself never writes to the input PDF.
+
+Inspect column order, formulas, tables and figure labels against the previews or
+original PDF. The report displays extraction evidence and warnings; it does not
+certify completeness, reading order or reconstructed LaTeX.
 
 ## Inspect text and fonts
 

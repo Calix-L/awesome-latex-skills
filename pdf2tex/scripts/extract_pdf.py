@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Extract page-aware PDF text, layout evidence, and optional embedded images."""
+"""Extract PDF text/layout evidence and an offline review, with optional images/previews."""
 
 import argparse
 import hashlib
+from html import escape
 import importlib
 import json
 import math
@@ -12,6 +13,56 @@ import sys
 import tempfile
 
 MAX_PREVIEW_PIXELS = 20_000_000
+
+
+def write_review(bundle, report, texts):
+    """Write a script-free, offline review with escaped source content."""
+    css = (Path(__file__).resolve().parents[1] / "assets" / "review.css").read_text(encoding="utf-8")
+    navigation, sections = [], []
+    for page, text in zip(report["pages"], texts):
+        number = page["page"]
+        navigation.append(f'<a href="#page-{number}">Page {number}</a>')
+        if page["preview"]:
+            preview = page["preview"]
+            visual = (f'<a href="{escape(preview["file"], quote=True)}" aria-label="Open full preview of page {number}">'
+                      f'<img src="{escape(preview["file"], quote=True)}" width="{preview["width"]}" '
+                      f'height="{preview["height"]}" loading="lazy" alt="PDF page {number}, including annotations"></a>'
+                      f'<figcaption>{preview["dpi"]} DPI · annotations included · click to enlarge</figcaption>')
+        else:
+            visual = '<p class="empty">No preview requested. Use <code>--render</code> on a new extraction to compare page appearance.</p>'
+        status = "Text extracted" if page["text_status"] == "available" else "No extractable text — inspect the page"
+        content = f'<pre>{escape(text)}</pre>' if text.strip() else '<p class="empty">This page may be blank, graphic-only, or require a separate OCR workflow.</p>'
+        sections.append(f'<section id="page-{number}" class="page" aria-labelledby="heading-{number}">'
+                        f'<div class="page-heading"><h2 id="heading-{number}">Page {number:02}</h2>'
+                        f'<span>{status}</span></div><div class="comparison">'
+                        f'<figure>{visual}</figure><div class="text"><h3>Extracted text</h3>'
+                        f'<p class="caption">Geometric order; verify columns, equations, tables, and citations.</p>{content}'
+                        '</div></div></section>')
+    warnings = "".join(f"<li>{escape(warning)}</li>" for warning in report["warnings"])
+    metadata = "".join(f'<dt>{escape(str(key))}</dt><dd>{escape(str(value))}</dd>'
+                       for key, value in report["metadata"].items() if value)
+    selected = ", ".join(map(str, report["selected_pages"]))
+    title = report["metadata"].get("title") or report["source"]
+    html = ('<!doctype html>\n<html lang="en"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">'
+            '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; img-src \'self\' file:; style-src \'unsafe-inline\'; base-uri \'none\'; form-action \'none\'">'
+            f'<title>{escape(str(title))} — PDF evidence</title><style>{css}</style></head><body>'
+            '<header><p class="eyebrow">AWESOME LATEX SKILLS / PDF EVIDENCE</p>'
+            f'<h1>{escape(str(title))}</h1><p class="intro">Compare the extracted text with the page before reconstructing LaTeX.</p>'
+            f'<div class="facts"><span><strong>{len(report["pages"])}/{report["page_count"]}</strong> pages selected</span>'
+            f'<span><strong>{len(report["images"])}</strong> embedded images exported</span>'
+            '<span>Native text · no OCR</span></div></header>'
+            '<main><section class="provenance" aria-label="Source and coverage">'
+            f'<p><strong>Source</strong> {escape(report["source"])}<br><strong>Selected pages</strong> {selected}</p>'
+            '<p><strong>Evidence files</strong> <a href="text.txt">Plain text</a> · <a href="layout.json">Layout JSON</a></p>'
+            '<details><summary>Source fingerprint &amp; metadata</summary>'
+            f'<p class="hash">SHA-256: {report["source_sha256"]}</p><p>Input SHA-256 matched before and after extraction. '
+            f'Extractor: PyMuPDF {escape(str(report["extractor"]["version"]))}.</p><dl>{metadata}</dl></details></section>'
+            f'<aside class="warnings" aria-label="Extraction warnings"><h2>Check before reuse</h2><ul>{warnings}</ul></aside>'
+            f'<nav aria-label="Selected pages">{"".join(navigation)}</nav>{"".join(sections)}</main>'
+            '<footer>Page appearance is evidence; extraction is not verified reconstruction. '
+            'Share the entire directory to retain previews and evidence files.</footer></body></html>\n')
+    (bundle / "report.html").write_text(html, encoding="utf-8")
 
 
 def load_pymupdf():
@@ -64,6 +115,7 @@ def extract(pdf, output, pages=None, images=False, render=False, dpi=144):
         raise ValueError(f"Output already exists; choose a new directory: {output}")
     output = output.resolve()
     pymupdf = load_pymupdf()
+    source_sha256 = file_hash(pdf)
     with pymupdf.open(pdf) as doc:
         if not doc.is_pdf:
             raise ValueError("Input must be a PDF")
@@ -71,7 +123,8 @@ def extract(pdf, output, pages=None, images=False, render=False, dpi=144):
             raise ValueError("PDF requires a password; supply an authorized decrypted copy")
         indexes = select_pages(pages, doc.page_count)
         report = {
-            "schema_version": 2, "source": pdf.name, "source_sha256": file_hash(pdf),
+            "schema_version": 2, "source": pdf.name, "source_sha256": source_sha256,
+            "source_unchanged": True,
             "extractor": {"name": "PyMuPDF", "version": pymupdf.VersionBind},
             "page_count": doc.page_count, "selected_pages": [i + 1 for i in indexes],
             "metadata": doc.metadata, "toc": doc.get_toc(), "pages": [], "images": [],
@@ -93,7 +146,7 @@ def extract(pdf, output, pages=None, images=False, render=False, dpi=144):
                           "text_status": "available" if text.strip() else "no-text", "images": [], "preview": None}
                 if not text.strip():
                     report["warnings"].append(f"Page {index + 1} has no extractable text; it may be blank, graphic-only, or need OCR. Inspect the PDF.")
-                text_pages.append(f"=== Page {index + 1} ===\n{text}")
+                text_pages.append(text)
                 if render:
                     width = math.ceil(page.rect.width * dpi / 72) + 2
                     height = math.ceil(page.rect.height * dpi / 72) + 2
@@ -131,8 +184,12 @@ def extract(pdf, output, pages=None, images=False, render=False, dpi=144):
                         record["images"].append({"xref": xref, "bbox": list(info["bbox"]), "file": image_files[xref]["file"]})
                 report["pages"].append(record)
             report["images"] = list(image_files.values())
-            (bundle / "text.txt").write_text("\n\f\n".join(text_pages), encoding="utf-8")
+            if file_hash(pdf) != source_sha256:
+                raise ValueError("Input PDF changed during extraction; retry with a stable copy")
+            (bundle / "text.txt").write_text("\n\f\n".join(f"=== Page {page['page']} ===\n{text}"
+                                                          for page, text in zip(report["pages"], text_pages)), encoding="utf-8")
             (bundle / "layout.json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            write_review(bundle, report, text_pages)
             if output.exists() or output.is_symlink():
                 raise ValueError(f"Output appeared during extraction: {output}")
             bundle.rename(output)
@@ -154,7 +211,7 @@ def main(argv=None):
         print(f"Extraction failed: {exc}", file=sys.stderr)
         return 1
     print(f"Extracted {len(report['pages'])}/{report['page_count']} pages and {len(report['images'])} embedded images to {args.output}")
-    print("Read layout.json warnings and compare text.txt with the PDF before reconstruction.")
+    print("Open report.html for offline page/text review; compare with the PDF before reconstruction.")
     return 0
 
 

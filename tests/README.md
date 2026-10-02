@@ -18,13 +18,15 @@ To run one area: `python -m unittest discover -s tests -p test_install.py -v`.
   custom Codex home, invalid paths, CLI failures, and symlink refusal. Managed-update tests cover upstream additions/removals, local edit protection, adoption, receipts, interrupted updates, and recovery-file preservation. Cross-process lock tests verify refusal, retry after release, dry-run behavior, interruption, and replacement-lock preservation.
 - **Bundles:** parse YAML; check supported frontmatter, matching names, shared
   versions, agent metadata, and local resource links. Mutation tests confirm
-  broken bundles are rejected.
+  broken bundles are rejected, including duplicate YAML keys, mixed unsupported keys,
+  and unreferenced symlinks that cannot be installed. YAML merge overrides remain supported.
 - **Documentation:** check README navigation, local Markdown/HTML image links,
   reference-style links, titled/parenthesized paths, multi-candidate `srcset`,
   formatted/Chinese/duplicate/setext heading anchors, self-contained selected-skill
   resources, nested documentation, UTF-8 failures, and finite positive SVG viewboxes.
   Markdown is parsed with markdown-it-py; code examples are not treated as live links.
-- **PDF extraction:** generate real PDFs with Unicode, columns, raster/vector graphics, annotations, rotation, transparency masks, blank pages, and encryption; test page coverage, metadata, deduplication, whole-page preview pixels, DPI/size limits, existing outputs, failed rendering/publication, and execution from an installed bundle. No OCR service is used.
+  Invalid local paths and form-feed whitespace in HTML `srcset` return diagnostics without crashing.
+- **PDF extraction:** generate real PDFs with Unicode, columns, raster/vector graphics, annotations, rotation, transparency masks, blank pages, and encryption; test page coverage, metadata, deduplication, whole-page preview pixels, DPI/size limits, existing outputs, failed rendering/publication, and execution from an installed bundle. Offline HTML checks cover coverage, real evidence links, escaped hostile text/metadata, changed-input refusal, and report failure without partial publication. No OCR service is used.
 - **Prerequisites:** distinguish required local dependencies from advisory tools
   and manual checks; verify machine-readable reports and missing-tool exit codes.
 - **Compilation:** generate figure assets in an isolated temporary directory;

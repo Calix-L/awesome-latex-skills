@@ -14,16 +14,50 @@ import xml.etree.ElementTree as ET
 import yaml
 from markdown_it import MarkdownIt
 
-from install import REPO, SKILLS, RECEIPT
+from install import REPO, SKILLS, RECEIPT, bundle_files
 
 
 MARKDOWN = MarkdownIt("commonmark").enable(["table", "strikethrough"])
 
 
+class UniqueKeyLoader(yaml.SafeLoader):
+    """Reject repeated explicit mapping keys; preserve YAML merge overrides."""
+
+    def __init__(self, stream):
+        super().__init__(stream)
+        self.checked_mappings = set()
+
+    def flatten_mapping(self, node):
+        # Validate before flattening, including mappings used only through merges.
+        # The same anchor can be visited again after legitimate overrides flatten.
+        if node in self.checked_mappings:
+            return super().flatten_mapping(node)
+        keys = set()
+        for key_node, _ in node.value:
+            if key_node.tag in {"tag:yaml.org,2002:merge", "tag:yaml.org,2002:value"}:
+                key = key_node.value
+            else:
+                key = self.construct_object(key_node)
+            try:
+                if key in keys:
+                    raise yaml.constructor.ConstructorError("while constructing a mapping", node.start_mark,
+                                                            f"duplicate key {key!r}", key_node.start_mark)
+                keys.add(key)
+            except TypeError as exc:
+                raise yaml.constructor.ConstructorError("while constructing a mapping", node.start_mark,
+                                                        "unhashable mapping key", key_node.start_mark) from exc
+        self.checked_mappings.add(node)
+        return super().flatten_mapping(node)
+
+
+def load_yaml(text):
+    return yaml.load(text, Loader=UniqueKeyLoader)
+
+
 def srcset_urls(value):
     # Consume URLs before descriptors; commas inside data URLs belong to the URL.
-    while value.strip(" ,\t\r\n"):
-        value = value.lstrip(" ,\t\r\n")
+    while value.strip(" ,\t\r\n\f"):
+        value = value.lstrip(" ,\t\r\n\f")
         match = re.match(r"\S+", value)
         url = match[0]
         value = value[match.end():]
@@ -106,7 +140,14 @@ def validate_document(document, repo, bundle=None):
             continue
         if parsed.scheme or parsed.netloc:
             continue
-        target = (document.parent / unquote(parsed.path)).resolve() if parsed.path else document.resolve()
+        try:
+            decoded_path = unquote(parsed.path)
+            if "\0" in decoded_path:
+                raise ValueError("NUL character in local path")
+            target = (document.parent / decoded_path).resolve() if parsed.path else document.resolve()
+        except (OSError, ValueError) as exc:
+            errors.append(f"{document.name}: invalid local link {raw}: {exc}")
+            continue
         if not target.is_relative_to(repo) or not target.exists():
             errors.append(f"{document.name}: missing or external local link {raw}")
         elif bundle and not target.is_relative_to(bundle.resolve()):
@@ -140,13 +181,18 @@ def validate(repo):
             errors.append(f"{name}: missing SKILL.md")
             continue
         try:
+            bundle_files(folder)
+        except (OSError, ValueError) as exc:
+            errors.append(f"{name}: cannot install bundle: {exc}")
+            continue
+        try:
             text = source.read_text(encoding="utf-8")
         except (OSError, UnicodeError) as exc:
             errors.append(f"{name}: cannot read SKILL.md: {exc}")
             continue
         match = re.match(r"\A---\n(.*?)\n---(?:\n|$)", text, re.S)
         try:
-            meta = yaml.safe_load(match[1]) if match else None
+            meta = load_yaml(match[1]) if match else None
             if not isinstance(meta, dict):
                 raise ValueError("missing or invalid YAML frontmatter")
             if meta.get("name") != name:
@@ -155,7 +201,7 @@ def validate(repo):
                 errors.append(f"{name}: description must be a nonempty string")
             extra = meta.keys() - {"name", "description", "license", "allowed-tools", "metadata", "compatibility"}
             if extra:
-                errors.append(f"{name}: unsupported frontmatter keys: {sorted(extra)}")
+                errors.append(f"{name}: unsupported frontmatter keys: {sorted(map(str, extra))}")
             metadata = meta.get("metadata", {})
             if not isinstance(metadata, dict):
                 raise ValueError("metadata must be a mapping")
@@ -169,7 +215,7 @@ def validate(repo):
         for filename in ("config.yaml", "openai.yaml"):
             config = folder / "agents" / filename
             try:
-                data = yaml.safe_load(config.read_text(encoding="utf-8"))
+                data = load_yaml(config.read_text(encoding="utf-8"))
                 if not isinstance(data, dict):
                     raise ValueError("must contain a mapping")
                 if filename == "config.yaml" and data.get("skill_file") != f"{name}/SKILL.md":

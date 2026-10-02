@@ -3,10 +3,11 @@ import shutil
 import sys
 import tempfile
 import unittest
+import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from install import REPO, SKILLS
-from validate_repo import heading_ids, validate, validate_document
+from validate_repo import heading_ids, load_yaml, validate, validate_document
 
 
 class ValidationTests(unittest.TestCase):
@@ -33,6 +34,49 @@ class ValidationTests(unittest.TestCase):
     def test_invalid_yaml_fails(self):
         (self.repo / "latex-fmt" / "agents" / "config.yaml").write_text("name: [", encoding="utf-8")
         self.assertTrue(any("config.yaml" in e for e in validate(self.repo)))
+
+    def test_duplicate_frontmatter_and_nested_keys_fail(self):
+        for before, after in (("name: latex-fmt", "name: wrong\nname: latex-fmt"),
+                              ('version: "1.3.0"', 'version: "9.0.0"\n  version: "1.3.0"')):
+            with self.subTest(before=before):
+                path = self.repo / "latex-fmt/SKILL.md"
+                original = path.read_text(encoding="utf-8")
+                path.write_text(original.replace(before, after), encoding="utf-8")
+                self.assertTrue(any("duplicate key" in e for e in validate(self.repo)))
+                path.write_text(original, encoding="utf-8")
+
+    def test_duplicate_agent_yaml_keys_fail(self):
+        path = self.repo / "latex-fmt/agents/openai.yaml"
+        path.write_text('interface:\n  short_description: Too short\n  short_description: A valid but silently overriding description\n', encoding="utf-8")
+        self.assertTrue(any("openai.yaml" in e and "duplicate key" in e for e in validate(self.repo)))
+
+    def test_yaml_merge_can_override_defaults_without_hiding_explicit_duplicates(self):
+        data = load_yaml('defaults: &defaults\n  name: default\n  enabled: true\nvalue:\n  <<: *defaults\n  name: custom\n')
+        self.assertEqual(data["value"], {"name": "custom", "enabled": True})
+
+    def test_duplicate_keys_inside_merge_only_mappings_are_rejected(self):
+        with self.assertRaisesRegex(yaml.YAMLError, "duplicate key"):
+            load_yaml('value:\n  <<: {name: hidden, name: overriding}\n')
+
+    def test_reused_merged_anchor_preserves_valid_overrides(self):
+        data = load_yaml('defaults: &defaults {name: default, enabled: true}\n'
+                         'custom: &custom {<<: *defaults, name: custom}\n'
+                         'value: {<<: *custom}\n')
+        self.assertEqual(data["value"], {"name": "custom", "enabled": True})
+
+    def test_mixed_unsupported_keys_return_diagnostics(self):
+        self.change("latex-fmt/SKILL.md", "name: latex-fmt", "1: value\nextra: value\nname: latex-fmt")
+        self.assertTrue(any("unsupported frontmatter" in e for e in validate(self.repo)))
+
+    def test_unreferenced_symlink_makes_bundle_uninstallable(self):
+        target = self.repo / "latex-fmt/assets"
+        target.mkdir()
+        linked = target / "linked.txt"
+        try:
+            linked.symlink_to(self.repo / "paper-read/SKILL.md")
+        except OSError as exc:
+            self.skipTest(f"Symlinks unavailable: {exc}")
+        self.assertTrue(any("cannot install bundle" in e and "Symlinks" in e for e in validate(self.repo)))
 
     def test_wrong_skill_name_fails(self):
         self.change("latex-fmt/SKILL.md", "name: latex-fmt", "name: wrong-name")
@@ -150,6 +194,18 @@ class ValidationTests(unittest.TestCase):
         errors = validate_document(document, self.repo)
         self.assertEqual(len(errors), 1, errors)
         self.assertIn("dark.svg", errors[0])
+
+    def test_srcset_form_feed_whitespace_does_not_crash(self):
+        document = self.repo / "README.md"
+        document.write_text('<img srcset="\fmissing.svg 1x,\f">', encoding="utf-8")
+        errors = validate_document(document, self.repo)
+        self.assertEqual(len(errors), 1, errors)
+        self.assertIn("missing.svg", errors[0])
+
+    def test_invalid_local_path_returns_diagnostic(self):
+        document = self.repo / "README.md"
+        document.write_text('<a href="missing%00.md">Invalid</a>', encoding="utf-8")
+        self.assertTrue(any("invalid local link" in e for e in validate_document(document, self.repo)))
 
     def test_nested_markdown_links_use_document_relative_paths(self):
         folder = self.repo / "latex-rescue/references"

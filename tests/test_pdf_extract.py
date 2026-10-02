@@ -1,4 +1,5 @@
 import importlib.util
+from html.parser import HTMLParser
 import json
 from pathlib import Path
 import subprocess
@@ -15,6 +16,25 @@ SCRIPT = ROOT / "pdf2tex" / "scripts" / "extract_pdf.py"
 spec = importlib.util.spec_from_file_location("extract_pdf", SCRIPT)
 extract_pdf = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(extract_pdf)
+
+
+class ReviewParser(HTMLParser):
+    def __init__(self, text):
+        super().__init__()
+        self.tags, self.links, self.ids, self.text = [], [], [], []
+        self.feed(text)
+
+    def handle_starttag(self, tag, attributes):
+        self.tags.append(tag)
+        attrs = dict(attributes)
+        self.links.extend(attrs[key] for key in ("href", "src") if key in attrs)
+        if "id" in attrs:
+            self.ids.append(attrs["id"])
+        if any(key.startswith("on") for key in attrs):
+            raise AssertionError("Unexpected executable HTML attribute")
+
+    def handle_data(self, data):
+        self.text.append(data)
 
 
 class PdfExtractionTests(unittest.TestCase):
@@ -59,6 +79,63 @@ class PdfExtractionTests(unittest.TestCase):
         report = extract_pdf.extract(self.pdf, self.output, "3,1,1")
         self.assertEqual(report["selected_pages"], [1, 3])
         self.assertNotIn("=== Page 2 ===", (self.output / "text.txt").read_text(encoding="utf-8"))
+
+    def test_offline_review_preserves_coverage_and_links_to_real_evidence(self):
+        extract_pdf.extract(self.pdf, self.output, "1,3", render=True, dpi=72)
+        review = ReviewParser((self.output / "report.html").read_text(encoding="utf-8"))
+        self.assertIn("page-1", review.ids)
+        self.assertIn("page-3", review.ids)
+        self.assertNotIn("page-2", review.ids)
+        self.assertIn("中文测试", "".join(review.text))
+        self.assertIn("No extractable text", "".join(review.text))
+        self.assertIn("1, 3", "".join(review.text))
+        self.assertIn("text.txt", review.links)
+        self.assertIn("layout.json", review.links)
+        self.assertNotIn("script", review.tags)
+        self.assertNotIn("link", review.tags)
+        for link in review.links:
+            if link.startswith("#"):
+                self.assertIn(link[1:], review.ids)
+            else:
+                self.assertTrue((self.output / link).is_file(), link)
+
+    def test_review_escapes_pdf_text_and_metadata(self):
+        malicious = '</pre><script>alert("x")</script><img src="https://example.org/pixel" onerror="alert(1)"> & text'
+        with pymupdf.open(self.pdf) as doc:
+            doc[0].insert_text((40, 300), malicious, fontsize=5)
+            doc.set_metadata({"title": malicious, "author": '<a href="javascript:alert(1)">Author</a>'})
+            doc.saveIncr()
+        extract_pdf.extract(self.pdf, self.output, "1")
+        html = (self.output / "report.html").read_text(encoding="utf-8")
+        review = ReviewParser(html)
+        self.assertIn(malicious, "".join(review.text))
+        self.assertIn("&lt;script&gt;", html)
+        self.assertNotIn("script", review.tags)
+        self.assertNotIn("img", review.tags)
+        self.assertFalse(any(link.startswith(("https:", "javascript:")) for link in review.links))
+        self.assertIn("No preview requested", "".join(review.text))
+        self.assertIn("Content-Security-Policy", html)
+
+    def test_changed_input_is_not_published_with_a_misleading_fingerprint(self):
+        original_open = pymupdf.open
+
+        def edit_then_open(path):
+            path.write_bytes(path.read_bytes() + b"\n% externally changed\n")
+            return original_open(path)
+
+        with patch.object(pymupdf, "open", side_effect=edit_then_open):
+            with self.assertRaisesRegex(ValueError, "changed during extraction"):
+                extract_pdf.extract(self.pdf, self.output)
+        self.assertTrue(self.pdf.read_bytes().endswith(b"% externally changed\n"))
+        self.assertFalse(self.output.exists())
+        self.assertEqual(list(self.root.glob(".pdf2tex-*")), [])
+
+    def test_review_failure_publishes_no_partial_evidence(self):
+        with patch.object(extract_pdf, "write_review", side_effect=OSError("review failed")):
+            with self.assertRaisesRegex(OSError, "review failed"):
+                extract_pdf.extract(self.pdf, self.output, render=True, dpi=72)
+        self.assertFalse(self.output.exists())
+        self.assertEqual(list(self.root.glob(".pdf2tex-*")), [])
 
     def test_invalid_ranges_publish_nothing(self):
         for value in ("0", "4", "2-1", "1-", "", "1,,2", "../1", "1-9999999999"):
@@ -165,6 +242,7 @@ class PdfExtractionTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads((self.output / "layout.json").read_text())["selected_pages"], [2])
         self.assertTrue((self.output / "pages/page-0002.png").is_file())
+        self.assertTrue((self.output / "report.html").is_file())
 
     def test_missing_dependency_has_actionable_error_and_help_still_works(self):
         command = [sys.executable, "-I", "-S", str(SCRIPT)]

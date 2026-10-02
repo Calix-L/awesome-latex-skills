@@ -271,7 +271,10 @@ Omit `--pages` to select all pages; `--images` is optional. Use a new output
 directory. The result includes page-delimited UTF-8 text, layout/font/page/
 metadata JSON, optional embedded images, and selected whole-page PNG previews
 with `--render`. Preview resolution is 144 DPI by default (`--dpi 72-300`), with
-a 20-million-pixel limit per page. The input stays unchanged. Blank
+a 20-million-pixel limit per page. Open `extraction/report.html` for an offline
+page/text comparison with navigation, coverage, warnings, and source metadata.
+The report supports narrow screens and dark mode; keep its output directory together.
+Changed input fingerprints stop publication. Blank
 text layers, repeated image placements, and separate soft masks are recorded.
 
 This step performs no OCR or automatic LaTeX reconstruction. Check column order,

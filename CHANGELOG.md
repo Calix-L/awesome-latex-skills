@@ -5,6 +5,8 @@ All notable changes to awesome-latex-skills.
 ## Unreleased
 
 ### Added
+- Offline PDF review reports with page/text comparison, selected-page navigation, light/dark responsive styling, source evidence, escaped metadata, and no remote dependencies.
+- Input fingerprint checks that refuse PDF evidence publication after concurrent source changes.
 - Exclusive installer locks with cross-process conflict checks, revalidated plans, and explicit interrupted-process recovery guidance.
 - Optional selected-page PNG previews with source page numbers, rotation/annotations, configurable DPI, and bounded raster size.
 - Bounded auxiliary convergence and strict unresolved-reference checks, with root-source change detection and schema-2 build reports.
@@ -24,6 +26,8 @@ All notable changes to awesome-latex-skills.
 - CI matrix for Windows, macOS, and Linux plus mandatory TeX fixture compilation.
 
 ### Fixed
+- Repository validation rejects duplicate YAML keys and uninstallable unreferenced symlinks, preserves YAML merge overrides, and reports malformed local paths or HTML srcset whitespace without crashing.
+- Critical appraisal now matches evidence to claim type and reading purpose instead of using arbitrary baseline-age/gain thresholds, universal significance rules, or mandatory accept/reject verdicts.
 - Build output names now follow the root document by default; explicit job names and nested include auxiliary directories are supported.
 - Engine passes cannot reuse an earlier pass's PDF, and per-step logs use a separate directory to avoid output-basename collisions.
 - BibTeX receives output basenames with spaces as a single literal argument; failing real-build tests include transcript excerpts for diagnosis.

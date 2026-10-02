@@ -27,10 +27,12 @@ python -m pip install -r pdf2tex/requirements.txt
 python pdf2tex/scripts/extract_pdf.py paper.pdf --output extraction --pages 1-3,5 --images --render
 ```
 
-The helper creates a new directory with `text.txt`, `layout.json`, and optional
+The helper creates a new directory with `report.html`, `text.txt`, `layout.json`, and optional
 embedded images and whole-page PNG previews when requested. It records page numbers, raw text spans/font/position data,
 metadata, selected-page coverage, and warnings. It refuses existing output
-directories and leaves the input unchanged. It performs no OCR or conversion.
+directories and refuses publication if the input fingerprint changes during
+extraction. Open `report.html` for offline page/text review; keep the entire
+directory together when sharing. It performs no OCR or conversion.
 
 Read [PDF extraction guide](references/pdf-extraction-guide.md) for API details,
 alternative readers, columns, fonts, and OCR. Sorted text is not guaranteed
