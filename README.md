@@ -14,7 +14,7 @@
 
 <div align="center">
 
-[The toolkit](#skills) &nbsp; / &nbsp; [Get started](#quick-start) &nbsp; / &nbsp; [In practice](#examples) &nbsp; / &nbsp; [FAQ](#faq)
+[Skills](#skills) &nbsp; / &nbsp; [Setup](#quick-start) &nbsp; / &nbsp; [Examples](#examples) &nbsp; / &nbsp; [FAQ](#faq)
 
 <sub>**English** / [简体中文](./README_CN.md)</sub>
 

@@ -14,7 +14,7 @@
 
 <div align="center">
 
-[技能一览](#skills) &nbsp; / &nbsp; [安装使用](#quick-start) &nbsp; / &nbsp; [实际示例](#examples) &nbsp; / &nbsp; [常见问题](#faq)
+[技能](#skills) &nbsp; / &nbsp; [安装](#quick-start) &nbsp; / &nbsp; [示例](#examples) &nbsp; / &nbsp; [问答](#faq)
 
 <sub>[English](./README.md) / **简体中文**</sub>
 
