@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="360" viewBox="0 0 600 360" role="img" aria-labelledby="title desc">
+  <title id="title">awesome-latex-skills</title>
+  <desc id="desc">Good research. Clearer manuscripts. Five skills for LaTeX and academic workflows.</desc>
+  <defs><linearGradient id="background" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101625"/><stop offset="1" stop-color="#192238"/></linearGradient></defs>
+  <rect width="600" height="360" rx="20" fill="url(#background)"/>
+  <circle cx="578" cy="310" r="140" fill="#aba5ff" opacity=".045"/>
+  <g font-family="Segoe UI,Arial,Helvetica,sans-serif">
+    <rect x="36" y="33" width="23" height="3" rx="1.5" fill="#aba5ff"/>
+    <text x="72" y="39" font-size="12" letter-spacing="2" fill="#a6b1cb">OPEN SOURCE · RESEARCH TOOLKIT</text>
+    <text x="36" y="89" font-size="32" font-weight="700" letter-spacing="-1" fill="#edf0ff">awesome-latex-skills</text>
+    <text x="36" y="151" font-size="43" font-weight="600" letter-spacing="-1.1" fill="#edf0ff">Good research.</text>
+    <text x="36" y="201" font-size="43" font-weight="600" letter-spacing="-1.1" fill="#aba5ff">Clearer manuscripts.</text>
+    <text x="38" y="245" font-size="18" fill="#a6b1cb">Five skills for LaTeX and academic work.</text>
+    <text x="38" y="273" font-size="18" fill="#a6b1cb">Structured guidance. Reviewable changes.</text>
+    <line x1="38" y1="299" x2="560" y2="299" stroke="#35405a"/>
+    <text x="38" y="330" font-size="12" letter-spacing="1.5" fill="#a6b1cb">REPAIR / POLISH / FORMAT / READ / RECOVER</text>
+  </g>
+</svg>

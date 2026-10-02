@@ -1,6 +1,8 @@
 <div align="center">
 
 <picture>
+  <source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="./assets/banner-mobile-dark.svg">
+  <source media="(max-width: 600px)" srcset="./assets/banner-mobile-light.svg">
   <source media="(prefers-color-scheme: dark)" srcset="./assets/banner-dark.svg">
   <img src="./assets/banner-light.svg" alt="awesome-latex-skills — Good research. Clearer manuscripts." width="100%">
 </picture>
