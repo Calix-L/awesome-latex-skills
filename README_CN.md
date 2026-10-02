@@ -215,6 +215,26 @@ python scripts/doctor.py --skill pdf2tex --json
 诊断命令只检查本地依赖，不安装软件、不编译文档，也不认证稿件已经满足投稿要求。
 
 <details>
+<summary><strong>执行一次新构建，并保留验证证据</strong></summary>
+
+对常规根文档，在仓库根目录运行：
+
+```sh
+python latex-rescue/scripts/check_build.py path/to/paper.tex --output fresh-build
+python latex-rescue/scripts/check_build.py path/to/paper.tex --output fresh-bib-build --engine xelatex --backend biber
+```
+
+选择项目实际的引擎和参考文献后端；不需要后端时省略 `--backend`。
+目标必须是新目录。工具保存每次运行的日志、终端输出、辅助文件、PDF 和
+`build-report.json`，记录退出码与最终诊断。工具关闭 shell escape，遇到失败或超时
+即停止。构建成功仍可能存在未解析引用或排版警告。
+
+只安装 `latex-rescue` 也会包含这个独立脚本。自定义构建流程应继续使用项目
+原有命令。参数和报告的适用范围见[构建指南](./latex-rescue/references/build-check.md)。
+
+</details>
+
+<details>
 <summary><strong>先提取 PDF 证据，再重建 LaTeX</strong></summary>
 
 在仓库根目录运行：
@@ -265,7 +285,7 @@ Agent 应明确区分“提出修复方案”和“修复后已经重新编译�
 <summary><strong>CI 通过能证明什么？</strong></summary>
 
 CI 验证元数据、包内资源与文档链接、SVG 素材、安全安装与更新、真实 PDF 提取、依赖诊断报告、
-样例的数据保留，以及真实 TeX 编译。跨平台检查覆盖 Windows、macOS、Linux，
+样例的数据保留、新构建的证据，以及真实 TeX／BibTeX／Biber 编译。跨平台检查覆盖 Windows、macOS、Linux，
 使用 Python 3.10 和 3.13。它不认证 AI 的实际编辑质量，也不保证论文符合当前
 投稿规则。详见[测试说明](./tests/README.md)。
 

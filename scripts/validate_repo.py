@@ -2,6 +2,8 @@
 """Validate bundled skill metadata, YAML, and local resource links."""
 
 import argparse
+from html.parser import HTMLParser
+import math
 from pathlib import Path
 import re
 import sys
@@ -10,48 +12,118 @@ from urllib.parse import unquote, urlsplit
 import xml.etree.ElementTree as ET
 
 import yaml
+from markdown_it import MarkdownIt
 
 from install import REPO, SKILLS, RECEIPT
 
 
-def without_fences(text):
-    return re.sub(r"(?m)^(`{3,}|~{3,})[^\n]*\n.*?^\1[^\n]*(?:\n|$)", "", text, flags=re.S)
+MARKDOWN = MarkdownIt("commonmark").enable(["table", "strikethrough"])
+
+
+def srcset_urls(value):
+    # Consume URLs before descriptors; commas inside data URLs belong to the URL.
+    while value.strip(" ,\t\r\n"):
+        value = value.lstrip(" ,\t\r\n")
+        match = re.match(r"\S+", value)
+        url = match[0]
+        value = value[match.end():]
+        yield url.rstrip(",")
+        if not url.endswith(","):
+            value = value.partition(",")[2]
+
+
+class HTMLResources(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.links = []
+        self.ids = set()
+
+    def handle_starttag(self, tag, attributes):
+        attrs = dict(attributes)
+        self.ids.update(value for key, value in attributes if value and (key == "id" or (tag == "a" and key == "name")))
+        self.links.extend(attrs[key] for key in ("href", "src") if attrs.get(key))
+        if attrs.get("srcset"):
+            self.links.extend(srcset_urls(attrs["srcset"]))
+
+    handle_startendtag = handle_starttag
+
+
+def inline_tokens(tokens):
+    for token in tokens:
+        yield token
+        if token.children:
+            yield from inline_tokens(token.children)
+
+
+def document_resources(text):
+    tokens = MARKDOWN.parse(text)
+    html = HTMLResources()
+    links, code_paths = [], []
+    for token in inline_tokens(tokens):
+        if token.type in ("html_inline", "html_block"):
+            html.feed(token.content)
+        if token.type == "link_open":
+            links.append(token.attrGet("href"))
+        elif token.type == "image":
+            links.append(token.attrGet("src"))
+        elif token.type == "code_inline" and token.content.startswith(("references/", "scripts/", "assets/")):
+            code_paths.append(token.content)
+    return tokens, set(links + html.links), code_paths, html.ids
 
 
 def heading_ids(text):
     """GFM-style IDs for ordinary headings, including Chinese and duplicates."""
-    ids = set(re.findall(r'<a\s+(?:id|name)=[\"\']([^\"\']+)', text))
-    counts = {}
-    for heading in re.findall(r"(?m)^#{1,6}\s+(.+?)(?:\s+#+)?$", without_fences(text)):
-        heading = re.sub(r"<[^>]+>", "", heading).strip().lower()
+    tokens, _, _, explicit_ids = document_resources(text)
+    ids, generated = set(explicit_ids), set()
+    for index, token in enumerate(tokens):
+        if token.type != "heading_open":
+            continue
+        heading = "".join(child.content if child.type in ("text", "code_inline", "image") else " " if child.type in ("softbreak", "hardbreak") else ""
+                          for child in tokens[index + 1].children or []).strip().lower()
         slug = "".join(c for c in heading if c in " -_" or unicodedata.category(c)[0] in "LN").replace(" ", "-")
-        count = counts.get(slug, 0)
-        candidate = f"{slug}-{count}" if count else slug
-        while candidate in ids:
+        count, candidate = 0, slug
+        while candidate in generated:
             count += 1
             candidate = f"{slug}-{count}"
-        counts[slug] = count + 1
+        generated.add(candidate)
         ids.add(candidate)
     return ids
 
 
-def validate_document(document, repo):
+def validate_document(document, repo, bundle=None):
     """Check local Markdown/HTML links and navigation without network requests."""
     document, repo = Path(document), Path(repo).resolve()
-    text = without_fences(document.read_text(encoding="utf-8"))
-    links = re.findall(r"!?\[[^\]]*\]\(([^\s)]+)\)", text)
-    links += re.findall(r'(?:href|src|srcset)=[\"\']([^\"\']+)', text)
+    try:
+        _, links, code_paths, _ = document_resources(document.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError) as exc:
+        return [f"{document.name}: cannot read UTF-8 document: {exc}"]
     errors = []
-    for raw in set(links):
-        parsed = urlsplit(raw)
+    for raw in sorted(links):
+        try:
+            parsed = urlsplit(raw)
+        except ValueError:
+            errors.append(f"{document.name}: invalid link {raw}")
+            continue
         if parsed.scheme or parsed.netloc:
             continue
         target = (document.parent / unquote(parsed.path)).resolve() if parsed.path else document.resolve()
-        if not target.is_relative_to(repo) or not target.is_file():
+        if not target.is_relative_to(repo) or not target.exists():
             errors.append(f"{document.name}: missing or external local link {raw}")
-        elif parsed.fragment and target.suffix == ".md":
-            if unquote(parsed.fragment) not in heading_ids(target.read_text(encoding="utf-8")):
-                errors.append(f"{document.name}: missing heading anchor {raw}")
+        elif bundle and not target.is_relative_to(bundle.resolve()):
+            errors.append(f"{document.name}: resource outside this skill bundle {raw}; selected installs must be self-contained")
+        elif parsed.fragment and target.suffix.lower() == ".md":
+            try:
+                if unquote(parsed.fragment) not in heading_ids(target.read_text(encoding="utf-8")):
+                    errors.append(f"{document.name}: missing heading anchor {raw}")
+            except (OSError, UnicodeError) as exc:
+                errors.append(f"{document.name}: cannot read link target {raw}: {exc}")
+    if bundle:
+        for raw in sorted(set(code_paths)):
+            if any(char in raw for char in "*<>{}"):
+                continue
+            target = (bundle / raw).resolve()
+            if not target.is_relative_to(bundle.resolve()) or not target.exists():
+                errors.append(f"{document.name}: missing or external local resource {raw}")
     return errors
 
 
@@ -67,7 +139,11 @@ def validate(repo):
         if not source.is_file():
             errors.append(f"{name}: missing SKILL.md")
             continue
-        text = source.read_text(encoding="utf-8")
+        try:
+            text = source.read_text(encoding="utf-8")
+        except (OSError, UnicodeError) as exc:
+            errors.append(f"{name}: cannot read SKILL.md: {exc}")
+            continue
         match = re.match(r"\A---\n(.*?)\n---(?:\n|$)", text, re.S)
         try:
             meta = yaml.safe_load(match[1]) if match else None
@@ -105,26 +181,11 @@ def validate(repo):
                     short = interface.get("short_description", "")
                     if not isinstance(short, str) or not 25 <= len(short) <= 64:
                         errors.append(f"{name}: short_description must be 25–64 characters")
-            except (OSError, yaml.YAMLError, ValueError) as exc:
+            except (OSError, UnicodeError, yaml.YAMLError, ValueError) as exc:
                 errors.append(f"{name}/agents/{filename}: {exc}")
         # Check actual resource paths, including links from supporting references.
         for document in folder.rglob("*.md"):
-            content = document.read_text(encoding="utf-8")
-            errors.extend(validate_document(document, repo))
-            paths = re.findall(r"\[[^\]]*\]\(([^\s)]+)\)", content)
-            paths += re.findall(r"`((?:references|scripts|assets)/[^`\n]+)`", content)
-            for raw in set(paths):
-                if re.match(r"^[a-zA-Z][a-zA-Z0-9+.-]*:", raw) or raw.startswith("#"):
-                    continue
-                local = raw.split("#", 1)[0]
-                if not local or any(char in local for char in "*<>{}"):
-                    continue
-                base = folder if raw.startswith(("references/", "scripts/", "assets/")) else document.parent
-                target = (base / local).resolve()
-                if not target.is_relative_to(repo) or not target.exists():
-                    errors.append(f"{document.relative_to(repo)}: missing or external local resource {raw}")
-                elif not target.is_relative_to(folder):
-                    errors.append(f"{document.relative_to(repo)}: resource outside this skill bundle {raw}; selected installs must be self-contained")
+            errors.extend(validate_document(document, repo, bundle=folder))
     if len(versions) > 1:
         errors.append(f"Skill versions differ: {sorted(versions)}")
     for document in repo.rglob("*.md"):
@@ -135,9 +196,10 @@ def validate(repo):
     for asset in (repo / "assets").glob("*.svg"):
         try:
             root = ET.fromstring(asset.read_text(encoding="utf-8"))
-            if root.tag != "{http://www.w3.org/2000/svg}svg" or not root.get("viewBox"):
+            viewbox = [float(part) for part in re.split(r"[\s,]+", root.get("viewBox", "").strip()) if part]
+            if root.tag != "{http://www.w3.org/2000/svg}svg" or len(viewbox) != 4 or not all(math.isfinite(v) for v in viewbox) or any(v <= 0 for v in viewbox[2:]):
                 errors.append(f"{asset.name}: expected an SVG root with viewBox")
-        except (ET.ParseError, UnicodeError) as exc:
+        except (OSError, ET.ParseError, UnicodeError, ValueError) as exc:
             errors.append(f"{asset.name}: malformed SVG: {exc}")
     return errors
 

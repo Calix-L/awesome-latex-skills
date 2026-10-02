@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from test_build import check_build
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 PDFLATEX = shutil.which("pdflatex")
@@ -67,3 +68,47 @@ class CompilationTests(unittest.TestCase):
         self.assertNotRegex(log, r"Reference [`']fig:results'")
         self.assertRegex(log, r"Reference [`']sec:missing'.*undefined")
         self.assertRegex(log, r"Citation [`']undefined2024'.*undefined")
+
+    def test_bundled_build_helper_uses_fresh_output_and_retains_warnings(self):
+        self.copy_fixture("expected_fixed.tex")
+        report = check_build.build(self.work / "expected_fixed.tex", self.work / "fresh build")
+        self.assertEqual(report["status"], "success", report)
+        self.assertTrue(any("undefined" in d["message"] for d in report["diagnostics"]))
+        self.assertFalse((self.work / "expected_fixed.pdf").exists())
+        self.assertEqual(len(report["steps"]), 2)
+
+    def test_bundled_build_helper_does_not_accept_stale_source_pdf(self):
+        self.copy_fixture("broken_paper.tex")
+        (self.work / "broken_paper.pdf").write_bytes(b"%PDF-stale")
+        report = check_build.build(self.work / "broken_paper.tex", self.work / "failed build")
+        self.assertEqual(report["status"], "failed", report)
+        self.assertTrue(report["diagnostics"])
+        self.assertIsNone(report["pdf"])
+        self.assertEqual((self.work / "broken_paper.pdf").read_bytes(), b"%PDF-stale")
+
+    def test_bundled_build_helper_resolves_bibtex_and_paths_with_spaces(self):
+        source = self.work / "paper name.tex"
+        source.write_text(r"\documentclass{article}\begin{document}"
+                          r"\input{section}\bibliographystyle{plain}\bibliography{refs}\end{document}", encoding="utf-8")
+        (self.work / "section.tex").write_text(r"A result~\cite{demo}.\label{sec:one} See~\ref{sec:one}.", encoding="utf-8")
+        (self.work / "refs.bib").write_text("@article{demo, author={A. Author}, title={Test}, journal={Example}, year={2020}}", encoding="utf-8")
+        report = check_build.build(source, self.work / "bibliography build", backend="bibtex")
+        self.assertEqual(report["status"], "success", report)
+        self.assertEqual(len(report["steps"]), 4)
+        self.assertFalse(any("undefined" in d["message"] for d in report["diagnostics"]), report)
+        self.assertTrue((self.work / "bibliography build/document.bbl").is_file())
+
+    def test_bundled_build_helper_resolves_biber_with_project_local_bibliography(self):
+        if not shutil.which("biber"):
+            if os.environ.get("LATEX_SKILLS_REQUIRE_TEX") == "1":
+                self.fail("biber is required for the real backend CI case")
+            self.skipTest("biber unavailable")
+        source = self.work / "biber paper.tex"
+        source.write_text(r"\documentclass{article}\usepackage[backend=biber]{biblatex}"
+                          r"\addbibresource{refs.bib}\begin{document}"
+                          r"A result~\cite{demo}.\printbibliography\end{document}", encoding="utf-8")
+        (self.work / "refs.bib").write_text("@article{demo, author={A. Author}, title={Test}, journal={Example}, year={2020}}", encoding="utf-8")
+        report = check_build.build(source, self.work / "biber build", backend="biber")
+        self.assertEqual(report["status"], "success", report)
+        self.assertFalse(any("undefined" in d["message"] for d in report["diagnostics"]), report)
+        self.assertTrue((self.work / "biber build/document.bbl").is_file())

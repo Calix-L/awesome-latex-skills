@@ -227,6 +227,28 @@ The doctor checks local dependencies. It does not install software, compile a
 document, or certify submission readiness.
 
 <details>
+<summary><strong>Verify a fresh LaTeX build and retain the evidence</strong></summary>
+
+For a conventional root document, from the repository root:
+
+```sh
+python latex-rescue/scripts/check_build.py path/to/paper.tex --output fresh-build
+python latex-rescue/scripts/check_build.py path/to/paper.tex --output fresh-bib-build --engine xelatex --backend biber
+```
+
+Choose the actual engine and bibliography backend; omit `--backend` when none
+is needed. The output directory must be new. The helper retains per-pass logs,
+transcripts, auxiliary files, PDF, and `build-report.json`, including process
+exit codes and final diagnostics. It disables shell escape and stops on a failed
+step or timeout. Success can still have unresolved citations or layout warnings.
+
+The standalone helper is included when installing only `latex-rescue`. Keep the
+project's existing build command for custom workflows. See the
+[build guide](./latex-rescue/references/build-check.md) for options and report limits.
+
+</details>
+
+<details>
 <summary><strong>Extract PDF evidence before reconstruction</strong></summary>
 
 From the repository root:
@@ -282,7 +304,7 @@ need comparison against the original; scanned pages need OCR first.
 
 CI validates bundle metadata, self-contained resources and documentation links,
 SVG assets, installation and managed updates, real PDF extraction, prerequisite
-reports, data-preserving fixtures, and real TeX compilation. Portable checks run
+reports, fresh-build evidence, data-preserving fixtures, and real TeX/BibTeX/Biber compilation. Portable checks run
 on Windows, macOS, and Linux with Python 3.10 and 3.13, including the minimum
 supported PyMuPDF version. It does not certify an AI agent's editing quality or a manuscript's
 compliance with current venue rules. See [the test guide](./tests/README.md).

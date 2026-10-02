@@ -5,6 +5,8 @@ All notable changes to awesome-latex-skills.
 ## Unreleased
 
 ### Added
+- Bundled fresh-build checker with selected engine/backend, per-pass logs, timeout and interruption evidence, JSON reports, and stale-PDF protection.
+- Real pdfLaTeX/BibTeX/Biber integration cases plus portable build-failure tests and installed-helper coverage.
 - Opt-in managed updates with SHA-256 receipts, legacy adoption, local edit protection, interrupted-update rollback, and preserved recovery files.
 - Bundled page-aware PDF extraction CLI with selected pages, UTF-8 text, layout evidence, optional deduplicated images, and separate soft masks.
 - Real PDF behavior tests and minimum-supported PyMuPDF coverage in the existing cross-platform CI matrix.
@@ -18,6 +20,7 @@ All notable changes to awesome-latex-skills.
 - CI matrix for Windows, macOS, and Linux plus mandatory TeX fixture compilation.
 
 ### Fixed
+- Documentation checks now parse Markdown links and headings rather than relying on link regexes; reference links, titles, code fences, nested relative paths, HTML srcset, UTF-8 errors, and invalid SVG dimensions are covered.
 - Skill instructions now distinguish evidence from inference, preserve modality and claim strength, and avoid reading-time promises and venue-status shortcuts.
 - PDF guidance retains spanning blocks, uses current font APIs, and avoids guessing original engines/classes or fixed OCR accuracy.
 - Reference repair guidance preserves unknown keys and does not assign arbitrary targets; PR template links and checks work across platforms.

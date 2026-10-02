@@ -111,3 +111,71 @@ class ValidationTests(unittest.TestCase):
         document = self.repo / "README.md"
         document.write_text("[outside](../private.txt)\n", encoding="utf-8")
         self.assertTrue(any("external local link" in e for e in validate_document(document, self.repo)))
+
+    def test_reference_links_titles_and_parenthesized_paths_are_checked(self):
+        document = self.repo / "README.md"
+        target = self.repo / "a file (draft).md"
+        target.write_text("# Draft", encoding="utf-8")
+        document.write_text('[Draft][paper]\n\n[paper]: <a file (draft).md#draft> "A title"\n\n'
+                            '[missing](<missing (draft).md> "Title")\n', encoding="utf-8")
+        errors = validate_document(document, self.repo)
+        self.assertEqual(len(errors), 1, errors)
+        self.assertIn("missing", errors[0])
+        target.unlink()
+        self.assertEqual(len(validate_document(document, self.repo)), 2)
+
+    def test_longer_indented_fences_and_inline_code_do_not_create_links(self):
+        document = self.repo / "README.md"
+        document.write_text('  ```md\n[example](lost.md)\n  `````\n\n'
+                            '    [indented](lost.md)\n\n`[inline](lost.md)`\n', encoding="utf-8")
+        self.assertEqual(validate_document(document, self.repo), [])
+
+    def test_formatted_and_setext_headings_match_visible_text(self):
+        document = self.repo / "README.md"
+        document.write_text('## Read [this paper](https://example.org) with `TeX`\n'
+                            'Quick **start**\n---\n'
+                            '<span id="manual"></span>\n\n'
+                            '[one](#read-this-paper-with-tex) [two](#quick-start) [three](#manual)\n', encoding="utf-8")
+        self.assertEqual(validate_document(document, self.repo), [])
+
+    def test_multiple_srcset_candidates_and_html_entities(self):
+        for name in ("light.svg", "dark.svg", "a&b.svg"):
+            (self.repo / name).write_text("asset", encoding="utf-8")
+        document = self.repo / "README.md"
+        document.write_text('<source srcset="light.svg 1x, dark.svg 2x">\n'
+                            '<img src="a&amp;b.svg">\n'
+                            '<source srcset="data:image/png;base64,aGVsbG8= 1x, light.svg 2x">', encoding="utf-8")
+        self.assertEqual(validate_document(document, self.repo), [])
+        (self.repo / "dark.svg").unlink()
+        errors = validate_document(document, self.repo)
+        self.assertEqual(len(errors), 1, errors)
+        self.assertIn("dark.svg", errors[0])
+
+    def test_nested_markdown_links_use_document_relative_paths(self):
+        folder = self.repo / "latex-rescue/references"
+        (folder / "scripts").mkdir()
+        (folder / "scripts/local.md").write_text("# Local\n", encoding="utf-8")
+        (folder / "new.md").write_text("[Local](scripts/local.md#local)", encoding="utf-8")
+        self.assertEqual(validate(self.repo), [])
+
+    def test_reference_link_cannot_escape_installed_bundle(self):
+        path = self.repo / "latex-rescue/SKILL.md"
+        with path.open("a", encoding="utf-8") as stream:
+            stream.write("\n[Other][resource]\n\n[resource]: ../pdf2tex/SKILL.md\n")
+        self.assertTrue(any("outside this skill bundle" in e for e in validate(self.repo)))
+
+    def test_non_utf8_document_returns_diagnostic(self):
+        document = self.repo / "README.md"
+        document.write_bytes(b"\xff\xfeinvalid")
+        self.assertTrue(any("UTF-8" in e for e in validate(self.repo)))
+
+    def test_svg_viewbox_must_have_finite_positive_dimensions(self):
+        folder = self.repo / "assets"
+        folder.mkdir()
+        asset = folder / "cover.svg"
+        for value in ("0 0 0 100", "0 0 100 -1", "0 0 nan 100", "0 0 100", "wrong"):
+            with self.subTest(value=value):
+                asset.write_text(f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{value}"/>', encoding="utf-8")
+                self.assertTrue(any("cover.svg" in e for e in validate(self.repo)))
+        asset.write_text('<svg xmlns="http://www.w3.org/2000/svg" viewBox="-5,-10,100,200"/>', encoding="utf-8")
+        self.assertEqual(validate(self.repo), [])

@@ -73,6 +73,12 @@ when available; otherwise run the selected engine, required BibTeX/Biber step
 after auxiliary files exist, and further engine passes to settle references.
 Do not invoke a bibliography backend on projects that do not use one.
 
+For a conventional root document without custom build steps, the bundled
+[build checker](references/build-check.md) records fresh-output evidence across
+engine/backend passes. Run `scripts/check_build.py` with the actual root,
+selected engine/backend, and a new `--output` directory. Preserve configured
+build systems for projects beyond that helper's scope.
+
 Read the final logs and inspect the resulting PDF when rendering tools are
 available. Report build failure separately from unresolved references, duplicate
 labels, and layout warnings. If a change introduces regressions, revert that
