@@ -22,6 +22,7 @@ class BuildTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.project = Path(self.temp.name) / "project with spaces"
         self.project.mkdir()
+        self.project = self.project.resolve()
         self.source = self.project / "paper name.tex"
         self.source.write_text("Author's source", encoding="utf-8")
         self.output = self.project / "new build"
@@ -168,11 +169,24 @@ class BuildTests(unittest.TestCase):
                 self.run_build(**options)
         self.assertFalse(self.output.exists())
 
+    def test_engine_selection_is_explicit(self):
+        for engine in check_build.ENGINES:
+            with self.subTest(engine=engine):
+                self.output = self.project / engine
+                self.calls.clear()
+                report = self.run_build(engine=engine, passes=1)
+                self.assertEqual(report["status"], "success")
+                self.assertEqual(report["engine"], engine)
+                self.assertEqual(Path(self.calls[0][0][0]).name, engine)
+
     def test_cli_exit_codes_and_installed_help(self):
         with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
             with patch.object(check_build.subprocess, "run", side_effect=self.engine):
                 self.assertEqual(check_build.main([str(self.source), "--output", str(self.output)]), 0)
             self.assertEqual(check_build.main([str(self.source), "--output", str(self.output)]), 2)
+            self.output = self.project / "cli failure"
+            with patch.object(check_build.subprocess, "run", return_value=subprocess.CompletedProcess([], 1)):
+                self.assertEqual(check_build.main([str(self.source), "--output", str(self.output)]), 1)
         sys.path.insert(0, str(REPO / "scripts"))
         from install import install
         installed = self.project / "skills"

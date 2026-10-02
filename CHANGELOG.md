@@ -20,6 +20,8 @@ All notable changes to awesome-latex-skills.
 - CI matrix for Windows, macOS, and Linux plus mandatory TeX fixture compilation.
 
 ### Fixed
+- Rescue references now preserve bibliography artifacts, distinguish modern input encoding from font support, avoid guessed conversions and success-rate claims, correct glossary hyperlink load order, and retain official template package choices.
+- Polishing examples no longer introduce unsupplied significance or automatically weaken warranted universal claims.
 - Documentation checks now parse Markdown links and headings rather than relying on link regexes; reference links, titles, code fences, nested relative paths, HTML srcset, UTF-8 errors, and invalid SVG dimensions are covered.
 - Skill instructions now distinguish evidence from inference, preserve modality and claim strength, and avoid reading-time promises and venue-status shortcuts.
 - PDF guidance retains spanning blocks, uses current font APIs, and avoids guessing original engines/classes or fixed OCR accuracy.

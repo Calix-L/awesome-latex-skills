@@ -143,22 +143,22 @@ These appear inside `\begin{...}` or `\end{...}`. Fix the environment name:
 |---------|---------|--------|
 | `Overfull \hbox` | Text exceeds line width | Reword or add hyphenation: `\-` |
 | `Underfull \hbox` | Too much stretch in line | Usually ignore unless very bad |
-| `Overfull \vbox` | Content exceeds page height | Reduce content or adjust margins |
+| `Overfull \vbox` | Content exceeds page height | Inspect the affected page; adjust float placement/size within template rules, without deleting scientific content or silently changing margins |
 
 ## Encoding Errors
 
 | Error | Pattern | Fix |
 |-------|---------|-----|
-| `Unicode char not set up` | Special character in source | Add `\usepackage[utf8]{inputenc}` or escape char |
-| `Invalid UTF-8 byte` | File encoding mismatch | Ensure file is UTF-8, not GB2312 |
+| `Unicode char not set up` | Character lacks an appropriate mapping in this setup | Modern pdfLaTeX already defaults to UTF-8; identify the character, engine, and font/command support before choosing a meaning-preserving mapping |
+| `Invalid UTF-8 byte` | File encoding mismatch | Establish the actual original encoding; convert a copy and compare non-ASCII content before replacing source |
 | `Package babel Error: Unknown option` | Wrong language/option for babel | Check babel documentation for supported options; ensure correct language name |
 
 ## Auxiliary File Errors
 
 | Error | Pattern | Fix |
 |-------|---------|-----|
-| `File ended while scanning use of \@writefile` | Corrupted `.aux` file | Delete all `.aux`, `.toc`, `.lof`, `.lot` files and recompile |
-| `I'm not what you think you are` | Stale `.aux` from different document class | Delete `.aux` file and recompile twice |
+| `File ended while scanning use of \@writefile` | Possibly corrupted auxiliary data or malformed content written to it | Preserve evidence and compare a fresh build; inspect the source producing the write if the error recurs |
+| `I'm not what you think you are` | May involve stale auxiliary data after a class change | Inspect the full context and compare fresh output before changing source or removing artifacts |
 
 ## Spacing Errors
 
@@ -171,10 +171,10 @@ These appear inside `\begin{...}` or `\end{...}`. Fix the environment name:
 
 | Error | Pattern | Fix |
 |-------|---------|-----|
-| `Font ... not found` | Missing font package | Install font or use `\usepackage{lmodern}` |
+| `Font ... not found` | Missing or misconfigured font | Identify the required font and engine; obtain the configured font or propose an authorized alternative, preserving template requirements |
 | `Command \texttildelow unavailable` | Wrong font encoding | Use `\usepackage[T1]{fontenc}` |
 | `Some font shapes were not available` | Missing bold/italic variant | Substitution warning, usually harmless. Flag if important. |
-| `Corrupted NFSS tables` | Multiple fontenc calls | Only one `\usepackage[...]{fontenc}` allowed |
+| `Corrupted NFSS tables` | Inconsistent font-selection setup | Inspect encodings, font packages, class defaults, and first loading; do not infer the cause from this message alone |
 
 ## Cross-Reference Errors
 
@@ -209,18 +209,20 @@ If an error is not in this catalog:
 
 ## Common Error Chains
 
-One real error often causes 5-50 phantom errors. Recognize these to avoid wasting time:
+One causal error can produce many subsequent diagnostics. Inspect context and
+rebuild after correcting it rather than assuming every later error will vanish:
 
 | First (real) error | Phantom errors it causes | Fix only |
 |---|---|---|
-| `Missing $ inserted` on line N | `Missing } inserted` on N+1, N+2, ... | Line N: wrap in `$...$` |
+| `Missing $ inserted` on line N | Later delimiter/brace diagnostics | Inspect intended math versus literal identifiers/paths before choosing the repair |
 | `Undefined control sequence \textbff` | `Missing }`, `Paragraph ended before` | Line: `\textbff` → `\textbf` |
 | Missing `}` in preamble | `Emergency stop` + all content fails | Add the `}` |
-| Wrong engine (fontspec + pdflatex) | 20+ `Font not found` errors | Switch to `xelatex` |
-| Stale `.aux` | `Reference undefined` × many | Delete `.aux`, recompile twice |
+| Wrong engine (fontspec + pdflatex) | Font/package failures | Restore the configured XeLaTeX/LuaLaTeX engine; verify required fonts |
+| Stale `.aux` | Possibly repeated undefined references | Compare fresh output; also check missing targets and failed backend passes |
 | `\hline` outside tabular | `Misplaced \noalign` + `Extra alignment tab` | Move `\hline` inside table env |
 
-**Rule**: If 10+ errors appear, fix ONLY the first one, then recompile. The rest usually vanish.
+**Rule**: Start with the first causal error, rebuild after a meaningful repair,
+and reassess diagnostics. Missing citation/label targets remain author decisions.
 
 ## Package → Command Mapping
 

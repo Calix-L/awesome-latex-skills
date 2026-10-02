@@ -1,133 +1,74 @@
 # Package Conflicts
 
-## Known Conflicts
+Determine the loaded class, packages, options, and versions from the source and
+log. Classes can load packages implicitly. Preserve the official template's
+choices; a newer package or broader feature set is not a reason to replace them.
 
-| Package A | Package B | Conflict | Resolution |
-|-----------|-----------|----------|------------|
-| `hyperref` | `glossaries` | Load order matters | Load `hyperref` last (or use `\usepackage[implicit]{glossaries}` before hyperref) |
-| `hyperref` | `algorithm2e` | Hyperref patches conflict with algo refs | Load `hyperref` last |
-| `subfigure` | `subcaption` | Both define sub-figure commands | Use ONLY `subcaption` (modern replacement) |
-| `cite` | `natbib` | Both modify `\cite` | Use `natbib` (more features); remove `cite` |
-| `algorithmic` | `algorithm2e` | Both define algorithm environments | Choose one; prefer `algorithm2e` |
-| `amsmath` | `mathtools` | `mathtools` superset of `amsmath` | Use `mathtools` (auto-loads `amsmath`); remove explicit `amsmath` |
-| `fancyhdr` | `titlesec` | Heading style conflicts | Accept minor incompatibilities or use `scrlayer-scrpage` |
-| `listings` | `minted` | Both for code listing | Choose one; `minted` for syntax coloring, `listings` for simpler |
-| `pdfx` | Various | PDF/A compliance changes everything | Accept limitations or drop PDF/A requirement |
-| `xcolor` | `color` | Both define color commands | Use `xcolor` only (it supersedes `color`) |
-| `ulem` | `soul` | Both for underlining/striking | Choose one based on whether you need UTF-8 support |
-| `natbib` | `biblatex` | Both modify citation system | Cannot coexist; choose one (`biblatex` is modern, `natbib` is traditional) |
-| `todonotes` | `xcolor` | Option clash on color model | Load `xcolor` before `todonotes`, or pass options via `\PassOptionsToPackage` |
-| `cleveref` | `varioref` | Both augment `\ref` | Compatible; load `varioref` first, `cleveref` after |
+## Common Interactions
 
-## No-Conflict Pairs (commonly confused)
+| Packages | What to check | Contextual resolution |
+|---|---|---|
+| `hyperref`, `glossaries` | Hyperlinked glossary support | Load `hyperref` before `glossaries` when using it; follow the glossary manual and class instructions |
+| `hyperref`, `cleveref` | Reference patches | Load `cleveref` after `hyperref`, subject to documented class/package requirements |
+| `varioref`, `cleveref` | Enhanced references | They can coexist; `varioref` precedes `cleveref` |
+| `subfigure`, `subfig`, `subcaption` | Incompatible interfaces and caption rules | Retain the interface required by the class; migrate source calls only if authorized and verify captions/references |
+| `cite`, `natbib` | Competing citation interfaces | Retain the citation system prescribed by the template; do not choose by feature count |
+| `natbib`, `biblatex` | Different bibliography systems | Choose the configured/required system; align source commands and backend while preserving records and citation meaning |
+| `algorithm`, `algorithm2e` | Both can define an algorithm float | Choose a compatible float interface and preserve content/numbering |
+| `algorithmic`, `algorithmicx`, `algpseudocode` | Algorithm body syntax and definitions | Check the actual syntax; sharing a purpose does not prove a conflict with an outer float |
+| `amsmath`, `mathtools` | Options and loading | `mathtools` extends and loads `amsmath`; loading both is not inherently a conflict |
+| `xcolor`, `color` | Already loaded support/options | Inspect first loading and options before changing anything; avoid incompatible reloads |
+| `todonotes`, `xcolor` | Color option clashes | Pass supported required options before the first load; retain the template's color model |
+| `listings`, `minted` | Code environments and external tooling | Presence alone is not an error; resolve the actual diagnostic and keep source code literal |
+| `fancyhdr`, `titlesec` | Class-specific page styles | Reproduce the conflict and inspect class guidance before substituting layout packages |
+| `pdfx` and metadata/hyperlink packages | Required archival format | Keep required PDF/A/PDF/X constraints; follow documented setup and verify output separately |
+| `microtype`, `fontspec` | Engine-dependent typography | They can coexist; supported microtype features differ by engine |
+| `csquotes`, `babel` | Language-aware quotations | They are normally complementary; inspect options and language support |
 
-These pairs are sometimes assumed to conflict but actually work together:
+## Diagnose an Option Clash
 
-| Package A | Package B | Note |
-|-----------|-----------|------|
-| `microtype` | `fontspec` | No conflict; both work with modern engines (XeLaTeX/LuaLaTeX) |
-| `csquotes` | `babel` | No conflict; `csquotes` complements `babel` |
-
-## General Rules
-
-1. **Load `hyperref` late** — it patches many commands and must come after packages that define cross-references. Exceptions: `cleveref` must come AFTER `hyperref`, and `glossaries` with `[implicit]` option may come before. So the typical late order is `...glossaries[implicit]...hyperref...cleveref`.
-2. **Load font/encoding packages in order**: `inputenc` → `fontenc` → `lmodern` (or other font package). This is standard recommended practice, not a conflict.
-3. **One of each function**: don't load multiple packages that do the same thing (e.g. two float-handling packages).
-4. **Check the .log for warnings**: packages print warnings about conflicts. Grep for `Package.*Warning` in the log.
-5. **Use `\PassOptionsToPackage`** to resolve option clashes without changing package load order.
-
-## Canonical Preamble Load Order
-
-Follow this order to prevent 80%+ of package conflicts:
+Find the first loading point, including class files, before changing load order.
+For a supported option required by this project, pass it before that first load:
 
 ```latex
-% 1. Document class
-\documentclass[...]{...}
-
-% 2. Global options (before any package)
-\PassOptionsToPackage{option}{package}  % if needed
-
-% 3. Encoding and fonts (pdflatex only; skip for XeLaTeX/LuaLaTeX)
-\usepackage[utf8]{inputenc}
-\usepackage[T1]{fontenc}
-
-% 4. Language
-\usepackage[english]{babel}
-
-% 5. Math
-\usepackage{mathtools}  % auto-loads amsmath
-
-% 6. Tables and figures
-\usepackage{booktabs}
-\usepackage{graphicx}
-\usepackage{subcaption}  % not subfigure
-
-% 7. Algorithms
-\usepackage{algorithm2e}  % or algorithmic — not both
-
-% 8. Other domain packages
-\usepackage{siunitx}
-\usepackage{listings}  % or minted — not both
-
-% 9. Typography and layout
-\usepackage{microtype}
-\usepackage{xcolor}  % not color
-
-% 10. Cross-referencing (hyperref BEFORE cleveref)
-\usepackage{hyperref}
-\usepackage{cleveref}
-
-% 11. Bibliography (choose ONE system)
-% Option A: natbib + bibtex
-\usepackage{natbib}
-% Option B: biblatex + biber
-% \usepackage[backend=biber,style=numeric]{biblatex}
+% Example only: use the option actually required by the project.
+\PassOptionsToPackage{dvipsnames}{xcolor}
+\documentclass{article}
+\usepackage{xcolor}
 ```
 
-## Conflict Detection Workflow
+`\PassOptionsToPackage` does not make incompatible options or engines compatible.
+Do not edit an official class/style file to suppress the clash. Explain when the
+class's requirements cannot be satisfied with the proposed feature.
 
-When encountering a `Command already defined` or `Option clash` error:
+## Diagnose a Duplicate Definition
 
-1. **Find both sources**: grep the .log for which package defined the command first
-2. **Check this catalog** for known conflicts and resolutions
-3. **Determine which one to keep**:
-   - If one is deprecated → remove it
-   - If one is a superset of the other → keep superset
-   - If they serve different purposes → reorder (usually load more specific one later)
-4. **Test**: after resolution, compile twice and check for new issues
+Find both definitions and the source calls that depend on them. Test a candidate
+change in a temporary copy. Do not blindly undefine a command, rename an environment,
+or remove a package: the result may compile while changing caption numbers,
+citation punctuation, cross-references, or algorithm semantics.
 
-## Common Issue: Font Encoding Loop
+After a minimal correction, run the project's required engine/backend workflow
+and inspect the affected features in the PDF. Keep unrelated package choices.
 
-```
-! LaTeX Error: Command \texttildelow unavailable in encoding OT1.
-```
+## Font and Bibliography Setup
 
-**Cause**: Loading `fontenc` without specifying T1 encoding.
+Modern pdfLaTeX accepts UTF-8 source by default. `fontenc` selects output font
+encoding; it is not a general cure for source decoding or missing glyphs.
+XeLaTeX/LuaLaTeX with `fontspec` use Unicode fonts. Use the engine and fonts required
+by the project rather than copying a universal preamble.
 
-**Fix**: Change to `\usepackage[T1]{fontenc}` or accept OT1 limitations.
+For `biblatex`, inspect the configured `backend=` option rather than assuming
+Biber. When changing citation systems as part of an authorized template migration,
+align commands, style, resources, and build steps together. Successful compilation
+alone does not establish equivalent citations or venue compliance.
 
-## Common Issue: natbib vs cite
+## Official References
 
-```
-! LaTeX Error: Command \cite already defined.
-```
+- [Glossaries manual](https://tug.ctan.org/macros/latex/contrib/glossaries/glossaries-user.html): hyperlink setup and package loading.
+- [Mathtools](https://ctan.org/pkg/mathtools): extensions to `amsmath`.
+- [LaTeX UTF-8 default](https://www.latex-project.org/news/2018/04/10/issue28-of-latex2e-news-released/): input encoding versus font setup.
+- [BibLaTeX](https://ctan.org/pkg/biblatex): bibliography system and backend options.
 
-**Cause**: Both `cite` and `natbib` loaded.
-
-**Fix**: Remove `\usepackage{cite}`. `natbib` provides numeric citations via `\setcitestyle{numbers}`.
-
-## Common Issue: biblatex vs natbib
-
-```
-! LaTeX Error: Command \cite already defined.
-```
-
-**Cause**: Both `biblatex` and `natbib` loaded — these are incompatible.
-
-**Fix**: Choose one. `biblatex` is the modern system (uses `biber` backend); `natbib` is traditional (uses `bibtex`). Remove the other completely, including the corresponding backend call.
-
-## Common Issue: pdfx with other packages
-
-**Cause**: `pdfx` enforces PDF/A compliance and is very strict about metadata.
-
-**Fix**: Follow `pdfx` requirements strictly, or if PDF/A is not required, remove `pdfx` and use `hyperref` directly.
+Use the manual matching the installed package version, obtainable through `texdoc`
+when available. There is no preamble order that guarantees conflict-free output.
