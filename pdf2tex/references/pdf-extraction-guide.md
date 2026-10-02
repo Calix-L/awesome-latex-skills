@@ -11,7 +11,7 @@ It does not perform OCR, infer the original source, or reconstruct LaTeX.
 |---|---|
 | `report.html` | Offline page/text comparison, selected-page navigation, coverage, warnings, and expandable source metadata. Open directly in a browser; keep the entire directory together. |
 | `text.txt` | Text with original selected-page numbers; no semantic cleanup. |
-| `layout.json` | Source SHA-256, tool version, metadata, bookmarks, page dimensions/rotation, raw text blocks/spans/font data, image placements, and warnings. |
+| `layout.json` | Source SHA-256, tool version, metadata, bookmarks, page geometry/rotation, raw text blocks/spans/font data, optional character positions, image placements, and warnings. |
 | `images/` (optional) | Unique embedded raster images and separately recorded soft masks. |
 | `pages/` (optional) | Selected whole-page RGB PNG previews, with original page numbers, rotation/crop handling, annotations, and dimensions/DPI recorded in JSON. |
 
@@ -79,6 +79,43 @@ Neither font format nor the PDF creator string proves the TeX engine, document
 class, or package list. Record those choices as inferred when reconstructing.
 
 API details: [PyMuPDF Page reference](https://pymupdf.readthedocs.io/en/latest/page.html).
+
+## Character detail and page coordinates
+
+For formulas, small superscripts or table notes, add `--chars`:
+
+```sh
+python pdf2tex/scripts/extract_pdf.py paper.pdf --output detailed-evidence --pages 1 --chars --render
+```
+
+The schema-2 report adds `text_detail`: `spans` by default or `characters`
+with this option. Character mode uses `rawdict` and adds each span's `chars`
+entries (`c`, `origin`, `bbox`). It also reconstructs the existing `span.text`
+field, so consumers can continue reading span text. Plain text and HTML content
+are unchanged; JSON grows with the number of characters. No glyph recognition
+or mathematical parsing is performed.
+
+Every page records `geometry` with `mediabox`, `cropbox`, displayed `rect`,
+`rotation_matrix` and `derotation_matrix`. Text positions are in unrotated
+PyMuPDF coordinates, whose y axis points down. To relate a character to a
+rotated preview, apply the recorded rotation matrix, then scale by DPI/72:
+
+```python
+# record is one entry from layout.json's pages array; char is a chars entry.
+rotation = pymupdf.Matrix(*record["geometry"]["rotation_matrix"])
+point = pymupdf.Point(*char["origin"]) * rotation
+scale = record["preview"]["dpi"] / 72
+pixel_origin = (point.x * scale, point.y * scale)
+```
+
+This example requires a requested preview. Do not subtract the crop-box offset
+again from extracted text coordinates. Use bounding boxes for glyph regions
+and the line's `dir` for nonhorizontal text; an origin is a baseline point,
+not the top-left ink pixel. Compare with the original rather than inferring a
+formula solely from coordinates.
+
+See [PyMuPDF RAWDICT](https://pymupdf.readthedocs.io/en/latest/textpage.html)
+and [page geometry](https://pymupdf.readthedocs.io/en/latest/page.html).
 
 ## Reading order and columns
 

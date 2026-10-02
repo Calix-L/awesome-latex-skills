@@ -29,6 +29,16 @@ To run one area: `python -m unittest discover -s tests -p test_install.py -v`.
 - **PDF extraction:** generate real PDFs with Unicode, columns, raster/vector graphics, annotations, rotation, transparency masks, blank pages, and encryption; test page coverage, metadata, deduplication, whole-page preview pixels, DPI/size limits, existing outputs, failed rendering/publication, and execution from an installed bundle. Offline HTML checks cover coverage, real evidence links, escaped hostile text/metadata, changed-input refusal, and report failure without partial publication. No OCR service is used.
 - **Prerequisites:** distinguish required local dependencies from advisory tools
   and manual checks; verify machine-readable reports and missing-tool exit codes.
+  Reports identify the running Python, supported PyMuPDF versions, missing modules,
+  native/import failures and shadowing module paths; broken required dependencies
+  block PDF extraction without blocking reading of supplied text.
+- **Reconstruction evidence:** character extraction preserves span/plain text and
+  Unicode, including geometry that maps a cropped/rotated page's glyphs to its
+  preview pixels. Execute the documented table detector against a real ruled PDF
+  and verify trailing zeros, empty-column positions and copied evidence after close.
+  Real compilation also checks equivalent versus nested scripts, merged headers,
+  literal hyphens/ampersands, blank-cell placement, retained equation tags and
+  visible discrepancy/citation notes in the reconstructed PDF.
 - **Compilation:** generate figure assets in an isolated temporary directory;
   require the broken fixture to fail; build the corrected fixture twice and check
   exit codes, PDF output, TeX errors, and resolved/unresolved references. Run the
@@ -66,6 +76,7 @@ AI agent's editing quality or prove compliance with a venue's current rules.
 | `fixtures/fmt/pre_neurips.tex` / `post_neurips.tex` | Historical conversion example; official templates and bibliography not bundled |
 | `fixtures/read/sample_paper.md` | Manual reading evaluation |
 | `fixtures/pdf2tex/sample_extraction.md` | Manual reconstruction evaluation |
+| `fixtures/pdf2tex/reconstruction_edges.tex` | Compiled/extracted notation and table evidence, with visible unresolved content |
 
 The last four areas need an agent evaluation and artifact review; fixture
 presence alone is not an end-to-end test. Formatting examples must use the exact

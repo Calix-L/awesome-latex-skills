@@ -42,6 +42,11 @@ a page crop or another export workflow. Use optional `--render` previews to
 inspect selected pages, including vector/composite figures; these are visual
 evidence, not OCR or segmented assets. `--dpi` accepts 72–300 with a per-page pixel limit.
 
+Use optional `--chars` when inspecting scripts or small notation. It adds
+character origins/bounding boxes while retaining span text. Page geometry and
+rotation matrices help relate unrotated text coordinates to rendered previews;
+positions are evidence for candidate readings, not an automatic math parser.
+
 A page without text may be blank, graphical, or scanned. Check it visually before
 choosing OCR. OCR requires separate tools and cannot establish the correctness
 of equations or tables. Retain page provenance and flag OCR-derived uncertainty.

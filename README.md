@@ -216,7 +216,7 @@ python scripts/doctor.py --skill latex-rescue --engine pdflatex
 # Match the actual project's engine and bibliography backend
 python scripts/doctor.py --skill latex-fmt --engine xelatex --backend biber
 
-# Machine-readable output; exit 1 means a required local tool is missing
+# Machine-readable output; exit 1 means required prerequisites are not met
 python scripts/doctor.py --skill pdf2tex --json
 ```
 
@@ -228,8 +228,10 @@ python scripts/doctor.py --skill pdf2tex --json
 | Recover a scanned PDF | A separate OCR workflow | Standard text extraction is insufficient |
 | Apply venue rules | Official kit and author instructions | Mark unresolved rules unverified |
 
-The doctor checks local dependencies. It does not install software, compile a
-document, or certify submission readiness.
+The doctor reports the running Python, the imported PyMuPDF version and module
+path, and a suggested next step. It distinguishes a missing package, unsupported
+version, broken import and a shadowing module. It does not install software,
+compile a document, or certify submission readiness.
 
 <details>
 <summary><strong>Verify a fresh LaTeX build and retain the evidence</strong></summary>
@@ -276,6 +278,10 @@ with `--render`. Preview resolution is 144 DPI by default (`--dpi 72-300`), with
 a 20-million-pixel limit per page. Open `extraction/report.html` for an offline
 page/text comparison with navigation, coverage, warnings, and source metadata.
 The report supports narrow screens and dark mode; keep its output directory together.
+Add `--chars` to retain individual glyph origins/bounding boxes for inspecting
+scripts and small notation. Span text remains available; page geometry and
+rotation matrices connect text coordinates with previews. See the
+[extraction guide](./pdf2tex/references/pdf-extraction-guide.md#character-detail-and-page-coordinates).
 Changed input fingerprints stop publication. Blank
 text layers, repeated image placements, and separate soft masks are recorded.
 

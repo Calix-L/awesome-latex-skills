@@ -1,0 +1,46 @@
+% Synthetic examples, not recovered source or scientific results.
+\documentclass{article}
+\usepackage{amsmath,amssymb,booktabs}
+\pagestyle{empty}
+\begin{document}
+\section*{Reconstruction evidence examples}
+These examples retain supplied notation and cell contents. Class, engine and
+package choices are illustrative.
+
+\noindent Order A: \(a_i^2\)\par
+\noindent Order B: \(a^2_i\)\par
+\noindent Nested: \(a_{i^2}\)\par
+The first two forms have the same scripts; the nested form groups the exponent
+inside the subscript. A relation \(u\parallel v\) and a norm \(\lVert x\rVert\)
+use different command roles.
+
+\begin{equation}
+  \mathcal{L}=\mathcal{L}_{CE}(f(x),y)
+    +\lambda\mathcal{L}_{KD}(f(x),g(x)),\qquad \lambda=0.5
+  \tag{7}\label{eq:recovered-example}
+\end{equation}
+The visible equation number is retained as (\ref{eq:recovered-example}); the
+label is a new reconstruction choice.
+
+\begin{center}
+\begin{tabular}{lrrl}
+\toprule
+Method & \multicolumn{2}{c}{Score (\%)} & Note \\
+\cmidrule(lr){2-3}
+ & Mean & Spread & \\
+\midrule
+A\&B & 76.10 & 0.30 & Measured \\
+Variant & -{}- & & Not measured\textsuperscript{a} \\
+\bottomrule
+\end{tabular}
+\end{center}
+\noindent\textsuperscript{a}Spread is blank in the source; no value was supplied.
+
+% [UNCERTAIN: supplied abstract and results table disagree; preserve both.]
+\noindent Unresolved discrepancy: the supplied abstract reports 92.3\% top-1
+accuracy, whereas the supplied results table reports 78.2\% for Ours.
+Neither value has been corrected.
+
+% [UNCERTAIN: no bibliography entry for the visible marker was supplied.]
+\noindent Original citation marker [42]. Its bibliography entry was not recovered.
+\end{document}

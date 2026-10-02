@@ -11,15 +11,42 @@ import sys
 from install import SKILLS
 
 
-def pdf_available():
+def pdf_probe():
+    check = {"name": "pymupdf", "status": "missing", "reason": None,
+             "version": None, "module_path": None, "detail": "", "next_action": None}
+    install_hint = 'Use the reported Python executable with: -m pip install "PyMuPDF>=1.24.10,<2"'
     try:
         module = importlib.import_module("pymupdf")
+    except ModuleNotFoundError as exc:
+        if exc.name == "pymupdf":
+            check.update(reason="missing_module", detail="PyMuPDF is not installed in this Python", next_action=install_hint)
+        else:
+            check.update(status="broken", reason="import_failed", detail=f"PyMuPDF import failed: {exc}",
+                         next_action="Inspect the missing dependency in this Python environment before reinstalling")
+    except (ImportError, OSError) as exc:
+        check.update(status="broken", reason="import_failed", detail=f"PyMuPDF import failed: {exc}",
+                     next_action="Inspect the import/DLL error and the reported Python environment")
+    else:
+        check["module_path"] = str(module.__file__) if getattr(module, "__file__", None) else None
         if not all(hasattr(module, attr) for attr in ("open", "Document", "VersionBind")):
-            return False
-        version = re.match(r"^(\d+)\.(\d+)\.(\d+)", str(module.VersionBind))
-        return bool(version and (1, 24, 10) <= tuple(map(int, version.groups())) < (2, 0, 0))
-    except (ImportError, OSError):
-        return False
+            check.update(status="broken", reason="wrong_module", detail="Imported pymupdf does not expose the expected PyMuPDF API",
+                         next_action="Check the module path for a shadowing local file or unrelated package")
+        else:
+            check["version"] = str(module.VersionBind)
+            version = re.match(r"^(\d+)\.(\d+)\.(\d+)", check["version"])
+            if not version:
+                check.update(status="unsupported", reason="unknown_version", detail=f"Cannot verify PyMuPDF version {check['version']!r}",
+                             next_action=install_hint)
+            elif not (1, 24, 10) <= tuple(map(int, version.groups())) < (2, 0, 0):
+                check.update(status="unsupported", reason="unsupported_version", detail=f"PyMuPDF {check['version']} is outside the helper's supported range >=1.24.10,<2",
+                             next_action=install_hint)
+            else:
+                check.update(status="available", detail=f"PyMuPDF {check['version']} imports successfully")
+    return check
+
+
+def pdf_available():
+    return pdf_probe()["status"] == "available"
 
 
 def diagnose(skills, engine="pdflatex", backend=None):
@@ -53,11 +80,9 @@ def diagnose(skills, engine="pdflatex", backend=None):
             "detail": path or "Not found on PATH; requested bibliography build cannot run",
         })
     if set(selected) & {"pdf2tex", "paper-read"}:
-        present = pdf_available()
-        checks.append({
-            "name": "pymupdf", "status": "available" if present else "missing", "required": "pdf2tex" in selected,
-            "detail": "Supported PyMuPDF imports successfully" if present else 'For the bundled PDF helper: python -m pip install "PyMuPDF>=1.24.10,<2"',
-        })
+        check = pdf_probe()
+        check["required"] = "pdf2tex" in selected
+        checks.append(check)
     if "latex-fmt" in selected:
         checks.append({
             "name": "official-template", "status": "manual", "required": False,
@@ -69,8 +94,9 @@ def diagnose(skills, engine="pdflatex", backend=None):
             "detail": "Scanned PDFs need a separate OCR workflow; extraction does not recover exact source",
         })
     return {
-        "skills": list(selected), "engine": engine, "backend": backend,
-        "local_prerequisites_met": not any(c["required"] and c["status"] == "missing" for c in checks),
+        "schema": 1, "skills": list(selected), "engine": engine, "backend": backend,
+        "python": {"executable": sys.executable, "version": sys.version.split()[0]},
+        "local_prerequisites_met": not any(c["required"] and c["status"] != "available" for c in checks),
         "checks": checks,
     }
 
@@ -86,10 +112,15 @@ def main(argv=None):
     if args.json:
         print(json.dumps(report, ensure_ascii=True, indent=2))
     else:
-        print("Local prerequisites: " + ("met" if report["local_prerequisites_met"] else "missing"))
+        print("Local prerequisites: " + ("met" if report["local_prerequisites_met"] else "not met"))
+        print(f"Python {report['python']['version']}: {report['python']['executable']}")
         for check in report["checks"]:
             requirement = "required" if check["required"] else "advisory"
             print(f"[{check['status']}] {check['name']} ({requirement}): {check['detail']}")
+            if check.get("module_path"):
+                print(f"  Module: {check['module_path']}")
+            if check.get("next_action"):
+                print(f"  Next: {check['next_action']}")
         print("No documents were compiled or edited, and no packages were installed.")
     return 0 if report["local_prerequisites_met"] else 1
 

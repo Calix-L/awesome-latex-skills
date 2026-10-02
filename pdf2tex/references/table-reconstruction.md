@@ -1,190 +1,116 @@
 # Table Reconstruction
 
-Strategies for extracting table structure from PDF and generating tabular environments.
+Recover the cell grid and its contents before choosing a table style. Preserve
+numbers, precision, units, empty cells, merged headers and footnotes. A table
+that compiles can still place a value under the wrong heading.
 
-## Approach Overview
+## Establish the grid from the page
 
-1. Detect table region (ruled area or text grid)
-2. Extract cell boundaries (horizontal/vertical positions)
-3. Extract cell text content
-4. Determine column alignment
-5. Generate `\begin{tabular}` with appropriate spec
-6. Apply booktabs rules where detected
+Record the source page, table number/caption, region, logical rows and columns,
+and each merged region. Compare text coordinates with ruling lines and the
+rendered original. Grouping blocks solely by equal `x0` or `y0` is insufficient:
+numbers may be right aligned, cells can wrap, and headers can span columns.
 
-## Step 1: Detect Table Region
+Use the bundled extractor's `--render` for page evidence. `--chars` can help
+inspect small superscripts and footnote markers; neither option segments tables.
+Span `color` describes text ink, not the cell's background. Inspect the preview
+or drawing objects for shading and rules.
 
-### Using pdfplumber (for tables with visible rules)
-
-```python
-import pdfplumber
-
-with pdfplumber.open("paper.pdf") as pdf:
-    page = pdf.pages[page_num]
-
-    # Method 1: Extract bordered tables automatically
-    tables = page.extract_tables()
-    # Returns list of tables; each table is list of rows; each row is list of cell strings
-
-    # Method 2: Manual detection using edges
-    edges = page.edges
-    lines = page.lines
-    # Cluster lines into table regions
-    # Horizontal line spans → table width
-    # Vertical line spans → column boundaries
-```
-
-### Using pymupdf (for borderless tables)
+`Page.find_tables()` can suggest candidates. A line-based strategy helps ruled
+tables; a text-based strategy can help borderless tables but may detect ordinary
+paragraphs as cells. Review the header, grid and values for every candidate.
+The helper does not run this detector automatically.
 
 ```python
-import fitz
+import pymupdf
 
-doc = fitz.open("paper.pdf")
-page = doc[page_num]
-blocks = page.get_text("dict")["blocks"]
-
-# Find text blocks that are:
-# 1. Vertically aligned (share similar x-ranges across rows)
-# 2. Closely spaced vertically (small y-gaps)
-# 3. Contain short text (table cells are brief)
-# 4. Often preceded by "Table <N>:" caption
+with pymupdf.open("paper.pdf") as doc:
+    page = doc[0]
+    finder = page.find_tables(strategy="lines")
+    candidates = []
+    for table in finder.tables:
+        candidates.append({
+            "page": 1,
+            "bbox": list(table.bbox),
+            "rows": [list(row) for row in table.extract()],
+            "cells": [list(cell) if cell is not None else None for cell in table.cells],
+            "header": {"names": list(table.header.names),
+                       "external": table.header.external,
+                       "bbox": list(table.header.bbox)},
+        })
+# Only copied values remain usable here; page-bound detector objects do not.
 ```
 
-## Step 2: Extract Cell Boundaries
+Copy evidence while the page is alive. Detector objects become invalid when
+their page is deleted or reassigned. External headers may sit outside the
+detected body and need separate checking. Do not discard them as nearby prose.
+See the [PyMuPDF table API](https://pymupdf.readthedocs.io/en/latest/page.html#Page.find_tables).
 
-### Column detection
-```
-1. Collect x0 of text blocks in the table region
-2. Cluster x0 values (group spans that start at the same x position)
-3. Sort clusters left-to-right → column boundaries
-4. Check x1 values to confirm column widths
-```
+## Preserve cell meaning
 
-### Row detection
-```
-1. Collect y0 (top) of text blocks
-2. Cluster by similar y0 values
-3. Sort top-to-bottom → row boundaries
-4. Use line.y values for ruled tables
-```
-
-## Step 3: Extract Cell Content
-
-For each cell (column_i, row_j):
-```
-cell_text = ""
-For text blocks where (x0 ≈ col_i_boundary) AND (y0 ≈ row_j_boundary):
-    cell_text += block.text
-```
-
-## Step 4: Determine Column Alignment
-
-| Content pattern | Alignment |
+| Observation | Reconstruction rule |
 |---|---|
-| Numbers, decimal points | `r` (right) |
-| Short text, names | `l` (left) |
-| Centered values ("±", "N/A") | `c` (center) |
-| Long descriptive text | `p{<width>cm}` (paragraph) |
+| `76.10` versus `76.1` | Preserve the displayed precision, including trailing zeros |
+| Empty cell | Keep its column position; do not shift the following value left |
+| Extracted `None` or missing cell box | Check for a merged region, truly empty cell, or detection failure; the value alone does not decide |
+| `--`, `N/A`, `0`, inequality, or error bar | Preserve the exact visible content; these are not interchangeable |
+| `Score (%)` or a unit in a grouped header | Retain which columns it applies to; do not silently convert units |
+| Superscript letter or symbol | Map to the actual table note, not a mathematical exponent by default |
+| Bold/highlighted entry | Confirm whether it denotes a best result, a group label, or another convention |
+| Contradiction with prose or another table | Preserve both readings and flag the source locations; do not reconcile by guessing |
 
-Automatic detection:
-```
-For each column:
-  numeric_cells = count of cells matching ^[\d.-]+$
-  if numeric_cells / total_cells > 0.5:
-    alignment = 'r'
-  else:
-    alignment = 'l'
-```
+Keep a cell ledger with page/table, row, column, covered rows/columns, observed
+text and bounding evidence. For unreadable content, show a visible uncertainty
+marker in that cell and explain it in the notes. Retain a genuinely blank cell
+as blank rather than filling every gap with a placeholder.
 
-## Step 5: Detect Table Rules
+## Generate a candidate table
 
-Using pdfplumber lines/rects:
-- Topmost horizontal line → `\toprule`
-- Line between header and body → `\midrule`
-- Bottommost horizontal line → `\bottomrule`
-- Other internal horizontal lines → `\hline` or `\cmidrule{<i>-<j>}`
-- Vertical lines → include `|` in column spec (though booktabs discourages them)
+Use `\multicolumn` for a spanning header and `\multirow` only when needed, with
+its package available. Account for continuation cells in later rows. Validate
+the logical column occupancy rather than counting literal ampersands:
+`\multicolumn{2}{...}{...}` consumes two columns, `\&` is literal prose, and
+an embedded aligned math environment can contain its own alignment separators.
 
-For borderless tables with booktabs style:
-- No vertical lines detected → use `l r r r` format
-- Only 3 horizontal lines → `\toprule`, `\midrule`, `\bottomrule`
-- Partial rules → `\cmidrule{2-4}`, etc.
-
-## Step 6: Generate Tabular Environment
-
-### Basic format:
-```latex
-\begin{table}[t]
-  \centering
-  \caption{<extracted caption>}
-  \label{tab:reconstructed_<N>}
-  \begin{tabular}{<col_spec>}
-    \toprule
-    <header row> \\
-    \midrule
-    <data rows> \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-```
-
-### Column specification:
-```
-col_spec = ""
-for each column:
-  if vertical_line_left_detected:
-    col_spec += "|"
-  col_spec += alignment
-  if vertical_line_right_detected:
-    col_spec += "|"
-```
-
-## Step 7: Handle Special Cases
-
-### Multi-Row / Multi-Column Cells
-
-**Detection:** A cell spans wider than one column or taller than one row.
+This four-column example preserves a grouped header, a literal ampersand,
+trailing zeros, a dash and a deliberately blank cell. It requires `booktabs`.
 
 ```latex
-\multicolumn{<N>}{<align>}{<text>}
-% [REVIEW: Verify multi-column span width]
+\begin{tabular}{lrrl}
+\toprule
+Method & \multicolumn{2}{c}{Score (\%)} & Note \\
+\cmidrule(lr){2-3}
+ & Mean & Spread & \\
+\midrule
+A\&B & 76.10 & 0.30 & Measured \\
+Variant & -{}- & & Not measured\textsuperscript{a} \\
+\bottomrule
+\end{tabular}
+
+\smallskip
+\textsuperscript{a}Spread is blank in the source; no value was supplied.
 ```
 
-Flag for manual review — automatic multi-column detection is error-prone.
+Escape prose such as `%`, `&`, `_` and `#` before inserting it into cells, but
+do not indiscriminately escape already generated commands or math. Retain the
+original caption wording, row order and notes. Do not rewrite the scientific
+claim while reconstructing a table. The example uses `-{}-` for two literal
+hyphens; ordinary `--` becomes an en dash in conventional TeX text. Choose the
+form that matches the actual source marker.
 
-### Headers in tables
+Choose styling from the reconstruction target or supplied author kit. `booktabs`
+is an optional presentation choice, not evidence of the PDF's original package.
+Use `\linewidth` appropriate to the containing column/minipage; `table*` may be
+appropriate for a full-width table in a two-column class when that class permits
+it. Check legibility and float placement before shrinking an entire table.
 
-**Detection:**
-- Bold text in topmost row
-- Under different background (from span/block color data)
-- Under `\midrule`
+## Verify cell by cell
 
-### Table Notes / Footnotes
+Compile with the selected class/packages and compare the table with the source.
+Check the row and column association of every number, merged-header coverage,
+empty positions, units, signs, decimal precision, highlights and notes. Check
+multi-page continuations separately. Extracting text from the resulting PDF
+helps locate missing values, but cannot establish the grid or visual fidelity.
 
-**Detection:**
-- Small text below table body
-- Starts with asterisk, dagger, or superscript
-- Separate from main table rows
-
-→ Separate from `\end{tabular}`, place as `\par\small <note text>`
-
-### Rotated Headers
-
-**Detection:** Text spans with unusual width/height ratio in header row.
-
-→ Use `\rotatebox{90}{<text>}` or flag for manual review.
-
-### Wide Tables (two-column docs)
-
-**Detection:** Table width > column_width but < page_width.
-
-→ Use `\begin{table*}...\end{table*}` instead of `\begin{table}`.
-
-## Quality Checks
-
-After reconstruction:
-1. Column count consistent across all rows
-2. All `&` separators correct (N-1 amp signs for N columns)
-3. End-of-row `\\` present (except last row)
-4. Rules matched (no isolated `\midrule`)
-5. Special characters escaped (`%`, `&`, `#`, `_` in cell text)
-6. Caption text is grammatically complete
+Report the verified cells and any unresolved positions. Source uncertainty
+remains even when the table is syntactically valid and visually tidy.

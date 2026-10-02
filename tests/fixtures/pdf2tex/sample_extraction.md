@@ -1,6 +1,8 @@
 # Sample PDF Reconstruction Test
 
-This file simulates the extracted text blocks from a typical 2-page CS paper PDF, to be used for testing pdf2tex reconstruction logic.
+This synthetic fixture simulates extracted blocks from a two-page CS paper.
+Its claims and results are invented for manual reconstruction evaluation; they
+are not evidence about a real method. The abstract/table discrepancy is deliberate.
 
 ## Metadata (from PDF)
 
@@ -69,8 +71,22 @@ This file simulates the extracted text blocks from a typical 2-page CS paper PDF
 
 ## Expected Reconstruction Notes
 
-- Document class: article (standard, single-column, Computer Modern fonts → pdflatex)
-- Math: inline math with $, one display equation in equation environment
-- Table: booktabs style (3 columns: l r r r)
-- References: numeric citation style → \begin{thebibliography}
-- No images detected (no image blocks)
+- Candidate class/engine: `article` with pdfLaTeX can reproduce the supplied
+  content. Font and producer metadata do not recover the original source setup.
+- Preserve the loss terms and `lambda = 0.5`; do not infer extra definitions or
+  alter grouping. The display can use `equation` if a number is desired; no
+  original equation tag was supplied here.
+- Preserve all four table columns (`l r r r`) and their values. `booktabs` is an
+  optional candidate style, not a recovered original package.
+- Preserve both the abstract's 92.3% top-1 claim and the table's 78.2% value for
+  Ours. Flag their inconsistency with locations; do not silently reconcile them.
+- Keep the supplied reference strings and numeric markers. A reconstructed
+  `thebibliography` is a possible output choice; no original `.bib` database,
+  source keys or complete bibliographic metadata were supplied.
+- No image blocks were supplied. This does not rule out vector/composite figures
+  in a real PDF; unavailable visual evidence remains unverified.
+
+For an independently compilable edge-case example, see
+[reconstruction_edges.tex](reconstruction_edges.tex). It exercises grouping,
+merged headers, blank cells, precision and visible uncertainty; it is not an
+automatically recovered version of this paper.

@@ -223,3 +223,66 @@ class CompilationTests(unittest.TestCase):
                 self.assert_build_success(report)
                 self.assertTrue(report["auxiliary_stable"])
                 self.assertEqual(report["pdf"], "unicode.pdf")
+
+    def test_reconstruction_example_retains_scripts_cells_and_visible_uncertainty(self):
+        import pymupdf
+        from test_pdf_extract import extract_pdf
+
+        source = self.work / "reconstruction_edges.tex"
+        shutil.copyfile(FIXTURES / "pdf2tex/reconstruction_edges.tex", source)
+        before = source.read_bytes()
+        report = check_build.build(source, self.work / "reconstruction build",
+                                   until_stable=True, require_resolved=True)
+        self.assert_build_success(report)
+        self.assertEqual(source.read_bytes(), before)
+        pdf = Path(report["output"]) / report["pdf"]
+        evidence = extract_pdf.extract(pdf, self.work / "reconstruction evidence", characters=True)
+        with pymupdf.open(pdf) as doc:
+            self.assertEqual(doc.page_count, 1)
+            text = " ".join(doc[0].get_text().split())
+            words = doc[0].get_text("words")
+        for visible in ("76.10", "0.30", "92.3%", "78.2%", "[42]", "A&B",
+                        "Spread is blank", "entry was not recovered", "retained as (7)"):
+            self.assertIn(visible, text)
+
+        def word(value):
+            matches = [item for item in words if item[4] == value]
+            self.assertEqual(len(matches), 1, (value, matches))
+            return matches[0]
+
+        mean, spread, measured = word("76.10"), word("0.30"), word("Measured")
+        self.assertLess(mean[2], spread[0])
+        self.assertLess(spread[2], measured[0])
+        variant = word("Variant")
+        row = [item for item in words if abs(item[1] - variant[1]) < 1]
+        self.assertIn("--", [item[4] for item in row])
+        self.assertIn("Not", [item[4] for item in row])
+        self.assertAlmostEqual(next(item[0] for item in row if item[4] == "Not"), measured[0], places=3)
+        spread_header = word("Spread")
+        left, right = min(spread[0], spread_header[0]), max(spread[2], spread_header[2])
+        self.assertFalse(any(left < (item[0] + item[2]) / 2 < right for item in row), row)
+
+        lines = [line for page in evidence["pages"] for block in page["blocks"]
+                 for line in block.get("lines", [])]
+        all_chars = [char for line in lines for span in line["spans"] for char in span["chars"]]
+
+        def script_offsets(label):
+            line = next(item for item in lines if "".join(span["text"] for span in item["spans"]).startswith(label))
+            label_chars = [char for span in line["spans"] for char in span["chars"]]
+            colon = next(char for char in label_chars if char["c"] == ":")
+            x, baseline = colon["origin"]
+            glyphs = [char for char in all_chars if char["c"] in {"a", "i", "2"}
+                      and char["origin"][0] > x + 5 and baseline - 8 <= char["origin"][1] <= baseline + 4]
+            self.assertEqual(len(glyphs), 3, (label, glyphs))
+            origins = {char["c"]: char["origin"] for char in glyphs}
+            self.assertEqual(set(origins), {"a", "i", "2"})
+            base = origins["a"]
+            return {symbol: (point[0] - base[0], point[1] - base[1]) for symbol, point in origins.items()}
+
+        first, second, nested = [script_offsets(label) for label in ("Order A:", "Order B:", "Nested:")]
+        for symbol in first:
+            for a, b in zip(first[symbol], second[symbol]):
+                self.assertAlmostEqual(a, b, places=3)
+        self.assertGreater(first["i"][1], 0)
+        self.assertLess(first["2"][1], 0)
+        self.assertGreater(abs(first["2"][1] - nested["2"][1]), 1)

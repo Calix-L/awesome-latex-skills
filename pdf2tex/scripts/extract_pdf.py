@@ -68,13 +68,17 @@ def write_review(bundle, report, texts):
 def load_pymupdf():
     try:
         module = importlib.import_module("pymupdf")
+    except ModuleNotFoundError as exc:
+        if exc.name == "pymupdf":
+            raise RuntimeError('PyMuPDF is required in this Python: -m pip install "PyMuPDF>=1.24.10,<2"') from exc
+        raise RuntimeError(f"PyMuPDF import failed in {sys.executable}: {exc}; inspect this environment's dependencies") from exc
     except (ImportError, OSError) as exc:
-        raise RuntimeError('PyMuPDF is required: python -m pip install "PyMuPDF>=1.24.10,<2"') from exc
+        raise RuntimeError(f"PyMuPDF import failed in {sys.executable}: {exc}; inspect this environment's import/native-library error") from exc
     if not all(hasattr(module, name) for name in ("open", "Document", "VersionBind")):
-        raise RuntimeError("The imported pymupdf module is not PyMuPDF")
+        raise RuntimeError(f"The imported pymupdf module is not PyMuPDF: {getattr(module, '__file__', 'unknown location')}; check for module shadowing")
     version = re.match(r"^(\d+)\.(\d+)\.(\d+)", str(module.VersionBind))
     if not version or not (1, 24, 10) <= tuple(map(int, version.groups())) < (2, 0, 0):
-        raise RuntimeError('Supported PyMuPDF required: python -m pip install "PyMuPDF>=1.24.10,<2"')
+        raise RuntimeError(f"Supported PyMuPDF >=1.24.10,<2 required; imported version {module.VersionBind!r} in {sys.executable}")
     return module
 
 
@@ -104,7 +108,7 @@ def file_hash(path):
     return digest.hexdigest()
 
 
-def extract(pdf, output, pages=None, images=False, render=False, dpi=144):
+def extract(pdf, output, pages=None, images=False, render=False, dpi=144, characters=False):
     pdf = Path(pdf).expanduser().resolve()
     output = Path(output).expanduser().absolute()
     if not pdf.is_file():
@@ -126,6 +130,7 @@ def extract(pdf, output, pages=None, images=False, render=False, dpi=144):
             "schema_version": 2, "source": pdf.name, "source_sha256": source_sha256,
             "source_unchanged": True,
             "extractor": {"name": "PyMuPDF", "version": pymupdf.VersionBind},
+            "text_detail": "characters" if characters else "spans",
             "page_count": doc.page_count, "selected_pages": [i + 1 for i in indexes],
             "metadata": doc.metadata, "toc": doc.get_toc(), "pages": [], "images": [],
             "warnings": ["Sorted plain text is not guaranteed reading order, especially across columns. Use block coordinates and the original PDF.",
@@ -139,11 +144,20 @@ def extract(pdf, output, pages=None, images=False, render=False, dpi=144):
             for index in indexes:
                 page = doc[index]
                 flags = pymupdf.TEXTFLAGS_DICT & ~pymupdf.TEXT_PRESERVE_IMAGES
-                layout = page.get_text("dict", flags=flags, sort=False)
+                layout = page.get_text("rawdict" if characters else "dict", flags=flags, sort=False)
+                if characters:
+                    for block in layout["blocks"]:
+                        for line in block.get("lines", []):
+                            for span in line["spans"]:
+                                # Preserve the existing span-text contract alongside raw characters.
+                                span["text"] = "".join(char["c"] for char in span["chars"])
                 text = page.get_text("text", sort=True)
                 record = {"page": index + 1, "width": layout["width"], "height": layout["height"],
                           "rotation": page.rotation, "blocks": layout["blocks"],
                           "text_status": "available" if text.strip() else "no-text", "images": [], "preview": None}
+                record["geometry"] = {"mediabox": list(page.mediabox), "cropbox": list(page.cropbox),
+                                      "rect": list(page.rect), "rotation_matrix": list(page.rotation_matrix),
+                                      "derotation_matrix": list(page.derotation_matrix)}
                 if not text.strip():
                     report["warnings"].append(f"Page {index + 1} has no extractable text; it may be blank, graphic-only, or need OCR. Inspect the PDF.")
                 text_pages.append(text)
@@ -203,10 +217,11 @@ def main(argv=None):
     parser.add_argument("--pages", help="1-based page numbers/ranges, e.g. 1-3,5; default: all")
     parser.add_argument("--images", action="store_true", help="Export visible embedded raster images, including separate soft masks")
     parser.add_argument("--render", action="store_true", help="Save selected whole-page PNG previews for visual comparison; no OCR")
+    parser.add_argument("--chars", action="store_true", help="Include character origins/bounding boxes in layout.json for detailed math inspection; larger output, no OCR")
     parser.add_argument("--dpi", type=int, default=144, help="Preview resolution, 72–300 DPI (default 144); 20 million pixels maximum per page")
     args = parser.parse_args(argv)
     try:
-        report = extract(args.pdf, args.output, args.pages, args.images, args.render, args.dpi)
+        report = extract(args.pdf, args.output, args.pages, args.images, args.render, args.dpi, args.chars)
     except (OSError, ValueError, RuntimeError) as exc:
         print(f"Extraction failed: {exc}", file=sys.stderr)
         return 1

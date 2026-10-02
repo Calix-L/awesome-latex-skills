@@ -204,7 +204,7 @@ python scripts/doctor.py --skill latex-rescue --engine pdflatex
 # 使用项目实际的引擎和参考文献后端
 python scripts/doctor.py --skill latex-fmt --engine xelatex --backend biber
 
-# JSON 报告；返回码 1 表示缺少必需的本地工具
+# JSON 报告；返回码 1 表示必需的本地前提不满足
 python scripts/doctor.py --skill pdf2tex --json
 ```
 
@@ -216,7 +216,9 @@ python scripts/doctor.py --skill pdf2tex --json
 | 恢复扫描 PDF | 单独的 OCR 工作流 | 普通文本提取无法完成 |
 | 应用投稿规则 | 官方模板及作者指南 | 尚未确定的规则标记为未验证 |
 
-诊断命令只检查本地依赖，不安装软件、不编译文档，也不认证稿件已经满足投稿要求。
+诊断命令报告正在使用的 Python、PyMuPDF 版本、实际导入路径及建议处理步骤，
+区分未安装、版本不兼容、导入失败和同名模块遮蔽。它不安装软件、不编译文档，
+也不认证稿件已经满足投稿要求。
 
 <details>
 <summary><strong>执行一次新构建，并保留验证证据</strong></summary>
@@ -260,6 +262,9 @@ python pdf2tex/scripts/extract_pdf.py paper.pdf --output extraction --pages 1-3,
 每页最多 2000 万像素，便于核对公式、矢量图和完整图组。
 打开 `extraction/report.html` 即可离线并排核对页面与提取文本，查看页码导航、覆盖范围、
 警告和来源信息；报告适配窄屏与深色模式，分享时保留整个输出目录。
+检查上下标或细小符号时可加 `--chars`，保留逐字符原点和边界框，同时兼容已有的
+文本片段字段。页面几何信息及旋转矩阵可用于将文本坐标对应到预览，详见
+[字符与坐标说明](./pdf2tex/references/pdf-extraction-guide.md#character-detail-and-page-coordinates)。
 工具保留原始 PDF，输入指纹发生变化时停止发布；标记无文本页面，记录重复图片位置和独立透明蒙版。
 
 这一步不执行 OCR，也不自动生成 LaTeX。多栏顺序、公式、表格与完整图组仍需

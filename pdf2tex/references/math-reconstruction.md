@@ -1,214 +1,104 @@
 # Math Reconstruction
 
-Mapping extracted PDF math content back to LaTeX math expressions.
+Recover the visible notation and grouping before choosing LaTeX commands. A PDF
+glyph, font name, or position does not identify the original macro or prove the
+author's mathematical intent. Keep unresolved readings visible in the output.
 
-## Approach
+## Collect character evidence
 
-Math in PDFs can be extracted in two forms:
-1. **Character-level**: Individual glyph positions (from pymupdf spans)
-2. **Unicode text**: The rendered text (if PDF has ToUnicode mapping)
+Use the bundled extractor with `--chars --render` on a new output directory.
+The resulting `layout.json` retains each span's `text`, font and size and adds
+`chars`, whose entries contain `c`, `origin` and `bbox`. Default span extraction
+does not provide individual character positions. The helper performs no OCR.
 
-Use both. Character-level data is better for precise positioning (subscripts, fractions), while Unicode is better for symbol identification.
+Compare the character sequence with the original page. Missing glyphs, faulty
+Unicode maps, ligatures and OCR substitutions can produce plausible but wrong
+notation. Keep a record of the page, equation/tag, bounding region, candidate
+reading and unresolved alternatives.
 
-## Common Glyph → LaTeX Mappings
+Text coordinates use the unrotated PyMuPDF page space, with y increasing down
+the page. Page previews reflect the page's crop and rotation. The report includes
+`geometry` with boxes and rotation/derotation matrices; use the rotation matrix
+before comparing coordinates with a preview, then scale by DPI/72. Do not
+subtract the crop-box offset again from already extracted text coordinates.
+For nonhorizontal text, inspect the line's `dir`; axis-aligned boxes alone do
+not describe the glyph orientation.
 
-### Greek Letters
+API details: [TextPage DICT and RAWDICT](https://pymupdf.readthedocs.io/en/latest/textpage.html)
+and [page coordinates and rotation](https://pymupdf.readthedocs.io/en/latest/page.html).
 
-| Unicode | Glyph | LaTeX |
+## Choose commands from context
+
+These are candidates, not a reversible Unicode-to-source dictionary. Verify
+the result with the chosen math font and the surrounding equation.
+
+| Visible notation | Candidate LaTeX | Check |
 |---|---|---|
-| α (U+03B1) | alpha | `\alpha` |
-| β (U+03B2) | beta | `\beta` |
-| γ (U+03B3) | gamma | `\gamma` |
-| δ (U+03B4) | delta | `\delta` |
-| ε (U+03B5) | epsilon | `\epsilon` |
-| θ (U+03B8) | theta | `\theta` |
-| λ (U+03BB) | lambda | `\lambda` |
-| μ (U+03BC) | mu | `\mu` |
-| σ (U+03C3) | sigma | `\sigma` |
-| φ (U+03C6) | phi | `\phi` |
-| ω (U+03C9) | omega | `\omega` |
-| Γ (U+0393) | Gamma | `\Gamma` |
-| Δ (U+0394) | Delta | `\Delta` |
-| Σ (U+03A3) | Sigma | `\Sigma` |
-| ζ (U+03B6) | zeta | `\zeta` |
-| η (U+03B7) | eta | `\eta` |
-| ι (U+03B9) | iota | `\iota` |
-| κ (U+03BA) | kappa | `\kappa` |
-| ν (U+03BD) | nu | `\nu` |
-| ξ (U+03BE) | xi | `\xi` |
-| π (U+03C0) | pi | `\pi` |
-| ρ (U+03C1) | rho | `\rho` |
-| τ (U+03C4) | tau | `\tau` |
-| υ (U+03C5) | upsilon | `\upsilon` |
-| χ (U+03C7) | chi | `\chi` |
-| ψ (U+03C8) | psi | `\psi` |
-| Ψ (U+03A8) | Psi | `\Psi` |
-| Φ (U+03A6) | Phi | `\Phi` |
-| ϵ (U+03F5) | varepsilon | `\varepsilon` |
-| ϑ (U+03D1) | vartheta | `\vartheta` |
-| ϱ (U+03F1) | varrho | `\varrho` |
-| ς (U+03C2) | varsigma | `\varsigma` |
+| α, β, γ, Γ, Δ, Ω | `\alpha`, `\beta`, `\gamma`, `\Gamma`, `\Delta`, `\Omega` | Case and glyph identity |
+| ε / ϵ, φ / ϕ | `\epsilon` / `\varepsilon`, `\phi` / `\varphi` | Variant conventions depend on the math setup; match the rendered glyph rather than a fixed code-point rule |
+| ≤, ≥, ≠, ≈ | `\leq`, `\geq`, `\neq`, `\approx` | Relation identity; do not substitute approximate equality for equality |
+| ∈, ⊂, ⊆ | `\in`, `\subset`, `\subseteq` | Membership versus containment; strict versus non-strict |
+| ∥ between related objects | `\parallel` | A relation, with relation spacing |
+| Double bars enclosing a norm | `\lVert x\rVert` | Paired delimiters from `amsmath`; do not turn every double bar into a parallel relation |
+| ∅ | `\emptyset` or `\varnothing` | Glyph appearance; the latter needs `amssymb` in a conventional pdfLaTeX setup |
+| ℝ, ℤ, ℕ | `\mathbb{R}`, `\mathbb{Z}`, `\mathbb{N}` | `amsfonts`/`amssymb`, or an appropriate `unicode-math` setup |
+| ∑, ∏, ∫ | `\sum`, `\prod`, `\int` | Limits, operator scope and display style |
+| Named operators | `\sin`, `\log`, `\lim`, or `\operatorname{...}` | Upright operator versus an italic product of variables |
+| Arrow or accent above a symbol | `\vec{x}`, `\hat{x}`, `\bar{x}` | Which symbols the accent covers |
 
-### Operators and Symbols
+Declare the packages used by a conventional example, such as `amsmath` and
+`amssymb`. Do not copy these assumptions into a supplied official kit without
+checking its existing math setup. Unicode math is valid with suitable engines,
+fonts and packages; a non-ASCII character is not inherently a TeX error.
 
-| Unicode | LaTeX |
+## Recover grouping before typesetting
+
+Smaller glyphs above or below a baseline suggest scripts, but also occur in
+fractions, limits, accents and adjacent lines. Inspect character origins and
+the page together. Font size alone cannot determine the parent expression.
+
+| Source | Meaning or effect |
 |---|---|
-| × (U+00D7) | `\times` |
-| · (U+00B7) | `\cdot` |
-| ± (U+00B1) | `\pm` |
-| ∓ (U+2213) | `\mp` |
-| ÷ (U+00F7) | `\div` |
-| √ (U+221A) | `\sqrt{...}` |
-| ∞ (U+221E) | `\infty` |
-| ∂ (U+2202) | `\partial` |
-| ∇ (U+2207) | `\nabla` |
-| ∫ (U+222B) | `\int` |
-| ∬ (U+222C) | `\iint` |
-| ∭ (U+222D) | `\iiint` |
-| ∑ (U+2211) | `\sum` |
-| ∏ (U+220F) | `\prod` |
-| ∪ (U+222A) | `\cup` |
-| ∩ (U+2229) | `\cap` |
-| ∈ (U+2208) | `\in` |
-| ∉ (U+2209) | `\notin` |
-| ⊂ (U+2282) | `\subset` |
-| ⊆ (U+2286) | `\subseteq` |
-| ∀ (U+2200) | `\forall` |
-| ∃ (U+2203) | `\exists` |
-| ∅ (U+2205) | `\emptyset` |
-| ¬ (U+00AC) | `\neg` |
-| ∧ (U+2227) | `\land` |
-| ∨ (U+2228) | `\lor` |
-| → (U+2192) | `\rightarrow` |
-| ← (U+2190) | `\leftarrow` |
-| ↔ (U+2194) | `\leftrightarrow` |
-| ⇒ (U+21D2) | `\Rightarrow` |
-| ⇐ (U+21D0) | `\Leftarrow` |
-| ⇔ (U+21D4) | `\Leftrightarrow` |
-| ≥ (U+2265) | `\geq` |
-| ≤ (U+2264) | `\leq` |
-| ≠ (U+2260) | `\neq` |
-| ≈ (U+2248) | `\approx` |
-| ≡ (U+2261) | `\equiv` |
-| ∼ (U+223C) | `\sim` |
-| ∝ (U+221D) | `\propto` |
-| ⊥ (U+22A5) | `\perp` |
-| ∥ (U+2225) | `\|` (parallel) |
-| ⟨ (U+27E8) | `\langle` |
-| ⟩ (U+27E9) | `\rangle` |
-| ⊕ (U+2295) | `\oplus` |
-| ⊗ (U+2297) | `\otimes` |
-| ⊙ (U+2299) | `\odot` |
-| ⊢ (U+22A2) | `\vdash` |
-| ⊨ (U+22A8) | `\models` |
-| △ (U+25B3) | `\triangle` |
-| ◇ (U+25C7) | `\Diamond` |
-| † (U+2020) | `\dagger` |
-| ‡ (U+2021) | `\ddagger` |
-| ⋯ (U+22EF) | `\cdots` |
-| … (U+2026) | `\ldots` |
-| ⋮ (U+22EE) | `\vdots` |
-| ⋱ (U+22F1) | `\ddots` |
+| `a_i^2` and `a^2_i` | Both attach the same subscript and superscript to `a`; their input order does not change the meaning |
+| `a_{i^2}` | The exponent belongs inside the subscript |
+| `a_{ij}` | Both `i` and `j` belong in the subscript |
+| `a_ij` | Only `i` is subscripted; `j` remains on the baseline |
+| `\frac{a+b}{c}` | Both `a` and `b` are in the numerator |
+| `a+\frac{b}{c}` | Only `b` is in the numerator |
 
-### Decorative Accents
+Brace multi-character scripts and fraction groups explicitly. A horizontal
+stroke may be a minus sign, fraction bar, overline, or a table rule; check its
+extent and surrounding symbols before generating `\frac` or an accent.
+Preserve matrix dimensions, empty entries, delimiters and cases conditions.
+Do not replace an ambiguous symbol with a more familiar formula.
 
-| Unicode example | LaTeX |
-|---|---|
-| x̄ (x + macron) | `\bar{x}` / `\overline{x}` |
-| x̂ (x + circumflex) | `\hat{x}` / `\widehat{x}` |
-| x̃ (x + tilde) | `\tilde{x}` / `\widetilde{x}` |
-| ẋ (x + dot) | `\dot{x}` |
-| x ̈ (x + diaeresis) | `\ddot{x}` |
-| x⃗ (x + arrow) | `\vec{x}` |
+## Preserve equation layout and references
 
-### Script and Special Letters
+Choose `equation` for a single numbered display, `align` for aligned relations,
+`gather` for separate centered equations, and `multline` for a long equation
+split across lines. Choose the corresponding unnumbered form when the original
+has no number. These environments require the appropriate `amsmath` setup.
 
-| Unicode | LaTeX |
-|---|---|
-| ℓ (U+2113) | `\ell` |
-| ℜ (U+211C) | `\Re` |
-| ℑ (U+2111) | `\Im` |
-| ℵ (U+2135) | `\aleph` |
-| ℝ (U+211D) | `\mathbb{R}` |
-| ℂ (U+2102) | `\mathbb{C}` |
-| ℕ (U+2115) | `\mathbb{N}` |
-| ℤ (U+2124) | `\mathbb{Z}` |
-| ℚ (U+211A) | `\mathbb{Q}` |
+Recover visible equation numbers and referring text together. A partial PDF
+may start with equation (7); automatic numbering from (1) would change the
+recovered references. A candidate may use `\tag{7}` with a newly documented
+label. Do not claim that the label is the original source key.
 
-## Subscript/Superscript Detection
+For a doubtful glyph, keep its alternatives in a source comment and a visible
+note or placeholder. A compiling guess with only a hidden comment is insufficient.
 
-Uses vertical position relative to baseline:
+Environment details: [official amsmath user guide](https://www.latex-project.org/help/documentation/amsldoc.pdf).
 
-```
-For each span within a math block:
-  if span.origin.y is noticeably ABOVE baseline of surrounding text
-     AND font_size < surrounding font_size:
-    → superscript (^{...})
-  if span.origin.y is noticeably BELOW baseline of surrounding text
-     AND font_size < surrounding font_size:
-    → subscript (_{...})
-```
+## Verify the reconstruction
 
-Complex cases:
-- Nested super/subscripts: `a_i^2` vs `a_{i+1}`
-- Multi-character: use braces `a_{ij}` not `a_ij`
+1. Compare each selected equation with the original: glyphs, scripts, groups,
+   delimiters, limits, line breaks and tags.
+2. Check the notation against nearby definitions without silently correcting
+   a possible error in the paper. Report discrepancies separately.
+3. Compile with the selected engine and math packages, then inspect the rendered
+   equations. Compilation establishes syntax acceptance, not mathematical fidelity.
+4. Deliver page/equation locations for every unresolved reading.
 
-## Fraction Detection
-
-**Signals:**
-- Centered horizontal line (from pdfplumber lines/rects)
-- Text above and below the line
-- Text blocks vertically stacked with a rule between them
-
-→ `\frac{<above>}{<below>}`
-
-## Matrix Detection
-
-**Signals:**
-- Grid of short math expressions
-- Bounded by large delimiters (stretchy brackets/parentheses)
-- Columns aligned, rows spaced regularly
-
-→ `\begin{pmatrix} ... \end{pmatrix}` or `\begin{bmatrix} ... \end{bmatrix}`
-
-## Large Operator Detection
-
-**Signals for ∑, ∫, ∏:**
-- Significantly larger than surrounding glyphs
-- Often have limits above and below (detected by extreme vertical position)
-
-∑ with limits:
-```
-\sum_{<lower>}^{<upper>}   % in display math
-```
-
-∫ with limits:
-```
-\int_{<lower>}^{<upper>}   % definite integral
-```
-
-## Multi-Line Equation Detection
-
-**Signals:**
-- Multiple math blocks aligned vertically (centered)
-- May share alignment points (equals signs at same x-position)
-- May have equation numbers at each line
-
-→ `\begin{align}...\end{align}` (prefer align; avoid `eqnarray` — deprecated, produces incorrect spacing)
-
-## Cases Environment
-
-**Signals:**
-- Large left curly brace spanning multiple lines
-- Conditions on right side: ", if x > 0"
-
-→ `\begin{cases} ... \end{cases}`
-
-## Quality Checks for Math
-
-After conversion, run these checks:
-1. All `$` signs properly paired
-2. Braces `{ }` balanced in each math expression
-3. No bare Unicode math symbols outside math mode
-4. Subscript/superscript ordering correct: `a_i^2` not `a^2_i` (different meaning)
-5. `\left` / `\right` delimiters are matched
+Simple counts of dollar signs or braces are not syntax validation: escaped
+characters, comments, verbatim text and macros need parsing context. Use the
+actual compiler log and a visual comparison.

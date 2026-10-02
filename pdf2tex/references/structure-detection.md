@@ -1,175 +1,89 @@
-# Structure Detection
+# Document Structure Detection
 
-Heuristics for detecting document structure from extracted PDF text blocks.
+Build a page-aware inventory before writing LaTeX. Font size, boldness, position
+and numbering suggest a role; they do not prove it. Preserve blocks that do not
+fit a guessed template and record unresolved roles.
 
-## Title Detection
+## Inventory and reading order
 
-The title block is usually at the top of page 1.
+For each selected page, record every text block, its bounding box, lines/spans,
+font information and candidate role. Keep figure/table regions, captions,
+notes and bibliography entries in the same inventory. Record selected coverage
+explicitly: omitted pages may contain definitions, references or continuations.
 
-**Signals:**
-- Largest font size on page 1
-- Centered text (x-midpoint ≈ page_width/2)
-- Bold weight
-- Top of page (y < page_height * 0.3)
-- Single block, may span multiple lines
-- No number prefix
+Sorted text can interleave columns. Identify vertical bands separated by
+full-width titles, equations or figures, then determine the column order inside
+each band. Check both left and right block edges. A block crossing the gutter
+must not be discarded or forced into one column. Check the original page when
+geometry gives more than one plausible order.
 
-**Extraction:**
-```
-For each text block on page 1:
-  if font_size == max(page1_font_sizes) and is_bold and is_centered:
-    → \title{<text>}
-```
+Inspect span-level font sizes instead of assuming a block has one font size.
+A heading can contain math, a section number and several fonts. Font-size ranking
+alone does not identify heading depth, and a title need not be the largest,
+boldest or centered text on the page.
 
-## Author Block Detection
+## Assign roles from combined evidence
 
-Directly below the title on page 1.
+| Candidate role | Evidence to compare | Common ambiguity |
+|---|---|---|
+| Title | Wording, position, metadata, relation to author block | Running title versus article title; metadata may be stale |
+| Author/affiliation | Names, institutional lines, superscript markers, correspondence text | A marker may link an affiliation or author note |
+| Abstract | Label and paragraph boundaries | Full-width abstract above a two-column body |
+| Section/subsection | Numbering, typography, contents/bookmarks, neighboring sections | Unnumbered heading, appendix letter, figure label |
+| Equation | Math glyphs, spatial grouping, tag and nearby definitions | Displayed algorithm or a line of table content |
+| Figure | Visible panel composition and caption association | Vector-only graphics and separate labels have no standalone image block |
+| Table | Grid/spacing, header coverage, notes and caption | Borderless table or wrapped prose |
+| Footnote | Marker correspondence and text near the page bottom | Footer metadata versus scientific content |
+| References | Bibliography heading and entry boundaries | An entry may continue across columns or pages |
 
-**Signals:**
-- Smaller than title font, still centering
-- Contains commas, "and", affiliations
-- May have superscript markers ("*", "1", "†")
-- Often in a different font/style than title
-- Below title (higher y value), still in upper third of page
+Use PDF bookmarks as corroborating evidence, not an authoritative outline.
+Embedded-image inventories miss vector graphics and composite figures; inspect
+whole-page previews even when no raster image was exported.
 
-## Abstract Detection
+Keep the original section order and visible heading text. Choose a plausible
+LaTeX hierarchy that reproduces it and document any inference. Do not add a
+Methods section or move a conclusion merely because a familiar template expects
+one. Likewise, the bibliography's visible location does not impose a universal
+appendix order.
 
-**Signals:**
-- Bold text block reading "Abstract" or "ABSTRACT"
-- Following paragraph in smaller font or italic
-- Positioned after author block, before first section heading
-- Often single paragraph, sometimes justified differently
+## Separate artifacts from content
 
-## Section Heading Detection
+Compare repeated lines across pages before removing running headers, page numbers
+or publisher notices. A repeated scientific term is not a header. A bottom-of-page
+note can contain a definition, funding disclosure or experimental condition;
+preserve it and its marker unless it is confirmed as an unwanted layout artifact.
+Log removed artifacts with page locations.
 
-**Primary signals (in order of reliability):**
-1. Font size larger than body text
-2. Bold weight
-3. Numbered prefix ("1.", "2.", "I.", "A.")
-4. Vertical gap above (larger than normal line spacing)
-5. Small set of words ("Introduction", "Related Work", "Method", "Experiments", "Conclusion", "References")
+Join wrapped prose only when the continuation is supported. Distinguish line-end
+hyphenation from meaningful hyphens in compounds, chemical names or identifiers.
+Keep paragraph boundaries, list items and captions separate. Do not combine a
+column's last line with the next geometrically nearby column's first line.
 
-**Hierarchy classification:**
-| Level | Font size (relative) | Numbering style | Example |
-|---|---|---|---|
-| `\section` | LARGEST (e.g. 12-14pt bold) | "1.", "2." | `\section{Introduction}` |
-| `\subsection` | Medium (e.g. 10.5-11pt bold) | "1.1", "2.3" | `\subsection{Dataset}` |
-| `\subsubsection` | Slightly above body, bold | "1.1.1" | `\subsubsection{Preprocessing}` |
-| Paragraph heading | Body size, bold/italic, inline | None | `\paragraph{Setup.}` |
+## Reconstruct citations conservatively
 
-**Algorithm:**
-```
-For each text block that is bold and larger than body:
-  1. Check proximity to previous block (gap > body_line_spacing * 1.5)
-  2. Check text length (headings are short, < 100 chars)
-  3. Check for numbering pattern
-  4. Classify as section/subsection/subsubsection based on font size rank
-```
+A bracketed number may be a citation, interval, array entry or equation label.
+Classify it from the sentence and bibliography, rather than a global regex.
+For citations, retain the visible marker and map it to the entry only when the
+numbering and entry boundaries are supported by the selected pages.
 
-**Edge cases:**
-- Unnumbered sections: detect by font size + bold + position pattern only
-- "Related Work" vs "Related Works": both common, don't auto-correct
-- Appendices: often have letter prefixes ("Appendix A.", "A.")
+Author/year text does not uniquely identify a bibliography key. Check names,
+year suffixes and the actual entry. Newly chosen keys should be documented as
+reconstruction choices. Do not invent titles, venues, DOIs or missing authors.
 
-## Body Text Detection
+For an unmatched `[42]`, preserve the visible marker and add a visible note
+explaining that its bibliography entry was not recovered. Generating a bare
+`\cite{ref42}` changes the marker into an undefined citation and conceals what
+the PDF actually showed. A source comment can retain provenance, but does not
+replace the visible uncertainty note.
 
-Everything that's not a heading, caption, footnote, header, or equation.
+## Validate the outline and coverage
 
-**Characteristics:**
-- Most common font size on the page
-- Regular (non-bold) weight
-- Full-width blocks (x1 - x0 ≈ text width)
-- Multiple lines, often indented
+Compare every inventory item with its reconstructed location. Check titles,
+authors/affiliations, heading levels, paragraph/column order, captions, footnotes,
+equations and bibliography continuations. List omitted pages, unavailable assets
+and unmatched references separately from confirmed layout artifacts.
 
-## Math Detection
-
-### Inline math
-**Signals:**
-- Italic single characters (variables)
-- Font name contains "CMMI" (Computer Modern Math Italic)
-- Short runs (< 50 chars) of mixed italic/normal
-- Contains math symbols (Greek in Unicode)
-
-### Display math (equation)
-**Signals:**
-- Text block centered horizontally
-- Surrounded by vertical gaps larger than normal line spacing
-- Font name contains "CMMI" or "CMSY"
-- May have equation number on right edge
-- Isolated from surrounding paragraph text
-
-## Table Detection
-
-**Signals:**
-- Grid of text blocks aligned in rows and columns
-- Horizontal and vertical ruling lines (from pdfplumber)
-- Alternating row fills (detected via background colors)
-- "Table" in preceding caption
-- Text blocks with tight x-alignment across rows
-
-**Detection algorithm:**
-```
-1. Find horizontal lines (from pdfplumber page.lines/rects)
-2. Find vertical lines
-3. For each rectangular region bounded by lines:
-   a. Extract text within the region
-   b. Align text by column (matching x-ranges)
-   c. Build matrix of cell contents
-4. Also check for borderless tables (text alignment only)
-```
-
-## Figure Detection
-
-**Signals:**
-- Image blocks (block["type"] == 1 in pymupdf dict extraction)
-- "Figure" in preceding or following caption text
-- Caption text: "Figure <num>: <text>" or "Fig. <num>. <text>"
-
-## Caption Detection
-
-**Signals:**
-- Text block immediately above or below a figure/table
-- Starts with "Figure", "Fig.", or "Table" followed by a number
-- Font size often slightly smaller than body text
-- Sometimes italic
-
-## Footer/Header Detection
-
-**Signals:**
-- Text at extreme top or bottom of page (y < 50 or y > page_height - 50)
-- Repetitive across pages (same text, same position)
-- Page numbers
-- Running titles/authors
-
-**Must be STRIPPED from reconstruction** unless it's part of the content.
-
-## Citation Detection
-
-### Numeric citations (common in IEEE, most CS venues)
-- Pattern: `[<number>]` or `[<num>,<num>,<num>]`
-- Example: `[42]` or `[3,7,12]` or `[1-5]`
-→ `\cite{ref<num>}` with placeholder key
-
-### Author-year citations (common in natural sciences)
-- Pattern: `<Author> (<year>)` or `(<Author>, <year>)`
-- Example: `Smith (2023)` or `(Smith, 2023)`
-- → `\citet{smith2023}` or `\citep{smith2023}`
-
-### Detection strategy:
-```
-For each text block:
-  Search for regex patterns:
-    - Numeric: \[([\d,\s-]+)\]
-    - Author-year: \([A-Z][a-z]+.*?\d{4}\)
-  Replace with \cite{refX} placeholder
-  Record for bibliography mapping
-```
-
-## Footnote Detection
-
-**Signals:**
-- Text block at bottom of page
-- Separated from body by a short horizontal rule
-- Smaller font size
-- May have superscript number at start of footnote text
-- Corresponding superscript in body text above
+Use [math reconstruction](math-reconstruction.md) and
+[table reconstruction](table-reconstruction.md) for uncertain notation and grids.
+Compilation checks syntax and cross-references; a comparison with the source
+is still required for content coverage and structure.
