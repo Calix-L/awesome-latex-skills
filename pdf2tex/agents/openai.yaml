@@ -1,0 +1,3 @@
+interface:
+  display_name: "PDF to LaTeX"
+  short_description: "Reconstruct LaTeX from PDFs with uncertainty notes"

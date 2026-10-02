@@ -1,0 +1,3 @@
+interface:
+  display_name: "LaTeX Rescue"
+  short_description: "Diagnose and repair LaTeX compilation errors"

@@ -2,6 +2,21 @@
 
 All notable changes to awesome-latex-skills.
 
+## Unreleased
+
+### Added
+- Standard-library Python installer for Claude Code and Codex, including selected bundles, custom destinations, dry runs, idempotence, and conflict protection.
+- Native Codex UI metadata and supported skill frontmatter (`metadata.version`).
+- Portable YAML/resource validation and behavioral installer/validator tests.
+- CI matrix for Windows, macOS, and Linux plus mandatory TeX fixture compilation.
+
+### Fixed
+- Corrected fixtures preserve table data, unresolved citation/label keys, and ambiguous math rather than silently deleting or guessing content.
+- NeurIPS examples load a style package with `article`; official rules determine impact discussion, checklist location, and review/final length.
+- Corrected KDD 2026 research and TMLR anonymity guidance with dated official sources; other venue rules are verified for the requested target before use.
+- Rescue diagnostics no longer count only `!` errors, lose engine failures behind `tee`, or disable scientific content to obtain a build.
+- Bilingual installation docs explain full-resource access, prerequisites, existing-install conflicts, and verification limits.
+
 ## v1.2.0 — 2025-05-07
 
 ### Fixed

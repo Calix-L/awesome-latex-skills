@@ -19,7 +19,7 @@
 
 <a href="https://github.com/Calix-L/awesome-latex-skills/actions"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="CI"></a>
 <img src="https://img.shields.io/badge/skills-5-blue" alt="5 skills">
-<img src="https://img.shields.io/badge/tests-168_passing-brightgreen" alt="168 tests">
+<img src="https://img.shields.io/badge/tests-behavioral-blue" alt="Behavioral tests">
 <img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=social" alt="Stars">
 <img src="https://img.shields.io/badge/license-MIT-yellow" alt="MIT">
 
@@ -37,7 +37,7 @@
 
 你描述问题，Skill 给出修复。
 
-- **凌晨 2 点，47 个编译错误** — `latex-rescue` 自动纠正拼写、修复不匹配环境、解决包冲突。80+ 模式，零手动修改。
+- **凌晨 2 点，47 个编译错误** — `latex-rescue` 自动纠正拼写、修复不匹配环境、解决包冲突。80+ 模式；含义不确定的内容会标记供作者审查。
 - **审稿人写了句"English needs improvement"** — `latex-polish` 纠正 18 类中式英语，应用 100+ 学术短语模板，添加适当 hedging。3 档强度可选。
 - **CVPR 被拒，周五前要改成 ICML 格式** — `latex-fmt` 切换 `\documentclass`，移除禁用包，匿名化处理，检查页数限制。覆盖 15 个会议。
 - **待读列表 50 篇论文** — `paper-read` 30 秒速读 5 要点，5 分钟结构化分析，15 分钟完整评审。
@@ -92,12 +92,12 @@
 |---|---|---|
 | `\beginn{table}` | "这是个有趣的拼写错误" | 自动纠正为 `\begin{table}` |
 | "According to the experiment" | 照单全收 | 标记 overuse，推荐替代表达 |
-| 投稿 NeurIPS | 忘记 Broader Impact | 自动检测缺失的必填章节 |
+| 投稿 NeurIPS | 使用记忆中的模板 | 核验年份、赛道和投稿阶段 |
 | PDF → LaTeX | 生成乱码标记 | 7 阶段流水线 + 验证 |
 | 没有 natbib 却用 `\citep{}` | 直接忽略 | 检测缺失包，自动添加 |
 | "帮我润色论文" | 全文重写 | 最小改动，保留数学公式和命令 |
 
-Skill 注入了**数百条领域专用规则**，这些规则 LLM 无法仅靠记忆可靠地调用。每个 Skill = 结构化工作流 + 领域知识 + 防护栏。同样的输入，每次都是专家级的输出。
+Skill 注入了**数百条领域专用规则**，这些规则 LLM 无法仅靠记忆可靠地调用。每个 Skill = 结构化工作流 + 领域知识 + 防护栏。统一工作流，并根据源码、编译日志和实际产物验证结果。
 
 ---
 
@@ -129,15 +129,15 @@ Skill 注入了**数百条领域专用规则**，这些规则 LLM 无法仅靠�
 + Most methods in this field fail to match this result.
 ```
 
-### :repeat: latex-fmt — *Camera-ready 格式转换，CVPR → NeurIPS*
+### :repeat: latex-fmt — *匿名投稿格式转换，CVPR → NeurIPS*
 
 ```diff
-- \documentclass{article}
-+ \documentclass{neurips_2025}
+- \usepackage[review]{cvpr}
++ \usepackage{neurips_2025} % historical example; verify requested kit
 - \author{Zhang et al.}
 + \author{Anonymous}
 - (没有 Broader Impact 章节)
-+ ⚠ NeurIPS 要求 Broader Impact — 已标记
++ ⚠ 按官方模板核查影响讨论和必需的 checklist
 ```
 
 ### :book: paper-read — *待读列表 50 篇论文，没时间*
@@ -182,25 +182,45 @@ Skill 注入了**数百条领域专用规则**，这些规则 LLM 无法仅靠�
 
 ## 快速上手
 
-**一条命令安装全部 5 个 Skill：**
-```bash
-git clone https://github.com/Calix-L/awesome-latex-skills.git && \
-cp -r awesome-latex-skills/{latex-rescue,latex-polish,latex-fmt,paper-read,pdf2tex} ~/.claude/skills/
+克隆后用 **Python 3.10+** 安装，以下命令适用于 PowerShell、Bash 和 zsh；
+部分系统需要把 `python` 改为 `python3`：
+
+```sh
+git clone https://github.com/Calix-L/awesome-latex-skills.git
+cd awesome-latex-skills
+python scripts/install.py --agent claude
 ```
 
-然后在 Claude Code 中输入 `/latex-rescue`、`/latex-polish` 等即可使用。
+Codex 用户：
 
-**只安装单个 Skill：**
-```bash
-cp -r awesome-latex-skills/latex-rescue ~/.claude/skills/
+```sh
+python scripts/install.py --agent codex
 ```
 
-**不用 Claude Code？** 直接让 AI 读取 SKILL.md：
+预览后安装单个 Skill，重复 `--skill` 可选择多个：
+
+```sh
+python scripts/install.py --agent codex --skill latex-rescue --dry-run
+python scripts/install.py --agent codex --skill latex-rescue
 ```
+
+安装器复制完整目录，包括参考文件与 Agent 元数据。默认路径为
+`~/.claude/skills` 或 `$CODEX_HOME/skills`（未设置时为 `~/.codex/skills`），
+可用 `--dest PATH` 指定其他目录。预览不写文件；内容相同的 Skill 保持原样；
+已有 Skill 内容不同时，整批安装在写入前停止。升级时先备份并移走旧目录，
+或指定新路径。安装器本身不需要第三方依赖。
+
+Claude Code 使用 `/latex-rescue`；Codex 使用 `$latex-rescue` 或自然语言触发。
+其他 Agent 可直接读取入口：
+
+```text
 Read awesome-latex-skills/latex-rescue/SKILL.md and follow the workflow.
 ```
 
-<sup>`latex-polish`、`latex-fmt`、`paper-read` 无需额外安装。`latex-rescue` 需要本地安装 LaTeX。`pdf2tex` 需要 `pip install pymupdf`。</sup>
+需要让 Agent 同时能访问 `references/`，只粘贴入口会缺少参考知识。
+本地编译需要项目对应的 TeX 引擎；PDF 提取需要 PyMuPDF
+（`python -m pip install pymupdf`）。格式转换需要目标官方模板，本仓库不附带
+会议模板文件。验证方式见[测试说明](tests/README.md)。
 
 ---
 
@@ -208,6 +228,7 @@ Read awesome-latex-skills/latex-rescue/SKILL.md and follow the workflow.
 
 | 平台 | 使用方式 |
 |---|---|
+| **Codex** | `python scripts/install.py --agent codex`，用 `$latex-rescue` 调用 |
 | **Claude Code** | 复制到 `~/.claude/skills/`，输入 `/latex-rescue` 调用 |
 | **ChatGPT / GPT-4** | 将 SKILL.md 粘贴为自定义指令或系统提示 |
 | **Cursor** | 将 SKILL.md 内容添加到 `.cursor/rules/` |
@@ -229,13 +250,14 @@ latex-rescue/
 │   ├── package-conflicts.md
 │   └── debug-workflow.md
 └── agents/
-    └── config.yaml       # 自动激活触发器和平台设置
+    ├── config.yaml       # 旧集成提示，不是各平台通用 API
+    └── openai.yaml       # Codex UI 元数据
 ```
 
 1. 你输入 `/latex-rescue` 或说"帮我修 LaTeX 报错"
 2. Agent 加载 `SKILL.md` — 获得结构化工作流 + 防护栏
 3. 按阶段读取 `references/` 获取精确的领域规则
-4. 同样的工作流 → 每次都是专家级的输出
+4. 结构化工作流 → 可审查的改动与明确的验证结果
 
 </details>
 

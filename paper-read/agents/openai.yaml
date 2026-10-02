@@ -1,0 +1,3 @@
+interface:
+  display_name: "Paper Reader"
+  short_description: "Summarize papers and evaluate their evidence"

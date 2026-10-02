@@ -9,7 +9,7 @@ Before diving into any fix, run these checks — they resolve 30-40% of cases in
    grep -rl 'fontspec\|polyglossia' *.tex  # → use xelatex
    ```
 2. **Stale auxiliary files?** Delete `.aux`, `.bbl`, `.blg`, `.log`, `.toc`, `.lof`, `.lot` and recompile. Many "undefined" errors are just stale caches.
-3. **How many errors total?** `grep -c '^!' build.log` — if 50+, focus on the FIRST 3 only; the rest are cascading
+3. **How many errors total?** inspect engine exit status and the final log (`!` and `file.tex:line:` diagnostics); focus on the first error before chasing cascades
 4. **Encoding issues?** `file -I *.tex` (macOS) or `file -i *.tex` (Linux) — should be UTF-8. If not, convert with `iconv`
 5. **Missing files?** `grep -c 'File.*not found' build.log` — missing `.sty`, `.cls`, `.bib`, or images cause cascading failures
 6. **BibTeX backend mismatch?** If `.bcf` exists → project uses biber. If `.aux` has `\citation` → project uses bibtex. Running the wrong backend causes "undefined citation" errors.

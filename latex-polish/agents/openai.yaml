@@ -1,0 +1,3 @@
+interface:
+  display_name: "LaTeX Polish"
+  short_description: "Polish academic prose while preserving LaTeX"

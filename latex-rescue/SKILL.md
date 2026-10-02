@@ -1,15 +1,8 @@
 ---
 name: latex-rescue
 description: Diagnose and fix LaTeX compilation errors. Handles undefined control sequences, missing brackets, math mode violations, package conflicts, undefined references, and environment mismatches.
-version: 1.2.0
-triggers:
-  - "fix my LaTeX errors"
-  - "论文编译报错"
-  - "latex won't compile"
-  - "pdflatex error"
-  - "compilation failed"
-  - "帮我修 LaTeX"
-  - "/latex-rescue"
+metadata:
+  version: "1.2.0"
 ---
 
 ## Role
@@ -38,14 +31,15 @@ If the user pastes an error message directly instead of pointing to a project di
 
 1. **Identify the main `.tex` file.** If the project has `main.tex`, use that. Otherwise scan for `.tex` files containing `\documentclass`. If ambiguous, ask the user.
 
-2. **Detect the LaTeX engine.** Check the preamble for engine-specific packages:
+2. **Detect the LaTeX engine.** Respect the project's build command, magic comments, and configuration first. Check the preamble for engine-specific packages:
    - `\usepackage{fontspec}` or `\usepackage{polyglossia}` → use `xelatex` or `lualatex`
    - `\usepackage[utf8]{inputenc}` + `\usepackage[T1]{fontenc}` → likely `pdflatex`
    - When in doubt, try `pdflatex` first (most common in CS academia)
 
-3. **Run first compilation** to capture the current state:
+3. **Run first compilation** to capture the current state. In Bash, enable `pipefail` so `tee` cannot hide a failing engine:
    ```bash
-   pdflatex -interaction=nonstopmode -file-line-error main.tex 2>&1 | tee build.log
+   set -o pipefail
+   pdflatex -no-shell-escape -interaction=nonstopmode -file-line-error main.tex 2>&1 | tee build.log
    ```
    (Replace `pdflatex` with `xelatex` or `lualatex` if detected in step 2.)
 
@@ -57,7 +51,7 @@ If the user pastes an error message directly instead of pointing to a project di
    # For biber (biblatex projects):
    biber main 2>&1 | tee -a build.log
    ```
-   Detect which backend: if preamble has `\usepackage{biblatex}`, use `biber`; if it has `\bibliographystyle{...}`, use `bibtex`.
+   Detect the configured backend: `biblatex` defaults to Biber but can specify `backend=bibtex`. Respect that option and the build configuration; `\bibliographystyle{...}` normally indicates BibTeX. Run the backend after the engine has produced its required auxiliary files.
 
 ### Phase 3: Parse and Classify Errors
 
@@ -126,7 +120,7 @@ Fix these immediately without consulting an LLM:
 \capton     → \caption
 ```
 
-**Missing closing brackets/braces** — count open/close pairs:
+**Missing closing brackets/braces** — inspect the local argument structure, excluding comments, escaped braces, and verbatim. Raw global character counts are not a parser:
 ```
 { but no }  → add }
 [ but no ]  → add ]
@@ -174,7 +168,7 @@ For errors not covered by the catalog:
 1. Read 20 lines of context around the error
 2. Identify the semantic intent (what was the user trying to do?)
 3. Apply the minimal fix to satisfy both syntax and intent
-4. If unsure between multiple fixes, apply the simplest one and verify
+4. If multiple fixes imply different mathematical meaning or table data, flag the ambiguity and preserve the original; compilation cannot decide the author's intent
 
 ### Phase 5: Verify
 
@@ -198,7 +192,7 @@ latexmk -pdf -interaction=nonstopmode main.tex
 ```
 
 **Checking results**:
-- Extract errors: `grep '^!' build.log | head -20` (more reliable than `tail` for multi-file projects)
+- Inspect the exit status and the final pass's engine log. `-file-line-error` diagnostics can start with `path/file.tex:line:` instead of `!`; searching only `^!` can falsely report zero errors. Old PDFs and first-pass logs are not proof of success.
 - Count warnings: `grep -c 'Warning' build.log`
 - Check for undefined references: `grep 'undefined' build.log`
 
@@ -212,7 +206,7 @@ latexmk -pdf -interaction=nonstopmode main.tex
 **Common false positives after a single-pass compile**:
 - `Reference 'X' undefined` — usually resolves after a second `pdflatex` run
 - `Citation 'X' undefined` — run `bibtex` then recompile twice
-- `Label multiply defined` — this is a real error, not a false positive
+- `Label multiply defined` — a genuine warning requiring review, not a reason to invent or rename a key automatically
 
 ### Phase 6: Report
 
@@ -252,7 +246,7 @@ Compilation: ✓ clean / 0 errors / 3 warnings
 **WHEN IN DOUBT:**
 - Flag the error for user review rather than guessing
 - For `undefined-ref` errors, do NOT invent reference keys. Tell the user which refs are missing.
-- NEVER delete blocks of content to eliminate errors. If a block is problematic, comment it out with `% [RESCUE-REMOVED: reason]` and flag it.
+- Never delete or disable scientific content to obtain a clean build. If a diagnosis requires isolation, use a temporary copy. Keep unresolved equations, table cells, citation keys, and labels for author review rather than guessing their meaning.
 - NEVER edit `.sty`, `.cls`, or `.bst` files shipped with the template. Only edit user `.tex` files.
 
 **AFTER FIXING:**
@@ -288,7 +282,7 @@ Overleaf users cannot run local compilation commands. Adapt the workflow:
 1. **Ask the user to paste the error message** from the Overleaf log (click "Logs and output files")
 2. **Diagnose from the error message alone** — classify the error using Phase 3 rules
 3. **Apply fixes to the `.tex` files** — the user can copy changes back to Overleaf
-4. **Do NOT run `pdflatex` locally** — trust the Overleaf log instead
+4. If the complete exported project and matching engine are available, local compilation can help. Otherwise use the Overleaf log and report that the proposed repair has not been recompiled.
 5. **Overleaf-specific quirks**:
    - Overleaf auto-creates `{filename}.blg` and `{filename}.bbl` — `bibtex`/`biber` errors appear there
    - Overleaf caches old files — if a fix doesn't take effect, advise clearing cache (Menu → Clear cached files)

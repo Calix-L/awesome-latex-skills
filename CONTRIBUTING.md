@@ -35,14 +35,16 @@ Every error pattern, phrasebank entry, and Chinglish fix directly improves outpu
 
 - Follow the existing table/format in the reference file
 - One entry per line, brief descriptions
-- Run `bash tests/run_tests.sh` — all must pass
-- If adding a new venue, update `venue-guide.md`, `formatting-rules.md` Per-Venue Quick Reference table, and SKILL.md if needed
+- Install `requirements-dev.txt`, run `python scripts/validate_repo.py` and `python -m unittest discover -s tests -v`; compilation skips locally without TeX and is required in CI
+- For venue rules, record the official URL, check date, year, track, and stage in `venue-guide.md`; mark unverified rules explicitly and update examples together
+- Keep versions in quoted `metadata.version` fields; put agent invocation hints in `agents/config.yaml`, not unsupported frontmatter fields
+- Add observable behavior tests for scripts; a matching keyword is not proof of a valid repair
 - If unsure, open an issue first
 
 ## Review Process
 
 1. Open a PR against `main`
-2. CI must pass (YAML validation + version consistency + test suite)
+2. CI must pass (portable metadata/installation tests across OSes + required Linux compilation)
 3. At least one review before merge
 4. Squash-merge preferred for single-logical-change PRs
 
