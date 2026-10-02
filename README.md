@@ -2,7 +2,7 @@
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./assets/banner-dark.svg">
-  <img src="./assets/banner.svg" alt="awesome-latex-skills — Good research. Clearer manuscripts." width="100%">
+  <img src="./assets/banner-light.svg" alt="awesome-latex-skills — Good research. Clearer manuscripts." width="100%">
 </picture>
 
 <br>
