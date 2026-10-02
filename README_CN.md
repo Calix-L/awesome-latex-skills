@@ -1,37 +1,57 @@
-<div align="center">
-
 <picture>
-  <source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="./assets/banner-mobile-dark.svg">
-  <source media="(max-width: 600px)" srcset="./assets/banner-mobile-light.svg">
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/banner-dark.svg">
-  <img src="./assets/banner-light.svg" alt="awesome-latex-skills — Good research. Clearer manuscripts." width="100%">
+  <source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="./assets/cover-mobile-dark.svg">
+  <source media="(max-width: 600px)" srcset="./assets/cover-mobile-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/cover-dark.svg">
+  <img src="./assets/cover-light.svg" alt="awesome-latex-skills — The manuscript toolkit. Repair, polish, format, read, recover." width="100%">
 </picture>
 
-<br>
-
-### 为下一篇论文准备的实用工具箱。
-
-修复 LaTeX、润色学术表达、转换投稿格式、读懂论文、恢复可编辑源码。<br>把具体任务交给有工作流、有参考知识、能说明验证结果的 AI Agent。
-
-<p>
+<p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
-  <a href="#skills"><img src="https://img.shields.io/badge/skills-5-6254c7?style=flat-square" alt="5 skills"></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-317c62?style=flat-square" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/stargazers"><img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=flat-square&amp;color=6254c7" alt="GitHub stars"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
 </p>
 
-[English](./README.md) · **简体中文**<br><br>
-[快速开始](#quick-start) · [技能一览](#skills) · [使用示例](#examples) · [组合工作流](#workflows) · [常见问题](#faq)
+<p align="center">五个专注于论文工作的 Agent Skills：修复编译、润色表达、转换格式、阅读论文、恢复源码。</p>
+
+<div align="center">
+
+[技能一览](#skills) &nbsp; / &nbsp; [安装使用](#quick-start) &nbsp; / &nbsp; [实际示例](#examples) &nbsp; / &nbsp; [常见问题](#faq)
+
+<sub>[English](./README.md) / **简体中文**</sub>
 
 </div>
 
----
+<br>
+
+<a id="skills"></a>
+
+## 01 / 选择你的技能
+
+从当前需要解决的问题开始。每个入口都包含工作流、参考资料和验证要求。
+
+| Skill | 用途与交付 |
+| :--- | :--- |
+| **[latex-rescue](./latex-rescue/SKILL.md)**<br><sub>01 / 修复</sub> | 排查编译错误，以最小改动修复源码，报告编译结果与剩余问题。 |
+| **[latex-polish](./latex-polish/SKILL.md)**<br><sub>02 / 润色</sub> | 改善学术表达，保留论断与数值；支持轻度、中度、严格三档。 |
+| **[latex-fmt](./latex-fmt/SKILL.md)**<br><sub>03 / 格式</sub> | 迁移投稿模板，按官方要求核对版式，说明通过、失败及未验证项。 |
+| **[paper-read](./paper-read/SKILL.md)**<br><sub>04 / 阅读</sub> | 从速读到深度分析，将论断与证据对应到原文章节、图表和公式。 |
+| **[pdf2tex](./pdf2tex/SKILL.md)**<br><sub>05 / 恢复</sub> | 从 PDF 重建可编辑 LaTeX，标记有歧义的内容并与原稿核对。 |
+
+<details>
+<summary>会议与期刊指导</summary>
+
+NeurIPS · ICML · CVPR · ACL/EMNLP · ICLR · ECCV · AAAI · TMLR · IEEE ·
+Nature · Science · COLING · KDD · SIGIR · Interspeech。
+
+[会议与期刊指南](./latex-fmt/references/templates/venue-guide.md)指向官方要求。
+使用前核验目标年份、赛道、文章类型和投稿阶段；官方模板包需另行获取。
+
+</details>
 
 <a id="quick-start"></a>
 
-## 快速开始
+## 02 / 安装与使用
 
-**Python 3.10+ · Windows / macOS / Linux · 安装器无需第三方依赖**
+Python **3.10+** · Windows / macOS / Linux · 无需第三方安装依赖
 
 ```sh
 git clone https://github.com/Calix-L/awesome-latex-skills.git
@@ -42,12 +62,7 @@ python scripts/install.py --agent claude
 使用 **Codex** 时，将最后一行改为 `python scripts/install.py --agent codex`。
 如果系统的 Python 命令是 `python3`，替换命令名即可。
 
-| Agent | 安装后的调用方式 |
-|---|---|
-| Claude Code | `/latex-rescue` |
-| Codex | `$latex-rescue` |
-
-也可以直接用自然语言描述任务。
+**调用：** Claude Code 使用 `/latex-rescue`；Codex 使用 `$latex-rescue`。也可以直接描述任务。
 
 <details>
 <summary><strong>只安装一个 Skill、预览改动、指定安装目录</strong></summary>
@@ -85,28 +100,9 @@ Read awesome-latex-skills/latex-rescue/SKILL.md and follow its workflow.
 
 </details>
 
-<a id="skills"></a>
-
-## 技能一览
-
-按任务选择入口。每个 Skill 都包含独立工作流、领域参考资料，以及保护作者原意的约束。
-
-| Skill | 适合什么情况 | 得到什么 |
-|---|---|---|
-| **[latex-rescue](./latex-rescue/SKILL.md)**<br>修复 | LaTeX 项目编译失败 | 最小源码修复、编译证据、未解决问题 |
-| **[latex-polish](./latex-polish/SKILL.md)**<br>润色 | 学术英语需要更清晰 | 可审查的修改，支持轻度、中度、严格三档 |
-| **[latex-fmt](./latex-fmt/SKILL.md)**<br>格式 | 转投或准备提交 | 模板转换及通过／失败／未验证的合规报告 |
-| **[paper-read](./paper-read/SKILL.md)**<br>阅读 | 理解或评估一篇论文 | 有原文依据的速读、结构化精读或深度分析 |
-| **[pdf2tex](./pdf2tex/SKILL.md)**<br>恢复 | 只有 PDF，需要可编辑 LaTeX | 重建源码，并标记需要核对的不确定内容 |
-
-**投稿指导入口：** NeurIPS · ICML · CVPR · ACL/EMNLP · ICLR · ECCV · AAAI ·
-TMLR · IEEE · Nature · Science · COLING · KDD · SIGIR · Interspeech。
-[会议与期刊指南](./latex-fmt/references/templates/venue-guide.md)指向官方要求；使用前需要核验
-目标年份、赛道、文章类型和投稿阶段。本仓库不附带官方模板包。
-
 <a id="examples"></a>
 
-## 使用示例
+## 03 / 实际示例
 
 以下展示修改方式和请求写法，不是性能评测结果，也不保证所有任务都能自动完成。
 
@@ -164,7 +160,7 @@ TMLR · IEEE · Nature · Science · COLING · KDD · SIGIR · Interspeech。
 
 <a id="workflows"></a>
 
-## 组合工作流
+## 04 / 从草稿到交付
 
 | 当前任务 | 建议顺序 | 完成前核对 |
 |---|---|---|
@@ -176,7 +172,7 @@ TMLR · IEEE · Nature · Science · COLING · KDD · SIGIR · Interspeech。
 
 每一步也可以独立使用。格式转换流程不会自动上传或提交论文。
 
-## 检查本地环境
+## 05 / 检查本地环境
 
 Skill 提供指导，提取和编译由外部工具执行。开始处理本地项目之前，可运行只读检查：
 
@@ -202,7 +198,7 @@ python scripts/doctor.py --skill pdf2tex --json
 
 <a id="faq"></a>
 
-## 常见问题
+## 06 / 常见问题
 
 <details>
 <summary><strong>安装 Skill 会同时安装 LaTeX 或模型吗？</strong></summary>
@@ -238,7 +234,7 @@ CI 验证元数据、本地资源和 README 链接、SVG 素材、安装行为�
 
 </details>
 
-## 参与改进
+## 一起完善
 
 发现规则不准确、缺少错误模式或安装失败？欢迎提交
 [Issue](https://github.com/Calix-L/awesome-latex-skills/issues/new/choose) 或聚焦单个问题的 PR。

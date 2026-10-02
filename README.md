@@ -1,35 +1,57 @@
-<div align="center">
-
 <picture>
-  <source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="./assets/banner-mobile-dark.svg">
-  <source media="(max-width: 600px)" srcset="./assets/banner-mobile-light.svg">
-  <source media="(prefers-color-scheme: dark)" srcset="./assets/banner-dark.svg">
-  <img src="./assets/banner-light.svg" alt="awesome-latex-skills — Good research. Clearer manuscripts." width="100%">
+  <source media="(prefers-color-scheme: dark) and (max-width: 600px)" srcset="./assets/cover-mobile-dark.svg">
+  <source media="(max-width: 600px)" srcset="./assets/cover-mobile-light.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/cover-dark.svg">
+  <img src="./assets/cover-light.svg" alt="awesome-latex-skills — The manuscript toolkit. Repair, polish, format, read, recover." width="100%">
 </picture>
 
-<br>
-
-### A practical toolkit for your next paper.
-
-Repair LaTeX, polish academic prose, apply publication templates, read papers,<br>and recover editable source — with focused workflows for your AI agent.
-
-<p>
+<p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
-  <a href="#skills"><img src="https://img.shields.io/badge/skills-5-6254c7?style=flat-square" alt="5 skills"></a>
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-317c62?style=flat-square" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/stargazers"><img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=flat-square&amp;color=6254c7" alt="GitHub stars"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
 </p>
 
-**English** · [简体中文](./README_CN.md)<br><br>
-[Quick start](#quick-start) · [Skills](#skills) · [Examples](#examples) · [Workflows](#workflows) · [FAQ](#faq)
+<p align="center">Five focused agent skills for repairing LaTeX, polishing prose, formatting submissions, reading papers, and recovering source.</p>
+
+<div align="center">
+
+[The toolkit](#skills) &nbsp; / &nbsp; [Get started](#quick-start) &nbsp; / &nbsp; [In practice](#examples) &nbsp; / &nbsp; [FAQ](#faq)
+
+<sub>**English** / [简体中文](./README_CN.md)</sub>
 
 </div>
 
----
+<br>
 
-## Quick start
+<a id="skills"></a>
 
-**Python 3.10+ · Windows, macOS, Linux · installer has no third-party dependencies**
+## 01 / Choose your skill
+
+Start with the problem in front of you. Each entry includes a workflow, references, and verification requirements.
+
+| Skill | Purpose & deliverable |
+| :--- | :--- |
+| **[latex-rescue](./latex-rescue/SKILL.md)**<br><sub>01 / REPAIR</sub> | Diagnose build errors, make minimal source fixes, and report build evidence and remaining issues. |
+| **[latex-polish](./latex-polish/SKILL.md)**<br><sub>02 / POLISH</sub> | Refine academic prose while preserving claims and numbers, at light, moderate, or strict intensity. |
+| **[latex-fmt](./latex-fmt/SKILL.md)**<br><sub>03 / FORMAT</sub> | Migrate publication templates and report passed, failed, and unverified requirements against official guidance. |
+| **[paper-read](./paper-read/SKILL.md)**<br><sub>04 / READ</sub> | Connect claims to evidence, from a quick skim to deeper appraisal, with locations in the original paper. |
+| **[pdf2tex](./pdf2tex/SKILL.md)**<br><sub>05 / RECOVER</sub> | Reconstruct editable LaTeX from a PDF, flag uncertain content, and compare it with the original. |
+
+<details>
+<summary>Conference & journal guidance</summary>
+
+NeurIPS · ICML · CVPR · ACL/EMNLP · ICLR · ECCV · AAAI · TMLR · IEEE ·
+Nature · Science · COLING · KDD · SIGIR · Interspeech.
+
+The [venue guide](./latex-fmt/references/templates/venue-guide.md) routes to official instructions.
+Verify the requested year, track, article type, and submission stage; obtain official author kits separately.
+
+</details>
+
+<a id="quick-start"></a>
+
+## 02 / Get started
+
+Python **3.10+** · Windows / macOS / Linux · No third-party installer dependencies
 
 ```sh
 git clone https://github.com/Calix-L/awesome-latex-skills.git
@@ -40,12 +62,7 @@ python scripts/install.py --agent claude
 Using **Codex**? Change the last command to `python scripts/install.py --agent codex`.
 Use `python3` if that is your system's Python command.
 
-| Agent | Invoke after installation |
-|---|---|
-| Claude Code | `/latex-rescue` |
-| Codex | `$latex-rescue` |
-
-You can also describe the task in natural language.
+**Invoke:** `/latex-rescue` in Claude Code or `$latex-rescue` in Codex. Natural-language requests work too.
 
 <details>
 <summary><strong>Install one skill, preview changes, or choose a destination</strong></summary>
@@ -87,26 +104,9 @@ API for every platform.
 
 </details>
 
-## Skills
+<a id="examples"></a>
 
-Choose the job you need. Every skill has its own workflow, domain references,
-and rules for preserving the author's intent.
-
-| Skill | Start here when… | What you receive |
-|---|---|---|
-| **[latex-rescue](./latex-rescue/SKILL.md)**<br>Repair | The project fails to compile | Minimal source fixes, build evidence, unresolved issues |
-| **[latex-polish](./latex-polish/SKILL.md)**<br>Polish | The prose needs clearer academic English | Reviewable edits at light, moderate, or strict intensity |
-| **[latex-fmt](./latex-fmt/SKILL.md)**<br>Format | You are changing venue or preparing a submission | Template changes and a pass/fail/unverified compliance report |
-| **[paper-read](./paper-read/SKILL.md)**<br>Read | You need to understand or assess a paper | A skim, structured reading, or deeper appraisal grounded in the paper |
-| **[pdf2tex](./pdf2tex/SKILL.md)**<br>Recover | You have the PDF but need editable LaTeX | Reconstructed source with uncertain content marked for review |
-
-**Publication guidance:** NeurIPS · ICML · CVPR · ACL/EMNLP · ICLR · ECCV · AAAI ·
-TMLR · IEEE · Nature · Science · COLING · KDD · SIGIR · Interspeech.
-The [venue guide](./latex-fmt/references/templates/venue-guide.md) routes to official
-instructions; the requested year, track, article type, and submission stage must
-be verified. Official author kits are not bundled.
-
-## Examples
+## 03 / In practice
 
 Illustrative edits and requests, rather than benchmark results or promises of
 automatic completion.
@@ -166,7 +166,9 @@ Report whether the result was compiled and visually checked.
 
 </details>
 
-## Workflows
+<a id="workflows"></a>
+
+## 04 / From draft to delivery
 
 | Your situation | Suggested sequence | Review before finishing |
 |---|---|---|
@@ -178,7 +180,7 @@ Report whether the result was compiled and visually checked.
 
 Each step can also be used independently. Formatting does not upload or submit a paper.
 
-## Check your environment
+## 05 / Check your environment
 
 The bundles are instructions; external tools do the extraction and compilation.
 Run a read-only prerequisite check before working on a local project:
@@ -204,7 +206,9 @@ python scripts/doctor.py --skill pdf2tex --json
 The doctor checks local dependencies. It does not install software, compile a
 document, or certify submission readiness.
 
-## FAQ
+<a id="faq"></a>
+
+## 06 / FAQ
 
 <details>
 <summary><strong>Does installing a skill install LaTeX or a model?</strong></summary>

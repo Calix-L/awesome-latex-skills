@@ -5,7 +5,7 @@ All notable changes to awesome-latex-skills.
 ## Unreleased
 
 ### Added
-- Redesigned bilingual READMEs with light/dark SVG covers, quick-start navigation, concise examples, and expandable setup/FAQ sections.
+- Redesigned bilingual READMEs with an editorial LaTeX wordmark, outlined typography, responsive light/dark covers, a numbered task catalog, and expandable setup/FAQ sections.
 - Read-only prerequisite doctor with explicit engine/backend choices and JSON output.
 - README link/anchor and SVG validation, plus prerequisite behavior regression tests.
 - Standard-library Python installer for Claude Code and Codex, including selected bundles, custom destinations, dry runs, idempotence, and conflict protection.
