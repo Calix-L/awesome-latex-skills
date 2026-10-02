@@ -5,9 +5,10 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
-from test_build import check_build
+from test_build import check_build, REPO
 
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 PDFLATEX = shutil.which("pdflatex")
@@ -139,6 +140,65 @@ class CompilationTests(unittest.TestCase):
         self.assertTrue((self.work / "nested build/chapters/one.aux").is_file())
         self.assertFalse((self.work / "chapters/one.aux").exists())
         self.assertFalse((self.work / "submission.aux").exists())
+        self.assertEqual({item["path"] for item in report["local_inputs"]},
+                         {"submission.tex", "submission-content.tex", "chapters/one.tex"})
+        self.assertTrue(all(step["recorder"] for step in report["steps"]))
+
+    def test_real_recorder_captures_local_style_and_graphics_without_unused_files(self):
+        source = self.work / "manifest.tex"
+        source.write_text(r"\documentclass{article}\usepackage{graphicx}\usepackage{localsettings}"
+                          r"\begin{document}\input{part}\includegraphics[width=1cm]{plot.pdf}\end{document}", encoding="utf-8")
+        (self.work / "localsettings.sty").write_text(r"\ProvidesPackage{localsettings}\newcommand{\localword}{Local}", encoding="utf-8")
+        (self.work / "part.tex").write_text(r"\localword{} content.", encoding="utf-8")
+        report = check_build.build(source, self.work / "manifest build")
+        self.assert_build_success(report)
+        self.assertEqual({item["path"] for item in report["local_inputs"]},
+                         {"manifest.tex", "localsettings.sty", "part.tex", "plot.pdf"})
+        self.assertEqual(report["input_tracking"]["changed"], [])
+        self.assertEqual(report["input_tracking"]["unreadable"], [])
+        for item in report["local_inputs"]:
+            self.assertEqual(item["observations"][-1]["sha256"], check_build.fingerprint(self.work / item["path"])["sha256"])
+
+    def test_missing_database_reports_real_bibtex_and_biber_failure_diagnostics(self):
+        for backend in check_build.BACKENDS:
+            with self.subTest(backend=backend):
+                if not shutil.which(backend):
+                    if os.environ.get("LATEX_SKILLS_REQUIRE_TEX") == "1":
+                        self.fail(f"{backend} is required for backend failure coverage")
+                    continue
+                source = self.work / f"missing-{backend}.tex"
+                if backend == "bibtex":
+                    content = (r"\documentclass{article}\begin{document}A citation~\cite{demo}."
+                               r"\bibliographystyle{plain}\bibliography{nonexistent-latexskills}\end{document}")
+                else:
+                    content = (r"\documentclass{article}\usepackage[backend=biber]{biblatex}"
+                               r"\addbibresource{nonexistent-latexskills.bib}\begin{document}"
+                               r"A citation~\cite{demo}.\printbibliography\end{document}")
+                source.write_text(content, encoding="utf-8")
+                report = check_build.build(source, self.work / f"missing {backend} build", backend=backend)
+                self.assertEqual(report["status"], "failed", report)
+                self.assertEqual(report["failed_step"], "bibliography", report)
+                self.assertEqual(report["diagnostic_step"], "bibliography")
+                self.assertTrue(any(item["severity"] == "error" and "nonexistent-latexskills" in item["message"]
+                                    for item in report["diagnostics"]), report)
+                self.assertEqual(len(report["steps"]), 2)
+                self.assertIsNone(report["pdf"])
+
+    def test_installed_build_helper_compiles_without_repository_or_site_packages(self):
+        sys.path.insert(0, str(REPO / "scripts"))
+        from install import install
+        destination = self.work / "installed skills"
+        install(REPO, destination, ["latex-rescue"])
+        source = self.work / "standalone.tex"
+        source.write_text(r"\documentclass{article}\begin{document}Standalone build.\end{document}", encoding="utf-8")
+        output = self.work / "installed build"
+        result = subprocess.run([sys.executable, "-I", "-S", str(destination / "latex-rescue/scripts/check_build.py"),
+                                 str(source), "--output", str(output)], cwd=self.work.parent,
+                                capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        report = json.loads((output / "build-report.json").read_text(encoding="utf-8"))
+        self.assertEqual(report["status"], "success")
+        self.assertEqual({item["path"] for item in report["local_inputs"]}, {"standalone.tex"})
 
     def test_strict_check_rejects_real_unresolved_reference(self):
         source = self.work / "strict.tex"

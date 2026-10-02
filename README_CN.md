@@ -231,7 +231,9 @@ python latex-rescue/scripts/check_build.py path/to/paper.tex --output final-chec
 
 选择项目实际的引擎和参考文献后端；不需要后端时省略 `--backend`。
 目标必须是新目录。工具保存每次运行的日志、终端输出、辅助文件、PDF 和
-`build-report.json`，记录退出码与最终诊断。工具关闭 shell escape，遇到失败或超时
+`build-report.json`，记录退出码与逐步诊断；参考文献后端失败时直接使用后端日志。
+实际记录的本地章节、样式和图片附有逐轮指纹，可发现观察之间的文件变化；这不是冻结的项目快照。
+工具关闭 shell escape，遇到失败或超时
 即停止。输出名默认沿用根文件名，并支持常规嵌套章节。
 `--until-stable` 在限定次数内检查辅助文件是否稳定；`--require-resolved` 会将
 已识别的未解析引用或重跑请求视为检查失败。不加该选项时，构建成功仍可能存在

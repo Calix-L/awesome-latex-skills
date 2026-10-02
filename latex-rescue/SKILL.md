@@ -81,6 +81,9 @@ build systems for projects beyond that helper's scope.
 Its default job name follows the root file. Use `--until-stable` for bounded
 auxiliary settling and `--require-resolved` when unresolved references must fail
 the check; these flags do not decide missing reference targets for the author.
+The report retains recorder-based local input fingerprints and identifies the
+failed engine/backend step. These observations do not freeze project inputs or
+cover every bibliography/system resource; inspect the guide's provenance limits.
 
 Read the final logs and inspect the resulting PDF when rendering tools are
 available. Report build failure separately from unresolved references, duplicate

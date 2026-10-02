@@ -245,7 +245,9 @@ python latex-rescue/scripts/check_build.py path/to/paper.tex --output final-chec
 Choose the actual engine and bibliography backend; omit `--backend` when none
 is needed. The output directory must be new. The helper retains per-pass logs,
 transcripts, auxiliary files, PDF, and `build-report.json`, including process
-exit codes and final diagnostics. It disables shell escape and stops on a failed
+exit codes and per-step diagnostics. Failed bibliography diagnostics come from
+the backend log. Recorded local input fingerprints identify observed chapter,
+style, or graphic changes; they are not a frozen project snapshot. It disables shell escape and stops on a failed
 step or timeout. Output follows the root filename, and ordinary nested chapters
 are supported. `--until-stable` bounds auxiliary settling; `--require-resolved`
 fails on recognized unresolved citations/references or rerun requests. Without

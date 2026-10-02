@@ -5,6 +5,9 @@ All notable changes to awesome-latex-skills.
 ## Unreleased
 
 ### Added
+- Per-pass TeX recorder retention and observed local input SHA-256 manifests, with changed/unreadable input detection and explicit coverage limits.
+- Per-step engine/backend diagnostics and direct CLI failure locations in schema-3 build reports.
+- Real recorder, missing-database, and isolated installed-helper compilation checks.
 - Offline PDF review reports with page/text comparison, selected-page navigation, light/dark responsive styling, source evidence, escaped metadata, and no remote dependencies.
 - Input fingerprint checks that refuse PDF evidence publication after concurrent source changes.
 - Exclusive installer locks with cross-process conflict checks, revalidated plans, and explicit interrupted-process recovery guidance.
@@ -26,6 +29,8 @@ All notable changes to awesome-latex-skills.
 - CI matrix for Windows, macOS, and Linux plus mandatory TeX fixture compilation.
 
 ### Fixed
+- Failed BibTeX/Biber diagnostics now come from the failed backend instead of the preceding TeX pass; recognized errors cannot pass on a zero exit code.
+- Root fingerprint failures are detected before output creation, and ordinary failed builds still check whether the root changed.
 - Repository validation rejects duplicate YAML keys and uninstallable unreferenced symlinks, preserves YAML merge overrides, and reports malformed local paths or HTML srcset whitespace without crashing.
 - Critical appraisal now matches evidence to claim type and reading purpose instead of using arbitrary baseline-age/gain thresholds, universal significance rules, or mandatory accept/reject verdicts.
 - Build output names now follow the root document by default; explicit job names and nested include auxiliary directories are supported.

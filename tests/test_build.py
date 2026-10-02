@@ -1,5 +1,6 @@
 """Portable build behavior; real engine/backend integration is in test_compile."""
 import importlib.util
+import hashlib
 import io
 import json
 from pathlib import Path
@@ -136,6 +137,127 @@ class BuildTests(unittest.TestCase):
         self.assertEqual(len(report["steps"]), 2)
         self.assertIn("exited with 2", report["failure"])
         self.assertIsNone(report["pdf"])
+
+    def test_failed_backend_diagnostics_are_taken_from_the_backend_not_prior_engine(self):
+        for backend, message in (("bibtex", "I couldn't open database file missing.bib\n"),
+                                 ("biber", "[12] Utils.pm:399> ERROR - Cannot find 'missing.bib'!\n")):
+            with self.subTest(backend=backend):
+                self.output = self.project / f"failed-{backend}"
+                self.calls.clear()
+                def fail(command, **kwargs):
+                    result = self.engine(command, **kwargs)
+                    if Path(command[0]).name == backend:
+                        (self.output / "document.blg").write_text(message, encoding="utf-8")
+                        return subprocess.CompletedProcess(command, 2)
+                    return result
+                report = self.run_build(fail, backend=backend)
+                self.assertEqual(report["failed_step"], "bibliography")
+                self.assertEqual(report["diagnostic_step"], "bibliography")
+                self.assertEqual(report["diagnostics"][0]["severity"], "error")
+                self.assertIn("missing.bib", report["diagnostics"][0]["message"])
+                self.assertEqual(report["diagnostics"][0]["log_line"], 1)
+                self.assertTrue(report["source_unchanged"])
+                self.assertEqual(len(report["steps"]), 2)
+
+    def test_backend_warnings_and_zero_exit_errors_are_not_lost(self):
+        for message, expected in (("Warning--I didn't find a database entry for missing\n", "success"),
+                                  ("I was expecting an equals sign---line 3 of file refs.bib\n", "failed")):
+            with self.subTest(message=message):
+                self.output = self.project / expected
+                self.calls.clear()
+                def runner(command, **kwargs):
+                    result = self.engine(command, **kwargs)
+                    if Path(command[0]).name == "bibtex":
+                        (self.output / "document.blg").write_text(message, encoding="utf-8")
+                    return result
+                report = self.run_build(runner, backend="bibtex")
+                self.assertEqual(report["status"], expected)
+                self.assertTrue(report["steps"][1]["diagnostics"])
+
+    def test_backend_transcript_is_used_when_native_log_is_missing(self):
+        def runner(command, **kwargs):
+            if Path(command[0]).name == "bibtex":
+                kwargs["stdout"].write(b"I couldn't open auxiliary file document.aux\n")
+                return subprocess.CompletedProcess(command, 1)
+            return self.engine(command, **kwargs)
+        report = self.run_build(runner, backend="bibtex")
+        self.assertIsNone(report["steps"][-1]["log"])
+        self.assertEqual(report["diagnostic_step"], "bibliography")
+        self.assertIn("auxiliary file", report["diagnostics"][0]["message"])
+
+    def test_recorder_retains_local_inputs_with_spaces_and_excludes_generated_and_external_files(self):
+        part = self.project / "parts/chapter one.tex"
+        part.parent.mkdir()
+        part.write_text("chapter", encoding="utf-8")
+        unused = self.project / "unused.tex"
+        unused.write_text("unused", encoding="utf-8")
+        outside = self.project.parent / "external.sty"
+        outside.write_text("external", encoding="utf-8")
+        def runner(command, **kwargs):
+            result = self.engine(command, **kwargs)
+            (self.output / "document.fls").write_text(
+                f"PWD {self.project}\nINPUT ./document.tex\nINPUT parts/chapter one.tex\n"
+                f"INPUT {part}\nINPUT {outside}\nINPUT {self.output / 'document.aux'}\n"
+                f"OUTPUT {self.output / 'document.aux'}\n", encoding="utf-8")
+            return result
+        report = self.run_build(runner)
+        self.assertEqual(report["status"], "success")
+        self.assertEqual([item["path"] for item in report["local_inputs"]], ["document.tex", "parts/chapter one.tex"])
+        item = report["local_inputs"][1]
+        self.assertEqual([observation["step"] for observation in item["observations"]], ["engine-01", "engine-02", "final"])
+        self.assertEqual(item["observations"][0]["sha256"], hashlib.sha256(part.read_bytes()).hexdigest())
+        self.assertEqual(report["input_tracking"]["recorder_steps"], ["engine-01", "engine-02"])
+        for step in report["steps"]:
+            self.assertTrue((self.output / step["recorder"]).is_file())
+
+    def test_changed_included_file_fails_without_reverting_the_edit(self):
+        part = self.project / "part.tex"
+        part.write_text("original", encoding="utf-8")
+        def runner(command, **kwargs):
+            if self.calls:
+                part.write_text("new author edit", encoding="utf-8")
+            result = self.engine(command, **kwargs)
+            (self.output / "document.fls").write_text(f"PWD {self.project}\nINPUT part.tex\n", encoding="utf-8")
+            return result
+        report = self.run_build(runner)
+        self.assertEqual(report["status"], "failed")
+        self.assertEqual(report["input_tracking"]["changed"], ["part.tex"])
+        self.assertIn("local inputs changed", report["failure"])
+        self.assertTrue(report["source_unchanged"])
+        self.assertEqual(part.read_text(), "new author edit")
+        self.assertIsNone(report["pdf"])
+
+    def test_missing_recorded_input_is_reported_and_stale_recorder_is_not_reused(self):
+        def runner(command, **kwargs):
+            result = self.engine(command, **kwargs)
+            if len(self.calls) == 1:
+                (self.output / "document.fls").write_text(f"PWD {self.project}\nINPUT removed.tex\n", encoding="utf-8")
+            return result
+        report = self.run_build(runner)
+        self.assertEqual(report["status"], "failed")
+        self.assertEqual(report["input_tracking"]["recorder_steps"], ["engine-01"])
+        self.assertIsNone(report["steps"][-1]["recorder"])
+        self.assertEqual(report["input_tracking"]["unreadable"], ["removed.tex"])
+        self.assertIsNotNone(report["local_inputs"][0]["observations"][0]["error"])
+
+    def test_failed_initial_fingerprint_does_not_create_an_empty_output(self):
+        with patch.object(check_build, "fingerprint", side_effect=OSError("source unreadable")):
+            with self.assertRaisesRegex(OSError, "source unreadable"):
+                self.run_build()
+        self.assertFalse(self.output.exists())
+
+    def test_cli_identifies_the_failure_evidence_and_first_error(self):
+        def runner(command, **kwargs):
+            result = self.engine(command, **kwargs)
+            (self.output / "document.log").write_text("./document.tex:7: Undefined control sequence.\n", encoding="utf-8")
+            return subprocess.CompletedProcess(command, 1)
+        stderr = io.StringIO()
+        with redirect_stdout(io.StringIO()), redirect_stderr(stderr), patch.object(check_build.subprocess, "run", side_effect=runner):
+            status = check_build.main([str(self.source), "--output", str(self.output)])
+        self.assertEqual(status, 1)
+        self.assertIn("Failed step: engine-01", stderr.getvalue())
+        self.assertIn("logs/engine-01.log:1:", stderr.getvalue())
+        self.assertIn("Undefined control sequence", stderr.getvalue())
 
     def test_timeout_retains_transcript_without_reusing_prior_log(self):
         def timeout(command, **kwargs):

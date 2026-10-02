@@ -17,6 +17,34 @@ BACKENDS = ("bibtex", "biber")
 AUXILIARY_SUFFIXES = {".aux", ".toc", ".lof", ".lot", ".out", ".bcf", ".bbl", ".nav", ".snm"}
 
 
+def fingerprint(path):
+    digest, size = hashlib.sha256(), 0
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+            size += len(chunk)
+    return {"sha256": digest.hexdigest(), "size": size}
+
+
+def recorder_inputs(text, cwd, project, output):
+    """Resolve FLS paths, excluding generated outputs and external resources."""
+    inputs, outputs = set(), set()
+    directory = cwd
+    for line in text.splitlines():
+        kind, separator, value = line.partition(" ")
+        if not separator or not value or kind not in {"PWD", "INPUT", "OUTPUT"}:
+            continue
+        path = (directory / value).resolve()
+        if kind == "PWD":
+            directory = path
+        elif kind == "INPUT":
+            inputs.add(path)
+        else:
+            outputs.add(path)
+    return sorted(path for path in inputs - outputs
+                  if path.is_relative_to(project) and not path.is_relative_to(output))
+
+
 def log_state(text):
     normalized = " ".join(text.split())
     return {
@@ -40,13 +68,23 @@ def prepare_include_directories(project, output):
             (output / relative.parent).mkdir(parents=True, exist_ok=True)
 
 
-def diagnostics(text):
+def diagnostics(text, tool=None):
     """Recognize common engine diagnostics; retain full logs for everything else."""
     findings = []
     for number, line in enumerate(text.splitlines(), 1):
         stripped = line.strip()
         severity = None
-        if stripped.startswith("!") or re.search(r"\.(?:tex|sty|cls|ltx):\d+: ", line):
+        if tool == "biber":
+            if re.search(r"(?:^|\s)ERROR - ", stripped):
+                severity = "error"
+            elif re.search(r"(?:^|\s)WARN - ", stripped):
+                severity = "warning"
+        elif tool == "bibtex":
+            if stripped.startswith("Warning--"):
+                severity = "warning"
+            elif re.match(r"I couldn't open |I found no |I was expecting |Repeated entry|Illegal, |Unbalanced braces", stripped) or re.search(r"---line \d+ of file ", stripped):
+                severity = "error"
+        elif stripped.startswith("!") or re.search(r"\.(?:tex|sty|cls|ltx):\d+: ", line):
             severity = "error"
         elif re.match(r"(?:LaTeX|Package .+|Class .+) Warning:", stripped):
             severity = "warning"
@@ -86,32 +124,58 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
             if not executable:
                 raise ValueError(f"Required tool is not on PATH: {tool}")
             executables[tool] = executable
+    source_sha256 = fingerprint(source)["sha256"]
     # mkdir is the reservation: do not replace a directory created after preflight.
     output.mkdir(parents=True, exist_ok=False)
     report = {
-        "schema": 2, "source": str(source), "jobname": jobname,
-        "source_sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+        "schema": 3, "source": str(source), "jobname": jobname,
+        "source_sha256": source_sha256,
         "engine": engine, "backend": backend, "requested_passes": passes,
         "output": str(output), "steps": [], "status": "failed", "pdf": None,
         "diagnostics": [], "failure": None,
         "until_stable": until_stable, "require_resolved": require_resolved,
         "auxiliary_stable": None, "rerun_requested": False, "unresolved_references": False,
         "source_unchanged": None,
+        "failed_step": None, "diagnostic_step": None,
+        "local_inputs": [], "input_tracking": {"recorder_steps": [], "changed": [], "unreadable": []},
     }
+    observed_inputs = {}
+
+    def observe(path, name):
+        relative = path.relative_to(source.parent).as_posix()
+        item = observed_inputs.setdefault(relative, {"path": relative, "observations": []})
+        observation = {"step": name, "sha256": None, "size": None, "error": None}
+        try:
+            resolved = path.resolve()
+            if not resolved.is_relative_to(source.parent) or resolved.is_relative_to(output):
+                raise ValueError("Recorded path now resolves outside the local input scope")
+            observation.update(fingerprint(resolved))
+        except (OSError, ValueError) as exc:
+            observation["error"] = str(exc)
+            if relative not in report["input_tracking"]["unreadable"]:
+                report["input_tracking"]["unreadable"].append(relative)
+        item["observations"].append(observation)
+        hashes = {entry["sha256"] for entry in item["observations"] if entry["sha256"] is not None}
+        if len(hashes) > 1 and relative not in report["input_tracking"]["changed"]:
+            report["input_tracking"]["changed"].append(relative)
     environment = os.environ.copy()
     for variable in ("TEXINPUTS", "BIBINPUTS", "BSTINPUTS"):
         environment[variable] = str(source.parent) + os.pathsep + environment.get(variable, "")
 
-    def run(command, cwd, name, native_log):
+    def run(command, cwd, name, native_log, recorder=None):
         evidence = output / "logs"
         evidence.mkdir(exist_ok=True)
         capture = evidence / f"{name}.txt"
         step = {"command": command, "cwd": str(cwd), "exit_code": None,
-                "timed_out": False, "transcript": capture.relative_to(output).as_posix(), "log": None}
+                "name": name, "tool": engine if name.startswith("engine-") else backend,
+                "timed_out": False, "transcript": capture.relative_to(output).as_posix(), "log": None,
+                "recorder": None, "diagnostics": []}
         report["steps"].append(step)
         # A failed later pass must not inherit the preceding pass's native log.
         if native_log.exists():
             native_log.unlink()
+        if recorder and recorder.exists():
+            recorder.unlink()
         # A disk transcript avoids buffering long compiler output in memory.
         with capture.open("wb") as stream:
             try:
@@ -128,8 +192,22 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
             saved = evidence / f"{name}{native_log.suffix}"
             shutil.copyfile(native_log, saved)
             step["log"] = saved.relative_to(output).as_posix()
+        diagnostic_file = output / (step["log"] or step["transcript"])
+        step["diagnostics"] = diagnostics(diagnostic_file.read_text(encoding="utf-8", errors="replace"), step["tool"])
+        if recorder and recorder.is_file():
+            saved_recorder = evidence / f"{name}.fls"
+            shutil.copyfile(recorder, saved_recorder)
+            step["recorder"] = saved_recorder.relative_to(output).as_posix()
+            report["input_tracking"]["recorder_steps"].append(name)
+            for path in recorder_inputs(saved_recorder.read_text(encoding="utf-8", errors="replace"), cwd, source.parent, output):
+                observe(path, name)
         if step["exit_code"] != 0:
+            report["failed_step"] = name
             report["failure"] = report["failure"] or f"{name} exited with {step['exit_code']}"
+            return False
+        if any(item["severity"] == "error" for item in step["diagnostics"]):
+            report["failed_step"] = name
+            report["failure"] = f"{name} log contains recognized errors"
             return False
         return True
 
@@ -146,7 +224,7 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
             command = [executables[engine], "-no-shell-escape", "-interaction=nonstopmode",
                        "-halt-on-error", "-file-line-error", "-recorder", f"-jobname={jobname}",
                        f"-output-directory={output}", filename]
-            if not run(command, source.parent, f"engine-{number:02}", output / f"{jobname}.log"):
+            if not run(command, source.parent, f"engine-{number:02}", output / f"{jobname}.log", output / f"{jobname}.fls"):
                 break
             current_auxiliary = auxiliary_hashes(output)
             report["auxiliary_stable"] = bool(current_auxiliary) and current_auxiliary == previous_auxiliary if previous_auxiliary is not None else None
@@ -170,22 +248,31 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
             if until_stable and report["auxiliary_stable"] and not report["rerun_requested"]:
                 break
         if report["steps"]:
-            last_engine = next(step for step in reversed(report["steps"]) if step["command"][0] == executables[engine])
+            last_engine = next(step for step in reversed(report["steps"]) if step["name"].startswith("engine-"))
+            selected_step = next((step for step in report["steps"] if step["name"] == report["failed_step"]), last_engine)
+            report["diagnostic_step"] = selected_step["name"]
+            report["diagnostics"] = selected_step["diagnostics"]
             log = output / (last_engine["log"] or last_engine["transcript"])
             final_text = log.read_text(encoding="utf-8", errors="replace")
-            report["diagnostics"] = diagnostics(final_text)
             report.update(log_state(final_text))
+        for relative in sorted(observed_inputs):
+            observe(source.parent / relative, "final")
+        report["local_inputs"] = [observed_inputs[key] for key in sorted(observed_inputs)]
+        report["source_unchanged"] = fingerprint(source)["sha256"] == report["source_sha256"]
         pdf = output / f"{jobname}.pdf"
         valid_pdf = False
         if pdf.is_file():
             with pdf.open("rb") as stream:
                 valid_pdf = stream.read(5) == b"%PDF-"
         if not report["failure"]:
-            report["source_unchanged"] = hashlib.sha256(source.read_bytes()).hexdigest() == report["source_sha256"]
             if any(item["severity"] == "error" for item in report["diagnostics"]):
                 report["failure"] = "Final engine log contains TeX errors"
             elif not report["source_unchanged"]:
                 report["failure"] = "Root source changed during the build; output cannot be verified against its starting hash"
+            elif report["input_tracking"]["changed"]:
+                report["failure"] = "Recorded local inputs changed between observations: " + ", ".join(report["input_tracking"]["changed"])
+            elif report["input_tracking"]["unreadable"]:
+                report["failure"] = "Recorded local inputs could not be fingerprinted: " + ", ".join(report["input_tracking"]["unreadable"])
             elif not valid_pdf:
                 report["failure"] = "Engine did not produce a PDF with a valid header"
             elif until_stable and (not report["auxiliary_stable"] or report["rerun_requested"]):
@@ -201,6 +288,7 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
         report["failure"] = f"Build evidence could not be completed: {exc}"
         raise
     finally:
+        report["local_inputs"] = [observed_inputs[key] for key in sorted(observed_inputs)]
         (output / "build-report.json").write_text(json.dumps(report, ensure_ascii=True, indent=2) + "\n", encoding="utf-8")
     return report
 
@@ -226,6 +314,13 @@ def main(argv=None):
     print(f"Build {report['status']}: {report['output']}")
     if report["failure"]:
         print(report["failure"], file=sys.stderr)
+        if report["failed_step"]:
+            step = next(item for item in report["steps"] if item["name"] == report["failed_step"])
+            print(f"Failed step: {step['name']}; evidence: {step['log'] or step['transcript']}", file=sys.stderr)
+        errors = [item for item in report["diagnostics"] if item["severity"] == "error"]
+        if errors:
+            step = next(item for item in report["steps"] if item["name"] == report["diagnostic_step"])
+            print(f"First recognized error: {step['log'] or step['transcript']}:{errors[0]['log_line']}: {errors[0]['message']}", file=sys.stderr)
     print("Evidence: build-report.json; inspect final diagnostics and the PDF separately.")
     return 0 if report["status"] == "success" else 1
 

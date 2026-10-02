@@ -35,11 +35,18 @@ To run one area: `python -m unittest discover -s tests -p test_install.py -v`.
   bundled checker with real pdfLaTeX, XeLaTeX, LuaLaTeX, BibTeX, and Biber, including
   filenames/output paths with spaces, local/nested inputs, root job names, bibliography
   lookup, fontspec, bounded auxiliary settling, and strict unresolved-reference failures.
+  Real integration also checks recorder manifests for chapters/styles/graphics,
+  missing BibTeX/Biber databases, and compilation from an installed bundle with
+  isolated Python and site packages disabled.
 - **Build evidence:** portable tests cover existing/stale outputs, zero/nonzero
   exits with invalid PDFs or error logs, missing tools, explicit backend sequencing,
   launch failure, interruption, per-pass timeout/log retention, and installed-helper
   execution. Tests also verify output basenames, explicit job names, bounded settling,
   strict references, changed-root detection, and source preservation.
+  Recorder tests verify local path resolution, spaces, deduplication, generated/external
+  exclusions, retained per-pass FLS files, stale recorder removal, changed/missing
+  inputs, and failure without reverting edits. Backend diagnostics and CLI failure
+  evidence are checked independently of the prior engine log.
 
 Compilation explicitly skips if `pdflatex` is unavailable locally. Set
 `LATEX_SKILLS_REQUIRE_TEX=1` to fail when the compiler is missing; CI's Linux compile
