@@ -10,7 +10,7 @@
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
 </p>
 
-<p align="center">Five focused agent skills for repairing LaTeX, polishing prose, formatting submissions, reading papers, and recovering source.</p>
+<p align="center">Five skills for LaTeX repair, academic editing, submission formatting, paper reading, and PDF recovery.</p>
 
 <div align="center">
 
