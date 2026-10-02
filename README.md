@@ -1,189 +1,33 @@
 <div align="center">
 
-[中文文档](./README_CN.md)
-
-<img src="./assets/banner.svg" alt="awesome-latex-skills" width="100%">
-
-<br>
-
-### Every researcher knows the feeling.
-
-> *47 compilation errors at 2 AM. A reviewer who writes "English needs improvement."*
-> *A CVPR reject that needs to become an ICML submission by Friday.*
-
-**awesome-latex-skills** turns any AI agent into a LaTeX expert — structured workflows, curated knowledge, and guardrails that raw prompts can't replicate.
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/banner-dark.svg">
+  <img src="./assets/banner.svg" alt="awesome-latex-skills — Good research. Clearer manuscripts." width="100%">
+</picture>
 
 <br>
 
-`47 errors → 0` &nbsp;·&nbsp; `Chinglish → publication-ready` &nbsp;·&nbsp; `CVPR → NeurIPS` &nbsp;·&nbsp; `50 pages → structured notes`
+### A practical toolkit for your next paper.
 
-<br>
+Repair LaTeX, polish academic prose, apply publication templates, read papers,<br>and recover editable source — with focused workflows for your AI agent.
 
-<a href="https://github.com/Calix-L/awesome-latex-skills/actions"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="CI"></a>
-<img src="https://img.shields.io/badge/skills-5-blue" alt="5 skills">
-<img src="https://img.shields.io/badge/tests-behavioral-blue" alt="Behavioral tests">
-<img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=social" alt="Stars">
-<img src="https://img.shields.io/badge/license-MIT-yellow" alt="MIT">
+<p>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
+  <a href="#skills"><img src="https://img.shields.io/badge/skills-5-6254c7?style=flat-square" alt="5 skills"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-317c62?style=flat-square" alt="MIT license"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/stargazers"><img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=flat-square&amp;color=6254c7" alt="GitHub stars"></a>
+</p>
+
+**English** · [简体中文](./README_CN.md)<br><br>
+[Quick start](#quick-start) · [Skills](#skills) · [Examples](#examples) · [Workflows](#workflows) · [FAQ](#faq)
 
 </div>
 
 ---
 
-**[10-Second Pitch](#10-second-pitch) · [Skills](#skills) · [Demos](#demos) · [Workflows](#workflows) · [Quick Start](#quick-start) · [Compatibility](#compatibility)**
+## Quick start
 
----
-
-## 10-Second Pitch
-
-You describe the problem. The skill produces the fix.
-
-- **47 compilation errors at 2 AM** — `latex-rescue` auto-corrects typos, fixes mismatched environments, resolves package conflicts. 80+ patterns; ambiguous content is flagged for review.
-- **"English needs improvement" from Reviewer #2** — `latex-polish` fixes 18 categories of Chinglish, applies 100+ academic phrasebank templates, adds proper hedging. 3 intensity levels.
-- **CVPR rejected, ICML deadline Friday** — `latex-fmt` switches `\documentclass`, removes banned packages, anonymizes, checks page limits. 15 venues covered.
-- **50 papers in your reading list** — `paper-read` produces a 5-bullet skim in 30 seconds, a structured analysis in 5 minutes, or a full critical review in 15.
-- **Lost the .tex, only the PDF** — `pdf2tex` reconstructs editable LaTeX from text-based PDFs, marking uncertainty. 97+ math glyph mappings, table reconstruction, 7-phase pipeline.
-
-No LaTeX expertise required. The skill handles the semicolons.
-
----
-
-## Skills
-
-<table>
-<tr>
-<td width="54" align="center">:ambulance:</td>
-<td width="120"><strong><a href="./latex-rescue/SKILL.md">latex-rescue</a></strong></td>
-<td>Fix compilation errors — 80+ auto-fix patterns, package conflicts, Overleaf support</td>
-</tr>
-<tr>
-<td align="center">:pencil2:</td>
-<td><strong><a href="./latex-polish/SKILL.md">latex-polish</a></strong></td>
-<td>Polish academic writing — 18 Chinglish categories, 100+ phrasebank templates, 3 intensity levels</td>
-</tr>
-<tr>
-<td align="center">:repeat:</td>
-<td><strong><a href="./latex-fmt/SKILL.md">latex-fmt</a></strong></td>
-<td>Reformat between 15 venues — NeurIPS · ICML · CVPR · ACL · ICLR · ECCV · AAAI · TMLR · IEEE · Nature · Science · COLING · KDD · SIGIR · Interspeech</td>
-</tr>
-<tr>
-<td align="center">:book:</td>
-<td><strong><a href="./paper-read/SKILL.md">paper-read</a></strong></td>
-<td>Read & analyze papers — skim / read / deep, 50+ critical appraisal items, assumption auditing</td>
-</tr>
-<tr>
-<td align="center">:wrench:</td>
-<td><strong><a href="./pdf2tex/SKILL.md">pdf2tex</a></strong></td>
-<td>Rebuild LaTeX from PDF — 7-phase pipeline, 97+ math glyph mappings, table reconstruction</td>
-</tr>
-</table>
-
-| | | | |
-|---|---|---|---|
-| 80+ error patterns | 14 package conflicts | 18 Chinglish categories | 100+ phrasebank templates |
-| 15 venue rules | 50+ appraisal items | 97+ glyph mappings | 15 reference files |
-
----
-
-## Why skills, not just prompts?
-
-You've tried asking ChatGPT to fix your LaTeX. It guesses. It misses things. It changes your math.
-
-| You say... | What the raw LLM does | What the skill pack does |
-|---|---|---|
-| `\beginn{table}` | "That's an interesting typo" | Auto-corrects to `\begin{table}` |
-| "According to the experiment" | Accepts it | Flags overuse, suggests alternatives |
-| "Format for NeurIPS" | Uses a remembered template | Verifies the requested year, track, and stage |
-| "Convert this PDF to LaTeX" | Produces broken markup | 7-phase pipeline with verification |
-| `\citep{}` without natbib | Silently ignores | Detects missing package, adds it |
-| "Polish my paper" | Rewrites everything | Minimal edits, preserves math & commands |
-
-Skills inject **hundreds of domain-specific rules** that LLMs can't reliably recall from memory. Each skill = structured workflow + reference knowledge + guardrails. Consistent guidance, with outcomes checked against the source and build.
-
----
-
-## Demos
-
-### :ambulance: latex-rescue — *2 AM, 47 errors, deadline tomorrow*
-
-```diff
-- \textbff{bold}              → Undefined control sequence
-+ \textbf{bold}               → auto-fixed
-
-- x_i is important            → Missing $ inserted
-+ $x_i$ is important          → auto-fixed
-
-- \begin{figure}...\end{table}
-+ \begin{figure}...\end{figure}  → mismatch fixed
-```
-
-### :pencil2: latex-polish — *Reviewer #2 says "English needs improvement"*
-
-```diff
-- The model can achieves good performance on the dataset.
-+ The model achieves strong performance on the benchmark.
-
-- According to the experiment, it makes the accuracy improved by 3.2%.
-+ Experiments show that the method improves accuracy by 3.2%.
-
-- Most of methods in this research field can not achieve the same result.
-+ Most methods in this field fail to match this result.
-```
-
-### :repeat: latex-fmt — *Review reformat, CVPR → NeurIPS*
-
-```diff
-- \usepackage[review]{cvpr}
-+ \usepackage{neurips_2025} % historical example; verify requested kit
-- \author{Zhang et al.}
-+ \author{Anonymous}
-- (no Broader Impact section)
-+ ⚠ Verify impact discussion and required checklist in the official kit
-```
-
-### :book: paper-read — *50 papers in your reading list, no time*
-
-```diff
-- "This paper proposes a novel transformer-based approach for..."
-+ [skim] Object detection · Wang et al., CVPR 2024
-+        Novelty: sparse attention for real-time. Verdict: worth deep read.
-
-- (reading every paper front-to-back)
-+ [deep] Key eq: sparse attention. Delta: 10x faster.
-+        Gap: only tested on COCO. Overclaim: "SOTA" (margin 0.3%).
-```
-
-### :wrench: pdf2tex — *Lost the .tex, only the PDF survives*
-
-```diff
-- (staring at a compiled PDF, no source files)
-+ \documentclass{article}
-+ \usepackage{amsmath,amssymb}
-+ \section{Introduction}
-+ The model achieves $F_1 = 92.3$ on the benchmark.
-+ % [UNCERTAIN: math notation — verify subscripts]
-```
-
----
-
-## Workflows
-
-Skills compose into pipelines for real academic scenarios:
-
-| Scenario | What you type | What happens |
-|---|---|---|
-| Deadline crunch | `/latex-rescue` | Crash → rescue → compile |
-| Review turnaround | `/latex-polish` → `/latex-fmt` | Draft → polish → format → submit |
-| Rebuttal reformat | `/latex-polish` → `/latex-fmt` | CVPR reject → polish → reformat for ICML |
-| Lost source | `/pdf2tex` → `/latex-rescue` | PDF → reconstruct → fix → compile |
-| New paper | `/paper-read` → `/latex-polish` → `/latex-fmt` | Read papers → polish → format for venue |
-| Overleaf | `/latex-rescue` | Paste error log → get fixes |
-
----
-
-## Quick Start
-
-Clone the repository, then run the installer with **Python 3.10+**. These commands
-work in PowerShell, Bash, and zsh (use `python3` on systems where needed):
+**Python 3.10+ · Windows, macOS, Linux · installer has no third-party dependencies**
 
 ```sh
 git clone https://github.com/Calix-L/awesome-latex-skills.git
@@ -191,79 +35,222 @@ cd awesome-latex-skills
 python scripts/install.py --agent claude
 ```
 
-For Codex:
+Using **Codex**? Change the last command to `python scripts/install.py --agent codex`.
+Use `python3` if that is your system's Python command.
 
-```sh
-python scripts/install.py --agent codex
-```
-
-Select one or more bundles by repeating `--skill`:
-
-```sh
-python scripts/install.py --agent codex --skill latex-rescue --dry-run
-python scripts/install.py --agent codex --skill latex-rescue
-```
-
-The installer copies each complete bundle, including references and agent metadata.
-It uses `~/.claude/skills` or `$CODEX_HOME/skills` (default `~/.codex/skills`).
-Use `--dest PATH` for a custom directory. A dry run writes nothing. Identical
-bundles are left alone; different existing bundles stop the batch before writes.
-To update, back up and move the affected old bundle away first, or choose a new
-destination. No dependencies are needed by the installer itself.
-
-Claude Code uses `/latex-rescue`; Codex uses `$latex-rescue` or natural-language
-skill discovery. Other agents can read the entrypoint directly:
-
-```text
-Read awesome-latex-skills/latex-rescue/SKILL.md and follow the workflow.
-```
-
-Keep `references/` accessible: pasting `SKILL.md` alone omits supporting guidance.
-Local compilation needs the project's TeX engine; PDF extraction needs PyMuPDF
-(`python -m pip install pymupdf`). Formatting needs the requested official author
-kit; venue templates are not bundled here. See [tests](tests/README.md) for checks.
-
----
-
-## Compatibility
-
-| Platform | How to use |
-|---|---|
-| **Codex** | `python scripts/install.py --agent codex`; invoke `$latex-rescue` |
-| **Claude Code** | Copy to `~/.claude/skills/`, invoke with `/latex-rescue` |
-| **ChatGPT / GPT-4** | Paste SKILL.md as custom instruction or system prompt |
-| **Cursor** | Add SKILL.md content to `.cursor/rules/` |
-| **Copilot** | Add SKILL.md content to `.github/copilot-instructions.md` |
-| **Any LLM** | Send SKILL.md as context, then ask your question |
-
----
+| Agent | Invoke after installation | Default destination |
+|---|---|---|
+| Claude Code | `/latex-rescue` or a natural-language request | `~/.claude/skills/` |
+| Codex | `$latex-rescue` or a natural-language request | `$CODEX_HOME/skills/`, default `~/.codex/skills/` |
 
 <details>
-<summary>How it works</summary>
+<summary><strong>Install one skill, preview changes, or choose a destination</strong></summary>
 
-Each skill is a self-contained directory:
+```sh
+# Preview first; no files are written
+python scripts/install.py --agent codex --skill latex-rescue --dry-run
 
-```
-latex-rescue/
-├── SKILL.md              # the prompt — role, triggers, workflow, guardrails
-├── references/           # domain knowledge the agent reads at each phase
-│   ├── error-catalog.md
-│   ├── package-conflicts.md
-│   └── debug-workflow.md
-└── agents/
-    ├── config.yaml       # legacy integration hints
-    └── openai.yaml       # Codex UI metadata
+# Install only the selected bundle; repeat --skill to select more
+python scripts/install.py --agent codex --skill latex-rescue
+
+# Choose your own skills directory
+python scripts/install.py --dest "path/to/skills" --skill paper-read
 ```
 
-1. You type `/latex-rescue` or say "fix my LaTeX errors"
-2. Agent loads `SKILL.md` — now it has a structured workflow + guardrails
-3. It reads `references/` for precise domain rules at each phase
-4. Structured workflow → inspectable edits and explicit verification
+Each installation includes the entrypoint, references, and agent metadata.
+Identical bundles stay untouched. If an existing bundle differs, the installer
+stops the batch before writing. Back up and move the old bundle away before an
+update, or choose another destination.
 
 </details>
 
----
+<details>
+<summary><strong>Using another agent or a chat interface</strong></summary>
 
-## License
+Give your agent access to the complete skill directory, then ask:
 
-MIT
+```text
+Read awesome-latex-skills/latex-rescue/SKILL.md and follow its workflow.
+```
+
+In a chat-only interface, provide the entrypoint and the relevant reference files.
+Pasting `SKILL.md` alone leaves out supporting guidance. Local editing and
+compilation depend on the tools available to that agent. The legacy
+`agents/config.yaml` files are integration hints, not a universal configuration
+API for every platform.
+
+</details>
+
+## Skills
+
+Choose the job you need. Every skill has its own workflow, domain references,
+and rules for preserving the author's intent.
+
+| Skill | Start here when… | What you receive |
+|---|---|---|
+| **[latex-rescue](./latex-rescue/SKILL.md)**<br>Repair | The project fails to compile | Minimal source fixes, build evidence, unresolved issues |
+| **[latex-polish](./latex-polish/SKILL.md)**<br>Polish | The prose needs clearer academic English | Reviewable edits at light, moderate, or strict intensity |
+| **[latex-fmt](./latex-fmt/SKILL.md)**<br>Format | You are changing venue or preparing a submission | Template changes and a pass/fail/unverified compliance report |
+| **[paper-read](./paper-read/SKILL.md)**<br>Read | You need to understand or assess a paper | A skim, structured reading, or deeper appraisal grounded in the paper |
+| **[pdf2tex](./pdf2tex/SKILL.md)**<br>Recover | You have the PDF but need editable LaTeX | Reconstructed source with uncertain content marked for review |
+
+**Publication guidance:** NeurIPS · ICML · CVPR · ACL/EMNLP · ICLR · ECCV · AAAI ·
+TMLR · IEEE · Nature · Science · COLING · KDD · SIGIR · Interspeech.
+The [venue guide](./latex-fmt/references/templates/venue-guide.md) routes to official
+instructions; the requested year, track, article type, and submission stage must
+be verified. Official author kits are not bundled.
+
+## Examples
+
+Illustrative edits and requests, rather than benchmark results or promises of
+automatic completion.
+
+### Repair a syntax error
+
+```diff
+- \textbff{Results}
++ \textbf{Results}
+
+- \begin{figure} ... \end{table}
++ \begin{figure} ... \end{figure}
+```
+
+Known syntax mistakes can be repaired. Ambiguous equations, table data, citation
+keys, and labels remain author decisions; a successful build cannot resolve intent.
+
+### Polish without changing the claim
+
+```diff
+- The model can achieves good performance on the dataset.
++ The model achieves good performance on the dataset.
+
+- According to the experiment, the accuracy is improved by 3.2%.
++ The experiments show a 3.2% improvement in accuracy.
+```
+
+Technical terms, numbers, uncertainty, and the meaning of “3.2%” stay intact.
+The skill does not silently turn a relative percentage into percentage points.
+
+<details>
+<summary><strong>More requests: formatting, reading, and PDF recovery</strong></summary>
+
+**Format a paper**
+
+```text
+Format this project for NeurIPS 2026, main track, anonymous review.
+Use the official author kit. Preserve the scientific content and report
+any requirements that could not be verified.
+```
+
+**Read with a purpose**
+
+```text
+Read this paper in deep mode. Explain the main claim, supporting evidence,
+important assumptions, and what I would need to reproduce the result.
+Cite the relevant sections, figures, or equations.
+```
+
+**Recover editable source**
+
+```text
+Reconstruct this text-based PDF as LaTeX. Keep the section order and
+mark ambiguous notation, merged table cells, and missing assets.
+Report whether the result was compiled and visually checked.
+```
+
+</details>
+
+## Workflows
+
+| Your situation | Suggested sequence | Review before finishing |
+|---|---|---|
+| A draft will not build | `latex-rescue` | Final log, remaining warnings, rendered PDF |
+| You are revising a manuscript | `latex-polish` → `latex-rescue` | Meaning-preserving diff and compilation |
+| You are switching venues | `latex-fmt` → `latex-rescue` | Official rules, content-page boundary, anonymity |
+| The original source is missing | `pdf2tex` → `latex-rescue` | Content coverage, equations, tables, visual comparison |
+| You are reading related work | `paper-read` | Claims versus evidence and source locations |
+
+Each step can also be used independently. Formatting does not upload or submit a paper.
+
+## Check your environment
+
+The bundles are instructions; external tools do the extraction and compilation.
+Run a read-only prerequisite check before working on a local project:
+
+```sh
+python scripts/doctor.py --skill latex-rescue --engine pdflatex
+
+# Match the actual project's engine and bibliography backend
+python scripts/doctor.py --skill latex-fmt --engine xelatex --backend biber
+
+# Machine-readable output; exit 1 means a required local tool is missing
+python scripts/doctor.py --skill pdf2tex --json
+```
+
+| Task | Local prerequisites | If unavailable |
+|---|---|---|
+| Compile or verify formatting | Project's TeX engine; selected bibliography backend | Diagnose from supplied logs; report compilation as unverified |
+| Polish pasted text / read supplied text | No TeX compiler required | Editing/reading can proceed; PDF verification is separate |
+| Extract a text-based PDF | PyMuPDF: `python -m pip install pymupdf` | Supply extracted text or configure an extraction tool |
+| Recover a scanned PDF | A separate OCR workflow | Standard text extraction is insufficient |
+| Apply venue rules | Official kit and author instructions | Mark unresolved rules unverified |
+
+The doctor checks local dependencies. It does not install software, compile a
+document, or certify submission readiness.
+
+## FAQ
+
+<details>
+<summary><strong>Does installing a skill install LaTeX or a model?</strong></summary>
+
+No. It copies the instruction bundle. Use the AI agent and TeX distribution
+already configured for your work; the doctor reports missing local prerequisites.
+
+</details>
+
+<details>
+<summary><strong>Can I use this with Overleaf?</strong></summary>
+
+Yes: provide the error log and relevant source for diagnosis, or export the
+complete project for local checks. The agent must clearly distinguish a proposed
+fix from a repair that has actually been recompiled.
+
+</details>
+
+<details>
+<summary><strong>Will PDF recovery recreate my original source exactly?</strong></summary>
+
+No. A PDF loses macros and source structure. Reconstruction aims for editable,
+faithful content and marks uncertainty. Equations, tables, references, and layout
+need comparison against the original; scanned pages need OCR first.
+
+</details>
+
+<details>
+<summary><strong>What does a passing CI badge prove?</strong></summary>
+
+CI validates bundle metadata, local resource and README links, SVG assets,
+installation behavior, prerequisite reports, data-preserving fixtures, and real
+TeX compilation. Portable checks run on Windows, macOS, and Linux with Python
+3.10 and 3.13. It does not certify an AI agent's editing quality or a manuscript's
+compliance with current venue rules. See [the test guide](./tests/README.md).
+
+</details>
+
+## Contribute
+
+Found a misleading rule, a missing error pattern, or an installation issue?
+Open an [issue](https://github.com/Calix-L/awesome-latex-skills/issues/new/choose)
+or send a focused pull request. Include a minimal example, expected behavior,
+and an official source for any venue-specific requirement.
+
+[Contributor guide](./CONTRIBUTING.md) · [Test guide](./tests/README.md) ·
+[Changelog](./CHANGELOG.md) · [MIT license](./LICENSE)
+
+<div align="center">
+
+<br>
+
+<sub>Built for researchers who want useful assistance and changes they can review.</sub>
+
+</div>

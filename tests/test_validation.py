@@ -6,7 +6,7 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from install import REPO, SKILLS
-from validate_repo import validate
+from validate_repo import heading_ids, validate, validate_document
 
 
 class ValidationTests(unittest.TestCase):
@@ -63,3 +63,29 @@ class ValidationTests(unittest.TestCase):
     def test_nonmapping_metadata_fails_without_traceback(self):
         self.change("latex-fmt/SKILL.md", 'metadata:\n  version: "1.2.0"', "metadata: []")
         self.assertTrue(any("metadata must be a mapping" in e for e in validate(self.repo)))
+
+    def test_broken_readme_image_is_rejected(self):
+        document = self.repo / "README.md"
+        document.write_text('<picture><img src="assets/missing.svg"></picture>', encoding="utf-8")
+        self.assertTrue(any("missing.svg" in e for e in validate_document(document, self.repo)))
+
+    def test_broken_readme_navigation_is_rejected(self):
+        document = self.repo / "README.md"
+        document.write_text("# Title\n[Start](#missing-heading)\n", encoding="utf-8")
+        self.assertTrue(any("missing heading" in e for e in validate_document(document, self.repo)))
+
+    def test_chinese_and_duplicate_headings_resolve(self):
+        document = self.repo / "README.md"
+        document.write_text("## 快速开始\n## Quick start\n## Quick start\n[开始](#快速开始)\n[again](#quick-start-1)\n", encoding="utf-8")
+        self.assertEqual(validate_document(document, self.repo), [])
+
+    def test_fenced_examples_do_not_create_fake_links(self):
+        document = self.repo / "README.md"
+        document.write_text("```md\n# Fake\n[example](missing.md)\n```\n", encoding="utf-8")
+        self.assertEqual(validate_document(document, self.repo), [])
+        self.assertNotIn("fake", heading_ids(document.read_text(encoding="utf-8")))
+
+    def test_reference_outside_repo_is_rejected(self):
+        document = self.repo / "README.md"
+        document.write_text("[outside](../private.txt)\n", encoding="utf-8")
+        self.assertTrue(any("external local link" in e for e in validate_document(document, self.repo)))

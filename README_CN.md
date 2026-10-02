@@ -1,189 +1,35 @@
 <div align="center">
 
-<img src="./assets/banner.svg" alt="awesome-latex-skills" width="100%">
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/banner-dark.svg">
+  <img src="./assets/banner.svg" alt="awesome-latex-skills — Good research. Clearer manuscripts." width="100%">
+</picture>
 
 <br>
 
-### 每个研究者都经历过这些时刻。
+### 为下一篇论文准备的实用工具箱。
 
-> *凌晨 2 点，47 个编译错误。审稿人一句"English needs improvement。"*
-> *CVPR 被拒，周五前要改成 ICML 格式。*
+修复 LaTeX、润色学术表达、转换投稿格式、读懂论文、恢复可编辑源码。<br>把具体任务交给有工作流、有参考知识、能说明验证结果的 AI Agent。
 
-**awesome-latex-skills** 让任何 AI 拥有 LaTeX 领域专家能力——结构化工作流、精选知识库、严格防护栏，这是普通 Prompt 做不到的。
+<p>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
+  <a href="#skills"><img src="https://img.shields.io/badge/skills-5-6254c7?style=flat-square" alt="5 skills"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-317c62?style=flat-square" alt="MIT license"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/stargazers"><img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=flat-square&amp;color=6254c7" alt="GitHub stars"></a>
+</p>
 
-<br>
-
-`47 errors → 0` &nbsp;·&nbsp; `Chinglish → publication-ready` &nbsp;·&nbsp; `CVPR → NeurIPS` &nbsp;·&nbsp; `50 pages → structured notes`
-
-<br>
-
-<a href="https://github.com/Calix-L/awesome-latex-skills/actions"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="CI"></a>
-<img src="https://img.shields.io/badge/skills-5-blue" alt="5 skills">
-<img src="https://img.shields.io/badge/tests-behavioral-blue" alt="Behavioral tests">
-<img src="https://img.shields.io/github/stars/Calix-L/awesome-latex-skills?style=social" alt="Stars">
-<img src="https://img.shields.io/badge/license-MIT-yellow" alt="MIT">
-
-[English](./README.md)
+[English](./README.md) · **简体中文**<br><br>
+[快速开始](#quick-start) · [技能一览](#skills) · [使用示例](#examples) · [组合工作流](#workflows) · [常见问题](#faq)
 
 </div>
 
 ---
 
-**[10 秒了解](#10-秒了解) · [技能一览](#技能一览) · [效果演示](#效果演示) · [组合工作流](#组合工作流) · [快速上手](#快速上手) · [平台兼容](#平台兼容)**
+<a id="quick-start"></a>
 
----
+## 快速开始
 
-## 10 秒了解
-
-你描述问题，Skill 给出修复。
-
-- **凌晨 2 点，47 个编译错误** — `latex-rescue` 自动纠正拼写、修复不匹配环境、解决包冲突。80+ 模式；含义不确定的内容会标记供作者审查。
-- **审稿人写了句"English needs improvement"** — `latex-polish` 纠正 18 类中式英语，应用 100+ 学术短语模板，添加适当 hedging。3 档强度可选。
-- **CVPR 被拒，周五前要改成 ICML 格式** — `latex-fmt` 切换 `\documentclass`，移除禁用包，匿名化处理，检查页数限制。覆盖 15 个会议。
-- **待读列表 50 篇论文** — `paper-read` 30 秒速读 5 要点，5 分钟结构化分析，15 分钟完整评审。
-- **源码丢了，只剩 PDF** — `pdf2tex` 从编译后的 PDF 重建 LaTeX。97+ 数学符号映射、表格重建、7 阶段流水线。
-
-不需要 LaTeX 专业知识。Skill 帮你搞定分号。
-
----
-
-## 技能一览
-
-<table>
-<tr>
-<td width="54" align="center">:ambulance:</td>
-<td width="120"><strong><a href="./latex-rescue/SKILL.md">latex-rescue</a></strong></td>
-<td>修复编译错误 — 80+ 自动修复模式、包冲突检测、Overleaf 支持</td>
-</tr>
-<tr>
-<td align="center">:pencil2:</td>
-<td><strong><a href="./latex-polish/SKILL.md">latex-polish</a></strong></td>
-<td>润色学术写作 — 18 类中式英语纠正、100+ phrasebank 模板、3 档强度</td>
-</tr>
-<tr>
-<td align="center">:repeat:</td>
-<td><strong><a href="./latex-fmt/SKILL.md">latex-fmt</a></strong></td>
-<td>会议格式转换 — NeurIPS · ICML · CVPR · ACL · ICLR · ECCV · AAAI · TMLR · IEEE · Nature · Science · COLING · KDD · SIGIR · Interspeech</td>
-</tr>
-<tr>
-<td align="center">:book:</td>
-<td><strong><a href="./paper-read/SKILL.md">paper-read</a></strong></td>
-<td>论文阅读分析 — 速读 / 精读 / 深度审计，50+ 项评审指标，假设审计</td>
-</tr>
-<tr>
-<td align="center">:wrench:</td>
-<td><strong><a href="./pdf2tex/SKILL.md">pdf2tex</a></strong></td>
-<td>PDF 逆向重建 LaTeX — 7 阶段流水线、97+ 数学符号映射、表格重建</td>
-</tr>
-</table>
-
-| | | | |
-|---|---|---|---|
-| 80+ 错误模式 | 14 种包冲突 | 18 类中式英语 | 100+ phrasebank 模板 |
-| 15 个会议规则 | 50+ 项评审指标 | 97+ 数学符号映射 | 15 个参考文件 |
-
----
-
-## 为什么是 Skill 而不是 Prompt？
-
-你试过让 ChatGPT 修 LaTeX。它会猜。它会漏。它还会改你的数学公式。
-
-| 你说... | 普通 LLM 会... | Skill 包会... |
-|---|---|---|
-| `\beginn{table}` | "这是个有趣的拼写错误" | 自动纠正为 `\begin{table}` |
-| "According to the experiment" | 照单全收 | 标记 overuse，推荐替代表达 |
-| 投稿 NeurIPS | 使用记忆中的模板 | 核验年份、赛道和投稿阶段 |
-| PDF → LaTeX | 生成乱码标记 | 7 阶段流水线 + 验证 |
-| 没有 natbib 却用 `\citep{}` | 直接忽略 | 检测缺失包，自动添加 |
-| "帮我润色论文" | 全文重写 | 最小改动，保留数学公式和命令 |
-
-Skill 注入了**数百条领域专用规则**，这些规则 LLM 无法仅靠记忆可靠地调用。每个 Skill = 结构化工作流 + 领域知识 + 防护栏。统一工作流，并根据源码、编译日志和实际产物验证结果。
-
----
-
-## 效果演示
-
-### :ambulance: latex-rescue — *凌晨 2 点，47 个错误，明天截稿*
-
-```diff
-- \textbff{bold}              → Undefined control sequence
-+ \textbf{bold}               → 自动修复
-
-- x_i is important            → Missing $ inserted
-+ $x_i$ is important          → 自动修复
-
-- \begin{figure}...\end{table}
-+ \begin{figure}...\end{figure}  → 环境不匹配已修复
-```
-
-### :pencil2: latex-polish — *审稿人写了句"English needs improvement"*
-
-```diff
-- The model can achieves good performance on the dataset.
-+ The model achieves strong performance on the benchmark.
-
-- According to the experiment, it makes the accuracy improved by 3.2%.
-+ Experiments show that the method improves accuracy by 3.2%.
-
-- Most of methods in this research field can not achieve the same result.
-+ Most methods in this field fail to match this result.
-```
-
-### :repeat: latex-fmt — *匿名投稿格式转换，CVPR → NeurIPS*
-
-```diff
-- \usepackage[review]{cvpr}
-+ \usepackage{neurips_2025} % historical example; verify requested kit
-- \author{Zhang et al.}
-+ \author{Anonymous}
-- (没有 Broader Impact 章节)
-+ ⚠ 按官方模板核查影响讨论和必需的 checklist
-```
-
-### :book: paper-read — *待读列表 50 篇论文，没时间*
-
-```diff
-- "This paper proposes a novel transformer-based approach for..."
-+ [速读] 目标检测 · Wang et al., CVPR 2024
-+        新颖性：sparse attention 实现实时推理。结论：值得深读
-
-- (逐字逐句读完每篇论文)
-+ [深度] 核心公式：sparse attention。提升：10x 加速
-+        局限：仅在 COCO 上测试。过度宣称："SOTA"（仅 0.3% 提升）
-```
-
-### :wrench: pdf2tex — *源码丢了，只剩 PDF*
-
-```diff
-- (盯着编译好的 PDF，没有任何源文件)
-+ \documentclass{article}
-+ \usepackage{amsmath,amssymb}
-+ \section{Introduction}
-+ The model achieves $F_1 = 92.3$ on the benchmark.
-+ % [UNCERTAIN: math notation — verify subscripts]
-```
-
----
-
-## 组合工作流
-
-多个 Skill 可以组合成流水线，覆盖真实学术场景：
-
-| 场景 | 输入 | 执行流程 |
-|---|---|---|
-| 截稿赶工 | `/latex-rescue` | 崩溃 → 修复 → 编译 |
-| 审稿修改 | `/latex-polish` → `/latex-fmt` | 草稿 → 润色 → 格式化 → 提交 |
-| 转投改格式 | `/latex-polish` → `/latex-fmt` | CVPR 被拒 → 润色 → 转换为 ICML 格式 |
-| 源码丢失 | `/pdf2tex` → `/latex-rescue` | PDF → 重建 → 修复 → 编译 |
-| 新论文写作 | `/paper-read` → `/latex-polish` → `/latex-fmt` | 读论文 → 润色 → 按会议格式化 |
-| Overleaf 用户 | `/latex-rescue` | 粘贴错误日志 → 获取修复建议 |
-
----
-
-## 快速上手
-
-克隆后用 **Python 3.10+** 安装，以下命令适用于 PowerShell、Bash 和 zsh；
-部分系统需要把 `python` 改为 `python3`：
+**Python 3.10+ · Windows / macOS / Linux · 安装器无需第三方依赖**
 
 ```sh
 git clone https://github.com/Calix-L/awesome-latex-skills.git
@@ -191,78 +37,214 @@ cd awesome-latex-skills
 python scripts/install.py --agent claude
 ```
 
-Codex 用户：
+使用 **Codex** 时，将最后一行改为 `python scripts/install.py --agent codex`。
+如果系统的 Python 命令是 `python3`，替换命令名即可。
 
-```sh
-python scripts/install.py --agent codex
-```
-
-预览后安装单个 Skill，重复 `--skill` 可选择多个：
-
-```sh
-python scripts/install.py --agent codex --skill latex-rescue --dry-run
-python scripts/install.py --agent codex --skill latex-rescue
-```
-
-安装器复制完整目录，包括参考文件与 Agent 元数据。默认路径为
-`~/.claude/skills` 或 `$CODEX_HOME/skills`（未设置时为 `~/.codex/skills`），
-可用 `--dest PATH` 指定其他目录。预览不写文件；内容相同的 Skill 保持原样；
-已有 Skill 内容不同时，整批安装在写入前停止。升级时先备份并移走旧目录，
-或指定新路径。安装器本身不需要第三方依赖。
-
-Claude Code 使用 `/latex-rescue`；Codex 使用 `$latex-rescue` 或自然语言触发。
-其他 Agent 可直接读取入口：
-
-```text
-Read awesome-latex-skills/latex-rescue/SKILL.md and follow the workflow.
-```
-
-需要让 Agent 同时能访问 `references/`，只粘贴入口会缺少参考知识。
-本地编译需要项目对应的 TeX 引擎；PDF 提取需要 PyMuPDF
-（`python -m pip install pymupdf`）。格式转换需要目标官方模板，本仓库不附带
-会议模板文件。验证方式见[测试说明](tests/README.md)。
-
----
-
-## 平台兼容
-
-| 平台 | 使用方式 |
-|---|---|
-| **Codex** | `python scripts/install.py --agent codex`，用 `$latex-rescue` 调用 |
-| **Claude Code** | 复制到 `~/.claude/skills/`，输入 `/latex-rescue` 调用 |
-| **ChatGPT / GPT-4** | 将 SKILL.md 粘贴为自定义指令或系统提示 |
-| **Cursor** | 将 SKILL.md 内容添加到 `.cursor/rules/` |
-| **Copilot** | 将 SKILL.md 内容添加到 `.github/copilot-instructions.md` |
-| **任意 LLM** | 将 SKILL.md 作为上下文发送，然后提问 |
-
----
+| Agent | 安装后的调用方式 | 默认安装位置 |
+|---|---|---|
+| Claude Code | `/latex-rescue` 或自然语言请求 | `~/.claude/skills/` |
+| Codex | `$latex-rescue` 或自然语言请求 | `$CODEX_HOME/skills/`，未设置时为 `~/.codex/skills/` |
 
 <details>
-<summary>工作原理</summary>
+<summary><strong>只安装一个 Skill、预览改动、指定安装目录</strong></summary>
 
-每个 Skill 是一个自包含的目录：
+```sh
+# 先预览，不写入任何文件
+python scripts/install.py --agent codex --skill latex-rescue --dry-run
 
-```
-latex-rescue/
-├── SKILL.md              # 提示词 — 角色、触发器、工作流、防护栏
-├── references/           # 领域知识，Agent 在每个阶段按需读取
-│   ├── error-catalog.md
-│   ├── package-conflicts.md
-│   └── debug-workflow.md
-└── agents/
-    ├── config.yaml       # 旧集成提示，不是各平台通用 API
-    └── openai.yaml       # Codex UI 元数据
+# 只安装指定 Skill；重复 --skill 可选择多个
+python scripts/install.py --agent codex --skill latex-rescue
+
+# 使用自己的 Skills 目录
+python scripts/install.py --dest "path/to/skills" --skill paper-read
 ```
 
-1. 你输入 `/latex-rescue` 或说"帮我修 LaTeX 报错"
-2. Agent 加载 `SKILL.md` — 获得结构化工作流 + 防护栏
-3. 按阶段读取 `references/` 获取精确的领域规则
-4. 结构化工作流 → 可审查的改动与明确的验证结果
+每次安装都会包含入口、参考文件和 Agent 元数据。已有 Skill 内容相同时保持原样；
+内容不同时，整批安装会在写入前停止。更新前先备份并移走旧目录，或指定新路径。
 
 </details>
 
----
+<details>
+<summary><strong>在其他 Agent 或纯聊天界面中使用</strong></summary>
 
-## 许可证
+让 Agent 能访问完整 Skill 目录，然后输入：
 
-MIT
+```text
+Read awesome-latex-skills/latex-rescue/SKILL.md and follow its workflow.
+```
+
+在纯聊天界面中，需要提供入口及当前任务用到的参考文件。只粘贴 `SKILL.md`
+会缺少配套知识。本地编辑和编译能力取决于 Agent 已配置的工具。
+`agents/config.yaml` 是旧版集成提示，不是所有平台通用的配置 API。
+
+</details>
+
+<a id="skills"></a>
+
+## 技能一览
+
+按任务选择入口。每个 Skill 都包含独立工作流、领域参考资料，以及保护作者原意的约束。
+
+| Skill | 适合什么情况 | 得到什么 |
+|---|---|---|
+| **[latex-rescue](./latex-rescue/SKILL.md)**<br>修复 | LaTeX 项目编译失败 | 最小源码修复、编译证据、未解决问题 |
+| **[latex-polish](./latex-polish/SKILL.md)**<br>润色 | 学术英语需要更清晰 | 可审查的修改，支持轻度、中度、严格三档 |
+| **[latex-fmt](./latex-fmt/SKILL.md)**<br>格式 | 转投或准备提交 | 模板转换及通过／失败／未验证的合规报告 |
+| **[paper-read](./paper-read/SKILL.md)**<br>阅读 | 理解或评估一篇论文 | 有原文依据的速读、结构化精读或深度分析 |
+| **[pdf2tex](./pdf2tex/SKILL.md)**<br>恢复 | 只有 PDF，需要可编辑 LaTeX | 重建源码，并标记需要核对的不确定内容 |
+
+**投稿指导入口：** NeurIPS · ICML · CVPR · ACL/EMNLP · ICLR · ECCV · AAAI ·
+TMLR · IEEE · Nature · Science · COLING · KDD · SIGIR · Interspeech。
+[会议与期刊指南](./latex-fmt/references/templates/venue-guide.md)指向官方要求；使用前需要核验
+目标年份、赛道、文章类型和投稿阶段。本仓库不附带官方模板包。
+
+<a id="examples"></a>
+
+## 使用示例
+
+以下展示修改方式和请求写法，不是性能评测结果，也不保证所有任务都能自动完成。
+
+### 修复明确的语法错误
+
+```diff
+- \textbff{Results}
++ \textbf{Results}
+
+- \begin{figure} ... \end{table}
++ \begin{figure} ... \end{figure}
+```
+
+已知语法错误可以直接修复；有歧义的公式、表格数据、引用键和标签仍需作者判断。
+编译成功无法证明修改符合作者原意。
+
+### 润色表达，保留论断
+
+```diff
+- The model can achieves good performance on the dataset.
++ The model achieves good performance on the dataset.
+
+- According to the experiment, the accuracy is improved by 3.2%.
++ The experiments show a 3.2% improvement in accuracy.
+```
+
+保留术语、数值、不确定性以及“3.2%”原有含义，不会擅自把相对百分比改为百分点。
+
+<details>
+<summary><strong>更多请求：投稿格式、论文阅读与 PDF 恢复</strong></summary>
+
+**转换投稿格式**
+
+```text
+将这个项目改为 NeurIPS 2026 主赛道匿名评审格式。
+使用官方模板，保留科学内容，并报告无法验证的要求。
+```
+
+**带着问题读论文**
+
+```text
+用 deep 模式阅读这篇论文。解释主要论断、支持证据、关键假设，
+以及复现结果需要哪些条件。注明对应章节、图表或公式的位置。
+```
+
+**恢复可编辑源码**
+
+```text
+把这份有文本层的 PDF 重建为 LaTeX。保留章节顺序，
+标记有歧义的符号、合并表格单元格和缺失素材。
+明确说明是否完成编译和视觉核对。
+```
+
+</details>
+
+<a id="workflows"></a>
+
+## 组合工作流
+
+| 当前任务 | 建议顺序 | 完成前核对 |
+|---|---|---|
+| 草稿编译失败 | `latex-rescue` | 最终日志、剩余警告、渲染后的 PDF |
+| 修改论文表达 | `latex-polish` → `latex-rescue` | 含义保持不变的 diff 和编译结果 |
+| 转换投稿目标 | `latex-fmt` → `latex-rescue` | 官方要求、正文页数边界、匿名信息 |
+| 原始源码丢失 | `pdf2tex` → `latex-rescue` | 内容完整性、公式、表格、视觉对照 |
+| 阅读相关工作 | `paper-read` | 论断与证据的对应关系、原文位置 |
+
+每一步也可以独立使用。格式转换流程不会自动上传或提交论文。
+
+## 检查本地环境
+
+Skill 提供指导，提取和编译由外部工具执行。开始处理本地项目之前，可运行只读检查：
+
+```sh
+python scripts/doctor.py --skill latex-rescue --engine pdflatex
+
+# 使用项目实际的引擎和参考文献后端
+python scripts/doctor.py --skill latex-fmt --engine xelatex --backend biber
+
+# JSON 报告；返回码 1 表示缺少必需的本地工具
+python scripts/doctor.py --skill pdf2tex --json
+```
+
+| 任务 | 本地前提 | 不满足时 |
+|---|---|---|
+| 编译或验证格式 | 项目的 TeX 引擎、已选择的参考文献后端 | 可根据提供的日志诊断；编译状态标记为未验证 |
+| 润色粘贴文本／阅读已提供文本 | 不需要 TeX 编译器 | 可继续处理文本；PDF 验证是另一步 |
+| 提取有文本层的 PDF | PyMuPDF：`python -m pip install pymupdf` | 提供提取文本，或配置提取工具 |
+| 恢复扫描 PDF | 单独的 OCR 工作流 | 普通文本提取无法完成 |
+| 应用投稿规则 | 官方模板及作者指南 | 尚未确定的规则标记为未验证 |
+
+诊断命令只检查本地依赖，不安装软件、不编译文档，也不认证稿件已经满足投稿要求。
+
+<a id="faq"></a>
+
+## 常见问题
+
+<details>
+<summary><strong>安装 Skill 会同时安装 LaTeX 或模型吗？</strong></summary>
+
+不会。安装器只复制指导文件。使用你已配置的 AI Agent 和 TeX 发行版；
+环境诊断命令会报告缺少的本地工具。
+
+</details>
+
+<details>
+<summary><strong>可以配合 Overleaf 使用吗？</strong></summary>
+
+可以提供错误日志和相关源码进行诊断，也可以导出完整项目进行本地验证。
+Agent 应明确区分“提出修复方案”和“修复后已经重新编译”。
+
+</details>
+
+<details>
+<summary><strong>PDF 恢复能精确还原原始源码吗？</strong></summary>
+
+不能。PDF 已丢失宏和源码结构。恢复的目标是内容忠实、可编辑，并标出不确定之处。
+公式、表格、引用和排版需要与原始 PDF 对照；扫描页面需要先做 OCR。
+
+</details>
+
+<details>
+<summary><strong>CI 通过能证明什么？</strong></summary>
+
+CI 验证元数据、本地资源和 README 链接、SVG 素材、安装行为、依赖诊断报告、
+样例的数据保留，以及真实 TeX 编译。跨平台检查覆盖 Windows、macOS、Linux，
+使用 Python 3.10 和 3.13。它不认证 AI 的实际编辑质量，也不保证论文符合当前
+投稿规则。详见[测试说明](./tests/README.md)。
+
+</details>
+
+## 参与改进
+
+发现规则不准确、缺少错误模式或安装失败？欢迎提交
+[Issue](https://github.com/Calix-L/awesome-latex-skills/issues/new/choose) 或聚焦单个问题的 PR。
+请附最小示例、预期行为；涉及会议规则时，注明官方来源。
+
+[贡献指南](./CONTRIBUTING.md) · [测试说明](./tests/README.md) ·
+[更新日志](./CHANGELOG.md) · [MIT 许可证](./LICENSE)
+
+<div align="center">
+
+<br>
+
+<sub>为研究者提供有用的辅助，以及可以亲自审查的修改。</sub>
+
+</div>

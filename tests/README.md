@@ -19,6 +19,10 @@ To run one area: `python -m unittest discover -s tests -p test_install.py -v`.
 - **Bundles:** parse YAML; check supported frontmatter, matching names, shared
   versions, agent metadata, and local resource links. Mutation tests confirm
   broken bundles are rejected.
+- **Documentation:** check README navigation, local Markdown/HTML image links,
+  Chinese and duplicate heading anchors, and well-formed light/dark SVG assets.
+- **Prerequisites:** distinguish required local dependencies from advisory tools
+  and manual checks; verify machine-readable reports and missing-tool exit codes.
 - **Compilation:** generate figure assets in an isolated temporary directory;
   require the broken fixture to fail; build the corrected fixture twice and check
   exit codes, PDF output, TeX errors, and resolved/unresolved references.

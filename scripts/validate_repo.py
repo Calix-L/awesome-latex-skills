@@ -5,10 +5,54 @@ import argparse
 from pathlib import Path
 import re
 import sys
+import unicodedata
+from urllib.parse import unquote, urlsplit
+import xml.etree.ElementTree as ET
 
 import yaml
 
 from install import REPO, SKILLS
+
+
+def without_fences(text):
+    return re.sub(r"(?m)^(`{3,}|~{3,})[^\n]*\n.*?^\1[^\n]*(?:\n|$)", "", text, flags=re.S)
+
+
+def heading_ids(text):
+    """GFM-style IDs for ordinary headings, including Chinese and duplicates."""
+    ids = set(re.findall(r'<a\s+(?:id|name)=[\"\']([^\"\']+)', text))
+    counts = {}
+    for heading in re.findall(r"(?m)^#{1,6}\s+(.+?)(?:\s+#+)?$", without_fences(text)):
+        heading = re.sub(r"<[^>]+>", "", heading).strip().lower()
+        slug = "".join(c for c in heading if c in " -_" or unicodedata.category(c)[0] in "LN").replace(" ", "-")
+        count = counts.get(slug, 0)
+        candidate = f"{slug}-{count}" if count else slug
+        while candidate in ids:
+            count += 1
+            candidate = f"{slug}-{count}"
+        counts[slug] = count + 1
+        ids.add(candidate)
+    return ids
+
+
+def validate_document(document, repo):
+    """Check local Markdown/HTML links and navigation without network requests."""
+    document, repo = Path(document), Path(repo).resolve()
+    text = without_fences(document.read_text(encoding="utf-8"))
+    links = re.findall(r"!?\[[^\]]*\]\(([^\s)]+)\)", text)
+    links += re.findall(r'(?:href|src|srcset)=[\"\']([^\"\']+)', text)
+    errors = []
+    for raw in set(links):
+        parsed = urlsplit(raw)
+        if parsed.scheme or parsed.netloc:
+            continue
+        target = (document.parent / unquote(parsed.path)).resolve() if parsed.path else document.resolve()
+        if not target.is_relative_to(repo) or not target.is_file():
+            errors.append(f"{document.name}: missing or external local link {raw}")
+        elif parsed.fragment and target.suffix == ".md":
+            if unquote(parsed.fragment) not in heading_ids(target.read_text(encoding="utf-8")):
+                errors.append(f"{document.name}: missing heading anchor {raw}")
+    return errors
 
 
 def validate(repo):
@@ -78,6 +122,15 @@ def validate(repo):
                     errors.append(f"{document.relative_to(repo)}: missing or external local resource {raw}")
     if len(versions) > 1:
         errors.append(f"Skill versions differ: {sorted(versions)}")
+    for document in repo.glob("*.md"):
+        errors.extend(validate_document(document, repo))
+    for asset in (repo / "assets").glob("*.svg"):
+        try:
+            root = ET.fromstring(asset.read_text(encoding="utf-8"))
+            if root.tag != "{http://www.w3.org/2000/svg}svg" or not root.get("viewBox"):
+                errors.append(f"{asset.name}: expected an SVG root with viewBox")
+        except (ET.ParseError, UnicodeError) as exc:
+            errors.append(f"{asset.name}: malformed SVG: {exc}")
     return errors
 
 
@@ -90,7 +143,7 @@ def main():
         print(error, file=sys.stderr)
     if errors:
         return 1
-    print(f"Validated {len(SKILLS)} skill bundles, metadata, YAML, and resource links.")
+    print(f"Validated {len(SKILLS)} bundles, metadata, resources, README links/anchors, and SVG assets.")
     return 0
 
 
