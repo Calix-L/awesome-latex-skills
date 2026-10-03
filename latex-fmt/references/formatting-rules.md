@@ -1,150 +1,176 @@
 # Formatting Rules
 
-Layout suggestions for ordinary LaTeX documents. Official venue templates and author instructions take precedence; do not impose these suggestions on a compliant submission.
+Apply the verified author kit for the requested venue, year, track/article type
+and stage. These suggestions help diagnose layout; they do not override a kit.
+A compiling PDF is not evidence of submission compliance.
 
 ## Fonts
 
-- Follow the official template's font and size; do not substitute fonts or shrink text to meet a limit.
-- In documents without a required template, `\usepackage{lmodern}` is an optional font choice.
-- For XeLaTeX/LuaLaTeX: `\usepackage{fontspec}`, set a professional font like `\setmainfont{Times New Roman}` for journals requesting Times.
+Preserve the kit's text/math fonts, size and engine requirements. Do not shrink
+text or substitute fonts to meet a page limit. If a font is required, check that
+the actual environment supplies it; “Times New Roman” is not universally installed.
+
+`fontspec` is for XeLaTeX/LuaLaTeX. A supplied pdfLaTeX template may use a
+different font package and must not be converted merely to use a preferred font.
+For a document without mandatory styling, choose an available setup and record
+it as a choice. See the [fontspec documentation](https://latex3.github.io/fontspec/).
 
 ## Margins and Spacing
 
-- Default margin: 1 inch (2.54cm) all around when no template specifies otherwise.
-- Do NOT use `\usepackage{geometry}` unless you know the venue allows it (check the matching author kit).
-- Do NOT use `\usepackage{setspace}` or `\linespread` to adjust line spacing unless required.
-- Venue templates include their own spacing — trust the template.
+Use the kit's page size, text area, spacing and column settings. Existing
+`geometry`, `setspace`, `\linespread`, `\vspace` or page-break commands are
+candidates to inspect, not a universal deletion list. Some official kits use
+such commands themselves.
+
+Remove or adjust an override only when its conflict is established. Check the
+rendered consequences and preserve intentional breaks, mathematical spacing
+and class-controlled section/float layout.
 
 ## Headings
 
-- `\section{}` for top-level, `\subsection{}` for second, `\subsubsection{}` for third.
-- Keep heading titles short (< 8 words).
-- Title case for conference papers (`Key Results on ImageNet`), sentence case for many journals (`Key results on ImageNet`). Be consistent.
-- Don't number sections manually — let LaTeX handle it.
+Use the class's heading hierarchy and numbering conventions. Preserve heading
+text and labels during a format conversion. Capitalization and numbering depend
+on the target; an arbitrary word limit does not determine a good heading.
+
+Do not turn custom environments or an appendix's structure into ordinary
+sections without checking their role. A formatting request does not authorize
+rewriting the paper's scientific organization.
 
 ## Figures
 
-- Vector graphics (PDF) preferred over raster (PNG) for plots and diagrams.
-- Photos: PNG or JPG at 300 DPI minimum.
-- `\includegraphics[width=\textwidth]{fig.pdf}` — use relative width specifications, never absolute cm unless you have a very specific reason.
-- Place `\label{}` AFTER `\caption{}` inside figure environment.
-- Figure caption goes BELOW the figure.
-- Subfigures: use the caption/subfigure package supported by the matching template; publisher kits may require specific alternatives.
+Use the width available in the containing context. In a normal single-column
+float `\linewidth` follows that column; inside a minipage it follows the
+minipage. A two-column `\textwidth` can overflow an ordinary `figure`.
+
+```latex
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{figures/architecture.pdf}
+  \caption{The supplied caption.}
+  \label{fig:architecture}
+\end{figure}
+```
+
+This requires `graphicx` and the actual asset. Full available width is only
+a candidate: choose a smaller width when appropriate. A double-column
+`figure*` has a different width and class-dependent placement behavior.
+Do not wrap a float inside another float or a minipage.
+See the [graphicx package and documentation](https://ctan.org/pkg/graphicx).
+
+Preserve aspect ratio, panel labels and legibility at the final physical size.
+Check raster resolution at that size against the target's instructions; a
+single DPI threshold cannot establish quality. Vector plots can retain scalable
+lines and text, whereas a photograph may appropriately remain raster.
+
+Use the kit's caption/subfigure mechanisms and caption placement. With standard
+LaTeX counters, put `\label` after `\caption`; custom kit macros may provide
+their own interface. Keep label keys and all referring text intact.
 
 ## Tables
 
-- Use `\usepackage{booktabs}` for professional-looking tables:
-  ```latex
-  \toprule
-  Header & Header \\
-  \midrule
-  Data & Data \\
-  \bottomrule
-  ```
-- No vertical lines in professional tables.
-- Table caption goes ABOVE the table.
-- Place `\label{}` AFTER `\caption{}`.
+Preserve the cell grid, values, precision, units, notes and caption. Follow
+required caption placement and rule style; “no vertical rules” is a design
+preference for some table styles, not a universal submission rule.
+
+`booktabs` is an optional table package when compatible with the kit. Wrapping
+text in `p{...}` columns or restructuring a wide table may help readability.
+A full-width table may use `table*` when the class supports it. Do not scale
+all text below legibility or silently move values between columns.
+
+For recovery of uncertain or merged cells, use page evidence; a formatting
+change must not guess missing contents.
 
 ## Mathematics
 
-- Use `\begin{equation}` for numbered equations, `\[...\]` for unnumbered.
-- Multi-line: `\begin{align}` (numbered per line) or `\begin{align*}` (unnumbered).
-- Use `\bm{}` (from `bm` package) for bold math symbols.
-- Punctuation within equations: include periods/commas inside math mode (AMS convention).
+Retain formula grouping, notation, tags and references. Select an environment
+that matches the layout: `equation` for one numbered display, `align` for
+aligned relations, `gather` for separate centered displays and `multline`
+for one long equation split across lines. Starred forms generally suppress
+automatic numbering in the `amsmath` environments.
 
-## Cross-References
+Load packages only when needed and compatible with the class's setup.
+`\bm` and `\mathbf` have different roles; do not substitute one globally.
+Preserve the punctuation required by the sentence around a display.
 
-- Use `\usepackage{cleveref}` for automatic type-aware references: `\cref{fig:arch}` → "Figure 1"
-- Load `cleveref` after `hyperref` (an exception to the "hyperref last" rule; `glossaries[implicit]` is another).
-- Label prefix conventions:
-  - `fig:` for figures → `\label{fig:architecture}`
-  - `tab:` for tables → `\label{tab:results}`
-  - `eq:` for equations → `\label{eq:loss}`
-  - `sec:` for sections → `\label{sec:method}`
-  - `alg:` for algorithms → `\label{alg:training}`
-  - `app:` for appendices → `\label{app:derivation}`
+See the [official amsmath guide](https://www.latex-project.org/help/documentation/amsldoc.pdf).
 
-## Page Numbers
+## Cross-References and Bibliography
 
-- Review and camera-ready page numbering follow the official template; anonymity alone does not determine numbering.
-- DO NOT manually add or remove page numbers — the template should control this.
+Preserve label/citation keys and check resolution in the final log and PDF.
+Prefixes such as `fig:` or `sec:` are project conventions, not required syntax.
 
-## Abstract
+Keep the kit's bibliography system, styles and package choices. Loading both
+`cite` and `natbib` can conflict, but which package to remove depends on
+the kit; `natbib` is not a universal replacement. Do not introduce
+`biblatex` merely to simplify command names.
 
-- Usually limited to 150-300 words (check venue; many cap at 250).
-- Follow the kit's sample for abstract placement. Standard `article` and NeurIPS examples place it after `\maketitle`; other kits can use custom title blocks.
-- No citations in abstract (exceptions: papers building directly on one prior work).
+| Citation purpose | natbib candidate | biblatex candidate |
+|---|---|---|
+| Author is part of the sentence | `\citet{key}` | `\textcite{key}` |
+| Parenthetical citation | `\citep{key}` | `\parencite{key}` |
 
-## Acknowledgments
+This is a starting point when migration is required, not a global substitution
+rule. Preserve pre/postnotes, locators, multiple keys, starred author forms,
+language and punctuation; check how the actual style renders them.
+A bare `\cite` is style-dependent and cannot always be assigned a role from
+its name. See the [natbib documentation](https://ctan.org/pkg/natbib) and
+[biblatex documentation](https://ctan.org/pkg/biblatex).
 
-- Only in camera-ready version (NOT in anonymous submission).
-- Place before references section.
-- Keep brief: funders, helpful discussions, specific contributors.
+`cleveref` is optional. If it is supported and both it and `hyperref` are
+used, load `cleveref` after `hyperref`, following the kit and package
+instructions. Do not add it to a kit that supplies its own reference interface.
+See the [cleveref manual](https://mirrors.ctan.org/macros/latex/contrib/cleveref/cleveref.pdf).
 
-## Appendices
+## Page Numbers, Front Matter and Required Sections
 
-- Place AFTER references.
-- Use `\appendix` command to switch numbering to letters (`Appendix A`, `Appendix B`).
-- Appendices may contain supplementary experiments, derivations, implementation details.
-- Appendix limits, file placement, and review obligations depend on the official target instructions.
+Verify review, preprint and final requirements separately. Anonymity alone
+does not decide page numbering, visible author blocks or funding statements.
+Check PDF metadata and any supplements when the requested stage requires it.
 
-## Overrides to Review
+Follow the kit for title/abstract placement, word limits and abstract citations.
+There is no universal 150–300-word limit or citation ban for every article type.
+Likewise, acknowledgment and appendix placement depend on the actual target.
+Use its appendix interface and numbering rather than imposing one ordering.
 
-The following changes can conflict with a template. Check the actual target
-instructions before removing them; this is not a universal prohibited-package list:
-- `\usepackage{geometry}` — can override template margins
-- `\vspace{}`, `\vskip`, manual spacing hacks
-- `\enlargethispage{}`
-- Changing font sizes mid-document
-- Fullpage package
-- Manual page breaks in submission version
-- Color text (use `\textcolor` only for figures, not body text)
-
-## Per-Venue Rules and Pre-Submission Checks
-
-Use [the venue guide](templates/venue-guide.md) to locate official requirements
-for the exact year, track, and stage. Package restrictions, required sections,
-citation style, and anonymity are not universal.
-
-Source searches can identify candidates for review, but are not compliance tests.
-Inspect included `.tex` files and the rendered PDF. Confirm missing references
-from the final build log; a grep loop over `\ref` misses custom macros, included
-files, and escaped comments. Check actual content-page boundaries, metadata,
-supplements, and bibliography using the requested kit.
+A missing required disclosure, result or author contribution is an author
+decision. Record it as missing/unverified; do not generate scientific content
+to make the formatting checklist pass.
 
 ## Project Structure Conventions
 
-A clean LaTeX project follows this layout:
+Preserve a working structure, paths and macro definitions. Small documents can
+remain in one file; large projects may benefit from separate sections and assets.
 
-```
-project/
-├── main.tex              # documentclass + preamble + \input{} calls
-├── sections/
-│   ├── intro.tex         # \section{Introduction}
-│   ├── related.tex       # \section{Related Work}
-│   ├── method.tex        # \section{Method}
-│   ├── experiments.tex   # \section{Experiments}
-│   └── conclusion.tex    # \section{Conclusion}
-├── figures/              # all images
-├── tables/               # standalone table files (optional)
-├── refs.bib              # bibliography database
-└── supplementary.tex     # appendix (if allowed)
-```
+`\input` inserts a file without the page breaks associated with `\include`.
+`\include` can be appropriate for chapters and `\includeonly` workflows;
+do not replace it globally. Check included files and existing build assumptions
+before reorganizing. Keep the original bibliography data and official style files.
 
-**Rules**:
-- Small documents can remain in one file. Split sections only when it helps maintenance.
-- Preserve an existing working project structure rather than reorganizing it for its own sake.
-- Use `\input{sections/intro}` not `\include{sections/intro}` ( `\include` forces a page break and cannot be nested)
-- Images go in `figures/`, referenced as `\includegraphics{figures/fig1.pdf}`
+## Worked Layout Example
 
-## Common Template Gotchas
+[layout-example.tex](../assets/layout-example.tex) is a self-contained `article`
+example included when installing only `latex-fmt`. It uses common TeX packages,
+a column-relative panel, a table and resolved equation/figure/table references.
+It needs no external graphics, fonts, bibliography or official kit.
 
-| Template | Common mistake | Fix |
-|---|---|---|
-| NeurIPS | Adding `\usepackage{geometry}` | Template sets margins — remove it |
-| ICML | Using `\cite{}` with author-year style | Use `\citep{}` / `\citet{}` (natbib) |
-| CVPR | Treating `cvpr.sty` as a document class | Follow the kit: `article` plus `\usepackage[review]{cvpr}` |
-| ACL | Forgetting `\usepackage[review]{acl}` | Required for anonymous submission |
-| IEEE | Removing funding/author macros by a blanket rule | Follow the specific conference/journal template |
-| AAAI | Using a paper size different from the matching kit | Follow the actual kit's document options and author instructions |
-| Any | Loading both `cite` and `natbib` | Remove `cite` — `natbib` supersedes it |
+Copy it into a new working directory and run the project's actual engine twice,
+for example `pdflatex -no-shell-escape -interaction=nonstopmode layout-example.tex`.
+The initial class option is `twocolumn`; change it to `onecolumn` to inspect
+the same content in a wider layout. The internal panel demonstrates a minipage's
+local `\linewidth`; replace the illustrative content only when adapting it.
+
+CI compiles both modes with pdfLaTeX, XeLaTeX and LuaLaTeX and checks the panel
+width and reference resolution. This exercises the example, not any venue's
+official template. Obtain and verify the requested kit separately.
+
+## Per-Venue Rules and Pre-Submission Checks
+
+Use [the venue guide](templates/venue-guide.md) for official entry points.
+Check current year/track/stage requirements rather than universal “gotchas”.
+The main-content page boundary, excluded material, required disclosures,
+metadata and supplements need checks against those requirements.
+
+Searches over source can locate candidates, but cannot prove compliance:
+custom macros, included files and rendered content require context. Deliver
+pass/fail/unverified findings with source locations, rule sources and observed
+build/visual-check results.

@@ -70,7 +70,7 @@ class ValidationTests(unittest.TestCase):
 
     def test_unreferenced_symlink_makes_bundle_uninstallable(self):
         target = self.repo / "latex-fmt/assets"
-        target.mkdir()
+        target.mkdir(exist_ok=True)
         linked = target / "linked.txt"
         try:
             linked.symlink_to(self.repo / "paper-read/SKILL.md")

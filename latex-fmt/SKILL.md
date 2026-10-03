@@ -52,7 +52,10 @@ Do not invent `neurips_2025.cls` or `icml2025.cls`. Use the kit's bibliography
 style rather than assuming the style package supplies a `.bst`. Remove custom
 margin or spacing overrides only when they conflict with verified rules.
 
-Consult `references/formatting-rules.md` for layout guidance. Preserve text,
+Consult [formatting rules](references/formatting-rules.md) for layout guidance.
+Use the [self-contained layout example](assets/layout-example.tex) when checking
+local widths and resolved references outside an official kit. It is an example,
+not a substitute for the requested venue's template. Preserve text,
 math, table values, citations, labels, and figure contents. Flag missing required
 sections for the author; do not generate unsupported ethical or empirical claims.
 
@@ -108,6 +111,8 @@ status if a required rule, build, or visual check could not be confirmed.
 - Keep official `.cls`, `.sty`, and `.bst` files intact.
 - Do not remove author identities for camera-ready submissions by default.
 - Never guarantee anonymity from a source keyword search alone.
+- Preserve caption/author interfaces and textual versus parenthetical citations;
+  package or command substitutions need verification in the actual kit.
 - Do not submit, upload, or publish the paper as part of formatting.
 
 ## Reference Files

@@ -180,6 +180,19 @@ Read awesome-latex-skills/latex-rescue/SKILL.md and follow its workflow.
 
 </details>
 
+<details>
+<summary><strong>先运行一个自包含排版示例</strong></summary>
+
+将 [layout-example.tex](./latex-fmt/assets/layout-example.tex) 复制到新的工作目录，
+用可用的 TeX 引擎编译两次。示例包含图形面板、表格及公式／图／表交叉引用，
+不依赖外部图片、字体或参考文献。把 `twocolumn` 改为 `onecolumn`，即可核对
+相同内容在两种栏宽下的效果。只安装 `latex-fmt` 也会包含这个示例。
+
+CI 使用 pdfLaTeX、XeLaTeX、LuaLaTeX 检查两种模式。它用于演示排版；投稿仍需
+使用目标会议或期刊的官方模板。
+
+</details>
+
 <a id="workflows"></a>
 
 ## 04 / 从草稿到交付

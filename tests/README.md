@@ -48,6 +48,10 @@ To run one area: `python -m unittest discover -s tests -p test_install.py -v`.
   Real integration also checks recorder manifests for chapters/styles/graphics,
   missing BibTeX/Biber databases, and compilation from an installed bundle with
   isolated Python and site packages disabled.
+  The installed `latex-fmt` layout example is compiled in one/two-column modes
+  with all three engines; PDF drawing widths verify the minipage's local width,
+  while logs/references/data and page bounds check overflow, resolution and
+  retained values. Installed and copied source files remain unchanged by builds.
 - **Build evidence:** portable tests cover existing/stale outputs, zero/nonzero
   exits with invalid PDFs or error logs, missing tools, explicit backend sequencing,
   launch failure, interruption, per-pass timeout/log retention, and installed-helper
@@ -73,11 +77,14 @@ AI agent's editing quality or prove compliance with a venue's current rules.
 | `fixtures/errors/broken_paper.tex` | Deliberate syntax errors plus unresolved author decisions |
 | `fixtures/errors/expected_fixed.tex` | Compilable candidate retaining data, keys, and uncertainty markers |
 | `fixtures/polish/chinglish_sample.tex` | Manual writing evaluation |
+| `fixtures/polish/meaning_cases.md` | Manual review of causality, scope, percentages, terminology and LaTeX argument roles |
 | `fixtures/fmt/pre_neurips.tex` / `post_neurips.tex` | Historical conversion example; official templates and bibliography not bundled |
 | `fixtures/read/sample_paper.md` | Manual reading evaluation |
 | `fixtures/pdf2tex/sample_extraction.md` | Manual reconstruction evaluation |
 | `fixtures/pdf2tex/reconstruction_edges.tex` | Compiled/extracted notation and table evidence, with visible unresolved content |
+| `../latex-fmt/assets/layout-example.tex` | Bundled self-contained layout example compiled after selected installation |
 
-The last four areas need an agent evaluation and artifact review; fixture
-presence alone is not an end-to-end test. Formatting examples must use the exact
-venue/year/track/stage requested by the author.
+Writing/reading fixtures and historical venue examples need an agent evaluation
+and artifact review; their presence alone is not an end-to-end test. The automated
+layout example checks ordinary LaTeX behavior, not official submission compliance.
+Formatting tasks must use the exact venue/year/track/stage requested by the author.

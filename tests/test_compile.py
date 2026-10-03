@@ -288,3 +288,55 @@ class CompilationTests(unittest.TestCase):
         self.assertGreater(first["i"][1], 0)
         self.assertLess(first["2"][1], 0)
         self.assertGreater(abs(first["2"][1] - nested["2"][1]), 1)
+
+    def test_installed_layout_example_adapts_to_column_and_minipage_widths(self):
+        import pymupdf
+        sys.path.insert(0, str(REPO / "scripts"))
+        from install import install
+
+        destination = self.work / "formatting skills"
+        install(REPO, destination, ["latex-fmt"])
+        example = destination / "latex-fmt/assets/layout-example.tex"
+        before = example.read_bytes()
+        content = example.read_text(encoding="utf-8")
+        self.assertEqual(content.count(r"\documentclass[twocolumn]{article}"), 1)
+        widths = {}
+        for engine in ("pdflatex", "xelatex", "lualatex"):
+            if not shutil.which(engine):
+                if os.environ.get("LATEX_SKILLS_REQUIRE_TEX") == "1":
+                    self.fail(f"{engine} is required for the layout integration case")
+                continue
+            for mode in ("onecolumn", "twocolumn"):
+                with self.subTest(engine=engine, mode=mode):
+                    source = self.work / f"layout-{engine}-{mode}.tex"
+                    candidate = content.replace(r"\documentclass[twocolumn]{article}",
+                                                rf"\documentclass[{mode}]{{article}}")
+                    candidate = candidate.replace(r"\begin{document}",
+                                                  r"\begin{document}\typeout{EXAMPLE-COLUMN-PT=\the\columnwidth}")
+                    source.write_text(candidate, encoding="utf-8")
+                    source_before = source.read_bytes()
+                    report = check_build.build(source, self.work / f"{engine} {mode} build", engine=engine,
+                                               until_stable=True, require_resolved=True)
+                    self.assert_build_success(report)
+                    self.assertEqual(source.read_bytes(), source_before)
+                    last = report["steps"][-1]
+                    log = (Path(report["output"]) / last["log"]).read_text(encoding="utf-8", errors="replace")
+                    self.assertNotIn("Overfull", log)
+                    width_pt = float(re.search(r"EXAMPLE-COLUMN-PT=([0-9.]+)pt", log).group(1))
+                    widths[engine, mode] = width_pt
+                    # TeX points are 1/72.27 inch; PDF points are 1/72 inch.
+                    expected_width = 0.8 * width_pt * 72 / 72.27
+                    with pymupdf.open(Path(report["output"]) / report["pdf"]) as doc:
+                        text = " ".join(" ".join(page.get_text().split()) for page in doc)
+                        panels = [drawing["rect"] for page in doc for drawing in page.get_drawings()
+                                  if drawing["rect"].height < 1
+                                  and abs(drawing["rect"].width - expected_width) < 0.05]
+                        self.assertEqual(len(panels), 2, (expected_width, panels))
+                        for page in doc:
+                            self.assertTrue(all(0 <= item[0] < item[2] <= page.rect.width
+                                                and 0 <= item[1] < item[3] <= page.rect.height
+                                                for item in page.get_text("words")))
+                    for value in ("76.10", "0.30", "78.20", "0.40", "Figure 1", "Table 1", "(1)"):
+                        self.assertIn(value, text)
+            self.assertGreater(widths[engine, "onecolumn"], widths[engine, "twocolumn"])
+        self.assertEqual(example.read_bytes(), before)

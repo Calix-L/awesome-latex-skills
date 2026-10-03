@@ -191,6 +191,20 @@ Report whether the result was compiled and visually checked.
 
 </details>
 
+<details>
+<summary><strong>Try a self-contained layout example</strong></summary>
+
+Copy [layout-example.tex](./latex-fmt/assets/layout-example.tex) into a new working
+directory and build it twice with your available TeX engine. It includes a panel,
+a table and equation/figure/table references, with no external assets, fonts or
+bibliography. Change `twocolumn` to `onecolumn` to compare the same content at
+both widths. The example is included when installing only `latex-fmt`.
+
+CI checks both modes with pdfLaTeX, XeLaTeX and LuaLaTeX. It is a layout example;
+use the official author kit for the requested venue.
+
+</details>
+
 <a id="workflows"></a>
 
 ## 04 / From draft to delivery

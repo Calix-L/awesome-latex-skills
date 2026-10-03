@@ -5,6 +5,8 @@ All notable changes to awesome-latex-skills.
 ## Unreleased
 
 ### Added
+- Self-contained installed formatting example with real one/two-column, pdfLaTeX/XeLaTeX/LuaLaTeX checks for local panel widths, resolved references, overflow and preserved data.
+- Manual polishing cases for retained components/causality, uncertainty, percentage interpretation, distinct terminology and LaTeX argument roles.
 - Optional PDF character origins/bounding boxes with preserved span text and page geometry for cropped/rotated preview comparison.
 - Detailed dependency reports with running Python, PyMuPDF version/module path, failure reasons and suggested next steps.
 - Executable table-reference coverage and a real-compiled reconstruction fixture for scripts, merged headers, blank cells, precision and visible uncertainty.
@@ -32,6 +34,9 @@ All notable changes to awesome-latex-skills.
 - CI matrix for Windows, macOS, and Linux plus mandatory TeX fixture compilation.
 
 ### Fixed
+- Polishing examples preserve multi-head attention, experimental conditions and claim strength instead of deleting components or adding causal connections.
+- Section guidance adapts to article/evidence type without compulsory numerical gains, fixed sentence/citation quotas or fabricated disclosures.
+- Formatting guidance uses local available widths, actual kit/package/citation conventions and available fonts rather than universal layout, bibliography or section-placement rules.
 - Math reconstruction now distinguishes grouping from equivalent script order, relation spacing from norm delimiters, and glyph candidates from original macros.
 - Table/structure guidance preserves empty/merged cells, literal markers, source discrepancies, footnotes and unmatched references instead of silently inferring content.
 - Broken PyMuPDF imports retain their actual errors rather than being reported as an absent package; unsupported versions and module shadowing are identified.
