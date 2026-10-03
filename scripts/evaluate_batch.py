@@ -45,7 +45,10 @@ def prepare_batch(output, trials=3, seed=0):
 
 
 def finite_number(value):
-    return type(value) in (int, float) and math.isfinite(value) and value >= 0
+    try:
+        return type(value) in (int, float) and math.isfinite(value) and value >= 0
+    except OverflowError:
+        return False
 
 
 def execution_evidence(task):

@@ -44,8 +44,13 @@ jobs:
         with:
           name: release-full-paper-evidence
           path: work/full-paper-run
+          include-hidden-files: true
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: release-package-evidence
-          path: work/package-verification
+          path: |
+            work/package-verification/verification.json
+            work/package-verification/wheel/verification.json
+            work/package-verification/sdist/verification.json
+            work/package-verification/rebuilt/*.whl

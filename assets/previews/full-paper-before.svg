@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 460" role="img" aria-labelledby="title desc">
+  <title id="title">Actual failed manuscript build, illustrated log excerpt</title>
+  <desc id="desc">The original build stops at sections/methods.tex line 13 because figures/panel-missing does not exist. A source excerpt also shows a panel using full text width inside a column. No original PDF was produced.</desc>
+  <rect width="500" height="460" fill="#f4f3ed"/>
+  <g font-family="Arial, sans-serif" fill="#263027">
+    <text x="30" y="40" font-size="12" letter-spacing="2">ORIGINAL / BUILD EVIDENCE</text>
+    <text x="30" y="80" font-size="29" font-weight="600">The first failure is visible.</text>
+    <text x="30" y="110" font-size="14" fill="#64705f">sections/methods.tex : 13</text>
+    <rect x="30" y="136" width="440" height="102" rx="8" fill="#fffefa" stroke="#c5cebc"/>
+    <g font-family="monospace" font-size="15">
+      <text x="48" y="165" fill="#9b4c32">LaTeX Error:</text>
+      <text x="48" y="192">File `figures/panel-missing'</text>
+      <text x="48" y="215">not found.</text>
+    </g>
+    <text x="30" y="275" font-size="12" letter-spacing="1.5">ANOTHER SOURCE CHANGE TO REVIEW</text>
+    <rect x="30" y="293" width="440" height="58" rx="8" fill="#e9eddf"/>
+    <text x="48" y="328" font-family="monospace" font-size="15">\begin{minipage}{0.8\textwidth}</text>
+    <text x="30" y="378" font-size="14">The candidate uses the local column width.</text>
+    <path d="M30 402H470" stroke="#c5cebc"/>
+    <text x="30" y="430" font-size="12" fill="#64705f">Illustrated excerpt from actual CI evidence. No original PDF.</text>
+  </g>
+</svg>

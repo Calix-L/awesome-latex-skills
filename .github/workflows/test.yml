@@ -45,7 +45,11 @@ jobs:
         if: always()
         with:
           name: package-evidence-${{ matrix.os }}-${{ matrix.python }}
-          path: work/package-verification
+          path: |
+            work/package-verification/verification.json
+            work/package-verification/wheel/verification.json
+            work/package-verification/sdist/verification.json
+            work/package-verification/rebuilt/*.whl
           retention-days: 7
 
   sources:
@@ -94,3 +98,4 @@ jobs:
         with:
           name: full-paper-evidence
           path: work/full-paper-run
+          include-hidden-files: true

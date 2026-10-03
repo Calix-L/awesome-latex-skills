@@ -1,6 +1,7 @@
 """Shared validation for project reports; no network or third-party dependencies."""
 import hashlib
 import json
+import math
 from pathlib import Path, PurePosixPath, PureWindowsPath
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,8 +19,13 @@ def unique_keys(pairs):
 def read_json(path):
     def invalid_constant(value):
         raise ValueError(f"Nonfinite JSON value: {value}")
+    def finite_float(value):
+        result = float(value)
+        if not math.isfinite(result):
+            raise ValueError(f"Nonfinite JSON value: {value}")
+        return result
     result = json.loads(Path(path).read_text(encoding="utf-8"), object_pairs_hook=unique_keys,
-                        parse_constant=invalid_constant)
+                        parse_constant=invalid_constant, parse_float=finite_float)
     if not isinstance(result, dict):
         raise ValueError("JSON document must contain an object")
     return result

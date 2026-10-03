@@ -101,7 +101,7 @@ class BatchTests(unittest.TestCase):
                   "tokens": {"input": 5, "output": 3}, "cost": {"amount": 0.01, "currency": "USD", "source": "test-fixture"}}
         (task / "execution.json").write_text(json.dumps(record), encoding="utf-8")
         self.assertEqual(evaluate_batch.execution_evidence(task)["cost"]["amount"], 0.01)
-        for field, value in (("elapsed_seconds", True), ("transcript", "../external"), ("tokens", {"input": True, "output": 2}),
+        for field, value in (("elapsed_seconds", True), ("elapsed_seconds", 10 ** 400), ("transcript", "../external"), ("tokens", {"input": True, "output": 2}),
                              ("cost", {"amount": -1, "currency": "USD", "source": "fixture"})):
             altered = dict(record, **{field: value})
             (task / "execution.json").write_text(json.dumps(altered), encoding="utf-8")

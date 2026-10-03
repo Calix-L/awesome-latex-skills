@@ -160,7 +160,7 @@ class ProjectTests(unittest.TestCase):
             evaluate.compare({"run": []}, {})
 
     def test_json_duplicate_nonfinite_and_nonobject_rejected(self):
-        for content in ('{"key":1,"key":2}', '{"key":NaN}', '[]'):
+        for content in ('{"key":1,"key":2}', '{"key":NaN}', '{"key":1e999}', '[]'):
             path = self.folder / "bad.json"
             path.write_text(content, encoding="utf-8")
             with self.assertRaises(ValueError):

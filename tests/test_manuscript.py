@@ -94,7 +94,7 @@ class ManuscriptTests(unittest.TestCase):
         with self.assertRaises(FileExistsError):
             project_doctor.initialize(project, "main.tex")
         args = configured_build(["--project", str(project), "--output", "new-run", "--engine", "lualatex"])
-        self.assertEqual(Path(args[0]), project / "main.tex")
+        self.assertEqual(Path(args[0]).resolve(), (project / "main.tex").resolve())
         self.assertIn("bibtex", args)
         self.assertIn("3", args)
         self.assertNotIn("xelatex", args)
