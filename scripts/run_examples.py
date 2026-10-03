@@ -9,6 +9,7 @@ import shutil
 import sys
 
 from evaluate import score
+from install import SKILLS
 from project_support import ROOT, read_json, safe_path, sha256, write_new_json
 
 
@@ -21,9 +22,17 @@ def load_helper(name, relative):
 
 def catalog():
     document = read_json(ROOT / "examples/index.json")
-    if document.get("schema") != 1 or len(document.get("examples", [])) != 5:
+    if document.get("schema") != 1 or not isinstance(document.get("examples"), list) or len(document["examples"]) != 5:
         raise ValueError("Expected five schema-1 worked examples")
+    identifiers, skills = set(), set()
     for item in document["examples"]:
+        if not isinstance(item, dict) or not isinstance(item.get("id"), str) or not item["id"] or item["id"] in identifiers:
+            raise ValueError("Example ids must be nonempty and unique")
+        safe_path(ROOT, item["id"])
+        if "/" in item["id"] or item.get("skill") not in SKILLS or item["skill"] in skills:
+            raise ValueError("Expected one portable example id per skill")
+        identifiers.add(item["id"])
+        skills.add(item["skill"])
         directory = safe_path(ROOT, item["directory"])
         for name in (item["input"], item["candidate"], "report.md"):
             if not safe_path(directory, name).is_file():
@@ -51,7 +60,7 @@ def run_examples(output, engine="pdflatex", allow_unverified=False):
         item = {"id": example["id"], "skill": example["skill"], "status": "verified" if native else "partial",
                 "builds": {}, "extraction": None, "human_review": "required"}
         result["examples"].append(item)
-        folder = output / example["id"]
+        folder = safe_path(output, example["id"])
         folder.mkdir()
         source = safe_path(ROOT, example["directory"])
         names = (example["input"], example["candidate"], "report.md")

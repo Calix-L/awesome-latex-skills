@@ -231,6 +231,16 @@ class ProjectTests(unittest.TestCase):
         self.assertEqual(pdf_case["builds"]["output.tex"]["status"], "unverified")
         self.assertTrue((self.folder / "portable/pdf2tex/extraction/pages/page-0002.png").is_file())
 
+    def test_example_catalog_rejects_escaping_and_duplicate_destinations(self):
+        data = read_json(ROOT / "examples/index.json")
+        for identifier in ("../escape", data["examples"][1]["id"]):
+            altered = copy.deepcopy(data)
+            altered["examples"][0]["id"] = identifier
+            with patch.object(run_examples, "read_json", return_value=altered):
+                with self.assertRaises(ValueError):
+                    run_examples.run_examples(self.folder / "refused", allow_unverified=True)
+            self.assertFalse((self.folder / "refused").exists())
+
 
 if __name__ == "__main__":
     unittest.main()
