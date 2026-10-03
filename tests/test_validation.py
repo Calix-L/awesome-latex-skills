@@ -9,6 +9,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from install import REPO, SKILLS
 from validate_repo import heading_ids, load_yaml, validate, validate_document
 
+VERSION = (REPO / "VERSION").read_text(encoding="utf-8").strip()
+
 
 class ValidationTests(unittest.TestCase):
     def setUp(self):
@@ -37,7 +39,7 @@ class ValidationTests(unittest.TestCase):
 
     def test_duplicate_frontmatter_and_nested_keys_fail(self):
         for before, after in (("name: latex-fmt", "name: wrong\nname: latex-fmt"),
-                              ('version: "1.3.0"', 'version: "9.0.0"\n  version: "1.3.0"')):
+                              (f'version: "{VERSION}"', f'version: "9.0.0"\n  version: "{VERSION}"')):
             with self.subTest(before=before):
                 path = self.repo / "latex-fmt/SKILL.md"
                 original = path.read_text(encoding="utf-8")
@@ -87,7 +89,7 @@ class ValidationTests(unittest.TestCase):
         self.assertTrue(any("unsupported frontmatter" in e for e in validate(self.repo)))
 
     def test_version_mismatch_fails(self):
-        self.change("latex-fmt/SKILL.md", 'version: "1.3.0"', 'version: "1.3.1"')
+        self.change("latex-fmt/SKILL.md", f'version: "{VERSION}"', 'version: "9.9.9"')
         self.assertTrue(any("versions differ" in e for e in validate(self.repo)))
 
     def test_missing_referenced_resource_fails(self):
@@ -127,7 +129,7 @@ class ValidationTests(unittest.TestCase):
         self.assertTrue(any("skill_file" in e for e in validate(self.repo)))
 
     def test_nonmapping_metadata_fails_without_traceback(self):
-        self.change("latex-fmt/SKILL.md", 'metadata:\n  version: "1.3.0"', "metadata: []")
+        self.change("latex-fmt/SKILL.md", f'metadata:\n  version: "{VERSION}"', "metadata: []")
         self.assertTrue(any("metadata must be a mapping" in e for e in validate(self.repo)))
 
     def test_broken_readme_image_is_rejected(self):

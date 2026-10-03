@@ -8,6 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.4.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.4.0"></a>
 </p>
 
 <p align="center">Five skills for LaTeX repair, academic editing, submission formatting, paper reading, and PDF recovery.</p>
@@ -56,10 +57,10 @@ Python **3.10+** · Windows / macOS / Linux · No third-party installer dependen
 ```sh
 git clone https://github.com/Calix-L/awesome-latex-skills.git
 cd awesome-latex-skills
-python scripts/install.py --agent claude
+python scripts/als.py install --agent claude
 ```
 
-Using **Codex**? Change the last command to `python scripts/install.py --agent codex`.
+Using **Codex**? Change the last command to `python scripts/als.py install --agent codex`.
 Use `python3` if that is your system's Python command.
 
 **Invoke:** `/latex-rescue` in Claude Code or `$latex-rescue` in Codex. Natural-language requests work too.
@@ -133,8 +134,30 @@ API for every platform.
 
 ## 03 / In practice
 
-Illustrative edits and requests, rather than benchmark results or promises of
-automatic completion.
+<img src="./assets/workflow-preview.svg" alt="Illustrated overview of five synthetic worked examples, including repaired syntax, preserved scope and reviewable evidence" width="100%">
+
+Explore complete cases: original input, candidate output, change report and
+executable checks. Candidates are maintainer-authored; model improvement has
+not been measured.
+
+| Case | See the result | Evidence to inspect |
+| :--- | :--- | :--- |
+| **Repair** | [Broken → repaired TeX](./examples/rescue/README.md) | Fresh build, retained values, intentionally unresolved keys |
+| **Polish** | [Grammar → preserved claims](./examples/polish/README.md) | Source diff, modality, technical components and negation |
+| **Format** | [Overflow → column-sized panel](./examples/fmt/README.md) | Actual logs and local-width page previews |
+| **Read** | [Paper → evidence map](./examples/read/README.md) | Conflicting results, source locations and missing protocol |
+| **Recover** | [Two-page PDF → editable TeX](./examples/pdf2tex/README.md) | Character evidence, grouped headers, blank cells and uncertainty |
+
+```sh
+python -m pip install -r pdf2tex/requirements.txt
+python scripts/als.py examples run --output work/example-run
+```
+
+Requires a local TeX engine. [Example guide](./examples/README.md) explains
+portable runs and CI evidence downloads.
+
+<details>
+<summary><strong>What an individual edit looks like</strong></summary>
 
 ### Repair a syntax error
 
@@ -153,7 +176,7 @@ keys, and labels remain author decisions; a successful build cannot resolve inte
 
 ```diff
 - The model can achieves good performance on the dataset.
-+ The model achieves good performance on the dataset.
++ The model can achieve good performance on the dataset.
 
 - According to the experiment, the accuracy is improved by 3.2%.
 + The experiments show a 3.2% improvement in accuracy.
@@ -161,6 +184,27 @@ keys, and labels remain author decisions; a successful build cannot resolve inte
 
 Technical terms, numbers, uncertainty, and the meaning of “3.2%” stay intact.
 The skill does not silently turn a relative percentage into percentage points.
+
+</details>
+
+<details>
+<summary><strong>One interface; a reproducible quality workflow</strong></summary>
+
+```sh
+python scripts/als.py --json doctor
+python scripts/als.py evaluate validate
+python scripts/als.py sources --as-of 2026-10-04
+python scripts/als.py release --output dist/1.4.0
+```
+
+[CLI & JSON reports](./docs/cli.md) · [Ten-task evaluation protocol](./docs/evaluation.md) ·
+[Source review register](./maintenance/README.md) · [Releases & migration](./docs/releases.md)
+
+Prepared evaluation sessions contain only original inputs and the requested
+skill context. Scores separate limited literal checks from evidence-backed
+human review; examples are never reported as baseline/treatment model results.
+
+</details>
 
 <details>
 <summary><strong>More requests: formatting, reading, and PDF recovery</strong></summary>

@@ -2,7 +2,7 @@
 name: paper-read
 description: Summarize and critically analyze academic papers supplied as PDFs, text, arXiv links, or journal URLs. Ground claims in the inspected version and source locations; support focused questions, deeper appraisal, and cross-paper comparison.
 metadata:
-  version: "1.3.0"
+  version: "1.4.0"
 ---
 
 ## Choose the depth

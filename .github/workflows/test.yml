@@ -31,6 +31,8 @@ jobs:
         if: matrix.pymupdf
         run: python -m pip install "PyMuPDF==${{ matrix.pymupdf }}"
       - run: python scripts/validate_repo.py
+      - run: python scripts/als.py evaluate validate
+      - run: python scripts/als.py sources --validate-only --as-of 2026-10-04
       - run: python -m unittest discover -s tests -v
 
   compile:
@@ -46,3 +48,11 @@ jobs:
       - name: Install TeX Live
         run: sudo apt-get update && sudo apt-get install -y texlive-latex-base texlive-latex-recommended texlive-bibtex-extra texlive-xetex texlive-luatex biber
       - run: python -m unittest discover -s tests -p test_compile.py -v
+      - name: Verify all five worked examples
+        run: python scripts/als.py examples run --output work/example-run
+      - name: Upload native worked-example evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: worked-example-evidence
+          path: work/example-run

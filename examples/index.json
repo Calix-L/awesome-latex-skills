@@ -1,0 +1,45 @@
+{
+  "schema": 1,
+  "examples": [
+    {
+      "id": "rescue",
+      "skill": "latex-rescue",
+      "case_id": "rescue-errors",
+      "directory": "examples/rescue",
+      "input": "input.tex",
+      "candidate": "output.tex"
+    },
+    {
+      "id": "polish",
+      "skill": "latex-polish",
+      "case_id": "polish-scope",
+      "directory": "examples/polish",
+      "input": "input.tex",
+      "candidate": "output.tex"
+    },
+    {
+      "id": "fmt",
+      "skill": "latex-fmt",
+      "case_id": "fmt-column",
+      "directory": "examples/fmt",
+      "input": "input.tex",
+      "candidate": "output.tex"
+    },
+    {
+      "id": "read",
+      "skill": "paper-read",
+      "case_id": "read-discrepancy",
+      "directory": "examples/read",
+      "input": "input.md",
+      "candidate": "analysis.md"
+    },
+    {
+      "id": "pdf2tex",
+      "skill": "pdf2tex",
+      "case_id": "pdf-table",
+      "directory": "examples/pdf2tex",
+      "input": "input.pdf",
+      "candidate": "output.tex"
+    }
+  ]
+}

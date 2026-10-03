@@ -8,6 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.4.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.4.0"></a>
 </p>
 
 <p align="center">五个专注于论文工作的 Agent Skills：修复编译、润色表达、转换格式、阅读论文、恢复源码。</p>
@@ -56,10 +57,10 @@ Python **3.10+** · Windows / macOS / Linux · 无需第三方安装依赖
 ```sh
 git clone https://github.com/Calix-L/awesome-latex-skills.git
 cd awesome-latex-skills
-python scripts/install.py --agent claude
+python scripts/als.py install --agent claude
 ```
 
-使用 **Codex** 时，将最后一行改为 `python scripts/install.py --agent codex`。
+使用 **Codex** 时，将最后一行改为 `python scripts/als.py install --agent codex`。
 如果系统的 Python 命令是 `python3`，替换命令名即可。
 
 **调用：** Claude Code 使用 `/latex-rescue`；Codex 使用 `$latex-rescue`。也可以直接描述任务。
@@ -126,7 +127,29 @@ Read awesome-latex-skills/latex-rescue/SKILL.md and follow its workflow.
 
 ## 03 / 实际示例
 
-以下展示修改方式和请求写法，不是性能评测结果，也不保证所有任务都能自动完成。
+<img src="./assets/workflow-preview.svg" alt="五个自制案例的可视化概览：修复语法、保留论断、局部宽度、冲突证据与 PDF 表格恢复" width="100%">
+
+每个案例都提供原始输入、候选结果、修改说明和可运行的核验步骤。
+候选结果由维护者编写；尚未测量模型使用技能前后的质量提升。
+
+| 案例 | 查看完整结果 | 核验重点 |
+| :--- | :--- | :--- |
+| **编译修复** | [错误源码 → 最小修复](./examples/rescue/README.md) | 新构建日志、原始数值、保留的未知引用 |
+| **学术润色** | [语法修改 → 论断保留](./examples/polish/README.md) | 源码差异、能力与不确定性、技术组件与否定结论 |
+| **版式调整** | [双栏溢出 → 局部宽度](./examples/fmt/README.md) | 实际编译、溢出检查和页面预览 |
+| **论文阅读** | [论文片段 → 证据地图](./examples/read/README.md) | 冲突结果、来源位置与缺失的实验协议 |
+| **PDF 恢复** | [双页 PDF → 可编辑 TeX](./examples/pdf2tex/README.md) | 字符证据、合并表头、空白单元格与歧义 |
+
+```sh
+python -m pip install -r pdf2tex/requirements.txt
+python scripts/als.py examples run --output work/example-run
+```
+
+需要本地 TeX 引擎。[案例说明](./examples/README.md)介绍无 TeX 时的显式未验证模式，
+以及 CI 编译证据的下载方式。
+
+<details>
+<summary><strong>展开查看单个修改示例</strong></summary>
 
 ### 修复明确的语法错误
 
@@ -145,13 +168,33 @@ Read awesome-latex-skills/latex-rescue/SKILL.md and follow its workflow.
 
 ```diff
 - The model can achieves good performance on the dataset.
-+ The model achieves good performance on the dataset.
++ The model can achieve good performance on the dataset.
 
 - According to the experiment, the accuracy is improved by 3.2%.
 + The experiments show a 3.2% improvement in accuracy.
 ```
 
 保留术语、数值、不确定性以及“3.2%”原有含义，不会擅自把相对百分比改为百分点。
+
+</details>
+
+<details>
+<summary><strong>统一入口与可复现的质量流程</strong></summary>
+
+```sh
+python scripts/als.py --json doctor
+python scripts/als.py evaluate validate
+python scripts/als.py sources --as-of 2026-10-04
+python scripts/als.py release --output dist/1.4.0
+```
+
+[CLI 与 JSON 报告](./docs/cli.md) · [十任务评测协议](./docs/evaluation.md) ·
+[来源维护登记](./maintenance/README.md) · [版本发布与迁移](./docs/releases.md)
+
+评测准备器只向独立会话提供原始输入和所选技能；评分区分有限的字面检查和附证据的
+人工审查，样例不会被包装成模型的前后对照成绩。
+
+</details>
 
 <details>
 <summary><strong>更多请求：投稿格式、论文阅读与 PDF 恢复</strong></summary>

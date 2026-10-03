@@ -13,6 +13,8 @@ To run one area: `python -m unittest discover -s tests -p test_install.py -v`.
 
 ## What the checks prove
 
+- **Project workflows:** blind baseline/skill preparation, protected literals and negative controls, changed-input/context rejection, actual human review excerpts, attribution/session/settings checks, CLI execution from another directory, fresh evidence handling, source review dates, deterministic archives and checksums. Native CI runs all five worked examples and attaches logs, PDFs and previews. These tests validate the tooling; model editing quality requires the separate [evaluation protocol](../docs/evaluation.md).
+
 - **Installation:** complete resource roundtrip, selected skills, dry runs,
   repeat installs, existing edits, batch preflight, rollback, paths with spaces,
   custom Codex home, invalid paths, CLI failures, and symlink refusal. Managed-update tests cover upstream additions/removals, local edit protection, adoption, receipts, interrupted updates, and recovery-file preservation. Cross-process lock tests verify refusal, retry after release, dry-run behavior, interruption, and replacement-lock preservation.

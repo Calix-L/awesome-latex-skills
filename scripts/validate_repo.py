@@ -234,9 +234,16 @@ def validate(repo):
             errors.extend(validate_document(document, repo, bundle=folder))
     if len(versions) > 1:
         errors.append(f"Skill versions differ: {sorted(versions)}")
+    if (repo / "VERSION").exists():
+        try:
+            release_version = (repo / "VERSION").read_text(encoding="utf-8").strip()
+            if not re.fullmatch(r"\d+\.\d+\.\d+", release_version) or versions != {release_version}:
+                errors.append("VERSION must match every skill's metadata.version")
+        except (OSError, UnicodeError) as exc:
+            errors.append(f"Cannot read VERSION: {exc}")
     for document in repo.rglob("*.md"):
         relative = document.relative_to(repo)
-        if relative.parts[0] in SKILLS or ".git" in relative.parts:
+        if relative.parts[0] in (*SKILLS, "work", "dist", "evaluation-runs") or ".git" in relative.parts:
             continue
         errors.extend(validate_document(document, repo))
     for asset in (repo / "assets").glob("*.svg"):

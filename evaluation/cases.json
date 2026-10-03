@@ -1,0 +1,663 @@
+{
+  "schema": 1,
+  "cases": [
+    {
+      "id": "rescue-errors",
+      "skill": "latex-rescue",
+      "inputs": [
+        {
+          "source": "examples/rescue/input.tex",
+          "name": "input.tex"
+        }
+      ],
+      "prompt": "Repair the supplied LaTeX syntax minimally. Retain all table values, unknown reference/citation keys, and the ambiguous original expression; show unresolved meaning visibly. Write output.tex and report.md, or analysis.md and report.md for reading.",
+      "checks": [
+        {
+          "id": "accuracy",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "76.10"
+        },
+        {
+          "id": "spread",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "0.30"
+        },
+        {
+          "id": "unknown-ref",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "\\ref{sec:missing}"
+        },
+        {
+          "id": "unknown-citation",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "\\cite{missing2024}"
+        },
+        {
+          "id": "original-math",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "x^a^b"
+        },
+        {
+          "id": "visible-uncertainty",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "[UNCERTAIN:"
+        },
+        {
+          "id": "typo-fixed",
+          "file": "output.tex",
+          "operation": "absent",
+          "value": "\\textbff"
+        }
+      ],
+      "review": [
+        {
+          "id": "meaning",
+          "question": "Are scientific claims, numbers, conditions and logical relations preserved?"
+        },
+        {
+          "id": "coverage",
+          "question": "Does the output cover the requested material without hiding omissions?"
+        },
+        {
+          "id": "uncertainty",
+          "question": "Are missing evidence and author decisions visible without invented content?"
+        },
+        {
+          "id": "evidence",
+          "question": "Are changes and conclusions grounded in source locations and actual checks?"
+        }
+      ]
+    },
+    {
+      "id": "polish-scope",
+      "skill": "latex-polish",
+      "inputs": [
+        {
+          "source": "examples/polish/input.tex",
+          "name": "input.tex"
+        }
+      ],
+      "prompt": "Polish grammar at moderate intensity. Preserve capability, uncertainty, tested scope, negation, technical components, percentages, distinct spaces and protected LaTeX. Write output.tex and report.md, or analysis.md and report.md for reading.",
+      "checks": [
+        {
+          "id": "first-value",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "80.0\\%"
+        },
+        {
+          "id": "second-value",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "84.0\\%"
+        },
+        {
+          "id": "component",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "multi-head self-attention"
+        },
+        {
+          "id": "can",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "can improve"
+        },
+        {
+          "id": "may",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "may suggest"
+        },
+        {
+          "id": "negation",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "do not establish"
+        },
+        {
+          "id": "verbatim",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "\\verb|\\citep{Example2024}|"
+        },
+        {
+          "id": "no-causality",
+          "file": "output.tex",
+          "operation": "absent",
+          "value": "therefore"
+        }
+      ],
+      "review": [
+        {
+          "id": "meaning",
+          "question": "Are scientific claims, numbers, conditions and logical relations preserved?"
+        },
+        {
+          "id": "coverage",
+          "question": "Does the output cover the requested material without hiding omissions?"
+        },
+        {
+          "id": "uncertainty",
+          "question": "Are missing evidence and author decisions visible without invented content?"
+        },
+        {
+          "id": "evidence",
+          "question": "Are changes and conclusions grounded in source locations and actual checks?"
+        }
+      ]
+    },
+    {
+      "id": "fmt-column",
+      "skill": "latex-fmt",
+      "inputs": [
+        {
+          "source": "examples/fmt/input.tex",
+          "name": "input.tex"
+        }
+      ],
+      "prompt": "Fix panel widths for the supplied ordinary two-column article. Preserve class, scientific content, label keys and values. The supplied file is the target layout; no conference conversion is requested. Write output.tex and report.md, or analysis.md and report.md for reading.",
+      "checks": [
+        {
+          "id": "class",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "\\documentclass[twocolumn]{article}"
+        },
+        {
+          "id": "local-width",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "\\begin{minipage}{0.8\\linewidth}"
+        },
+        {
+          "id": "mean",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "76.10"
+        },
+        {
+          "id": "spread",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "0.30"
+        },
+        {
+          "id": "figure-key",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "\\label{fig:panel}"
+        },
+        {
+          "id": "equation-key",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "\\label{eq:loss}"
+        }
+      ],
+      "review": [
+        {
+          "id": "meaning",
+          "question": "Are scientific claims, numbers, conditions and logical relations preserved?"
+        },
+        {
+          "id": "coverage",
+          "question": "Does the output cover the requested material without hiding omissions?"
+        },
+        {
+          "id": "uncertainty",
+          "question": "Are missing evidence and author decisions visible without invented content?"
+        },
+        {
+          "id": "evidence",
+          "question": "Are changes and conclusions grounded in source locations and actual checks?"
+        }
+      ]
+    },
+    {
+      "id": "read-discrepancy",
+      "skill": "paper-read",
+      "inputs": [
+        {
+          "source": "examples/read/input.md",
+          "name": "input.md"
+        }
+      ],
+      "prompt": "Read in deep mode. Locate claims and supporting evidence, flag contradictory metrics, report the accuracy-speed tradeoff, and list missing reproduction details without guessing them. Write output.tex and report.md, or analysis.md and report.md for reading.",
+      "checks": [
+        {
+          "id": "claim",
+          "file": "analysis.md",
+          "operation": "contains",
+          "value": "92.3"
+        },
+        {
+          "id": "observed",
+          "file": "analysis.md",
+          "operation": "contains",
+          "value": "45.8"
+        },
+        {
+          "id": "baseline-quality",
+          "file": "analysis.md",
+          "operation": "contains",
+          "value": "46.2"
+        },
+        {
+          "id": "speed",
+          "file": "analysis.md",
+          "operation": "contains",
+          "value": "286"
+        },
+        {
+          "id": "speed-comparator",
+          "file": "analysis.md",
+          "operation": "contains",
+          "value": "28"
+        },
+        {
+          "id": "scope",
+          "file": "analysis.md",
+          "operation": "contains",
+          "value": "timing protocol"
+        },
+        {
+          "id": "location",
+          "file": "analysis.md",
+          "operation": "contains",
+          "value": "Results"
+        },
+        {
+          "id": "no-false-proof",
+          "file": "analysis.md",
+          "operation": "absent",
+          "value": "proves universal"
+        }
+      ],
+      "review": [
+        {
+          "id": "meaning",
+          "question": "Are scientific claims, numbers, conditions and logical relations preserved?"
+        },
+        {
+          "id": "coverage",
+          "question": "Does the output cover the requested material without hiding omissions?"
+        },
+        {
+          "id": "uncertainty",
+          "question": "Are missing evidence and author decisions visible without invented content?"
+        },
+        {
+          "id": "evidence",
+          "question": "Are changes and conclusions grounded in source locations and actual checks?"
+        }
+      ]
+    },
+    {
+      "id": "pdf-table",
+      "skill": "pdf2tex",
+      "inputs": [
+        {
+          "source": "examples/pdf2tex/input.pdf",
+          "name": "input.pdf"
+        }
+      ],
+      "prompt": "Recover editable LaTeX content from pages 1-2 of the supplied PDF. Preserve grouped headers, precision, empty cells, literal markers and contradictions; document unrecaptured visual assets and bibliography. Write output.tex and report.md, or analysis.md and report.md for reading.",
+      "checks": [
+        {
+          "id": "literal-ampersand",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "A\\&B"
+        },
+        {
+          "id": "precision",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "76.10"
+        },
+        {
+          "id": "abstract",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "92.3\\%"
+        },
+        {
+          "id": "table",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "78.20\\%"
+        },
+        {
+          "id": "merged-header",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "\\multicolumn{2}"
+        },
+        {
+          "id": "uncertain-graphic",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "[UNCERTAIN:"
+        },
+        {
+          "id": "citation-marker",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "[42]"
+        }
+      ],
+      "review": [
+        {
+          "id": "meaning",
+          "question": "Are scientific claims, numbers, conditions and logical relations preserved?"
+        },
+        {
+          "id": "coverage",
+          "question": "Does the output cover the requested material without hiding omissions?"
+        },
+        {
+          "id": "uncertainty",
+          "question": "Are missing evidence and author decisions visible without invented content?"
+        },
+        {
+          "id": "evidence",
+          "question": "Are changes and conclusions grounded in source locations and actual checks?"
+        }
+      ]
+    },
+    {
+      "id": "rescue-keys",
+      "skill": "latex-rescue",
+      "inputs": [
+        {
+          "source": "evaluation/inputs/rescue-keys/input.tex",
+          "name": "input.tex"
+        }
+      ],
+      "prompt": "Repair the syntax. Retain unknown reference/citation keys and explain that resolution remains unverified. Write output.tex and report.md, or analysis.md and report.md for reading.",
+      "checks": [
+        {
+          "id": "ref",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "\\ref{sec:unknown}"
+        },
+        {
+          "id": "cite",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "\\cite{unknown2025}"
+        },
+        {
+          "id": "uncertainty",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "[UNCERTAIN:"
+        },
+        {
+          "id": "typo",
+          "file": "output.tex",
+          "operation": "absent",
+          "value": "\\textbff"
+        }
+      ],
+      "review": [
+        {
+          "id": "meaning",
+          "question": "Are scientific claims, numbers, conditions and logical relations preserved?"
+        },
+        {
+          "id": "coverage",
+          "question": "Does the output cover the requested material without hiding omissions?"
+        },
+        {
+          "id": "uncertainty",
+          "question": "Are missing evidence and author decisions visible without invented content?"
+        },
+        {
+          "id": "evidence",
+          "question": "Are changes and conclusions grounded in source locations and actual checks?"
+        }
+      ]
+    },
+    {
+      "id": "polish-negation",
+      "skill": "latex-polish",
+      "inputs": [
+        {
+          "source": "evaluation/inputs/polish-negation/input.tex",
+          "name": "input.tex"
+        }
+      ],
+      "prompt": "Polish grammar lightly. Preserve negation, modality, assumption and formula; add no statistical evidence. Write output.tex and report.md, or analysis.md and report.md for reading.",
+      "checks": [
+        {
+          "id": "negation",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "does not establish"
+        },
+        {
+          "id": "modality",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "may hold only"
+        },
+        {
+          "id": "assumption",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "assumption A"
+        },
+        {
+          "id": "math",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "$\\lambda=0.5$"
+        },
+        {
+          "id": "no-significance",
+          "file": "output.tex",
+          "operation": "absent",
+          "value": "p<0.05"
+        }
+      ],
+      "review": [
+        {
+          "id": "meaning",
+          "question": "Are scientific claims, numbers, conditions and logical relations preserved?"
+        },
+        {
+          "id": "coverage",
+          "question": "Does the output cover the requested material without hiding omissions?"
+        },
+        {
+          "id": "uncertainty",
+          "question": "Are missing evidence and author decisions visible without invented content?"
+        },
+        {
+          "id": "evidence",
+          "question": "Are changes and conclusions grounded in source locations and actual checks?"
+        }
+      ]
+    },
+    {
+      "id": "fmt-missing-kit",
+      "skill": "latex-fmt",
+      "inputs": [
+        {
+          "source": "evaluation/inputs/fmt-missing-kit/input.tex",
+          "name": "input.tex"
+        }
+      ],
+      "prompt": "Convert to Fictional Conference 2030 anonymous review. No official kit or author rules were supplied. Do not invent a package, page limit, or compliance result; keep a provisional source and explain the missing requirements. Write output.tex and report.md, or analysis.md and report.md for reading.",
+      "checks": [
+        {
+          "id": "original-class",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "\\documentclass{article}"
+        },
+        {
+          "id": "data",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "76.10"
+        },
+        {
+          "id": "no-fake-kit",
+          "file": "output.tex",
+          "operation": "absent",
+          "value": "fictional2030"
+        },
+        {
+          "id": "unverified",
+          "file": "report.md",
+          "operation": "contains",
+          "value": "unverified"
+        }
+      ],
+      "review": [
+        {
+          "id": "meaning",
+          "question": "Are scientific claims, numbers, conditions and logical relations preserved?"
+        },
+        {
+          "id": "coverage",
+          "question": "Does the output cover the requested material without hiding omissions?"
+        },
+        {
+          "id": "uncertainty",
+          "question": "Are missing evidence and author decisions visible without invented content?"
+        },
+        {
+          "id": "evidence",
+          "question": "Are changes and conclusions grounded in source locations and actual checks?"
+        }
+      ]
+    },
+    {
+      "id": "read-assumptions",
+      "skill": "paper-read",
+      "inputs": [
+        {
+          "source": "evaluation/inputs/read-assumptions/input.md",
+          "name": "input.md"
+        }
+      ],
+      "prompt": "Read this theoretical note, distinguishing the conditional proposition from a verified proof. Do not impose empirical accuracy baselines on a theoretical claim. Write output.tex and report.md, or analysis.md and report.md for reading.",
+      "checks": [
+        {
+          "id": "assumption",
+          "file": "analysis.md",
+          "operation": "contains",
+          "value": "assumption A"
+        },
+        {
+          "id": "bound",
+          "file": "analysis.md",
+          "operation": "contains",
+          "value": "E <= C/n"
+        },
+        {
+          "id": "proof-gap",
+          "file": "analysis.md",
+          "operation": "contains",
+          "value": "remainder"
+        },
+        {
+          "id": "status",
+          "file": "analysis.md",
+          "operation": "contains",
+          "value": "unverified"
+        },
+        {
+          "id": "type",
+          "file": "analysis.md",
+          "operation": "contains",
+          "value": "theoretical"
+        }
+      ],
+      "review": [
+        {
+          "id": "meaning",
+          "question": "Are scientific claims, numbers, conditions and logical relations preserved?"
+        },
+        {
+          "id": "coverage",
+          "question": "Does the output cover the requested material without hiding omissions?"
+        },
+        {
+          "id": "uncertainty",
+          "question": "Are missing evidence and author decisions visible without invented content?"
+        },
+        {
+          "id": "evidence",
+          "question": "Are changes and conclusions grounded in source locations and actual checks?"
+        }
+      ]
+    },
+    {
+      "id": "pdf-page-coverage",
+      "skill": "pdf2tex",
+      "inputs": [
+        {
+          "source": "examples/pdf2tex/input.pdf",
+          "name": "input.pdf"
+        }
+      ],
+      "prompt": "Recover only page 2. Keep its scope and original citation marker. Explicitly state that page 1 was excluded; do not claim full-document recovery. Write output.tex and report.md, or analysis.md and report.md for reading.",
+      "checks": [
+        {
+          "id": "page",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "Page 2 only"
+        },
+        {
+          "id": "scope",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "only to the tested setting"
+        },
+        {
+          "id": "marker",
+          "file": "output.tex",
+          "operation": "contains",
+          "value": "[42]"
+        },
+        {
+          "id": "coverage",
+          "file": "report.md",
+          "operation": "contains",
+          "value": "Page 1 was excluded"
+        }
+      ],
+      "review": [
+        {
+          "id": "meaning",
+          "question": "Are scientific claims, numbers, conditions and logical relations preserved?"
+        },
+        {
+          "id": "coverage",
+          "question": "Does the output cover the requested material without hiding omissions?"
+        },
+        {
+          "id": "uncertainty",
+          "question": "Are missing evidence and author decisions visible without invented content?"
+        },
+        {
+          "id": "evidence",
+          "question": "Are changes and conclusions grounded in source locations and actual checks?"
+        }
+      ]
+    }
+  ]
+}

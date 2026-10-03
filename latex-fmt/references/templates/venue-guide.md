@@ -5,7 +5,7 @@ distribution. Select **venue + year + track/article type + review/preprint/final
 before applying rules. Follow the exact linked author kit; a `.sty` is a package,
 not a document class. Do not invent filenames from the conference name.
 
-## Verified corrections (checked 2026-10-03)
+## Verified corrections (checked 2026-10-04)
 
 ### NeurIPS 2026 main track
 

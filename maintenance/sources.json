@@ -1,0 +1,128 @@
+{
+  "schema": 1,
+  "sources": [
+    {
+      "id": "neurips-handbook",
+      "url": "https://neurips.cc/Conferences/2026/MainTrackHandbook",
+      "scope": "NeurIPS 2026 main track; review/final length, anonymity and checklist scope",
+      "review_after_days": 30,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-04",
+      "applies_to": [
+        "latex-fmt/references/templates/venue-guide.md"
+      ]
+    },
+    {
+      "id": "neurips-kit-entry",
+      "url": "https://neurips.cc/Conferences/2026/CallForPapers",
+      "scope": "NeurIPS 2026 main-track kit entry; other tracks have separate rules",
+      "review_after_days": 30,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-04",
+      "applies_to": [
+        "latex-fmt/references/templates/venue-guide.md"
+      ]
+    },
+    {
+      "id": "kdd-research",
+      "url": "https://kdd2026.kdd.org/research-track-call-for-papers/",
+      "scope": "KDD 2026 research track cycle-specific class, length and anonymity",
+      "review_after_days": 30,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-04",
+      "applies_to": [
+        "latex-fmt/references/templates/venue-guide.md"
+      ]
+    },
+    {
+      "id": "tmlr-author-guide",
+      "url": "https://jmlr.org/tmlr/author-guide.html",
+      "scope": "TMLR author guide; stage, official kit and supplements",
+      "review_after_days": 30,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-04",
+      "applies_to": [
+        "latex-fmt/references/templates/venue-guide.md"
+      ]
+    },
+    {
+      "id": "pymupdf-page",
+      "url": "https://pymupdf.readthedocs.io/en/latest/page.html",
+      "scope": "Unrotated coordinates, page geometry and table object lifetime",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-04",
+      "applies_to": [
+        "pdf2tex/references/pdf-extraction-guide.md",
+        "pdf2tex/references/table-reconstruction.md"
+      ]
+    },
+    {
+      "id": "pymupdf-textpage",
+      "url": "https://pymupdf.readthedocs.io/en/latest/textpage.html",
+      "scope": "DICT versus RAWDICT character evidence",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-04",
+      "applies_to": [
+        "pdf2tex/references/math-reconstruction.md"
+      ]
+    },
+    {
+      "id": "amsmath",
+      "url": "https://www.latex-project.org/help/documentation/amsldoc.pdf",
+      "scope": "Equation environment choices and tag semantics",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-04",
+      "applies_to": [
+        "latex-fmt/references/formatting-rules.md",
+        "pdf2tex/references/math-reconstruction.md"
+      ]
+    },
+    {
+      "id": "fontspec",
+      "url": "https://latex3.github.io/fontspec/",
+      "scope": "XeLaTeX/LuaLaTeX font interface; not a universal font prescription",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-04",
+      "applies_to": [
+        "latex-fmt/references/formatting-rules.md"
+      ]
+    },
+    {
+      "id": "cleveref",
+      "url": "https://mirrors.ctan.org/macros/latex/contrib/cleveref/cleveref.pdf",
+      "scope": "Cross-reference package integration and documented load order",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-04",
+      "applies_to": [
+        "latex-fmt/references/formatting-rules.md"
+      ]
+    },
+    {
+      "id": "natbib",
+      "url": "https://ctan.org/pkg/natbib",
+      "scope": "natbib package overview: author-year/numbered modes and compatible BibTeX styles; no venue style is prescribed",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-04",
+      "applies_to": [
+        "latex-fmt/references/formatting-rules.md"
+      ]
+    },
+    {
+      "id": "biblatex",
+      "url": "https://ctan.org/pkg/biblatex",
+      "scope": "biblatex package overview: macro-controlled styles and backend support; actual project backend/style must be inspected",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-04",
+      "applies_to": [
+        "latex-fmt/references/formatting-rules.md"
+      ]
+    }
+  ]
+}

@@ -2,7 +2,24 @@
 
 All notable changes to awesome-latex-skills.
 
-## Unreleased
+## 1.4.0 — 2026-10-04
+
+### Added
+
+- Unified project CLI with versioned JSON envelopes, preserved native exit codes and fresh-output evidence handling.
+- Ten blind-preparation evaluation tasks across all five skills, input/context fingerprints, attributed paired comparison and evidence-backed human review.
+- Five complete synthetic worked examples with native build/extraction verification, source diffs, protected invariants, page previews and downloadable CI evidence.
+- Offline primary-source review register with explicit scope, review dates and pending/due states.
+- Deterministic source/skill ZIP packaging, per-file SHA-256 manifests, manual release packaging workflow and migration guidance.
+- Bilingual README case gallery and an illustrated output overview, with direct paths to real examples and quality documentation.
+
+### Fixed
+
+- Release packaging handles Windows line endings and refuses symlinked source files.
+- Project validation checks VERSION alignment and ignores documented generated-output roots.
+- README polishing examples retain the original capability qualifier.
+
+## Development leading to 1.4.0
 
 ### Added
 - Self-contained installed formatting example with real one/two-column, pdfLaTeX/XeLaTeX/LuaLaTeX checks for local panel widths, resolved references, overflow and preserved data.

@@ -27,6 +27,12 @@
 
 # PDF output
 *.pdf
+!examples/pdf2tex/input.pdf
+
+# Generated evidence and release staging
+work/
+dist/
+evaluation-runs/
 
 # Python
 __pycache__/

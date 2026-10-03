@@ -1,0 +1,55 @@
+% A self-contained layout example, not an official submission template.
+% Change twocolumn to onecolumn to compare the same content at both widths.
+\documentclass[twocolumn]{article}
+\usepackage{amsmath,booktabs}
+\pagestyle{empty}
+\begin{document}
+\section*{A layout example}
+This example demonstrates local widths and cross-references without external
+assets. The displayed values are illustrative, not measured results.
+
+\section{Local widths}
+The figure's panel occupies 80\% of the containing column. Inside the panel,
+\verb|\linewidth| refers to the minipage's width. The same source therefore
+adapts when the class option changes from two columns to one.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{minipage}{0.8\textwidth}
+    \noindent\rule{\textwidth}{0.4pt}\par
+    \smallskip
+    \centering
+    Column-sized panel\par
+    The rules follow the local width.
+    \par\smallskip
+    \noindent\rule{\textwidth}{0.4pt}
+  \end{minipage}
+  \caption{An illustrative panel with no external graphics.}
+  \label{fig:panel}
+\end{figure}
+
+\begin{table}[htbp]
+  \centering
+  \caption{Illustrative values with retained precision.}
+  \label{tab:illustration}
+  \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lrr@{}}
+    \toprule
+    Method & Mean & Spread \\
+    \midrule
+    Alpha & 76.10 & 0.30 \\
+    Beta & 78.20 & 0.40 \\
+    \bottomrule
+  \end{tabular*}
+\end{table}
+
+\section{References and math}
+See Figure~\ref{fig:panel}, Table~\ref{tab:illustration}, and
+equation~\eqref{eq:loss}.
+\begin{equation}
+  \mathcal{L}=\mathcal{L}_1+\lambda\mathcal{L}_2,
+  \qquad \lambda=0.5.
+  \label{eq:loss}
+\end{equation}
+The labels follow the counters they refer to. Build twice so the references
+can resolve. Use the actual author kit for a venue submission.
+\end{document}

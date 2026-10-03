@@ -1,0 +1,57 @@
+# Releases and migration
+
+`VERSION` and the five `metadata.version` values must agree. Releases use
+semantic versions: patch for compatible fixes, minor for compatible additions,
+major for breaking CLI/report/installation changes. Update the changelog and
+migration notes before publishing.
+
+## Build and publish
+
+```sh
+python -m pip install -r requirements-dev.txt
+python scripts/als.py validate
+python scripts/als.py evaluate validate
+python scripts/als.py sources --validate-only
+python -m unittest discover -s tests -v
+python scripts/als.py examples run --output work/release-examples
+python scripts/als.py release --output dist/1.4.0
+```
+
+The default example run requires a real TeX engine. Portable mode is not a
+substitute for the native release checks. The main-branch Tests workflow also
+tests three operating systems, minimum/current Python and PyMuPDF, and real TeX
+engines/backends. The manually dispatched [release packaging workflow](../.github/workflows/release.yml)
+builds and uploads archives after its own validation, tests and native examples;
+it does not publish a GitHub release automatically.
+
+Packaging creates a full source ZIP, five individual skill ZIPs,
+`release-manifest.json`, and `SHA256SUMS`. ZIP order, timestamps and permissions
+are fixed; identical source bytes on the same Python/zlib runtime produce
+identical archives. The manifest fingerprints every included file. Generated
+logs and local installation receipts are excluded. Checksums establish
+integrity, not authenticity.
+
+After main's full CI passes, publish the archives using a version tag targeting
+that **exact tested commit**, with the changelog as the release notes. Keep all
+development on `main`; version tags do not introduce another development branch.
+Download assets from [GitHub Releases](https://github.com/Calix-L/awesome-latex-skills/releases).
+
+## 1.3.x to 1.4.0
+
+This is a compatible addition. Direct installer/build/extractor commands,
+managed-install receipts, build schema 3 and extraction schema 2 are unchanged.
+The project CLI envelope, evaluation, example and release manifests are schema 1.
+The new project commands require the full checkout/archive; a selected skill
+installation intentionally contains only its own resources.
+
+```sh
+git pull --ff-only
+python scripts/als.py install --agent codex --update --dry-run
+python scripts/als.py install --agent codex --update
+```
+
+Managed updates reject local changes, additions and deletions. Preserve your
+edits and use a separate destination if you need both versions. For untracked
+manual installs, only an exact match to the current source can be adopted;
+keep differing copies backed up before moving them. See the
+[installation guide](../README.md#quick-start).

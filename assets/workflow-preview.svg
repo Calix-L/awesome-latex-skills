@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 550" role="img" aria-labelledby="title desc">
+  <title id="title">Worked examples: source, change and evidence</title>
+  <desc id="desc">An illustrated overview of maintainer-authored cases: repaired syntax, preserved scientific scope, local column widths, conflicting results and PDF table precision. These are not independent agent scores.</desc>
+  <rect width="1120" height="550" rx="18" fill="#f4f3ed"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="40" y="43" font-size="12" letter-spacing="2" fill="#677163">FROM SOURCE TO REVIEWABLE OUTPUT</text>
+    <text x="40" y="82" font-size="29" font-weight="700" fill="#222923">Small cases. Visible evidence.</text>
+    <text x="40" y="109" font-size="14" fill="#62675f">Maintainer-authored synthetic examples · inspect the input, candidate and actual run reports</text>
+    <g fill="#fffefa" stroke="#d5dacd">
+      <rect x="40" y="142" width="330" height="166" rx="10"/>
+      <rect x="395" y="142" width="330" height="166" rx="10"/>
+      <rect x="750" y="142" width="330" height="166" rx="10"/>
+      <rect x="40" y="332" width="507" height="163" rx="10"/>
+      <rect x="572" y="332" width="508" height="163" rx="10"/>
+    </g>
+    <g font-size="12" font-weight="700" letter-spacing="1.3" fill="#537b55">
+      <text x="60" y="170">01 / RESCUE</text><text x="415" y="170">02 / POLISH</text><text x="770" y="170">03 / FORMAT</text>
+      <text x="60" y="360">04 / READ</text><text x="592" y="360">05 / PDF → TEX</text>
+    </g>
+    <g font-size="16" fill="#263027">
+      <text x="60" y="209">Syntax repaired. Data retained.</text>
+      <text x="415" y="209">Grammar improves; scope stays.</text>
+      <text x="770" y="209">A panel fits its own column.</text>
+      <text x="60" y="399">Abstract: 92.3% · Results: 45.8%</text>
+      <text x="592" y="399">Mean 78.20 · Spread 0.40 · Blank ≠ zero</text>
+    </g>
+    <g font-size="14" fill="#667060">
+      <text x="60" y="245">76.10 · 0.30 · unknown keys</text>
+      <text x="60" y="278">Unresolved math remains visible.</text>
+      <text x="415" y="245">can improve · may suggest</text>
+      <text x="415" y="278">No added causal conclusion.</text>
+      <text x="770" y="245">0.8 × local linewidth</text>
+      <text x="770" y="278">Compare overflow and page previews.</text>
+      <text x="60" y="431">Conflicting claims stay in the evidence map.</text>
+      <text x="60" y="465">Missing timing protocol remains an open question.</text>
+      <text x="592" y="431">Grouped headers, precision and page scope survive.</text>
+      <text x="592" y="465">Vector figures and unmatched citations are flagged.</text>
+    </g>
+    <text x="40" y="529" font-size="12" fill="#677163">ILLUSTRATED OVERVIEW · BUILD / EXTRACTION EVIDENCE IN CI ARTIFACTS · HUMAN CONTENT REVIEW REQUIRED</text>
+  </g>
+</svg>
