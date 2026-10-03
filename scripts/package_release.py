@@ -5,15 +5,18 @@ import hashlib
 import json
 from pathlib import Path
 import re
+import shutil
+import stat
 import sys
+import tarfile
 import tempfile
 import zipfile
 
 from install import SKILLS, bundle_files
-from project_support import ROOT, sha256, version, write_new_json
+from project_support import ROOT, safe_path, sha256, version, write_new_json
 
-SOURCE_ROOTS = (*SKILLS, "scripts", "assets", "docs", "examples", "evaluation", "maintenance", "tests", ".github")
-SOURCE_FILES = ("VERSION", "LICENSE", "README.md", "README_CN.md", "CHANGELOG.md", "CONTRIBUTING.md", "requirements-dev.txt", ".gitignore", ".gitattributes")
+SOURCE_ROOTS = (*SKILLS, "scripts", "assets", "docs", "examples", "evaluation", "maintenance", "tests", ".github", "awesome_latex_skills")
+SOURCE_FILES = ("VERSION", "LICENSE", "README.md", "README_CN.md", "CHANGELOG.md", "CONTRIBUTING.md", "requirements-dev.txt", ".gitignore", ".gitattributes", "pyproject.toml", "setup.py", "MANIFEST.in")
 
 
 def archive(path, files):
@@ -26,7 +29,46 @@ def archive(path, files):
             output.writestr(info, content)
 
 
-def package(output, root=ROOT):
+def distribution_files(directory, current, sources):
+    """Bind wheel/sdist resources to the same bytes as the source ZIP."""
+    directory = Path(directory).resolve()
+    expected = [f"awesome_latex_skills-{current}-py3-none-any.whl", f"awesome_latex_skills-{current}.tar.gz"]
+    found = {}
+    for name in expected:
+        path = directory / name
+        if path.is_symlink() or not path.is_file():
+            raise ValueError(f"Missing regular distribution: {name}")
+        if name.endswith(".whl"):
+            with zipfile.ZipFile(path) as archive:
+                names = archive.namelist()
+                if len(names) != len(set(names)) or archive.testzip():
+                    raise ValueError("Corrupt or duplicate wheel entries")
+                for item in archive.infolist():
+                    safe_path(directory, item.filename.rstrip("/"))
+                    if stat.S_IFMT(item.external_attr >> 16) not in {0, stat.S_IFREG, stat.S_IFDIR}:
+                        raise ValueError("Wheel contains links or special files")
+                for source, content in sources.items():
+                    if archive.read("awesome_latex_skills/data/" + source) != content:
+                        raise ValueError(f"Wheel differs from release source: {source}")
+        else:
+            with tarfile.open(path, "r:gz") as archive:
+                members = archive.getmembers()
+                if any(not (item.isfile() or item.isdir()) for item in members) or len({item.name for item in members}) != len(members):
+                    raise ValueError("Source distribution contains links/special/duplicate entries")
+                prefix = f"awesome_latex_skills-{current}"
+                for item in members:
+                    safe_path(directory, item.name.rstrip("/"))
+                    if item.name != prefix and not item.name.startswith(prefix + "/"):
+                        raise ValueError("Unexpected source-distribution root")
+                for source, content in sources.items():
+                    stream = archive.extractfile(f"awesome_latex_skills-{current}/" + source)
+                    if stream is None or stream.read() != content:
+                        raise ValueError(f"Source distribution differs from release source: {source}")
+        found[name] = path
+    return found
+
+
+def package(output, root=ROOT, distribution_dir=None):
     root, output = Path(root).resolve(), Path(output).expanduser().absolute()
     current = version(root)
     if not re.fullmatch(r"\d+\.\d+\.\d+", current):
@@ -58,6 +100,7 @@ def package(output, root=ROOT):
     # Refuse placement within an archived tree so staging cannot become an input.
     if any(output.resolve().is_relative_to(root / folder) for folder in SOURCE_ROOTS):
         raise ValueError("Release output cannot be inside an archived source directory")
+    distributions = distribution_files(distribution_dir, current, sources) if distribution_dir else {}
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix=".release-", dir=output.parent) as temporary:
         stage = Path(temporary) / "release"
@@ -66,9 +109,11 @@ def package(output, root=ROOT):
                  **{f"{skill}-{current}.zip": files for skill, files in bundles.items()}}
         for filename, files in names.items():
             archive(stage / filename, files)
+        for filename, original in distributions.items():
+            shutil.copyfile(original, stage / filename)
         manifest = {"schema": 1, "version": current, "archives": [
             {"file": filename, "sha256": sha256(stage / filename), "bytes": (stage / filename).stat().st_size,
-             "entries": len(names[filename])} for filename in sorted(names)],
+             "entries": len(names[filename]) if filename in names else None} for filename in sorted(set(names) | set(distributions))],
             "source_files": {filename: hashlib.sha256(content).hexdigest() for filename, content in sorted(sources.items())},
             "interpretation": "Checksums establish file integrity, not authenticity; verify the release/tag and CI separately"}
         write_new_json(stage / "release-manifest.json", manifest)
@@ -84,12 +129,13 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--distribution-dir", type=Path, help="Include a matching wheel and source distribution from python -m build")
     args = parser.parse_args(argv)
     try:
-        result = package(args.output)
+        result = package(args.output, distribution_dir=args.distribution_dir)
         print(json.dumps(result, ensure_ascii=True, indent=2) if args.json else f"Packaged {len(result['archives'])} archives in {result['output']}")
         return 0
-    except (OSError, ValueError, UnicodeError) as exc:
+    except (OSError, ValueError, UnicodeError, KeyError, zipfile.BadZipFile, tarfile.TarError) as exc:
         print(json.dumps({"schema": 1, "error": str(exc)}) if args.json else f"Release: {exc}", file=sys.stdout if args.json else sys.stderr)
         return 2
 

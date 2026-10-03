@@ -72,6 +72,58 @@ is an observation, not a general improvement estimate.
 
 ## Repeat and investigate failures
 
+Prepare all ten cases with three trials per condition (60 independent tasks):
+
+```sh
+als benchmark prepare --trials 3 --seed 0 --output evaluation-runs/batch-01
+als benchmark report --batch evaluation-runs/batch-01 --output work/batch-report-01
+```
+
+The seeded schedule randomizes task order. Preparation makes no model calls;
+an untouched batch reports every task as **not-run**, with null time/cost and
+zero comparable pairs. Each agent sees only its own prepared task directory.
+Do not expose `batch.json`, other tasks, reference answers or scorer criteria
+to it. Use a fresh session for every task, with the same actual model/settings.
+
+Alongside each task's completed `run.json`, retain a nonempty raw transcript
+and actual `execution.json`:
+
+```json
+{
+  "schema": 1,
+  "status": "completed",
+  "elapsed_seconds": 12.5,
+  "transcript": "raw-transcript.jsonl",
+  "tokens": null,
+  "cost": null
+}
+```
+
+These values illustrate the schema, not a measured run. Measure elapsed wall
+time from dispatch to completion, and explain queue/tool time in the actual
+transcript or record. Status can be `completed`, `failed` or `timeout`; failed
+runs remain included even with an empty submission. If the provider supplies
+token counts, use `{"input": 123, "output": 45}`. A supplied cost needs a
+nonnegative `amount`, `currency` and billing `source`; leave unavailable data
+null instead of estimating it from an assumed price. Keep the transcript path
+relative to its task. Human review, when performed, goes in `human-review.json`
+with the existing evidence-backed rubric format.
+
+The report retains every scheduled run, raw-transcript fingerprints, literal
+checks, human evidence and pair rejection reasons. Reused sessions, changed
+conditions or missing exact attribution prevent comparable pairs. A failed
+run with valid attribution is still part of its pair; it is never silently
+discarded. Native compilation runs independently on a unique submitted LaTeX
+root with the selected engine, two passes and no guessed bibliography backend.
+No root is `not-applicable`; absent tools or ambiguous roots are unverified.
+Inspect unresolved references and build diagnostics separately from status.
+
+JSON and Markdown summaries keep runtime outcomes, literal deltas, human
+deltas, compilation, elapsed time and measured cost separate. Costs aggregate
+only within their recorded currency, with the number of measured runs. There
+is no inferred model identity, automatic human score or general improvement
+claim. Preserve the complete batch and raw evidence when sharing a result.
+
 Use multiple trials per case, preserve both conditions' failures, randomize
 review order and conceal the condition from reviewers where possible. Report
 model/settings, task coverage, compilation failures, literal checks and human

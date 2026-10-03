@@ -264,6 +264,7 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
         if pdf.is_file():
             with pdf.open("rb") as stream:
                 valid_pdf = stream.read(5) == b"%PDF-"
+        report["pdf_sha256"] = fingerprint(pdf)["sha256"] if valid_pdf else None
         if not report["failure"]:
             if any(item["severity"] == "error" for item in report["diagnostics"]):
                 report["failure"] = "Final engine log contains TeX errors"

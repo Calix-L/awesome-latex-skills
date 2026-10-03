@@ -6,8 +6,8 @@ covers core venue corrections and selected package/API guidance; it does not
 claim that every venue/year or every linked reference has been verified.
 
 ```sh
-python scripts/als.py --json sources --as-of 2026-10-04
-python scripts/als.py sources --validate-only --as-of 2026-10-04
+python scripts/als.py --json sources
+python scripts/als.py sources --validate-only
 ```
 
 The audit is offline. `current` means a recorded content review is still within
@@ -17,6 +17,12 @@ contents have not been reviewed. Entry-point records remain pending even when
 dated. Exit 1 signals pending work; `--validate-only` checks catalog validity
 without treating pending review as an execution failure. Future dates and missing
 dependent files fail validation. Use a fixed `--as-of` when reproducing a report.
+
+The main-branch Tests workflow has a separate source-review job. Each invocation
+uses the current date (CI timezone Asia/Shanghai), retains its JSON audit, and
+fails when review is due/unverified. The portable tests validate catalog
+structure; the review job and release gate require pending work to be resolved.
+The workflow does not renew dates, fetch links or create issues automatically.
 
 ## Review procedure
 

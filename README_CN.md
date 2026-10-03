@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.4.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.4.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.5.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.5.0"></a>
 </p>
 
 <p align="center">五个专注于论文工作的 Agent Skills：修复编译、润色表达、转换格式、阅读论文、恢复源码。</p>
@@ -57,11 +57,15 @@ Python **3.10+** · Windows / macOS / Linux · 无需第三方安装依赖
 ```sh
 git clone https://github.com/Calix-L/awesome-latex-skills.git
 cd awesome-latex-skills
-python scripts/als.py install --agent claude
+python -m pip install .
+als install --agent claude
 ```
 
-使用 **Codex** 时，将最后一行改为 `python scripts/als.py install --agent codex`。
+使用 **Codex** 时，将最后一行改为 `als install --agent codex`。
 如果系统的 Python 命令是 `python3`，替换命令名即可。
+
+[包安装与可选依赖](./docs/install.md)。也可以直接从源码运行，
+用 `python scripts/als.py` 代替 `als`，参数相同。
 
 **调用：** Claude Code 使用 `/latex-rescue`；Codex 使用 `$latex-rescue`。也可以直接描述任务。
 
@@ -126,6 +130,24 @@ Read awesome-latex-skills/latex-rescue/SKILL.md and follow its workflow.
 <a id="examples"></a>
 
 ## 03 / 实际示例
+
+**完整论文工作流。** 检查根文件与资源依赖，按项目配置构建，再集中审查源码
+差异、实际日志和 PDF 页面。
+
+```sh
+python -m pip install ".[pdf]"
+als project check examples/full-paper/after
+als paper --output work/full-paper-run
+```
+
+[查看多文件中英文案例](./examples/full-paper/README.md)：章节、参考文献、本地样式、
+合并表头、多面板图及附录。原稿构建失败，修复后必须真实编译通过；打开
+`work/full-paper-run/review/report.html`，查看差异、构建证据、页面预览，以及仍需
+作者决定的计时协议。
+
+[项目体检与配置](./docs/project.md) · [统一修改审查](./docs/review.md)
+
+<br>
 
 <img src="./assets/workflow-preview.svg" alt="五个自制案例的可视化概览：修复语法、保留论断、局部宽度、冲突证据与 PDF 表格恢复" width="100%">
 
@@ -195,8 +217,8 @@ python scripts/als.py examples run --output work/example-run
 ```sh
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
-python scripts/als.py sources --as-of 2026-10-04
-python scripts/als.py release --output dist/1.4.0
+python scripts/als.py sources
+python scripts/als.py release --output dist/1.5.0
 ```
 
 [CLI 与 JSON 报告](./docs/cli.md) · [十任务评测协议](./docs/evaluation.md) ·
@@ -204,6 +226,8 @@ python scripts/als.py release --output dist/1.4.0
 
 评测准备器只向独立会话提供原始输入和所选技能；评分区分有限的字面检查和附证据的
 人工审查，样例不会被包装成模型的前后对照成绩。
+多轮运行器默认准备 60 个盲测任务，保留失败及未运行记录；实际模型执行、账单费用
+和人工评分需要真实证据，当前不宣称已测得质量提升。
 
 </details>
 

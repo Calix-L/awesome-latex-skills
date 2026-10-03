@@ -2,6 +2,23 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.5.0 — 2026-10-04
+
+### Added
+
+- Installable Python wheel/source distribution, `als` console command and module entry point, with optional PDF/validation dependencies and resources usable outside the checkout.
+- Multi-file project doctor with root selection, dependency/source locations, local classes/styles, graphics, bibliography keys, explicit engine/backend checks and reusable `.als.json` configuration.
+- Offline unified source/build/PDF review with content-change signals, retained failure evidence, actual page previews and open author decisions.
+- Complete synthetic English/Chinese manuscript with bibliography, appendix, grouped table and figure panels; native CI verifies failure before repair, successful candidates and unchanged sources.
+- Repeated-trial blind task preparation and all-run accounting, distinct-session checks, transcript hashes, separate native builds/human review/time/measured cost and explicit missing-data states. No measured model gain is claimed.
+- Current-date source-review CI gate, structured installation/quality issue forms, bilingual workflow documentation and release resource binding for wheel/source archives.
+
+### Fixed
+
+- Build reports fingerprint their produced PDF; review rejects mismatched input/PDF evidence and partial publication.
+- Fresh package-install verification compares canonical interpreter paths on Windows and rebuilds the source distribution on every supported test platform.
+- CI source dates use an explicit UTC+08:00 clock on all platforms.
+
 ## 1.4.0 — 2026-10-04
 
 ### Added

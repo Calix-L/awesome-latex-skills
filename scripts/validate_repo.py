@@ -243,7 +243,7 @@ def validate(repo):
             errors.append(f"Cannot read VERSION: {exc}")
     for document in repo.rglob("*.md"):
         relative = document.relative_to(repo)
-        if relative.parts[0] in (*SKILLS, "work", "dist", "evaluation-runs") or ".git" in relative.parts:
+        if relative.parts[0] in (*SKILLS, "work", "dist", "build", "evaluation-runs", ".als-runs") or ".git" in relative.parts:
             continue
         errors.extend(validate_document(document, repo))
     for asset in (repo / "assets").glob("*.svg"):

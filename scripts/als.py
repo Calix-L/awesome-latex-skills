@@ -14,8 +14,40 @@ COMMANDS = {
     "validate": "scripts/validate_repo.py", "evaluate": "scripts/evaluate.py",
     "examples": "scripts/run_examples.py", "sources": "scripts/audit_sources.py",
     "release": "scripts/package_release.py",
+    "project": "scripts/project_doctor.py", "review": "scripts/review_project.py",
+    "paper": "scripts/run_paper_example.py",
+    "benchmark": "scripts/evaluate_batch.py",
 }
-STRUCTURED = {"doctor", "evaluate", "examples", "sources", "release"}
+STRUCTURED = {"doctor", "evaluate", "examples", "sources", "release", "project", "review", "paper", "benchmark"}
+
+
+def configured_build(args):
+    args = list(args)
+    project = None
+    remaining = []
+    while args:
+        item = args.pop(0)
+        if item == "--project" or item.startswith("--project="):
+            if project is not None:
+                raise ValueError("Specify --project only once")
+            if item == "--project":
+                if not args:
+                    raise ValueError("--project requires a directory")
+                project = args.pop(0)
+            else:
+                project = item.split("=", 1)[1]
+        else:
+            remaining.append(item)
+    if project is None:
+        return remaining
+    from project_doctor import load_config
+    root = Path(project).expanduser().resolve()
+    config = load_config(root)
+    remaining.insert(0, str(root / config["main"]))
+    for field in ("engine", "backend", "passes"):
+        if config.get(field) is not None and not any(item == f"--{field}" or item.startswith(f"--{field}=") for item in remaining):
+            remaining.extend([f"--{field}", str(config[field])])
+    return remaining
 
 
 def output_argument(args):
@@ -47,9 +79,11 @@ def main(argv=None):
     else:
         destination = output_argument(args)
         existing = destination is not None and (destination.exists() or destination.is_symlink())
-        child_args = (["--json"] if machine and command in STRUCTURED else []) + args
         env = dict(os.environ, PYTHONIOENCODING="utf-8")
         try:
+            if command == "build":
+                args = configured_build(args)
+            child_args = (["--json"] if machine and command in STRUCTURED else []) + args
             child = subprocess.run([sys.executable, str(ROOT / COMMANDS[command]), *child_args],
                                    capture_output=True, text=True, encoding="utf-8", errors="replace", env=env)
             report.update(exit_code=child.returncode, status="success" if child.returncode == 0 else "failed",

@@ -13,13 +13,13 @@ Contributions should solve a demonstrated problem and preserve scientific meanin
 | Phrasebank entry | `latex-polish/references/academic-phrasebank.md` | Under appropriate section heading |
 | Venue template | `latex-fmt/references/templates/venue-guide.md` | documentclass, packages, limits, anonymization |
 
-## Branch Naming
+## Mainline
 
-| Type | Prefix | Example |
-|------|--------|---------|
-| New feature / content | `feat/` | `feat/add-coling-venue` |
-| Bug fix | `fix/` | `fix/chinglish-category-count` |
-| Documentation | `docs/` | `docs/contributing-guide` |
+`main` is the only maintained development branch. Maintainer changes land
+directly on `main` after local checks, then require its CI to pass before a
+release tag. External contributors can open focused pull requests from their
+forks against `main`; temporary contribution branches are not release branches.
+Version tags identify the exact tested mainline commit.
 
 ## Commit Style
 
@@ -47,6 +47,12 @@ Contributions should solve a demonstrated problem and preserve scientific meanin
 2. CI must pass (portable metadata/installation tests across OSes + required Linux compilation)
 3. At least one review before merge
 4. Squash-merge preferred for single-logical-change PRs
+
+Use the structured [bug](.github/ISSUE_TEMPLATE/bug_report.yml) and
+[quality](.github/ISSUE_TEMPLATE/skill_quality.yml) forms for reproducible
+failures. Include source locations and exact agent/model details when known;
+never report fixture tests as measured model quality. Official-source changes
+must update the [review register](maintenance/README.md) after actual review.
 
 ## Code of Conduct
 

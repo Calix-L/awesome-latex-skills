@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.4.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.4.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.5.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.5.0"></a>
 </p>
 
 <p align="center">Five skills for LaTeX repair, academic editing, submission formatting, paper reading, and PDF recovery.</p>
@@ -57,11 +57,15 @@ Python **3.10+** · Windows / macOS / Linux · No third-party installer dependen
 ```sh
 git clone https://github.com/Calix-L/awesome-latex-skills.git
 cd awesome-latex-skills
-python scripts/als.py install --agent claude
+python -m pip install .
+als install --agent claude
 ```
 
-Using **Codex**? Change the last command to `python scripts/als.py install --agent codex`.
+Using **Codex**? Change the last command to `als install --agent codex`.
 Use `python3` if that is your system's Python command.
+
+[Package installation & optional dependencies](./docs/install.md). Prefer a
+checkout without installation? `python scripts/als.py` accepts the same commands.
 
 **Invoke:** `/latex-rescue` in Claude Code or `$latex-rescue` in Codex. Natural-language requests work too.
 
@@ -134,6 +138,26 @@ API for every platform.
 
 ## 03 / In practice
 
+**A complete manuscript workflow.** Inspect the root and dependencies, build
+with recorded project settings, then review source changes alongside retained
+logs and actual PDF pages.
+
+```sh
+python -m pip install ".[pdf]"
+als project check examples/full-paper/after
+als paper --output work/full-paper-run
+```
+
+[Explore the multi-file English & Chinese case](./examples/full-paper/README.md)
+— sections, bibliography, local style, grouped table, figure panels and appendix.
+The original fails; the repaired candidate must compile. Open
+`work/full-paper-run/review/report.html` to inspect the source diff, build evidence,
+page previews and the timing protocol still awaiting the author's decision.
+
+[Project doctor & configuration](./docs/project.md) · [Unified change review](./docs/review.md)
+
+<br>
+
 <img src="./assets/workflow-preview.svg" alt="Illustrated overview of five synthetic worked examples, including repaired syntax, preserved scope and reviewable evidence" width="100%">
 
 Explore complete cases: original input, candidate output, change report and
@@ -204,8 +228,8 @@ The skill does not silently turn a relative percentage into percentage points.
 ```sh
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
-python scripts/als.py sources --as-of 2026-10-04
-python scripts/als.py release --output dist/1.4.0
+python scripts/als.py sources
+python scripts/als.py release --output dist/1.5.0
 ```
 
 [CLI & JSON reports](./docs/cli.md) · [Ten-task evaluation protocol](./docs/evaluation.md) ·
@@ -214,6 +238,9 @@ python scripts/als.py release --output dist/1.4.0
 Prepared evaluation sessions contain only original inputs and the requested
 skill context. Scores separate limited literal checks from evidence-backed
 human review; examples are never reported as baseline/treatment model results.
+The repeated-trial runner prepares 60 blind tasks by default and retains every
+failure or missing run. Actual model execution, measured billing and human
+review must be supplied; no measured quality gain is claimed.
 
 </details>
 

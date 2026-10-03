@@ -26,7 +26,7 @@ def read_json(path):
 
 
 def safe_path(root, value):
-    if not isinstance(value, str) or not value or "\\" in value or "\x00" in value:
+    if not isinstance(value, str) or not value or "\\" in value or "\x00" in value or ":" in value:
         raise ValueError(f"Invalid portable path: {value!r}")
     parts = PurePosixPath(value).parts
     if PurePosixPath(value).is_absolute() or PureWindowsPath(value).drive or any(p in {"..", "."} for p in value.split("/")):

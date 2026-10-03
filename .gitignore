@@ -33,6 +33,9 @@
 work/
 dist/
 evaluation-runs/
+build/
+*.egg-info/
+.als-runs/
 
 # Python
 __pycache__/

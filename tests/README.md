@@ -13,6 +13,21 @@ To run one area: `python -m unittest discover -s tests -p test_install.py -v`.
 
 ## What the checks prove
 
+- **Complete projects and review:** multi-file dependency lookup, ambiguous roots,
+  missing assets/local packages, reference keys, explicit engine/backend conflicts,
+  reusable configuration, bounded paths, immutable originals, content-change signals,
+  escaped offline HTML, author decisions, stale build/PDF rejection and atomic review
+  publication. Native CI verifies the complete English/Chinese manuscript and
+  retains its original failure, repaired PDFs and review bundle.
+- **Python distributions:** build a wheel/source distribution on every portable
+  matrix platform, install in fresh environments outside the checkout, check the
+  running interpreter, module/console entry points and bundled resource roundtrip,
+  then independently rebuild the source distribution and repeat first-use checks.
+- **Repeated-trial accounting:** 60-task blind preparation, deterministic randomized
+  scheduling, all missing/failed runs, reused-session refusal, raw-transcript binding,
+  finite actual measurement fields, unchanged criteria and null missing human/cost
+  data. Unit fixtures are explicitly synthetic and do not count as model responses.
+
 - **Project workflows:** blind baseline/skill preparation, protected literals and negative controls, changed-input/context rejection, actual human review excerpts, attribution/session/settings checks, CLI execution from another directory, fresh evidence handling, source review dates, deterministic archives and checksums. Native CI runs all five worked examples and attaches logs, PDFs and previews. These tests validate the tooling; model editing quality requires the separate [evaluation protocol](../docs/evaluation.md).
 
 - **Installation:** complete resource roundtrip, selected skills, dry runs,

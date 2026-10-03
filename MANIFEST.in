@@ -1,0 +1,20 @@
+include VERSION LICENSE README.md README_CN.md CHANGELOG.md CONTRIBUTING.md requirements-dev.txt .gitignore .gitattributes pyproject.toml setup.py
+recursive-include awesome_latex_skills *.py
+graft scripts
+graft latex-rescue
+graft latex-polish
+graft latex-fmt
+graft paper-read
+graft pdf2tex
+graft assets
+graft docs
+graft examples
+graft evaluation
+graft maintenance
+graft tests
+graft .github
+global-exclude *.pyc *.pyo
+prune work
+prune dist
+prune build
+prune evaluation-runs

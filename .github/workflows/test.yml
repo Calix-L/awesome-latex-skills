@@ -11,6 +11,8 @@ permissions:
 
 jobs:
   portable:
+    env:
+      TZ: Asia/Shanghai
     strategy:
       fail-fast: false
       matrix:
@@ -32,13 +34,42 @@ jobs:
         run: python -m pip install "PyMuPDF==${{ matrix.pymupdf }}"
       - run: python scripts/validate_repo.py
       - run: python scripts/als.py evaluate validate
-      - run: python scripts/als.py sources --validate-only --as-of 2026-10-04
+      - run: python scripts/check_sources_ci.py --validate-only --output work/source-metadata.json
       - run: python -m unittest discover -s tests -v
+      - run: python -m pip install build
+      - name: Build wheel and source distribution
+        run: python -m build --outdir dist/package
+      - name: Verify installed packages outside the checkout
+        run: python scripts/check_packages.py --directory dist/package --output work/package-verification
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: package-evidence-${{ matrix.os }}-${{ matrix.python }}
+          path: work/package-verification
+          retention-days: 7
+
+  sources:
+    runs-on: ubuntu-latest
+    env:
+      TZ: Asia/Shanghai
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.13'
+      - name: Report primary sources due for review today
+        run: python scripts/check_sources_ci.py --output work/source-audit.json
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: source-review-evidence
+          path: work/source-audit.json
 
   compile:
     runs-on: ubuntu-latest
     env:
       LATEX_SKILLS_REQUIRE_TEX: '1'
+      TZ: Asia/Shanghai
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -46,13 +77,20 @@ jobs:
           python-version: '3.13'
       - run: python -m pip install -r requirements-dev.txt
       - name: Install TeX Live
-        run: sudo apt-get update && sudo apt-get install -y texlive-latex-base texlive-latex-recommended texlive-bibtex-extra texlive-xetex texlive-luatex biber
+        run: sudo apt-get update && sudo apt-get install -y texlive-latex-base texlive-latex-recommended texlive-bibtex-extra texlive-xetex texlive-luatex biber fonts-noto-cjk
       - run: python -m unittest discover -s tests -p test_compile.py -v
       - name: Verify all five worked examples
         run: python scripts/als.py examples run --output work/example-run
+      - name: Verify complete English and Chinese manuscript projects
+        run: python scripts/als.py paper --output work/full-paper-run
       - name: Upload native worked-example evidence
         if: always()
         uses: actions/upload-artifact@v7
         with:
           name: worked-example-evidence
           path: work/example-run
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: full-paper-evidence
+          path: work/full-paper-run

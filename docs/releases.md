@@ -14,7 +14,11 @@ python scripts/als.py evaluate validate
 python scripts/als.py sources --validate-only
 python -m unittest discover -s tests -v
 python scripts/als.py examples run --output work/release-examples
-python scripts/als.py release --output dist/1.4.0
+python scripts/als.py paper --output work/release-paper
+python -m pip install build
+python -m build --outdir dist/package
+python scripts/check_packages.py --directory dist/package --output work/package-verification
+python scripts/als.py release --output dist/1.5.0 --distribution-dir dist/package
 ```
 
 The default example run requires a real TeX engine. Portable mode is not a
@@ -25,7 +29,10 @@ builds and uploads archives after its own validation, tests and native examples;
 it does not publish a GitHub release automatically.
 
 Packaging creates a full source ZIP, five individual skill ZIPs,
-`release-manifest.json`, and `SHA256SUMS`. ZIP order, timestamps and permissions
+`release-manifest.json`, and `SHA256SUMS`. With `--distribution-dir`, it also
+includes the wheel/source distribution after matching every bundled source
+byte to the ZIP inventory. All eight archives are covered by the same manifest
+and checksums. ZIP order, timestamps and permissions
 are fixed; identical source bytes on the same Python/zlib runtime produce
 identical archives. The manifest fingerprints every included file. Generated
 logs and local installation receipts are excluded. Checksums establish
@@ -35,6 +42,20 @@ After main's full CI passes, publish the archives using a version tag targeting
 that **exact tested commit**, with the changelog as the release notes. Keep all
 development on `main`; version tags do not introduce another development branch.
 Download assets from [GitHub Releases](https://github.com/Calix-L/awesome-latex-skills/releases).
+
+## 1.4.0 to 1.5.0
+
+The installable CLI, project configuration, complete manuscript runner,
+unified review and repeated-trial reporting are compatible additions.
+Existing direct helpers, installation receipts and report schema numbers
+remain supported. New schema-3 build reports add `pdf_sha256`; unified review
+marks older reports without it as unverified for build-time PDF identity.
+
+Use `python -m pip install .` or the release wheel for the new `als` entry point;
+optional `pdf`/`validation` extras are described in the [package guide](install.md).
+The main-branch source-review job now evaluates the current date rather than
+a fixed reference date and can fail when an official-source review is due.
+Dates still require an actual content review before renewal.
 
 ## 1.3.x to 1.4.0
 

@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "awesome-latex-skills"
+dynamic = ["version"]
+description = "Reviewable LaTeX manuscript workflows, project diagnostics and skill bundles"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{name = "Calix-L"}]
+dependencies = []
+
+[project.optional-dependencies]
+pdf = ["PyMuPDF>=1.24.10,<2"]
+validation = ["PyYAML>=6,<7", "markdown-it-py>=3,<5"]
+
+[project.scripts]
+als = "awesome_latex_skills.cli:main"
+
+[project.urls]
+Repository = "https://github.com/Calix-L/awesome-latex-skills"
+Documentation = "https://github.com/Calix-L/awesome-latex-skills/blob/main/README.md"
+Issues = "https://github.com/Calix-L/awesome-latex-skills/issues"
+
+[tool.setuptools]
+packages = ["awesome_latex_skills"]
+include-package-data = true
+
+[tool.setuptools.dynamic]
+version = {file = "VERSION"}

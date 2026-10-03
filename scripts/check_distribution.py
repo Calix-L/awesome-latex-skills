@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+"""Install a wheel in a fresh environment and verify commands outside the checkout."""
+import argparse
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import venv
+import zipfile
+
+from install import bundle_files
+from project_support import ROOT, sha256, write_new_json
+
+
+def check_distribution(wheel, output):
+    wheel = Path(wheel).resolve()
+    output = Path(output).expanduser().absolute()
+    if not wheel.is_file() or wheel.suffix != ".whl" or output.exists() or output.is_symlink():
+        raise ValueError("Supply a wheel and a new verification directory")
+    output = output.resolve()
+    with zipfile.ZipFile(wheel) as archive:
+        required = {"awesome_latex_skills/data/VERSION", "awesome_latex_skills/data/scripts/als.py",
+                    "awesome_latex_skills/data/evaluation/cases.json", "awesome_latex_skills/data/examples/pdf2tex/input.pdf"}
+        if not required.issubset(archive.namelist()) or archive.testzip():
+            raise ValueError("Wheel resources are incomplete/corrupt")
+        for name in archive.namelist():
+            if "__pycache__" in name or ".git/" in name or "/work/" in name:
+                raise ValueError(f"Generated/private files entered the wheel: {name}")
+    output.mkdir(parents=True)
+    environment = output / "environment"
+    venv.EnvBuilder(with_pip=True).create(environment)
+    python = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    command = environment / ("Scripts/als.exe" if os.name == "nt" else "bin/als")
+    cwd = output / "outside-checkout"
+    cwd.mkdir()
+    env = dict(os.environ, PYTHONIOENCODING="utf-8")
+    env.pop("PYTHONPATH", None)
+    steps = []
+    def run(args):
+        result = subprocess.run([str(item) for item in args], cwd=cwd, env=env, capture_output=True, text=True, encoding="utf-8", timeout=120)
+        steps.append({"arguments": [str(item) for item in args], "exit_code": result.returncode, "stdout": result.stdout, "stderr": result.stderr})
+        if result.returncode:
+            raise ValueError(f"Distribution command failed: {result.stderr or result.stdout}")
+        return result.stdout
+    try:
+        run([python, "-m", "pip", "install", "--no-deps", wheel])
+        version = run([command, "--version"]).strip()
+        metadata = json.loads(run([python, "-I", "-m", "awesome_latex_skills", "--json", "--version"]))
+        if metadata["result"]["version"] != version:
+            raise ValueError("Console and module entry points disagree")
+        report = json.loads(run([command, "--json", "doctor", "--skill", "paper-read"]))
+        if Path(report["result"]["python"]["executable"]).resolve() != python.resolve():
+            raise ValueError("CLI used a different Python environment")
+        run([command, "install", "--dest", cwd / "skills", "--skill", "latex-rescue"])
+        if bundle_files(cwd / "skills/latex-rescue") != bundle_files(ROOT / "latex-rescue"):
+            raise ValueError("Installed skill differs from release resources")
+        run([command, "evaluate", "validate"])
+        main = cwd / "paper/main.tex"
+        main.parent.mkdir()
+        main.write_text("\\documentclass{article}\n\\begin{document}Example\\end{document}\n", encoding="utf-8")
+        run([command, "project", "init", main.parent, "--main", "main.tex"])
+        if not (main.parent / ".als.json").is_file():
+            raise ValueError("Installed CLI did not initialize the selected project")
+        result = {"schema": 1, "status": "verified", "version": version, "wheel_sha256": sha256(wheel), "steps": steps}
+    except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
+        result = {"schema": 1, "status": "failed", "error": str(exc), "steps": steps}
+    write_new_json(output / "verification.json", result)
+    return result
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--wheel", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    args = parser.parse_args(argv)
+    try:
+        result = check_distribution(args.wheel, args.output)
+        print(json.dumps({key: value for key, value in result.items() if key != "steps"}, ensure_ascii=True))
+        return 0 if result["status"] == "verified" else 1
+    except (OSError, ValueError) as exc:
+        print(f"Distribution: {exc}", file=sys.stderr)
+        return 2
+
+
+if __name__ == "__main__":
+    sys.exit(main())

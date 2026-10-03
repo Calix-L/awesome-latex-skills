@@ -1,0 +1,37 @@
+name: Installation or script bug
+description: Report a reproducible CLI, installation or verification failure.
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Release or commit
+      description: Paste als --version or the checkout commit.
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Operating system, Python version, agent and TeX engine/backend when relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Exact command and smallest source/input needed to reproduce it.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Relevant error and report excerpt. Remove private manuscript text and credentials before posting.
+      render: text

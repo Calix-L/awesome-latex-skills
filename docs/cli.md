@@ -1,6 +1,8 @@
 # Unified CLI
 
 Run from a source checkout or the full release archive with Python 3.10+.
+Or [install the package](install.md) and use `als` / `python -m awesome_latex_skills`
+from any working directory. These entry points use the same command interface.
 The installer and maintenance tools use the standard library. Validation needs
 `requirements-dev.txt`; extraction and the worked-example runner need
 PyMuPDF 1.24.10+. Native builds need the selected TeX engine and actual packages.
@@ -14,11 +16,17 @@ python scripts/als.py install --agent codex --dry-run
 python scripts/als.py --json doctor --engine pdflatex
 python scripts/als.py build manuscript.tex --output work/build-01 --require-resolved
 python scripts/als.py extract original.pdf --output work/pdf-01 --chars --render
+python scripts/als.py project init path/to/paper --main main.tex --engine pdflatex
+python scripts/als.py project check path/to/paper
+python scripts/als.py build --project path/to/paper --output work/build-02
+python scripts/als.py review --before path/to/original --after path/to/candidate --output work/review-01
+python scripts/als.py paper --output work/full-paper-run
 python scripts/als.py validate
 python scripts/als.py evaluate validate
 python scripts/als.py examples list
-python scripts/als.py sources --as-of 2026-10-04
-python scripts/als.py release --output dist/1.4.0
+python scripts/als.py benchmark prepare --trials 3 --output evaluation-runs/batch-01
+python scripts/als.py sources
+python scripts/als.py release --output dist/1.5.0
 ```
 
 Use `COMMAND --help` for the native options. Paths supplied by the user resolve
@@ -55,4 +63,5 @@ directory for diagnosis. Output directories `work/`, `dist/`, and
 release packaging.
 
 See [worked examples](../examples/README.md), [evaluation](evaluation.md), and
-[releases](releases.md).
+[complete project](../examples/full-paper/README.md), [project configuration](project.md),
+[change review](review.md), and [releases](releases.md).

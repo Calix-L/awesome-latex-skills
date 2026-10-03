@@ -1,0 +1,38 @@
+name: Skill output or guidance problem
+description: Report meaning changes, missing evidence or outdated primary guidance.
+body:
+  - type: dropdown
+    id: skill
+    attributes:
+      label: Skill
+      options: [latex-rescue, latex-polish, latex-fmt, paper-read, pdf2tex]
+    validations:
+      required: true
+  - type: input
+    id: context
+    attributes:
+      label: Version and agent context
+      description: Release/commit, agent, exact model when known, and relevant tools/settings.
+    validations:
+      required: true
+  - type: textarea
+    id: input
+    attributes:
+      label: Prompt and minimal original input
+      description: Include only material you can share publicly.
+    validations:
+      required: true
+  - type: textarea
+    id: output
+    attributes:
+      label: Actual output and failure location
+      description: Quote the problematic file/line and explain the lost meaning, unsupported claim or missing evidence.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior and primary source
+      description: For venue rules, include the official URL, year, track and submission stage.
+    validations:
+      required: true

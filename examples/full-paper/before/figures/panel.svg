@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="600" height="140" viewBox="0 0 600 140">
+<rect width="600" height="140" fill="#f4f3ed"/>
+<g fill="#ffffff" stroke="#537b55" stroke-width="2"><rect x="20" y="38" width="140" height="64" rx="8"/><rect x="230" y="38" width="140" height="64" rx="8"/><rect x="440" y="38" width="140" height="64" rx="8"/></g>
+<g stroke="#537b55" stroke-width="2" fill="none"><path d="M160 70H218 M208 64L218 70L208 76"/><path d="M370 70H428 M418 64L428 70L418 76"/></g>
+<g font-family="sans-serif" font-size="22" fill="#263027" text-anchor="middle"><text x="90" y="78">Inputs</text><text x="300" y="78">Encoder</text><text x="510" y="78">Output</text></g></svg>
