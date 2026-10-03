@@ -44,6 +44,8 @@ def package(output, root=ROOT):
         if (root / filename).is_symlink() or not (root / filename).is_file():
             raise ValueError(f"Missing regular source file: {filename}")
     sources = {filename: (root / filename).read_bytes() for filename in SOURCE_FILES}
+    for files in bundles.values():
+        files["LICENSE"] = sources["LICENSE"]
     for folder in SOURCE_ROOTS:
         directory = root / folder
         if directory.is_symlink() or not directory.is_dir():

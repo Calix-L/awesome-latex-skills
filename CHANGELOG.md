@@ -18,6 +18,7 @@ All notable changes to awesome-latex-skills.
 - Release packaging handles Windows line endings and refuses symlinked source files.
 - Project validation checks VERSION alignment and ignores documented generated-output roots.
 - README polishing examples retain the original capability qualifier.
+- PDF worked-case notes preserve distinct metric labels without assuming that their values contradict; individual release ZIPs retain the MIT license.
 
 ## Development leading to 1.4.0
 

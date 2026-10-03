@@ -149,6 +149,17 @@ python scripts/als.py examples run --output work/example-run
 以及 CI 编译证据的下载方式。
 
 <details>
+<summary><strong>实际 PDF 细节：编译版式与原始表格</strong></summary>
+
+| 真实编译后的局部版式 | 原始 PDF 中的表格证据 |
+| :---: | :---: |
+| <img src="./assets/previews/fmt-column.png" alt="真实编译的栏内图、表格与已解析引用" width="270"> | <img src="./assets/previews/pdf-table.png" alt="原始 PDF 的合并表头、小数精度和空白单元格" width="480"> |
+
+来自自制案例的 PDF 局部渲染。[来源与渲染记录](./assets/previews/README.md)。
+
+</details>
+
+<details>
 <summary><strong>展开查看单个修改示例</strong></summary>
 
 ### 修复明确的语法错误

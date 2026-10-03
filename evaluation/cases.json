@@ -308,7 +308,7 @@
           "name": "input.pdf"
         }
       ],
-      "prompt": "Recover editable LaTeX content from pages 1-2 of the supplied PDF. Preserve grouped headers, precision, empty cells, literal markers and contradictions; document unrecaptured visual assets and bibliography. Write output.tex and report.md, or analysis.md and report.md for reading.",
+      "prompt": "Recover editable LaTeX content from pages 1-2 of the supplied PDF. Preserve grouped headers, precision, empty cells, literal markers and reported metrics without assuming they are equivalent; document unrecaptured visual assets and bibliography. Write output.tex and report.md, or analysis.md and report.md for reading.",
       "checks": [
         {
           "id": "literal-ampersand",

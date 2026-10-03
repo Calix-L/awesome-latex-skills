@@ -5,6 +5,11 @@ an illustrative candidate, not an independent Agent benchmark result.
 
 ## Input and task
 Read [input.pdf](input.pdf).
+This detail is rendered directly from its first page; it preserves the grouped
+header, trailing zeros and empty Spread cell. [Preview provenance](../../assets/previews/README.md).
+
+<img src="../../assets/previews/pdf-table.png" alt="Original synthetic PDF table with grouped Score header, 78.20 and 0.40, and a blank Spread cell for Variant" width="650">
+
 Use the `pdf-table` task in [the case catalog](../../evaluation/cases.json).
 
 ## Candidate and decisions

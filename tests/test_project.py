@@ -17,6 +17,7 @@ import audit_sources
 import evaluate
 import package_release
 import run_examples
+from install import SKILLS, bundle_files, install
 from project_support import ROOT, read_json, safe_path, sha256, write_new_json
 
 
@@ -204,6 +205,15 @@ class ProjectTests(unittest.TestCase):
                 for name in archive.namelist():
                     self.assertNotIn("__pycache__", name)
                     self.assertEqual(hashlib.sha256(archive.read(name)).hexdigest(), manifest["source_files"][name])
+        for skill in SKILLS:
+            source = self.folder / f"unpacked-{skill}"
+            source.mkdir()
+            with zipfile.ZipFile(first / f"{skill}-{manifest['version']}.zip") as archive:
+                self.assertIn("LICENSE", archive.namelist())
+                archive.extractall(source)
+            destination = self.folder / f"installed-{skill}"
+            install(source, destination, [skill])
+            self.assertEqual(bundle_files(destination / skill), bundle_files(ROOT / skill))
         with self.assertRaisesRegex(ValueError, "new directory"):
             package_release.package(first)
 

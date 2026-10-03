@@ -157,6 +157,17 @@ Requires a local TeX engine. [Example guide](./examples/README.md) explains
 portable runs and CI evidence downloads.
 
 <details>
+<summary><strong>Actual PDF details: compiled layout & original table</strong></summary>
+
+| Native formatting output | Original PDF evidence |
+| :---: | :---: |
+| <img src="./assets/previews/fmt-column.png" alt="Native column with figure, table and resolved cross-references" width="270"> | <img src="./assets/previews/pdf-table.png" alt="PDF input table with grouped header, trailing zeros and a blank cell" width="480"> |
+
+Selected PDF details from synthetic examples. [Sources and rendering provenance](./assets/previews/README.md).
+
+</details>
+
+<details>
 <summary><strong>What an individual edit looks like</strong></summary>
 
 ### Repair a syntax error
