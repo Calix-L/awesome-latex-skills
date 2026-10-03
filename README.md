@@ -156,9 +156,12 @@ page previews and the timing protocol still awaiting the author's decision.
 
 [Project doctor & configuration](./docs/project.md) · [Unified change review](./docs/review.md)
 
-| Original: actual build failure | Candidate: actual compiled PDF |
-| :---: | :---: |
-| <img src="./assets/previews/full-paper-before.svg" alt="Illustrated actual error log: missing figure at methods.tex line 13, with original panel width" width="480"> | <img src="./assets/previews/full-paper-after.png" alt="Actual repaired English manuscript body with equation, figure panels, grouped table and retained toy values" width="480"> |
+**Actual build failure → verified candidate PDF**
+
+<p align="center">
+  <img src="./assets/previews/full-paper-before.svg" alt="Illustrated actual error log: missing figure at methods.tex line 13, with original panel width" width="400">
+  <img src="./assets/previews/full-paper-after.png" alt="Actual repaired English manuscript body with equation, figure panels, grouped table and retained toy values" width="400">
+</p>
 
 Original log excerpt and candidate PDF detail from the complete synthetic case.
 [Build and rendering provenance](./assets/previews/README.md).

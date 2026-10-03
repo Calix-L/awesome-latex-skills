@@ -147,9 +147,12 @@ als paper --output work/full-paper-run
 
 [项目体检与配置](./docs/project.md) · [统一修改审查](./docs/review.md)
 
-| 原稿：实际构建失败 | 修复稿：实际编译 PDF |
-| :---: | :---: |
-| <img src="./assets/previews/full-paper-before.svg" alt="来自实际日志的错误摘录：methods.tex 第 13 行缺少图像，并展示原始面板宽度" width="480"> | <img src="./assets/previews/full-paper-after.png" alt="真实编译的英文修复稿局部，包含公式、多面板图、合并表头及保留的演示数值" width="480"> |
+**实际构建失败 → 真实编译的修复稿**
+
+<p align="center">
+  <img src="./assets/previews/full-paper-before.svg" alt="来自实际日志的错误摘录：methods.tex 第 13 行缺少图像，并展示原始面板宽度" width="400">
+  <img src="./assets/previews/full-paper-after.png" alt="真实编译的英文修复稿局部，包含公式、多面板图、合并表头及保留的演示数值" width="400">
+</p>
 
 完整自制案例的原稿日志摘录与修复稿 PDF 局部。[编译与渲染来源](./assets/previews/README.md)。
 
