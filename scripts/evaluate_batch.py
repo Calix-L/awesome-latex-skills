@@ -144,7 +144,7 @@ def report_batch(batch, output, engine="pdflatex"):
         if all("score" in item and item["status"] != "invalid-evidence" for item in (before, after)):
             result.update(compare(before["score"], after["score"]))
             if any(sessions[item["score"]["run"].get("session_id")] > 1 for item in (before, after)):
-                result.update(comparable=False, automatic_delta=None, human_delta=None)
+                result.update(comparable=False, automatic_delta=None, human_delta=None, quality_review="unverified")
                 result["reasons"].append("A session was reused across scheduled tasks")
         else:
             result["reasons"] = ["Pair missing actual execution or valid score evidence"]

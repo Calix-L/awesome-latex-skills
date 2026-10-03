@@ -9,6 +9,7 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import evaluate_batch
 from project_support import read_json, write_new_json
+from evaluate import cases
 
 
 class BatchTests(unittest.TestCase):
@@ -72,12 +73,21 @@ class BatchTests(unittest.TestCase):
         evaluate_batch.prepare_batch(batch, trials=2)
         for trial in (1, 2):
             for mode in ("baseline", "with-skill"):
-                self.record_fixture(batch / f"tasks/polish-scope-{trial:02}-{mode}", mode)
+                task = batch / f"tasks/polish-scope-{trial:02}-{mode}"
+                self.record_fixture(task, mode)
+                # Synthetic rubric records exercise rejection after both reviews exist.
+                excerpt = "Synthetic unit-test review evidence"
+                (task / "submission/report.md").write_text(excerpt, encoding="utf-8")
+                write_new_json(task / "human-review.json", {"reviewer": "synthetic unit control", "criteria": {
+                    item["id"]: {"score": 2, "reason": "Synthetic regression control, not model/human performance data",
+                                 "evidence": "report.md:1", "excerpt": excerpt}
+                    for item in cases()["polish-scope"]["review"]}})
         evaluate_batch.report_batch(batch, output)
         report = read_json(output / "report.json")
         self.assertEqual(report["comparable_pairs"], 0)
         affected = [item for item in report["pairs"] if item["case_id"] == "polish-scope"]
         self.assertTrue(all("reused" in " ".join(item["reasons"]) for item in affected))
+        self.assertTrue(all(item["quality_review"] == "unverified" and item["human_delta"] is None for item in affected))
 
     def test_batch_traversal_and_missing_coverage_are_refused_before_output(self):
         batch = self.root / "batch"

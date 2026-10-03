@@ -26,7 +26,7 @@ python scripts/als.py evaluate validate
 python scripts/als.py examples list
 python scripts/als.py benchmark prepare --trials 3 --output evaluation-runs/batch-01
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.5.0
+python scripts/als.py release --output dist/1.5.1
 ```
 
 Use `COMMAND --help` for the native options. Paths supplied by the user resolve

@@ -2,6 +2,13 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.5.1 — 2026-10-04
+
+### Fixed
+
+- Rejected repeated-session comparisons now reset their quality-review state to unverified, even when both rubric records exist. Scores stay unavailable while underlying reviews and rejection reasons remain retained.
+- The session-reuse regression control covers this reviewed-pair case explicitly; its synthetic scores are not model evaluation results.
+
 ## 1.5.0 — 2026-10-04
 
 ### Added

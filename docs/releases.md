@@ -18,7 +18,7 @@ python scripts/als.py paper --output work/release-paper
 python -m pip install build
 python -m build --outdir dist/package
 python scripts/check_packages.py --directory dist/package --output work/package-verification
-python scripts/als.py release --output dist/1.5.0 --distribution-dir dist/package
+python scripts/als.py release --output dist/1.5.1 --distribution-dir dist/package
 ```
 
 The default example run requires a real TeX engine. Portable mode is not a
@@ -56,6 +56,15 @@ optional `pdf`/`validation` extras are described in the [package guide](install.
 The main-branch source-review job now evaluates the current date rather than
 a fixed reference date and can fail when an official-source review is due.
 Dates still require an actual content review before renewal.
+
+## 1.5.0 to 1.5.1
+
+Repeated-trial reports now mark quality review as unverified when session reuse
+rejects a pair, even if both rubric records exist. Underlying reviews stay in
+the run records; no pair delta is inferred. Regenerate prepared tasks against
+the current release before scoring them: a skill version change also changes
+its context fingerprint. Keep the matching older CLI/batch together when
+reproducing an older evaluation.
 
 ## 1.3.x to 1.4.0
 
