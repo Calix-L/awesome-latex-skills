@@ -1,1 +1,2 @@
-* text=auto eol=lf
+# PDF offsets and compressed streams must never undergo text conversion.
+*.pdf binary

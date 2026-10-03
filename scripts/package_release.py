@@ -13,7 +13,7 @@ from install import SKILLS, bundle_files
 from project_support import ROOT, sha256, version, write_new_json
 
 SOURCE_ROOTS = (*SKILLS, "scripts", "assets", "docs", "examples", "evaluation", "maintenance", "tests", ".github")
-SOURCE_FILES = ("VERSION", "LICENSE", "README.md", "README_CN.md", "CHANGELOG.md", "CONTRIBUTING.md", "requirements-dev.txt", ".gitignore")
+SOURCE_FILES = ("VERSION", "LICENSE", "README.md", "README_CN.md", "CHANGELOG.md", "CONTRIBUTING.md", "requirements-dev.txt", ".gitignore", ".gitattributes")
 
 
 def archive(path, files):
