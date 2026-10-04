@@ -39,13 +39,14 @@ class LiteralScannerTests(unittest.TestCase):
         self.assertEqual(self.inputs(r"\\\% \input{live}"), [("live", 1)])
 
     def test_inline_verb_handles_spaces_star_percent_and_digit_delimiters(self):
-        for literal in (r"\verb|\input{hidden}%99|", r"\verb * 1\input{hidden}%991",
+        for literal in (r"\verb|\input{hidden}%99|", r"\verb* 1\input{hidden}%991", r"\verb *\input{hidden}%99*",
                         r"\verb  a\input{hidden}%99a", r"\verb%\input{hidden}99%"):
             with self.subTest(literal=literal):
                 text = literal + r"\input{live}"
                 self.assertEqual(self.inputs(text), [("live", 1)])
                 self.assertEqual(content_tokens(text)[0], {})
                 self.assertEqual(lex_tex(text)[1], [])
+        self.assertEqual(lex_tex(r"\verb * 1\input{hidden}1")[1][0]["code"], "unterminated-verb")
 
     def test_inline_verb_does_not_consume_the_next_line_after_missing_delimiter(self):
         text = "\\verb|\\input{hidden}\n\\input{live}\n"

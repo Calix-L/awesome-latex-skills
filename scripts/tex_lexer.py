@@ -35,12 +35,12 @@ def lex_tex(text):
             # Consume the control symbol once: its second slash is not a command.
             pieces.append(text[start:end])
         elif token == r"\verb":
-            while end < len(text) and text[end] in " \t":
-                end += 1
             if end < len(text) and text[end] == "*":
                 end += 1
-                while end < len(text) and text[end] in " \t":
-                    end += 1
+            # The star test happens before active spaces are skipped by sverb.
+            # With a space before '*', that character is the delimiter instead.
+            while end < len(text) and text[end] in " \t":
+                end += 1
             newline = LINE_BREAK.search(text, end)
             line_end = newline.start() if newline else len(text)
             closing = text.find(text[end], end + 1, line_end) if end < line_end else -1
