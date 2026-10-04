@@ -26,7 +26,8 @@ default; `--language zh` selects Chinese interface labels.
 - **Source changes:** fingerprints and a unified diff for source, bibliography,
   styles/classes and project configuration; asset changes are listed by hash.
 - **Content signals:** changed literal numbers, reference keys (including
-  `nocite`) and math delimited by `$`, `$$`, `\(` or `\[`.
+  `nocite`), math delimited by `$`, `$$`, `\(` or `\[`, and complete literal
+  common math environments such as `equation` and `align`.
   These flag review needs; unchanged tokens do not prove unchanged meaning.
 - **Builds:** the supplied schema-3 build's status, engine/backend, diagnostics
   and logs. A failed build remains visible with its failure evidence.
@@ -69,8 +70,10 @@ extensions, `.als.json`, and excluded directory names. Other file types are
 not inspected. Place manuscript inputs outside generated/environment trees
 if you want them included in the source change inventory. Numbers are literal
 text tokens, not recognized measurements. Escaped dollars are not math
-delimiters; named math environments, macro expansion, catcode changes and
-scientific semantics are outside the literal math check. Comments and common
+delimiters. Supported named environments have their own located inventory and
+change signals; see [formula-review coverage](math-review.md). Macro expansion,
+custom outer math environments, catcode changes and scientific semantics remain
+outside the literal math check. Comments and common
 verbatim forms are masked for content signals; visible author markers are
 scanned in source text, including comments.
 

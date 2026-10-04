@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.15.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.15.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.16.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.16.0"></a>
 </p>
 
 <p align="center">五个专注于论文工作的 Agent Skills：修复编译、润色表达、转换格式、阅读论文、恢复源码。</p>
@@ -171,7 +171,7 @@ als paper --output work/full-paper-run --language zh
 `work/full-paper-run/review/report.html`，查看差异、构建证据、页面预览，以及仍需
 作者决定的计时协议。
 
-[项目体检与配置](./docs/project_CN.md) · [统一修改审查](./docs/review_CN.md)
+[项目体检与配置](./docs/project_CN.md) · [统一修改审查](./docs/review_CN.md) · [公式变化核对](./docs/math-review_CN.md)
 
 打开 `work/project-inspection/report.html`，查看带源码位置的问题、资源依赖与处理建议。
 分享整个目录即可保留 JSON 和校验清单；完整案例也会整体导出原稿和修复稿的检查报告。
@@ -185,6 +185,9 @@ als paper --output work/full-paper-run --language zh
 
 中文审阅页集中展示改动文件、数值/引用/公式变化、待作者确认项和构建状态；
 可展开差异与证据文件，不必先阅读完整 JSON。界面支持窄屏与深色模式。
+
+**核对公式修改。** `equation`、`align` 等常用环境中只改运算符的变化也会提示审查，
+并排保留可展开的公式内容和源码行号。[检查范围与示例](./docs/math-review_CN.md)。
 
 检查器区分注释、转义反斜杠与原样文本，保留真实依赖及源码位置。未闭合的代码
 示例会明确提示；自动主文件选择也记录全部已读取文件的指纹。详见
@@ -292,7 +295,7 @@ python scripts/als.py examples run --output work/example-run
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.15.0
+python scripts/als.py release --output dist/1.16.0
 ```
 
 [CLI 与 JSON 报告](./docs/cli.md) · [中文评测指南](./docs/evaluation_CN.md) ·

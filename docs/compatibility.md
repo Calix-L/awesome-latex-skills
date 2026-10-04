@@ -65,3 +65,11 @@ Example export adds schema-1 `worked_example_export` receipts and
 preserves its original five entries. Existing run/build/review report schemas
 are unchanged. Source-copy hashes and language-specific guides are initial
 artifact evidence, not build or model-quality results.
+
+## Located formula review / 带位置的公式审查
+
+Schema-1 review adds `math_environment_inventory`, `math_environment_scope` and
+optional `content_audit[].math_environments`; existing fields and the direct
+three-counter `content_tokens` helper remain unchanged. Old reports without the
+additive inventory still render. Source-only review needs only the standard
+library. See [coverage](math-review.md) / [中文范围](math-review_CN.md).

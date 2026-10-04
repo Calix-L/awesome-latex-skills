@@ -150,6 +150,19 @@
         "docs/project.md",
         "docs/project_CN.md"
       ]
+    },
+    {
+      "id": "amsmath-user-guide",
+      "url": "https://texdoc.org/serve/amsldoc.pdf/0",
+      "scope": "AMS/LaTeX Project guide sections 3.2–3.7: common display/starred forms and nested building blocks; tool coverage remains literal per-file spans, without TeX grammar or equivalence certification",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-05",
+      "applies_to": [
+        "scripts/math_lexer.py",
+        "docs/math-review.md",
+        "docs/math-review_CN.md"
+      ]
     }
   ]
 }

@@ -11,7 +11,7 @@ import venv
 import zipfile
 
 from install import SKILLS, bundle_files
-from project_support import ROOT, sha256, write_new_json
+from project_support import ROOT, read_json, sha256, write_new_json
 
 
 def check_distribution(wheel, output):
@@ -183,6 +183,22 @@ def check_distribution(wheel, output):
         failed = json.loads(run([command, "--json", "verify", "review", cwd / "source-review"], expected=(1,)))["result"]
         if failed["status"] != "failed" or not any(item["code"] == "changed-file" for item in failed["findings"]):
             raise ValueError("Installed verifier missed a changed source diff")
+        math_original, math_candidate = cwd / "math-original", cwd / "math-candidate"
+        for folder, operator in ((math_original, "+"), (math_candidate, "-")):
+            folder.mkdir()
+            (folder / "main.tex").write_text(r"\documentclass{article}\begin{document}" +
+                                             rf"\begin{{equation}}x{operator}y\end{{equation}}" +
+                                             r"\end{document}", encoding="utf-8")
+        math_output = cwd / "math-review"
+        math_result = json.loads(run([command, "--json", "review", "--before", math_original, "--after", math_candidate,
+                                      "--output", math_output, "--language", "zh"]))["result"]
+        math_report = read_json(math_output / "review.json")
+        if (math_result["content_flags"] != 1 or math_result["source_scan_issues"] != 0
+                or set(math_report["content_audit"][0]) != {"file", "requires_review", "math_environments"}
+                or math_report["math_environment_inventory"]["after"][0]["content"] != "x-y"
+                or "带源码位置的公式环境" not in (math_output / "report.html").read_text(encoding="utf-8")):
+            raise ValueError("Installed formula review missed an operator-only change")
+        run([command, "verify", "review", math_output])
         result = {"schema": 1, "status": "verified", "version": version, "wheel_sha256": sha256(wheel), "steps": steps}
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         result = {"schema": 1, "status": "failed", "error": str(exc), "steps": steps}

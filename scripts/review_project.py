@@ -13,6 +13,7 @@ import tempfile
 
 from project_doctor import commands, inventory, mask_tex, read_source, GENERATED, SOURCE_SUFFIXES, ASSET_SUFFIXES
 from tex_lexer import lex_tex
+from math_lexer import MATH_ENVIRONMENTS, scan_math_environments
 from project_support import read_json, safe_path, sha256, write_new_json
 from review_report import review_html
 from artifact_integrity import seal_review
@@ -178,13 +179,17 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
     notes_text = Path(notes).expanduser().read_text(encoding="utf-8-sig") if notes else None
     report = {"schema": 1, "kind": "project_review", "before": {"root": str(before), "files": original},
               "after": {"root": str(after), "files": candidate}, "builds": {}, "changes": [],
-              "content_audit": [], "source_scan_issues": [], "author_decisions": [], "notes": notes_text, "language": language,
+              "content_audit": [], "source_scan_issues": [], "math_environment_inventory": {"before": [], "after": []},
+              "math_environment_scope": {"environments": sorted(MATH_ENVIRONMENTS),
+                                         "interpretation": "Complete literal outer spans only; nested bodies retained. No macro expansion, conditional/group evaluation, custom math environments or mathematical equivalence check."},
+              "author_decisions": [], "notes": notes_text, "language": language,
               "inventory_scope": {"extensions": sorted(SOURCE_SUFFIXES | ASSET_SUFFIXES), "configuration": ".als.json",
                                   "excluded_directories": sorted(GENERATED), "other_files": "not inspected"},
               "interpretation": "Build success, literal invariants and scientific fidelity are distinct. No AI quality score or venue compliance is inferred."}
     diffs = {}
     bindings = []
     parsed = {}
+    math_spans = {}
     def source_text(root, name, files):
         if name not in files:
             return ""
@@ -202,7 +207,11 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
         for side, root, files in (("before", before, original), ("after", after, candidate)):
             for name in sorted(files):
                 if Path(name).suffix.lower() in {".tex", ".cls", ".sty"}:
-                    for item in lex_tex(source_text(root, name, files))[1]:
+                    text = source_text(root, name, files)
+                    spans, issues = scan_math_environments(text)
+                    math_spans[(root, name)] = spans
+                    report["math_environment_inventory"][side].extend({"file": name, **item} for item in spans)
+                    for item in lex_tex(text)[1] + issues:
                         report["source_scan_issues"].append({"side": side, "file": name, **item})
         for name in sorted(set(original) | set(candidate)):
             if original.get(name) == candidate.get(name):
@@ -222,6 +231,11 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
                 if a != b:
                     changes[label] = {"removed": [[str(key), count] for key, count in (a - b).items()],
                                       "added": [[str(key), count] for key, count in (b - a).items()]}
+            a, b = (Counter((span["environment"], span["content"]) for span in math_spans.get((root, name), []))
+                    for root in (before, after))
+            if a != b:
+                changes["math_environments"] = {"removed": [[str(key), count] for key, count in (a - b).items()],
+                                                "added": [[str(key), count] for key, count in (b - a).items()]}
             if changes:
                 report["content_audit"].append({"file": name, "requires_review": True, **changes})
         for name in candidate:

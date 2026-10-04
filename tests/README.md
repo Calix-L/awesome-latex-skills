@@ -173,3 +173,15 @@ source-byte bounds, corrupted receipts and edits. A native regression builds
 the exported original and English/Chinese candidates, then verifies unchanged
 export bytes. Wheel/rebuilt-sdist first use checks full-paper and PDF export,
 Chinese guides, source fingerprints, relocation and corruption outside the checkout.
+
+## Formula environment review
+
+`test_math_environments.py` checks common/starred environments, nested bodies,
+operator-only changes with unchanged numbers/keys, multiplicity, relocated source
+lines, CRLF/Unicode, literal control symbols, masked examples, malformed/dynamic
+spans, deep/large iterative controls, bilingual escaped HTML, legacy rendering,
+input mutation and standard-library external-cwd/offline verification. Native
+CI compiles all supported forms with amsmath and both candidate versions, retains
+their build/PDF evidence, and checks an unchanged malformed source against a real
+engine failure. Installed wheel/rebuilt-sdist checks exercise the same
+operator-only signal. These are synthetic tooling controls, not model scores.

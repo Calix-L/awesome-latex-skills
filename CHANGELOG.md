@@ -2,6 +2,20 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.16.0 — 2026-10-05
+
+### Fixed
+
+- Source review now flags operator-only changes in common literal math environments such as `equation` and `align`, even when numbers, citation keys and delimited-math signals are unchanged.
+
+### Added
+
+- Schema-1 original/candidate math-environment inventories retain filenames, opening/closing lines and masked outer bodies. Iterative scanning preserves nested content, star variants and multiplicity; moved/reordered identical spans do not invent formula-content changes. Malformed/dynamic spans supply located issues instead of complete values, including unchanged sources.
+- Bilingual offline reports add expandable side-by-side formula inventories and formula-change signals. New English/Chinese recipes and README/documentation navigation explain source-only use, actual build evidence, supported forms and interpretation limits.
+- Twenty-seven portable regressions and two native regressions exercise literal boundaries, operator changes, malformed/deep inputs, byte binding, escaped reports, legacy rendering and all supported forms under real amsmath compilation. Fresh original-wheel and rebuilt-sdist first-use checks cover an operator-only change outside the checkout.
+
+The scanner does not expand macros, evaluate conditions/groups, join environments across input files, validate complete TeX grammar, recognize custom outer math environments or establish mathematical equivalence/scientific fidelity. Existing report schemas and delimited-math helper behavior remain compatible.
+
 ## 1.15.0 — 2026-10-05
 
 ### Added

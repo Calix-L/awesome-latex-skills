@@ -58,6 +58,61 @@ class CompilationTests(unittest.TestCase):
                 evidence.append(f"{step['transcript']}:\n" + transcript.read_text(encoding="utf-8", errors="replace")[-4000:])
         self.fail("\n\n".join(evidence))
 
+    def test_real_math_environment_changes_compile_and_remain_visible_in_review(self):
+        from math_lexer import MATH_ENVIRONMENTS
+        from review_project import review
+        from verify_artifacts import verify_review
+        formulas = []
+        for name in sorted(MATH_ENVIRONMENTS):
+            body = (r"{2}x&=y& a&=b" if name.startswith("alignat") else
+                    r"x&=y&&" if name.startswith("flalign") else
+                    r"x&=&y" if name.startswith("eqnarray") else
+                    r"x&=y" if name.startswith("align") else "x+y")
+            if name == "equation":
+                body = r"\begin{split}x&=y+z\\a&=\begin{bmatrix}b&c\end{bmatrix}\end{split}"
+            formulas.append(rf"\begin{{{name}}}{body}\end{{{name}}}")
+        source = (r"\documentclass{article}\usepackage{amsmath}\begin{document}" + "\n" +
+                  "\n".join(formulas) + "\n" + r"\end{document}")
+        builds = {}
+        for side, text in (("before", source), ("after", source.replace("x+y", "x-y").replace("y+z", "y-z"))):
+            folder = self.work / side
+            folder.mkdir()
+            main = folder / "main.tex"
+            main.write_text(text, encoding="utf-8")
+            expected = main.read_bytes()
+            result = check_build.build(main, self.work / f"{side}-build", until_stable=True, require_resolved=True)
+            self.assert_build_success(result)
+            self.assertEqual(main.read_bytes(), expected)
+            builds[side] = Path(result["output"]) / "build-report.json"
+        output = self.work / "math-review"
+        result = review(self.work / "before", self.work / "after", output,
+                        builds["before"], builds["after"], language="zh")
+        self.assertEqual(result["builds"], {"before": "success", "after": "success"})
+        evidence = json.loads((output / "review.json").read_text(encoding="utf-8"))
+        self.assertEqual(len(evidence["math_environment_inventory"]["after"]), len(MATH_ENVIRONMENTS))
+        self.assertEqual(set(evidence["content_audit"][0]), {"file", "requires_review", "math_environments"})
+        self.assertFalse(evidence["source_scan_issues"])
+        self.assertEqual(verify_review(output)["status"], "verified")
+        self.assertIn("带源码位置的公式环境", (output / "report.html").read_text(encoding="utf-8"))
+
+    def test_real_unclosed_math_environment_fails_and_is_located_on_unchanged_sources(self):
+        from review_project import review
+        source = "\\documentclass{article}\n\\usepackage{amsmath}\n\\begin{document}\n\\begin{equation}x+y\n\\end{document}\n"
+        for side in ("before", "after"):
+            folder = self.work / side
+            folder.mkdir()
+            (folder / "main.tex").write_text(source, encoding="utf-8")
+        native = check_build.build(self.work / "after/main.tex", self.work / "bad-math-build")
+        self.assertEqual(native["status"], "failed")
+        result = review(self.work / "before", self.work / "after", self.work / "bad-math-review",
+                        after_build=self.work / "bad-math-build/build-report.json")
+        self.assertEqual(result["changed_files"], 0)
+        evidence = json.loads((self.work / "bad-math-review/review.json").read_text(encoding="utf-8"))
+        self.assertEqual(evidence["math_environment_inventory"], {"before": [], "after": []})
+        self.assertEqual({i["side"] for i in evidence["source_scan_issues"]}, {"before", "after"})
+        self.assertTrue(any(i["code"] == "math-environment-unclosed" and i["line"] == 4
+                            for i in evidence["source_scan_issues"]))
+
     def test_broken_fixture_has_real_compilation_failure(self):
         self.copy_fixture("broken_paper.tex")
         result = self.compile("broken_paper.tex")
