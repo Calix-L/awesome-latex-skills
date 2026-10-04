@@ -139,7 +139,7 @@ class CompilationTests(unittest.TestCase):
                     watched = ["refs.bib"]
                 source = project / "main.tex"
                 source.write_text(r"\documentclass{article}" + preamble + r"\begin{document}" + body + r"\end{document}", encoding="utf-8")
-                initialize(project, "main.tex", backend=backend)
+                initialize(project, "main.tex", backend=backend, passes=5)
                 before = self.work / f"{backend} original"
                 shutil.copytree(project, before)
                 output = self.work / f"{backend} guarded build"
