@@ -158,7 +158,7 @@ class ProjectDoctorEntryTests(unittest.TestCase):
         initialize(self.root, "main.tex", "xelatex", "biber")
         code, out, _ = self.call("--project", str(self.root), "--skill", "latex-rescue", "--language", "zh")
         self.assertEqual(code, 1)
-        for text in ("综合状态:", "下一步", "所选引擎加入 PATH", str(self.root), "main.tex", "biber"):
+        for text in ("综合状态:", "下一步", "所选引擎加入 PATH", str(self.root.resolve()), "main.tex", "biber"):
             self.assertIn(text, out)
 
     @patch("shutil.which", return_value="/tools/available")
