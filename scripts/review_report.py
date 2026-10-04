@@ -7,7 +7,7 @@ from urllib.parse import quote
 LABELS = {
     "en": {
         "title": "Manuscript change review", "intro": "Review source changes beside supplied build evidence and actual PDF pages. Literal checks do not certify scientific fidelity.",
-        "required": "Human content review required", "json": "JSON evidence", "diff": "Source diff",
+        "required": "Human content review required", "json": "JSON evidence", "diff": "Source diff", "integrity": "Bundle checksums",
         "changes": "Changed files", "flags": "Content signals", "decisions": "Open author decisions", "pages": "PDF pages",
         "builds": "Build evidence", "before": "Before", "after": "After", "success": "Successful build", "failed": "Failed build", "unverified": "Build unverified",
         "build_report": "Build report", "pdf": "PDF", "engine": "Engine", "backend": "Bibliography tool", "unset": "Not selected",
@@ -25,7 +25,7 @@ LABELS = {
     },
     "zh": {
         "title": "论文修改审阅", "intro": "对照源码改动、所提供的构建证据与实际 PDF 页面。字面检查不能证明科学内容正确。",
-        "required": "需要人工核对内容", "json": "JSON 证据", "diff": "源码差异",
+        "required": "需要人工核对内容", "json": "JSON 证据", "diff": "源码差异", "integrity": "目录校验清单",
         "changes": "改动文件", "flags": "内容变化提示", "decisions": "待作者确认", "pages": "PDF 页面",
         "builds": "构建证据", "before": "修改前", "after": "修改后", "success": "编译成功", "failed": "编译失败", "unverified": "编译未验证",
         "build_report": "构建报告", "pdf": "PDF", "engine": "编译引擎", "backend": "参考文献工具", "unset": "未选择",
@@ -58,7 +58,7 @@ def review_html(report, diffs, language="en"):
                ':root{color-scheme:light dark}*{box-sizing:border-box}body{margin:0;background:#f4f3ed;color:#263027;font:16px/1.65 system-ui,sans-serif}main{max-width:1120px;margin:auto;padding:40px 24px}h1{font-size:clamp(28px,5vw,42px);line-height:1.2;letter-spacing:-.025em}h2{margin-top:36px}h3,h4{margin:0 0 12px}small{color:#586555}section,article,details{background:#fffefa;border:1px solid #d5dacd;border-radius:14px;padding:20px;margin:16px 0}pre,code{font:13px/1.6 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}pre{margin:12px 0 0}a{color:#326041}a:focus-visible,summary:focus-visible{outline:3px solid #b58c30;outline-offset:4px}.pair,.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.pair>section{margin:0}.facts{grid-template-columns:repeat(4,minmax(0,1fr))}.facts section{margin:0;padding:16px}.facts strong{display:block;font-size:28px}.pair img{width:100%;height:auto;border:1px solid #d5dacd;background:white}.table-scroll{overflow:auto}table{width:100%;border-collapse:collapse;font-size:14px}td,th{text-align:left;vertical-align:top;padding:10px;border-bottom:1px solid #d5dacd}td{overflow-wrap:anywhere}summary{cursor:pointer;font-weight:600}.pill{display:inline-block;border:1px solid #bac5b3;border-radius:20px;padding:3px 12px}.failed{border-top:4px solid #a84436}.success{border-top:4px solid #537b55}.unverified{border-top:4px solid #778779}.location{overflow-wrap:anywhere}.nav{display:flex;gap:18px;flex-wrap:wrap}.nav a{text-underline-offset:4px}@media(max-width:700px){main{padding:24px 16px}.pair{grid-template-columns:1fr}.facts{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(prefers-color-scheme:dark){body{background:#171c18;color:#e0e7da}section,article,details{background:#212a22;border-color:#40523f}a{color:#b2d9a6}small{color:#b6c2b0}td,th{border-color:#40523f}}@media print{body{background:white;color:black}main{padding:0}section,article{break-inside:avoid}.nav{display:none}}',
                '</style></head><body><main><small>MANUSCRIPT TOOLKIT / REVIEW</small>',
                f'<h1>{esc(labels["title"])}</h1><p>{esc(labels["intro"])}</p><p><span class="pill">{esc(labels["required"])}</span></p>',
-               '<nav class="nav" aria-label="Report">' + link('review.json', labels['json']) + link('changes.diff', labels['diff']) + '</nav>',
+               '<nav class="nav" aria-label="Report">' + link('review.json', labels['json']) + link('changes.diff', labels['diff']) + link('integrity.json', labels['integrity']) + '</nav>',
                '<div class="facts">']
     for key, count in (("changes", len(report["changes"])), ("flags", len(report["content_audit"])),
                        ("decisions", len(report["author_decisions"])), ("pages", sum(len(item["pages"]) for item in report["builds"].values()))):

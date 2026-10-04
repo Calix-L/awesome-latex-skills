@@ -30,6 +30,7 @@ jobs:
       - run: python -m build --outdir dist/package
       - run: python scripts/check_packages.py --directory dist/package --output work/package-verification
       - run: python scripts/als.py release --output dist/release --distribution-dir dist/package
+      - run: python scripts/als.py verify release dist/release
       - uses: actions/upload-artifact@v7
         with:
           name: release-archives

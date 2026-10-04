@@ -2,6 +2,17 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.9.0 — 2026-10-05
+
+### Added
+
+- Standard-library offline `verify release` and `verify review` commands with structured findings, honest legacy coverage and preserved exit codes. No extraction, installation, network access or model execution is performed.
+- Complete review-bundle integrity manifests covering HTML/JSON/diff and retained log/PDF/page evidence, portable verification without original project paths, and an HTML manifest link.
+- Exact release asset/checksum coverage, source/skill ZIP inventories and fingerprints, wheel/sdist resource correspondence, member CRC checks and bounded ZIP/tar parsing. Links, escaping/duplicate/case-colliding entries, encrypted/split/unsupported ZIP metadata and malformed streams are refused.
+- Bilingual verification guides, README/CLI/migration examples, native release integrity gates and fresh installed-package positive/negative checks.
+
+Checks prove byte correspondence to stored manifests, not independent producer authentication, scientific fidelity or model-quality gain. Legacy unsealed reviews remain explicitly unverified.
+
 ## 1.8.0 — 2026-10-04
 
 ### Added

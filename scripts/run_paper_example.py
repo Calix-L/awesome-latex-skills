@@ -10,6 +10,7 @@ from project_doctor import inspect_project
 from project_report import write_inspection_html
 from project_support import ROOT, write_new_json
 from review_project import review, snapshot
+from verify_artifacts import verify_review
 from run_examples import load_helper
 
 
@@ -73,6 +74,9 @@ def run_paper(output, allow_unverified=False, language="en"):
         else:
             result["builds"]["chinese"] = "unverified"
         result["review"] = review(before, after, output / "review", before_report, after_report, fixture / "decisions.md", language)
+        result["review_integrity"] = verify_review(output / "review")
+        if result["review_integrity"]["status"] != "verified":
+            raise ValueError("Generated full-paper review did not pass offline integrity checks")
         if result["review"]["content_flags"]:
             raise ValueError("Unexpected protected number/key/math changes in the candidate")
         result["sources_unchanged"] = all(original[side] == snapshot(fixture / side) == snapshot(output / side) for side in ("before", "after"))

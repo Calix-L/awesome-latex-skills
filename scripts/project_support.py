@@ -16,7 +16,7 @@ def unique_keys(pairs):
     return result
 
 
-def read_json(path):
+def parse_json(text):
     def invalid_constant(value):
         raise ValueError(f"Nonfinite JSON value: {value}")
     def finite_float(value):
@@ -24,11 +24,15 @@ def read_json(path):
         if not math.isfinite(result):
             raise ValueError(f"Nonfinite JSON value: {value}")
         return result
-    result = json.loads(Path(path).read_text(encoding="utf-8"), object_pairs_hook=unique_keys,
+    result = json.loads(text, object_pairs_hook=unique_keys,
                         parse_constant=invalid_constant, parse_float=finite_float)
     if not isinstance(result, dict):
         raise ValueError("JSON document must contain an object")
     return result
+
+
+def read_json(path):
+    return parse_json(Path(path).read_text(encoding="utf-8"))
 
 
 def safe_path(root, value):

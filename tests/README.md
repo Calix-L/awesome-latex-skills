@@ -102,6 +102,16 @@ AI agent's editing quality or prove compliance with a venue's current rules.
 
 ## Fixtures
 
+Offline integrity tests verify complete release/review inventories without
+extracting or executing archives, and check moved review folders without the
+original projects. Negative controls cover changed/missing/extra files,
+legacy coverage, malformed checksum/hash/size/path records, archive-source
+mismatches despite refreshed outer checksums, traversal/duplicate/link members,
+truncated gzip and decompression errors. ZIP directory/member bounds and tar
+metadata/expanded offsets are checked before oversized reads. Native full-paper
+and fresh installed wheel/sdist workflows also run the verifier; installed
+negative controls modify the source diff and require exit 1.
+
 Review negative controls mutate reports/logs/PDFs during copying and inputs or
 page previews after rendering; no final review bundle may be published.
 Declared missing logs, reserved evidence-path collisions, unreadable successful

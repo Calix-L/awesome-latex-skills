@@ -18,7 +18,7 @@ python scripts/als.py paper --output work/release-paper
 python -m pip install build
 python -m build --outdir dist/package
 python scripts/check_packages.py --directory dist/package --output work/package-verification
-python scripts/als.py release --output dist/1.8.0 --distribution-dir dist/package
+python scripts/als.py release --output dist/1.9.0 --distribution-dir dist/package
 ```
 
 The default example run requires a real TeX engine. Portable mode is not a
@@ -37,6 +37,9 @@ are fixed; identical source bytes on the same Python/zlib runtime produce
 identical archives. The manifest fingerprints every included file. Generated
 logs and local installation receipts are excluded. Checksums establish
 integrity, not authenticity.
+
+Verify a complete downloaded release offline with `als verify release path/to/assets`.
+See [verification](verification.md) for coverage and integrity/authenticity limits.
 
 After main's full CI passes, publish the archives using a version tag targeting
 that **exact tested commit**, with the changelog as the release notes. Keep all
@@ -119,6 +122,28 @@ Recomputed literal audit details can differ from earlier reports. Named math
 environments and TeX execution remain outside this limited check. Prepare new
 evaluation tasks after updating skill metadata, or retain the matching old CLI
 and context for reproducibility.
+
+## 1.8.0 to 1.9.0
+
+New `verify release DIRECTORY` and `verify review DIRECTORY` commands use
+only the standard library and do not modify targets or execute/extract archive
+entries. Their reports are schema 1. Exit 0 means complete stored checks passed,
+1 means mismatches or incomplete legacy coverage, and 2 means invalid metadata
+or preconditions. Producer authenticity and content quality remain separate.
+
+New review bundles add a schema-1 `integrity.json` that covers every delivered
+file except itself, including HTML/JSON/diff and retained build/PDF/page evidence.
+Review summary results add the manifest path; the full-paper runner verifies the
+bundle and adds `review_integrity`. Existing review/build/report schema numbers
+remain unchanged. Older unsealed reviews retain explicit unverified coverage;
+available artifact fingerprints are still checked. Do not manually manufacture
+missing manifests to turn old evidence into verified historical identity.
+
+Release assets retain their existing manifest/checksum formats and filenames.
+Download all assets from one version into a dedicated directory and keep notes
+or extracted contents elsewhere. Managed installation and direct helpers stay
+compatible. New skill metadata requires fresh prepared evaluation tasks, or the
+matching older CLI/context for reproduction.
 
 ## 1.3.x to 1.4.0
 

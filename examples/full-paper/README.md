@@ -27,6 +27,7 @@ python -m pip install ".[pdf]"
 als paper --output work/full-paper-run
 # Chinese inspection and review interface
 als paper --output work/full-paper-zh --language zh
+als verify review work/full-paper-zh/review
 ```
 
 Requires pdfLaTeX, XeLaTeX, BibTeX and **Noto Serif CJK SC**. CI installs these
@@ -50,6 +51,10 @@ logs remain reviewable. The review does not fabricate an original page.
 Review HTML opens with counts, readable source/content/decision summaries and
 expandable details. Retained evidence adds byte sizes and SHA-256 hashes,
 checked again before publication. See the [Chinese review guide](../../docs/review_CN.md).
+The review also includes `integrity.json`. The runner checks its complete
+inventory offline and retains `review_integrity` in `verification.json`.
+After moving/downloading the bundle, verify it again without the original
+project directories; see [delivery verification](../../docs/verification.md).
 
 For source inspection on a machine without TeX:
 

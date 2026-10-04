@@ -14,6 +14,7 @@ import tempfile
 from project_doctor import commands, inventory, mask_tex, GENERATED, SOURCE_SUFFIXES, ASSET_SUFFIXES
 from project_support import read_json, safe_path, sha256, write_new_json
 from review_report import review_html
+from artifact_integrity import seal_review
 
 
 def snapshot(root):
@@ -232,10 +233,12 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
         for root, name, retained, digest in bindings:
             if sha256(safe_path(root, name)) != digest or retained is not None and sha256(retained) != digest:
                 raise ValueError(f"Build evidence changed before review publication: {name}")
+        seal_review(bundle)
         if output.exists() or output.is_symlink():
             raise ValueError("Review output appeared during publication")
         bundle.rename(output)
     return {"schema": 1, "status": "ready-for-review", "output": str(output), "report": str(output / "report.html"),
+            "integrity": str(output / "integrity.json"),
             "changed_files": len(report["changes"]), "content_flags": len(report["content_audit"]),
             "open_decisions": len(report["author_decisions"]), "builds": {side: item["status"] for side, item in report["builds"].items()}}
 

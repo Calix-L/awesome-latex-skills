@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.8.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.8.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.9.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.9.0"></a>
 </p>
 
 <p align="center">Five skills for LaTeX repair, academic editing, submission formatting, paper reading, and PDF recovery.</p>
@@ -162,6 +162,18 @@ The review opens with file changes, literal content signals, author decisions
 and build states; source diffs and complete evidence remain expandable.
 Use `--language zh` on `als review` or `als paper` for a Chinese interface.
 
+**Keep delivery verifiable.** New review folders include checksums for the
+report, source diff and retained PDF/log/page evidence. Check a transferred
+folder or a complete downloaded release offline:
+
+```sh
+als verify review work/full-paper-run/review
+als verify release path/to/downloaded-release-assets
+```
+
+[Verification guide](./docs/verification.md). Checks establish agreement with
+the stored manifest; producer authenticity and scientific fidelity remain separate.
+
 **Actual build failure → verified candidate PDF**
 
 <p align="center">
@@ -255,7 +267,7 @@ The skill does not silently turn a relative percentage into percentage points.
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.8.0
+python scripts/als.py release --output dist/1.9.0
 ```
 
 [CLI & JSON reports](./docs/cli.md) · [Ten-task evaluation protocol](./docs/evaluation.md) ·

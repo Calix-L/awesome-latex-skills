@@ -94,7 +94,7 @@ class ReviewTests(unittest.TestCase):
         parsed = Links()
         parsed.feed(page)
         self.assertEqual(parsed.languages, ['zh'])
-        self.assertEqual(parsed.links, ['review.json', 'changes.diff'])
+        self.assertEqual(parsed.links, ['review.json', 'changes.diff', 'integrity.json'])
 
     def test_cli_chinese_review_runs_from_other_working_directory(self):
         run = subprocess.run([sys.executable, str(ROOT / 'scripts/als.py'), '--json', 'review',

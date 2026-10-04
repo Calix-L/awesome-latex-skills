@@ -17,8 +17,9 @@ COMMANDS = {
     "project": "scripts/project_doctor.py", "review": "scripts/review_project.py",
     "paper": "scripts/run_paper_example.py",
     "benchmark": "scripts/evaluate_batch.py",
+    "verify": "scripts/verify_artifacts.py",
 }
-STRUCTURED = {"doctor", "evaluate", "examples", "sources", "release", "project", "review", "paper", "benchmark"}
+STRUCTURED = {"doctor", "evaluate", "examples", "sources", "release", "project", "review", "paper", "benchmark", "verify"}
 
 
 def configured_build(args):

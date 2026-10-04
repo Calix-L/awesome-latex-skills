@@ -45,7 +45,13 @@ SHA-256 和字节数。旧构建报告没有 PDF 校验值时，界面仍标明�
 其他文件类型不在本次清单覆盖范围内。请将实际论文输入放在生成目录之外。
 源码中的 `TODO`、`[UNCERTAIN]` 会列出位置，包括注释里的可见标记，交由作者决定。
 
-离线查看时保持整个输出目录完整。完整的中英文论文案例可以直接运行：
+离线查看时保持整个输出目录完整。
+
+新目录还包含覆盖全部交付文件的 `integrity.json`，转移后用
+`als verify review path/to/bundle` 检查，无需原项目路径。自己的批注和检查
+输出请保存到目录之外，详见[离线校验指南](verification_CN.md)。
+
+完整的中英文论文案例可以直接运行：
 
 ```sh
 als paper --output work/full-paper-zh --language zh

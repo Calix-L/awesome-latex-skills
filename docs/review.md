@@ -53,6 +53,12 @@ These are point-in-time consistency checks, not a lock or an immutable snapshot
 of a concurrently edited project. Legacy PDFs still retain their explicit
 unverified build-time identity.
 
+New bundles add `integrity.json`, covering HTML, JSON, diff and every retained
+file. After transfer, run `als verify review path/to/bundle`; original project
+paths are not needed. Keep annotations and verification output outside the
+sealed directory. See [offline verification](verification.md) for coverage,
+legacy handling, limits and the distinction between integrity and authenticity.
+
 Without `--before-build`/`--after-build`, the corresponding side is explicitly
 unverified. Stale inputs, render failures and publication errors leave no
 partially published review directory. Source/configuration/asset snapshots are

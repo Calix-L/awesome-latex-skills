@@ -91,6 +91,13 @@ def check_distribution(wheel, output):
                 or reviewed["content_flags"] != 1 or reviewed["open_decisions"] != 1
                 or "论文修改审阅" not in (cwd / "source-review/report.html").read_text(encoding="utf-8")):
             raise ValueError("Installed offline source review failed first-use checks")
+        integrity = json.loads(run([command, "--json", "verify", "review", cwd / "source-review"]))["result"]
+        if integrity["status"] != "verified" or integrity["files_checked"] != 3:
+            raise ValueError("Installed offline artifact verifier failed first-use checks")
+        (cwd / "source-review/changes.diff").write_text("Changed after delivery", encoding="utf-8")
+        failed = json.loads(run([command, "--json", "verify", "review", cwd / "source-review"], expected=(1,)))["result"]
+        if failed["status"] != "failed" or not any(item["code"] == "changed-file" for item in failed["findings"]):
+            raise ValueError("Installed verifier missed a changed source diff")
         result = {"schema": 1, "status": "verified", "version": version, "wheel_sha256": sha256(wheel), "steps": steps}
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         result = {"schema": 1, "status": "failed", "error": str(exc), "steps": steps}
