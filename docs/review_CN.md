@@ -65,3 +65,10 @@ als paper --output work/full-paper-zh --language zh
 
 该命令仍需要真实 TeX 工具；详情见[完整案例](../examples/full-paper/README.md)。
 也可以阅读[英文指南](review.md)与[项目检查指南](project_CN.md)。
+
+## 构建中显式监测的文献与样式
+
+用重复 `--watch-input` 可从构建前开始核对选定资源，即使引擎没有记录它。
+审阅时会重新核对初始与各步骤指纹，拒绝构建后的源码变化，并在所附构建旁展示
+选择清单。没有监测字段的旧报告保持可用，监测不证明实际文献后端读取范围。
+[输入监测指南](build-inputs_CN.md)。

@@ -89,3 +89,9 @@ and license, with a generated offline guide and initial byte receipt. It needs
 no TeX/PDF library and does not run the existing full-paper verification runner.
 Open `../my-example/report.html`; see the [export guide](../../docs/examples-export.md)
 ([中文](../../docs/examples-export_CN.md)).
+
+The native demonstration explicitly watches `references.bib` and
+`styles/example.sty` from preflight through English/Chinese build steps; review
+retains and rechecks those hashes. Selection is additional consistency evidence,
+not a claim to observe every backend resource. [Input guards](../../docs/build-inputs.md)
+· [中文](../../docs/build-inputs_CN.md).

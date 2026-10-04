@@ -44,8 +44,9 @@ def run_paper(output, allow_unverified=False, language="en"):
             write_inspection_reports(output / f"inspection-{side}.json", output / f"inspection-{side}.html", inspection, language)
         before_report = after_report = None
         if tools["pdflatex"] and tools["bibtex"]:
-            before_result = build(before / "main.tex", output / "build-before", "pdflatex", "bibtex", 3)
-            after_result = build(after / "main.tex", output / "build-after", "pdflatex", "bibtex", 3, require_resolved=True)
+            watched = ["references.bib", "styles/example.sty"]
+            before_result = build(before / "main.tex", output / "build-before", "pdflatex", "bibtex", 3, watch_inputs=watched)
+            after_result = build(after / "main.tex", output / "build-after", "pdflatex", "bibtex", 3, require_resolved=True, watch_inputs=watched)
             before_report, after_report = output / "build-before/build-report.json", output / "build-after/build-report.json"
             result["builds"].update(before=before_result["status"], after=after_result["status"])
             if before_result["status"] != "failed" or after_result["status"] != "success":
@@ -62,7 +63,8 @@ def run_paper(output, allow_unverified=False, language="en"):
         else:
             result["builds"].update(before="unverified", after="unverified")
         if tools["xelatex"] and tools["bibtex"]:
-            chinese = build(after / "main-cn.tex", output / "build-chinese", "xelatex", "bibtex", 3, require_resolved=True)
+            chinese = build(after / "main-cn.tex", output / "build-chinese", "xelatex", "bibtex", 3, require_resolved=True,
+                            watch_inputs=["references.bib", "styles/example.sty"])
             result["builds"]["chinese"] = chinese["status"]
             if chinese["status"] != "success":
                 raise ValueError(f"Chinese companion failed: {chinese['failure']}")

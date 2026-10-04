@@ -99,11 +99,12 @@ on the manifest.
 
 This is observed provenance, not a frozen project snapshot. It cannot detect an
 edit before a file's first observation, an edit reverted between observations,
-or inputs the engine does not record. BibTeX/Biber's separately read `.bib`/`.bst`
-files, remote resources and external fonts/packages are outside this manifest
-unless also read and recorded by the engine in the local project scope. Preserve
-those versions separately for reproduction. A fingerprint is not an authenticity
-or content-correctness guarantee.
+or unselected inputs the engine does not record. BibTeX/Biber's separately read
+`.bib`/`.bst` files can be explicitly watched as described below. Unselected
+backend files, remote resources and external fonts/packages remain outside this
+manifest unless read and recorded by the engine in the local project scope.
+Preserve those versions separately for reproduction. A fingerprint is not an
+authenticity or content-correctness guarantee.
 
 The root additionally has a starting hash taken before creating output and an
 end-of-build comparison, including ordinarily failed process runs. A changed root
@@ -119,3 +120,38 @@ assuming every diagnostic belongs to the final engine log.
 
 Command semantics: [Web2C manual](https://www.tug.org/texinfohtml/web2c.html),
 [Biber manual](https://tug.ctan.org/biblio/biber/base/documentation/biber.pdf).
+
+## Explicit local input guards
+
+When local bibliography/style resources must remain consistent, select known
+files explicitly. No backend dependency search or consumption claim is made:
+
+```sh
+python path/to/latex-rescue/scripts/check_build.py path/to/paper/main.tex --output work/guarded-build --backend bibtex --until-stable --require-resolved --watch-input references.bib --watch-input styles/local.bst
+```
+
+Repeat `--watch-input` for each file. Paths use `/` and are relative to the actual
+root source directory, not the shell cwd. Quote spaces; a leading `-` filename
+can use `--watch-input=--refs.bib`. Select existing regular files inside that tree;
+absolute/traversing paths, symlinks and build-output files are refused.
+
+The helper fingerprints selections before creating output (`preflight`), after
+each normally completed/failed/timed-out engine or backend attempt, and at final
+checking. Duplicate selections and recorder overlap are deduplicated per step.
+Schema-3 `input_tracking.watched_inputs` names selections; their hashes/sizes/errors
+appear in existing `local_inputs.observations`. Omitting the option preserves the
+recorder-based scope and supplies an empty selection list.
+
+At most 128 selector arguments; each file is bounded to 64 MiB at preflight and
+each subsequent read. The initial selected set is bounded to 256 MiB. Invalid
+preflight creates no output or native process. A changed/missing/unreadable
+selected file fails an otherwise successful build, preserving current author
+files and failed evidence instead of treating the PDF as a verified success.
+The original process failure remains the cause when a native step fails.
+
+This does not lock editors, freeze files, detect changes reverted between
+observations, or cover unselected/external resources. Interruptions, evidence I/O
+failures and transient path races can leave consistency unverified. Selection
+does not prove actual backend use or scientific fidelity. Rebuild current inputs
+before attaching their report to a review; never revert author edits merely to
+satisfy a stale fingerprint.

@@ -185,3 +185,17 @@ CI compiles all supported forms with amsmath and both candidate versions, retain
 their build/PDF evidence, and checks an unchanged malformed source against a real
 engine failure. Installed wheel/rebuilt-sdist checks exercise the same
 operator-only signal. These are synthetic tooling controls, not model scores.
+
+## Explicit build-input guards
+
+`test_watched_inputs.py` verifies preflight/engine/backend/final observations,
+actual read bounds, mutation/deletion/symlink replacement, failed native attempts,
+recorder overlap, platform case rules, repeat/option-like selectors, configured
+main-directory semantics, legacy review compatibility, structured metadata,
+escaped selected-input summaries and stale bibliography evidence refusal.
+Native CI uses actual BibTeX/Biber with configured CLI builds, selected local
+styles, retained PDF review and later database edits; a real successful backend
+followed by an author edit must produce failed consistency evidence. The complete
+English/Chinese case selects its bibliography and style, and fresh installed
+wheel/rebuilt-sdist checks validate help and traversal refusal without requiring
+TeX. These synthetic checks do not measure model quality or infer backend use.

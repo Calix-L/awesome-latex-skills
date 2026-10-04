@@ -120,12 +120,24 @@ def check_distribution(wheel, output):
         if "error" not in invalid_doctor["result"] or (cwd / "missing-project").exists():
             raise ValueError("Installed doctor did not retain a read-only project error")
         help_report = json.loads(run([command, "--json", "build", "--project", cwd / "missing-project", "--help"]))
-        if help_report["invocation"] is not None or "--project" not in help_report["stdout"] or help_report["evidence"]:
+        if (help_report["invocation"] is not None or "--project" not in help_report["stdout"]
+                or "--watch-input" not in help_report["stdout"] or help_report["evidence"]):
             raise ValueError("Installed build help incorrectly required a project or attempted execution")
         rejected = json.loads(run([command, "--json", "build", "--project", main.parent,
                                    "--out=" + str(cwd / "unused-build"), "--engine=invalid"], expected=(2,)))
         if rejected["invocation"] is not None or (cwd / "unused-build").exists() or rejected["result"] is not None:
             raise ValueError("Installed argument preflight ran a build or retained unrelated evidence")
+        rejected_watch = json.loads(run([command, "--json", "build", "--project", main.parent,
+                                         "--output", cwd / "invalid-watch-build", "--watch-input=../escape.bib"], expected=(2,)))
+        if (rejected_watch["invocation"] is None or rejected_watch["result"] is not None
+                or rejected_watch["evidence"] or (cwd / "invalid-watch-build").exists()
+                or "portable path" not in rejected_watch["stderr"]):
+            raise ValueError("Installed watched-input validation depended on native tools or wrote partial output")
+        standalone = cwd / "standalone-invalid-watch"
+        run([python, cwd / "skills/latex-rescue/scripts/check_build.py", main,
+             "--output", standalone, "--watch-input=../escape.bib"], expected=(2,))
+        if standalone.exists():
+            raise ValueError("Installed standalone skill created output for an invalid watch selector")
         if not (main.parent / ".als.json").is_file():
             raise ValueError("Installed CLI did not initialize the selected project")
         inspection = json.loads(run([command, "--json", "project", "check", main.parent,

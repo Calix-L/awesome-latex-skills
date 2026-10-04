@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.16.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.16.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.17.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.17.0"></a>
 </p>
 
 <p align="center">五个专注于论文工作的 Agent Skills：修复编译、润色表达、转换格式、阅读论文、恢复源码。</p>
@@ -189,6 +189,10 @@ als paper --output work/full-paper-run --language zh
 **核对公式修改。** `equation`、`align` 等常用环境中只改运算符的变化也会提示审查，
 并排保留可展开的公式内容和源码行号。[检查范围与示例](./docs/math-review_CN.md)。
 
+**核对构建输入。** 重复 `--watch-input` 可监测指定文献库、样式等本地文件，
+覆盖构建前和各原生步骤；文件变化会使构建核验失败，之后再改动也会使旧构建证据
+无法附到当前稿件。[使用监测选项](./docs/build-inputs_CN.md)。
+
 检查器区分注释、转义反斜杠与原样文本，保留真实依赖及源码位置。未闭合的代码
 示例会明确提示；自动主文件选择也记录全部已读取文件的指纹。详见
 [源码扫描范围](./docs/project_CN.md#注释与代码示例不会混入依赖)。
@@ -295,7 +299,7 @@ python scripts/als.py examples run --output work/example-run
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.16.0
+python scripts/als.py release --output dist/1.17.0
 ```
 
 [CLI 与 JSON 报告](./docs/cli.md) · [中文评测指南](./docs/evaluation_CN.md) ·

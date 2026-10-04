@@ -33,7 +33,7 @@ python scripts/als.py benchmark prepare --case polish-scope --trials 1 --output 
 python scripts/als.py benchmark run --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --spec runner-spec.json
 python scripts/als.py benchmark review-template --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --output work/baseline-review.json
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.16.0
+python scripts/als.py release --output dist/1.17.0
 ```
 
 Use `COMMAND --help` for the native options. Paths supplied by the user resolve
@@ -137,3 +137,15 @@ resources. `verify example ../my-example` checks the complete initial copy and
 source receipt after transfer, without reading installed source paths. Editing
 the copy invalidates that byte check; keep an untouched original. See the
 [export guide](examples-export.md) and [documentation index](README.md).
+
+## Explicit input guards
+
+```sh
+als build --project path/to/paper --output work/guarded-build --watch-input references.bib --watch-input styles/local.bst --until-stable --require-resolved
+```
+
+Watched paths are relative to the selected main file's directory; repeat selectors,
+use `/` separators and quote spaces. `--watch-input=--refs.bib` preserves a literal
+option-like filename. Invalid selectors fail before native tool probes or output
+creation. Changed selected inputs fail an otherwise successful build; actual
+backend consumption is not inferred. [Guide](build-inputs.md) / [中文](build-inputs_CN.md).

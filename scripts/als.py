@@ -68,6 +68,8 @@ def build_arguments(args):
     for field in ("until_stable", "require_resolved"):
         if getattr(options, field):
             remaining.append(f"--{field.replace('_', '-')}")
+    for value in options.watch_input:
+        remaining.append(f"--watch-input={value}")
     return remaining, options
 
 

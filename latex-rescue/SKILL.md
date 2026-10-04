@@ -2,7 +2,7 @@
 name: latex-rescue
 description: Diagnose and repair LaTeX build failures in local projects or supplied logs. Make minimal source fixes, preserve scientific content and reference keys, and report actual build evidence and unresolved errors.
 metadata:
-  version: "1.16.0"
+  version: "1.17.0"
 ---
 
 ## Purpose
@@ -84,6 +84,9 @@ the check; these flags do not decide missing reference targets for the author.
 The report retains recorder-based local input fingerprints and identifies the
 failed engine/backend step. These observations do not freeze project inputs or
 cover every bibliography/system resource; inspect the guide's provenance limits.
+When local backend resources need consistency checks, select them explicitly
+with repeated `--watch-input` options as described in that guide; selection does
+not establish which resources the backend actually read.
 
 Read the final logs and inspect the resulting PDF when rendering tools are
 available. Report build failure separately from unresolved references, duplicate

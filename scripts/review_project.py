@@ -87,6 +87,19 @@ def attach_build(path, project, side, bundle, bindings=None):
         raise ValueError("Expected an actual schema-3 build report")
     if any(not isinstance(report.get(field), list) or any(not isinstance(item, dict) for item in report[field]) for field in ("steps", "local_inputs")):
         raise ValueError("Build report needs structured steps and local input evidence")
+    tracking = report.get("input_tracking", {})
+    if not isinstance(tracking, dict):
+        raise ValueError("Build input tracking must be an object")
+    watched = tracking.get("watched_inputs", [])
+    if (not isinstance(watched, list) or any(not isinstance(name, str) for name in watched)
+            or len(watched) != len(set(watched))):
+        raise ValueError("Watched input metadata must contain unique literal filenames")
+    for name in watched:
+        entries = [item for item in report["local_inputs"] if item.get("path") == name]
+        if (len(entries) != 1 or not isinstance(entries[0].get("observations"), list)
+                or not entries[0]["observations"] or not isinstance(entries[0]["observations"][0], dict)
+                or entries[0]["observations"][0].get("step") != "preflight"):
+            raise ValueError("Watched input metadata lacks its starting fingerprint observation")
     source = Path(report.get("source", "")).resolve()
     project = Path(project).resolve()
     if not source.is_relative_to(project):
@@ -97,7 +110,7 @@ def attach_build(path, project, side, bundle, bindings=None):
         raise ValueError(f"{side} build source fingerprint differs from current input")
     bindings.append((project, relative, None, report["source_sha256"]))
     for item in report.get("local_inputs", []):
-        # Recorder hashes refer to paths relative to the root source's directory.
+        # Recorded and explicitly watched paths are relative to the root source directory.
         name = item.get("path")
         observations = item.get("observations", [])
         if not isinstance(name, str) or not isinstance(observations, list) or not observations or any(not isinstance(row, dict) or not isinstance(row.get("sha256"), str) or row.get("error") for row in observations):
@@ -124,9 +137,9 @@ def attach_build(path, project, side, bundle, bindings=None):
               "evidence": f"evidence/{side}/build-report.json", "engine": report.get("engine"), "backend": report.get("backend"),
               "failure": report.get("failure"), "unresolved_references": report.get("unresolved_references"),
               "diagnostics": report.get("diagnostics", []), "pages": [], "retained_files": retained}
+    result["watched_inputs"] = watched
     # A failed build's PDF is not presented as a successful comparison.
     if report["status"] == "success":
-        tracking = report.get("input_tracking", {})
         if not isinstance(tracking, dict) or report.get("source_unchanged") is not True or tracking.get("changed") or tracking.get("unreadable"):
             raise ValueError("Successful build evidence did not retain stable source inputs")
         pdf = safe_path(path.parent, report.get("pdf"))

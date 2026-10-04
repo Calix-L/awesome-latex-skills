@@ -6,7 +6,7 @@ import hashlib
 import json
 import math
 import os
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 import re
 import shutil
 import subprocess
@@ -15,15 +15,59 @@ import sys
 ENGINES = ("pdflatex", "xelatex", "lualatex")
 BACKENDS = ("bibtex", "biber")
 AUXILIARY_SUFFIXES = {".aux", ".toc", ".lof", ".lot", ".out", ".bcf", ".bbl", ".nav", ".snm"}
+MAX_WATCH_FILES = 128
+MAX_WATCH_BYTES = 64 * 1024 * 1024
+MAX_WATCH_TOTAL = 256 * 1024 * 1024
 
 
-def fingerprint(path):
+def fingerprint(path, max_bytes=None):
     digest, size = hashlib.sha256(), 0
     with path.open("rb") as stream:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
             size += len(chunk)
+            if max_bytes is not None and size > max_bytes:
+                raise ValueError(f"Watched input exceeds {max_bytes} bytes: {path.name}")
     return {"sha256": digest.hexdigest(), "size": size}
+
+
+def watched_path(project, value):
+    """An explicit portable local filename, revalidated at every observation."""
+    if (not isinstance(value, str) or not value or any(c in value for c in "\\:\x00\r\n")
+            or PureWindowsPath(value).drive or Path(value).is_absolute()
+            or any(part in {"", ".", ".."} for part in value.split("/"))):
+        raise ValueError("Watched input must be a portable path relative to the root source directory")
+    project = Path(project).resolve()
+    parts = value.split("/")
+    path = project.joinpath(*parts)
+    if any(project.joinpath(*parts[:i]).is_symlink() for i in range(1, len(parts) + 1)) or not path.resolve().is_relative_to(project):
+        raise ValueError(f"Watched input is a symlink or escapes its project: {value}")
+    if not path.is_file():
+        raise ValueError(f"Watched input must be an existing regular file: {value}")
+    return path.resolve()
+
+
+def prepare_watched(project, output, values):
+    if values is None:
+        return {}
+    if not isinstance(values, (list, tuple)) or len(values) > MAX_WATCH_FILES:
+        raise ValueError(f"Select at most {MAX_WATCH_FILES} watched inputs")
+    watched, seen, total = {}, set(), 0
+    for value in values:
+        path = watched_path(project, value)
+        if path.is_relative_to(output):
+            raise ValueError("Watched input cannot be inside build output")
+        if path in seen:
+            continue
+        seen.add(path)
+        if path.stat().st_size > MAX_WATCH_BYTES:
+            raise ValueError(f"Watched input exceeds {MAX_WATCH_BYTES} bytes: {value}")
+        digest = fingerprint(path, MAX_WATCH_BYTES)
+        total += digest["size"]
+        if total > MAX_WATCH_TOTAL:
+            raise ValueError(f"Watched inputs exceed {MAX_WATCH_TOTAL} total bytes")
+        watched[path.relative_to(project).as_posix()] = digest
+    return watched
 
 
 def recorder_inputs(text, cwd, project, output):
@@ -96,7 +140,7 @@ def diagnostics(text, tool=None):
 
 
 def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=60,
-          jobname=None, until_stable=False, require_resolved=False):
+          jobname=None, until_stable=False, require_resolved=False, watch_inputs=None):
     source = Path(source).expanduser().resolve()
     output = Path(output).expanduser().resolve()
     if not source.is_file() or source.suffix.lower() != ".tex":
@@ -117,6 +161,8 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
         raise ValueError("Timeout must be a finite positive number of seconds")
     if output.exists():
         raise ValueError("Output directory must be new; existing build artifacts cannot be reused")
+    source_sha256 = fingerprint(source)["sha256"]
+    watched = prepare_watched(source.parent, output, watch_inputs)
     executables = {}
     for tool in (engine, backend):
         if tool:
@@ -124,7 +170,6 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
             if not executable:
                 raise ValueError(f"Required tool is not on PATH: {tool}")
             executables[tool] = executable
-    source_sha256 = fingerprint(source)["sha256"]
     # mkdir is the reservation: do not replace a directory created after preflight.
     output.mkdir(parents=True, exist_ok=False)
     report = {
@@ -137,19 +182,26 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
         "auxiliary_stable": None, "rerun_requested": False, "unresolved_references": False,
         "source_unchanged": None,
         "failed_step": None, "diagnostic_step": None,
-        "local_inputs": [], "input_tracking": {"recorder_steps": [], "changed": [], "unreadable": []},
+        "local_inputs": [], "input_tracking": {"recorder_steps": [], "watched_inputs": list(watched),
+                                              "changed": [], "unreadable": []},
     }
-    observed_inputs = {}
+    observed_inputs = {name: {"path": name, "observations": [{"step": "preflight", **digest, "error": None}]}
+                       for name, digest in watched.items()}
+    watch_lookup = {source.parent / name: name for name in watched}
 
     def observe(path, name):
-        relative = path.relative_to(source.parent).as_posix()
+        relative = watch_lookup.get(path, path.relative_to(source.parent).as_posix())
         item = observed_inputs.setdefault(relative, {"path": relative, "observations": []})
         observation = {"step": name, "sha256": None, "size": None, "error": None}
         try:
             resolved = path.resolve()
             if not resolved.is_relative_to(source.parent) or resolved.is_relative_to(output):
                 raise ValueError("Recorded path now resolves outside the local input scope")
-            observation.update(fingerprint(resolved))
+            if relative in watched:
+                resolved = watched_path(source.parent, relative)
+                observation.update(fingerprint(resolved, MAX_WATCH_BYTES))
+            else:
+                observation.update(fingerprint(resolved))
         except (OSError, ValueError) as exc:
             observation["error"] = str(exc)
             if relative not in report["input_tracking"]["unreadable"]:
@@ -200,7 +252,11 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
             step["recorder"] = saved_recorder.relative_to(output).as_posix()
             report["input_tracking"]["recorder_steps"].append(name)
             for path in recorder_inputs(saved_recorder.read_text(encoding="utf-8", errors="replace"), cwd, source.parent, output):
+                if path in watch_lookup:
+                    continue  # Explicit selection supplies one observation per step below.
                 observe(path, name)
+        for relative in watched:
+            observe(source.parent / relative, name)
         if step["exit_code"] != 0:
             report["failed_step"] = name
             report["failure"] = report["failure"] or f"{name} exited with {step['exit_code']}"
@@ -307,6 +363,8 @@ def argument_parser(source_optional=False, **kwargs):
     parser.add_argument("--jobname", help="Output basename; default: root filename without .tex")
     parser.add_argument("--until-stable", action="store_true", help="Stop on settled auxiliary files and rerun requests; default maximum 5 passes")
     parser.add_argument("--require-resolved", action="store_true", help="Fail if final references/citations or rerun requests remain")
+    parser.add_argument("--watch-input", action="append", default=[], metavar="RELATIVE_FILE",
+                        help="Repeat to fingerprint explicit local inputs before/after native steps; relative to the root source directory, not the shell cwd")
     return parser
 
 
@@ -315,7 +373,7 @@ def main(argv=None):
     args = parser.parse_args(argv)
     try:
         report = build(args.source, args.output, args.engine, args.backend, args.passes, args.timeout,
-                       args.jobname, args.until_stable, args.require_resolved)
+                       args.jobname, args.until_stable, args.require_resolved, args.watch_input)
     except (OSError, ValueError) as exc:
         print(f"Build check: {exc}", file=sys.stderr)
         return 2

@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.16.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.16.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.17.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.17.0"></a>
 </p>
 
 <p align="center">Five skills for LaTeX repair, academic editing, submission formatting, paper reading, and PDF recovery.</p>
@@ -199,6 +199,10 @@ Use `--language zh` on `als review` or `als paper` for a Chinese interface.
 common math environments now appear as review signals, with expandable formula
 text and source lines on both sides. [Coverage and examples](./docs/math-review.md).
 
+**Keep build inputs consistent.** Repeat `--watch-input` to monitor selected local
+bibliography/style files from preflight through native passes. Changed inputs fail
+the check and later edits invalidate attached build evidence. [Use the guard](./docs/build-inputs.md).
+
 Inspection distinguishes comments, escaped backslashes and supported literal
 examples while retaining real dependencies and source locations. Incomplete
 regions are explicit, and automatic root selection retains all observed file
@@ -314,7 +318,7 @@ The skill does not silently turn a relative percentage into percentage points.
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.16.0
+python scripts/als.py release --output dist/1.17.0
 ```
 
 [CLI & JSON reports](./docs/cli.md) · [Ten-task evaluation protocol](./docs/evaluation.md) ·

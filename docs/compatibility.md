@@ -73,3 +73,12 @@ optional `content_audit[].math_environments`; existing fields and the direct
 three-counter `content_tokens` helper remain unchanged. Old reports without the
 additive inventory still render. Source-only review needs only the standard
 library. See [coverage](math-review.md) / [中文范围](math-review_CN.md).
+
+## Explicit build inputs / 显式构建输入
+
+Schema-3 build adds `input_tracking.watched_inputs` (empty by default) and
+`preflight`/backend observations within existing `local_inputs` for selected
+files. The direct build helper adds only a trailing optional `watch_inputs`.
+Schema-1 review build summaries add `watched_inputs`; missing legacy selection
+metadata means no explicit guard. No configuration schema change or inferred
+backend-consumption record. [English](build-inputs.md) / [中文](build-inputs_CN.md).

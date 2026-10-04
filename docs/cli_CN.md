@@ -90,3 +90,14 @@ JSON 的 `stdout` 中保留，`result` 为 null，`evidence` 为空。
 `verify example ../my-example` 在移动后核验完整初始副本和来源记录，不读取原始
 安装路径。修改副本会使字节核验失败；保留未修改原稿。详见[导出指南](examples-export_CN.md)
 和[文档导航](README.md)。
+
+## 显式监测构建输入
+
+```sh
+als build --project path/to/paper --output work/guarded-build --watch-input references.bib --watch-input styles/local.bst --until-stable --require-resolved
+```
+
+路径相对于实际主文件的目录，重复选项选择多个文件；使用 `/` 分隔，含空格时加
+引号。`--watch-input=--refs.bib` 可选择以 `-` 开头的文件名。无效路径在工具探测
+和输出创建前被拒绝；所选文件变化会使原本成功的构建核验失败。选择不证明文献
+工具实际使用了它。[操作与限制](build-inputs_CN.md)。

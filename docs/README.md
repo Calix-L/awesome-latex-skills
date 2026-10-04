@@ -12,6 +12,7 @@ Start with a task, then follow its evidence. 从任务开始，再检查实际�
 | Bibliography issues / 参考文献问题 | [Bibliography](bibliography.md) | [参考文献](bibliography_CN.md) |
 | Review edits and actual PDFs / 审查修改和实际页面 | [Project review](review.md) | [项目审查](review_CN.md) |
 | Check formula edits / 核对公式变化 | [Math review](math-review.md) | [公式审查](math-review_CN.md) |
+| Keep selected build inputs consistent / 核对构建输入 | [Input guards](build-inputs.md) | [输入监测](build-inputs_CN.md) |
 | Verify transferred artifacts / 核验移动后的产物 | [Offline integrity](verification.md) | [离线核验](verification_CN.md) |
 | Measure skill behavior / 测量技能表现 | [Evaluation protocol](evaluation.md) | [评测协议](evaluation_CN.md) |
 | Start a bounded experiment / 小规模实验准备 | [Evaluation pilot](pilot.md) | [评测试运行](pilot_CN.md) |

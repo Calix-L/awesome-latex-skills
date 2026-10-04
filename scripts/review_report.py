@@ -11,6 +11,7 @@ LABELS = {
         "changes": "Changed files", "flags": "Content signals", "decisions": "Open author decisions", "pages": "PDF pages",
         "builds": "Build evidence", "before": "Before", "after": "After", "success": "Successful build", "failed": "Failed build", "unverified": "Build unverified",
         "build_report": "Build report", "pdf": "PDF", "engine": "Engine", "backend": "Bibliography tool", "unset": "Not selected",
+        "watched": "Explicitly watched inputs", "watch_note": "These local files were explicitly fingerprinted from preflight onward; selection does not prove the backend consumed them.",
         "no_build": "No actual build report supplied.", "legacy": "Legacy report: PDF identity at build time is unverified; only the current retained bytes are fingerprinted.",
         "warnings": "Build diagnostics", "unresolved": "Recognized unresolved references or citations remain.", "no_warnings": "No retained diagnostics. Inspect the PDF separately.",
         "retained": "Retained evidence files", "file": "File", "kind": "Change", "added": "Added", "removed": "Removed", "modified": "Modified",
@@ -32,6 +33,7 @@ LABELS = {
         "changes": "改动文件", "flags": "内容变化提示", "decisions": "待作者确认", "pages": "PDF 页面",
         "builds": "构建证据", "before": "修改前", "after": "修改后", "success": "编译成功", "failed": "编译失败", "unverified": "编译未验证",
         "build_report": "构建报告", "pdf": "PDF", "engine": "编译引擎", "backend": "参考文献工具", "unset": "未选择",
+        "watched": "显式监测的输入文件", "watch_note": "这些本地文件从构建前开始记录指纹；显式选择不证明参考文献工具实际读取了它们。",
         "no_build": "未提供实际构建报告。", "legacy": "旧报告未记录编译时的 PDF 校验值；这里只核对当前保留文件的字节，编译时身份仍未验证。",
         "warnings": "构建诊断", "unresolved": "仍有检查器识别到的未解析引用或文献。", "no_warnings": "没有保留的诊断信息。仍需单独检查 PDF。",
         "retained": "已保留的证据文件", "file": "文件", "kind": "变化", "added": "新增", "removed": "删除", "modified": "修改",
@@ -81,6 +83,10 @@ def review_html(report, diffs, language="en"):
             content.append(f'<p>{esc(labels["no_build"])}</p>')
         if build.get("pdf"):
             content.append('<p>' + link(build['pdf'], labels['pdf']) + '</p>')
+        if build.get("watched_inputs"):
+            content.append(f'<h4>{esc(labels["watched"])}</h4><ul>')
+            content.extend(f'<li><code>{esc(name)}</code></li>' for name in build["watched_inputs"])
+            content.append(f'</ul><p>{esc(labels["watch_note"])}</p>')
         if build.get("pdf_binding") == "unverified-legacy-report":
             content.append(f'<p>{esc(labels["legacy"])}</p>')
         if build.get("failure"):

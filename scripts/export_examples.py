@@ -58,8 +58,8 @@ def example_commands(report, language="en"):
     identifier = report["case"]
     if identifier == "full-paper":
         commands = ["als doctor --project case/after --skill latex-rescue",
-                "als build --project case/after --output ../example-build --until-stable --require-resolved",
-                "als build case/after/main-cn.tex --engine xelatex --backend bibtex --passes 3 --output ../example-chinese --require-resolved"]
+                "als build --project case/after --output ../example-build --until-stable --require-resolved --watch-input references.bib --watch-input styles/example.sty",
+                "als build case/after/main-cn.tex --engine xelatex --backend bibtex --passes 3 --output ../example-chinese --require-resolved --watch-input references.bib --watch-input styles/example.sty"]
     elif identifier == "read":
         commands = ["als doctor --skill paper-read"]
     elif identifier == "pdf2tex":

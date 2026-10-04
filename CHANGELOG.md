@@ -2,6 +2,21 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.17.0 — 2026-10-05
+
+### Added
+
+- Repeated `build --watch-input` selects explicit local resources relative to the actual root source directory. Preflight hashes are retained before output creation, then rechecked after engine/backend attempts and at final checking, independently of recorder coverage. Changed/missing/unreadable files fail an otherwise successful build without restoring author edits.
+- Schema-3 `input_tracking.watched_inputs` and starting/backend observations extend existing local-input evidence. Selected paths and streaming reads are bounded; invalid selectors fail before native tool probes/output creation, duplicate selection and recorder overlap are deduplicated, and the old default recorder scope remains.
+- Review checks starting/step hashes, refuses stale bibliography inputs and validates selected-input metadata; bilingual offline build summaries display explicit scope. Missing legacy selection metadata remains compatible.
+- Complete English/Chinese manuscript builds and exported guide commands select the local bibliography/style. Bilingual input recipes, README/docs navigation and self-contained latex-rescue reference guidance describe the workflow and limits.
+
+### Validation
+
+- Thirty portable regressions cover path/size bounds, growth, normal failures/timeouts, mutation/deletion/redirects, platform case rules, configured roots, CLI grammar, stable/stale review binding and legacy reports. Two native regressions use real configured BibTeX/Biber CLI builds and a successful backend followed by a concurrent author edit. Installed original-wheel/rebuilt-sdist first-use checks exercise help and structured traversal refusal without requiring native TeX.
+
+Explicit selection records byte consistency, not actual backend consumption. No editor lock, frozen snapshot, detection of reverted transient edits, full environment reproducibility, authentication or scientific-fidelity result is inferred. Build/review/configuration schema numbers and old helper argument positions remain compatible.
+
 ## 1.16.0 — 2026-10-05
 
 ### Fixed

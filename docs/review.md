@@ -88,3 +88,11 @@ The report escapes source/notes and supports narrow screens and dark mode.
 See the [complete project example](../examples/full-paper/README.md) for a
 repair workflow with English and Chinese builds and an unresolved author choice.
 See the [Chinese review guide](review_CN.md) for the same workflow in Chinese.
+
+## Selected backend-resource consistency
+
+Builds using repeated `--watch-input` can bind explicit local bibliography/styles
+from preflight onward, even without engine recorder coverage. Review rechecks all
+their starting/step hashes, rejects later source changes and displays the selected
+scope beside the retained build. Legacy reports with no selection metadata remain
+usable; this does not infer backend consumption. [Build-input guide](build-inputs.md).

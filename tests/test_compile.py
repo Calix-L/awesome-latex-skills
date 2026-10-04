@@ -113,6 +113,88 @@ class CompilationTests(unittest.TestCase):
         self.assertTrue(any(i["code"] == "math-environment-unclosed" and i["line"] == 4
                             for i in evidence["source_scan_issues"]))
 
+    def test_real_explicit_bibliography_guards_bind_configured_builds_and_review(self):
+        from project_doctor import initialize
+        from review_project import review
+        from verify_artifacts import verify_review
+        for backend in ("bibtex", "biber"):
+            with self.subTest(backend=backend):
+                if not shutil.which(backend):
+                    if os.environ.get("LATEX_SKILLS_REQUIRE_TEX") == "1":
+                        self.fail(f"{backend} is required")
+                    continue
+                project = self.work / f"{backend} guarded project"
+                project.mkdir()
+                refs = project / "refs.bib"
+                refs.write_text("@article{demo, author={Example, Alice}, title={Synthetic bibliography}, journal={Test}, year={2024}}\n", encoding="utf-8")
+                if backend == "bibtex":
+                    style = subprocess.check_output(["kpsewhich", "plain.bst"], text=True).strip()
+                    shutil.copyfile(style, project / "local.bst")
+                    body = r"\cite{demo}\bibliographystyle{local}\bibliography{refs}"
+                    preamble = ""
+                    watched = ["refs.bib", "local.bst"]
+                else:
+                    body = r"\cite{demo}\printbibliography"
+                    preamble = r"\usepackage[backend=biber]{biblatex}\addbibresource{refs.bib}"
+                    watched = ["refs.bib"]
+                source = project / "main.tex"
+                source.write_text(r"\documentclass{article}" + preamble + r"\begin{document}" + body + r"\end{document}", encoding="utf-8")
+                initialize(project, "main.tex", backend=backend)
+                before = self.work / f"{backend} original"
+                shutil.copytree(project, before)
+                output = self.work / f"{backend} guarded build"
+                arguments = [sys.executable, str(REPO / "scripts/als.py"), "--json", "build",
+                             "--project", str(project), "--output", str(output), "--until-stable", "--require-resolved"]
+                arguments.extend(f"--watch-input={name}" for name in watched)
+                process = subprocess.run(arguments, cwd=self.work, capture_output=True, text=True, encoding="utf-8", timeout=180)
+                envelope = json.loads(process.stdout)
+                self.assertEqual(process.returncode, 0, envelope)
+                result = envelope["result"]
+                self.assertEqual(result["input_tracking"]["watched_inputs"], watched)
+                for name in watched:
+                    row = next(item for item in result["local_inputs"] if item["path"] == name)
+                    self.assertEqual(row["observations"][0]["step"], "preflight")
+                    self.assertIn("bibliography", [o["step"] for o in row["observations"]])
+                    self.assertTrue(all(o["sha256"] == row["observations"][0]["sha256"] for o in row["observations"]))
+                review_output = self.work / f"{backend} guarded review"
+                review(before, project, review_output, after_build=output / "build-report.json", language="zh")
+                evidence = json.loads((review_output / "review.json").read_text(encoding="utf-8"))
+                self.assertEqual(evidence["builds"]["after"]["watched_inputs"], watched)
+                self.assertEqual(verify_review(review_output)["status"], "verified")
+                self.assertIn("显式监测的输入文件", (review_output / "report.html").read_text(encoding="utf-8"))
+                refs.write_text(refs.read_text(encoding="utf-8").replace("Synthetic bibliography", "Later author edit"), encoding="utf-8")
+                stale = self.work / f"{backend} stale review"
+                with self.assertRaisesRegex(ValueError, "recorded input changed"):
+                    review(before, project, stale, after_build=output / "build-report.json")
+                self.assertFalse(stale.exists())
+
+    def test_real_successful_backend_with_concurrent_bibliography_edit_fails_guard(self):
+        from unittest.mock import patch
+        if not shutil.which("bibtex"):
+            if os.environ.get("LATEX_SKILLS_REQUIRE_TEX") == "1":
+                self.fail("bibtex required")
+            self.skipTest("bibtex unavailable")
+        project = self.work / "changed bibliography"
+        project.mkdir()
+        source, refs = project / "main.tex", project / "refs.bib"
+        source.write_text(r"\documentclass{article}\begin{document}\cite{demo}\bibliographystyle{plain}\bibliography{refs}\end{document}", encoding="utf-8")
+        refs.write_text("@article{demo,author={Example, Alice},title={Before edit},journal={Test},year={2024}}\n", encoding="utf-8")
+        actual = check_build.subprocess.run
+        def run_and_edit(command, **kwargs):
+            result = actual(command, **kwargs)
+            if Path(command[0]).name == "bibtex" and result.returncode == 0:
+                refs.write_text(refs.read_text(encoding="utf-8").replace("Before edit", "Concurrent author edit"), encoding="utf-8")
+            return result
+        with patch.object(check_build.subprocess, "run", side_effect=run_and_edit):
+            result = check_build.build(source, self.work / "changed bibliography build", backend="bibtex",
+                                       passes=3, require_resolved=True, watch_inputs=["refs.bib"])
+        self.assertEqual(result["status"], "failed")
+        self.assertTrue(all(step["exit_code"] == 0 for step in result["steps"]))
+        self.assertEqual(result["input_tracking"]["changed"], ["refs.bib"])
+        self.assertIsNone(result["pdf"])
+        self.assertTrue(result["source_unchanged"])
+        self.assertIn("Concurrent author edit", refs.read_text(encoding="utf-8"))
+
     def test_broken_fixture_has_real_compilation_failure(self):
         self.copy_fixture("broken_paper.tex")
         result = self.compile("broken_paper.tex")
