@@ -18,7 +18,7 @@ python scripts/als.py paper --output work/release-paper
 python -m pip install build
 python -m build --outdir dist/package
 python scripts/check_packages.py --directory dist/package --output work/package-verification
-python scripts/als.py release --output dist/1.11.0 --distribution-dir dist/package
+python scripts/als.py release --output dist/1.12.0 --distribution-dir dist/package
 ```
 
 The default example run requires a real TeX engine. Portable mode is not a
@@ -122,6 +122,21 @@ Recomputed literal audit details can differ from earlier reports. Named math
 environments and TeX execution remain outside this limited check. Prepare new
 evaluation tasks after updating skill metadata, or retain the matching old CLI
 and context for reproducibility.
+
+## 1.11.0 to 1.12.0
+
+This is an additive CLI/report feature. Use `project check --bundle NEW_DIRECTORY`
+for a complete inspection delivery and `verify inspection DIRECTORY` to check
+it offline. Separate `--output`/`--html` exports remain supported, but cannot
+provide a transaction across files. Bundle destinations must be new and outside
+the manuscript tree. Native build/extraction and project report schema numbers
+are unchanged; bundle reports add a `bundle` object with paths and interface language.
+
+Full-paper outputs add `inspection-before/`, `inspection-after/` and
+`inspection_integrity` while retaining flat report names. No source copy is
+included in an inspection bundle. Verification checks stored bytes, independently
+of static diagnostic status or current manuscript contents. Older flat reports
+have no complete manifest; regenerate a bundle rather than fabricating one.
 
 ## 1.8.0 to 1.11.0
 

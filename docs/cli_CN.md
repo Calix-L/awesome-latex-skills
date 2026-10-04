@@ -20,6 +20,18 @@ als verify review work/review-01
 输出使用新文件或新目录。完整的构建、PDF 和科学内容分别核对，不能用静态检查
 代替编译，也不能用编译成功代替内容审阅。
 
+## 整体交付项目检查报告
+
+```sh
+als project check "path/to/paper" --bundle work/inspection-02 --html-language zh
+als verify inspection work/inspection-02
+```
+
+打开 `work/inspection-02/report.html` 阅读问题与建议，分享整个目录保留 JSON 和
+文件校验清单。目标须是论文目录之外的新目录，不能混用 `--output`、`--html`。
+报告移走后仍可离线校验，不要求原论文路径存在。报告文件完整、静态问题状态和
+真实编译结果各自独立；完整性通过不代表论文没有问题。详见[项目指南](project_CN.md)。
+
 ## 参数、文件名与帮助
 
 ```sh

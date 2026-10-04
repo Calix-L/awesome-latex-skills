@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Verify release archives or a portable review bundle offline without extraction."""
+"""Verify release archives, review or inspection bundles offline without extraction."""
 import argparse
 import gzip
 import hashlib
@@ -103,6 +103,23 @@ def verify_review(root):
     if bounded_file_hash(portable_name(root, "integrity.json")) != initial_manifest_hash:
         issue(result, "changed-manifest", "integrity.json", "Manifest changed while verification was running")
     result["scope"] = "complete stored review file inventory; original project directories are not read"
+    return finish(result)
+
+
+def verify_inspection(root):
+    root, result = report(root, "inspection")
+    manifest_path = portable_name(root, "integrity.json")
+    manifest_bytes = metadata_bytes(manifest_path)
+    manifest = parse_json(manifest_bytes.decode("utf-8"))
+    if type(manifest.get("schema")) is not int or manifest["schema"] != 1 or manifest.get("kind") != "project_inspection_integrity":
+        raise ValueError("Expected a schema-1 project-inspection integrity manifest")
+    expected = validate_files(root, manifest.get("files"))
+    if set(expected) != {"inspection.json", "report.html"}:
+        raise ValueError("Inspection manifest must cover exactly inspection.json and report.html")
+    check_files(root, expected, result, excluded=("integrity.json",))
+    if bounded_file_hash(portable_name(root, "integrity.json")) != hashlib.sha256(manifest_bytes).hexdigest():
+        issue(result, "changed-manifest", "integrity.json", "Manifest changed while verification was running")
+    result["scope"] = "complete stored inspection file inventory; original manuscript paths are not read and current source correspondence is not checked"
     return finish(result)
 
 
@@ -309,12 +326,13 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true")
     sub = parser.add_subparsers(dest="kind", required=True)
-    for kind in ("release", "review"):
+    verifiers = {"release": verify_release, "review": verify_review, "inspection": verify_inspection}
+    for kind in verifiers:
         command = sub.add_parser(kind)
         command.add_argument("directory", type=Path)
     args = parser.parse_args(argv)
     try:
-        result = (verify_release if args.kind == "release" else verify_review)(args.directory)
+        result = verifiers[args.kind](args.directory)
         if args.json:
             print(json.dumps(result, ensure_ascii=True, indent=2))
         else:

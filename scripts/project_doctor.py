@@ -382,11 +382,14 @@ def main(argv=None):
     check.add_argument("--output", type=Path, help="Optional new JSON file")
     check.add_argument("--html", type=Path, help="Optional new offline HTML report (.html/.htm)")
     check.add_argument("--html-language", choices=("en", "zh"), default="en")
+    check.add_argument("--bundle", type=Path, help="New portable JSON/HTML/integrity directory outside the project; exclusive with --output/--html")
     args = parser.parse_args(argv)
     try:
         if args.command == "init":
             result = initialize(args.root, args.main, args.engine, args.backend, args.passes)
         else:
+            if args.bundle and (args.output or args.html):
+                raise ValueError("Use --bundle alone or separate --output/--html files")
             args.output = args.output.expanduser().absolute() if args.output else None
             args.html = args.html.expanduser().absolute() if args.html else None
             destinations = [path for path in (args.output, args.html) if path is not None]
@@ -394,14 +397,15 @@ def main(argv=None):
                 raise ValueError("Each report needs a distinct new file")
             if args.html and args.html.suffix.lower() not in {".html", ".htm"}:
                 raise ValueError("HTML report needs a .html or .htm filename")
-            result = inspect_project(args.root, args.main, args.engine, args.backend)
-            if args.html:
-                result["html"] = str(args.html.expanduser().absolute())
-            if args.output:
-                write_new_json(args.output, result)
-            if args.html:
-                from project_report import write_inspection_html
-                write_inspection_html(args.html, result, args.html_language, args.output)
+            if args.bundle:
+                from inspection_bundle import export_inspection
+                result = export_inspection(args.root, args.bundle, args.main, args.engine, args.backend, args.html_language)
+            else:
+                result = inspect_project(args.root, args.main, args.engine, args.backend)
+                if args.html:
+                    result["html"] = str(args.html)
+                from project_report import write_inspection_reports
+                write_inspection_reports(args.output, args.html, result, args.html_language)
         print(json.dumps(result, ensure_ascii=True, indent=2))
         return 1 if result.get("status") == "blocked" else 0
     except (OSError, ValueError, TypeError, UnicodeError) as exc:

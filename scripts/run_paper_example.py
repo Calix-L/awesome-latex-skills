@@ -6,11 +6,11 @@ from pathlib import Path
 import shutil
 import sys
 
-from project_doctor import inspect_project
-from project_report import write_inspection_html
+from inspection_bundle import export_inspection
+from project_report import write_inspection_reports
 from project_support import ROOT, write_new_json
 from review_project import review, snapshot
-from verify_artifacts import verify_review
+from verify_artifacts import verify_inspection, verify_review
 from run_examples import load_helper
 
 
@@ -34,10 +34,14 @@ def run_paper(output, allow_unverified=False, language="en"):
     result = {"schema": 1, "kind": "maintainer_full_paper", "status": "verified" if all(tools.values()) else "partial",
               "tools": tools, "builds": {}, "interpretation": "A complete synthetic manuscript project, not a published research paper or measured agent improvement."}
     try:
+        result["inspection_integrity"] = {}
         for side in ("before", "after"):
-            inspection = inspect_project(output / side, "main.tex", "pdflatex", "bibtex")
-            write_new_json(output / f"inspection-{side}.json", inspection)
-            write_inspection_html(output / f"inspection-{side}.html", inspection, language, json_path=output / f"inspection-{side}.json")
+            inspection = export_inspection(output / side, output / f"inspection-{side}", "main.tex", "pdflatex", "bibtex", language)
+            result["inspection_integrity"][side] = verify_inspection(output / f"inspection-{side}")
+            if result["inspection_integrity"][side]["status"] != "verified":
+                raise ValueError(f"Generated {side} inspection did not pass offline integrity checks")
+            # Retain the existing flat report filenames for downstream readers.
+            write_inspection_reports(output / f"inspection-{side}.json", output / f"inspection-{side}.html", inspection, language)
         before_report = after_report = None
         if tools["pdflatex"] and tools["bibtex"]:
             before_result = build(before / "main.tex", output / "build-before", "pdflatex", "bibtex", 3)

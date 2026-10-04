@@ -20,6 +20,34 @@ HTML 和 JSON 使用不同的新文件名；已有目标会在写入前被拒绝
 省略 `--html-language zh` 时使用英文界面，诊断消息与 JSON 中的原文保持一致。
 未安装 CLI 时，用 `python scripts/als.py` 代替 `als`。
 
+## 整体导出与分享检查报告
+
+```sh
+als project check path/to/paper --bundle work/inspection-01 --html-language zh
+als --json verify inspection work/inspection-01
+```
+
+`--bundle` 不能与 `--output`、`--html` 混用。目标必须是论文源码目录之外的新目录，
+其中包含 `report.html`、`inspection.json` 和 `integrity.json`。打开 HTML 即可阅读，
+页面提供 JSON 与校验清单的相对链接，支持窄屏和深色模式。分享时保留整个目录；
+不会复制论文源码。
+
+所有文件先在目标旁的临时目录内生成并记录校验值，发布前复核全部已读取源码的
+指纹，再通过同一文件系统的目录重命名发布。渲染、写入、清单生成或发布失败时，
+临时文件会清理，不会发布只有一部分报告的目录。导出期间请保持源码与目标路径
+不变；这些即时检查不锁定并发编辑，也不保证断电后的持久性。
+
+检查结果为 `blocked` 时仍导出问题报告，检查命令返回 `1`。离线校验独立检查
+报告文件是否与清单一致，不读取原论文；即使检查发现错误、原稿后来修改，完整
+报告仍可校验通过。它不证明当前源码仍与报告一致，也不编译 TeX 或认证作者。
+缺失、变化或额外文件返回 `1`，无效或缺失清单返回 `2`。详见
+[离线校验指南](verification_CN.md)。
+
+原有分别导出 JSON/HTML 的方式会先准备两份内容再写入，但两份文件不构成事务，
+I/O 失败仍可能留下部分结果。需要整体交付时使用 `--bundle`。
+完整论文案例保留原有平铺报告，并新增 `inspection-before/`、`inspection-after/`
+及 `verification.json` 中的两次完整性校验结果。
+
 ## 保存实际构建设置
 
 ```sh

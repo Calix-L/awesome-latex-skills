@@ -79,12 +79,20 @@ def file_inventory(root, exclude=()):
             for name, path in sorted(regular_files(root).items()) if name not in exclude]
 
 
-def seal_review(root):
+def seal_bundle(root, kind):
     """Seal only the new staged bundle; existing manifests are never replaced."""
     root = Path(root).resolve()
-    manifest = {"schema": 1, "kind": "project_review_integrity", "files": file_inventory(root),
+    manifest = {"schema": 1, "kind": kind, "files": file_inventory(root),
                 "interpretation": "Byte integrity relative to this manifest; producer authenticity and scientific fidelity are not verified."}
     if any(item["file"] == "integrity.json" for item in manifest["files"]):
-        raise ValueError("Review integrity manifest already exists")
+        raise ValueError("Bundle integrity manifest already exists")
     write_new_json(root / "integrity.json", manifest)
     return manifest
+
+
+def seal_review(root):
+    return seal_bundle(root, "project_review_integrity")
+
+
+def seal_inspection(root):
+    return seal_bundle(root, "project_inspection_integrity")

@@ -2,6 +2,25 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.12.0 — 2026-10-05
+
+### Added
+
+- `project check --bundle NEW_DIRECTORY` stages bilingual offline HTML, JSON and a complete integrity manifest together outside the manuscript tree, rechecks observed source bytes, and publishes the directory only after preparation succeeds. Blocked inspections still export their diagnostics and preserve exit 1.
+- Standard-library `verify inspection` checks transferred report directories without original manuscript/export paths. Missing, changed or extra files fail; manifest coverage and kind are validated. Report-byte integrity remains independent of static diagnostics, current-source correspondence and compilation.
+- Full-paper runs export and verify both inspection bundles while retaining existing flat report filenames. Fresh wheel and rebuilt-sdist first-use checks verify moved bundles and require corrupted pages to fail.
+- Bilingual README workflow tables and project/CLI/verification recipes document complete report sharing and export limits.
+
+### Fixed
+
+- Separate JSON/HTML exports prepare all content before writing, preventing render/serialization failures from leaving an early JSON file. Parent/child destination collisions are refused; separate-file I/O remains non-transactional, with bundles recommended for complete delivery.
+
+### Validation
+
+- Twenty-one portable regressions exercise publication failures, destination conflicts, source changes during rendering/sealing, offline moves, corrupt files and malformed manifests. A native TeX regression distinguishes clean static checks from real build failures while verifying both report inventories.
+
+Publication uses a same-filesystem directory rename; inputs/destinations must remain unchanged during point-in-time checks. No concurrent editor lock, crash-durability, producer authentication or model-quality improvement is claimed.
+
 ## 1.11.0 — 2026-10-05
 
 ### Fixed

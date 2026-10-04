@@ -95,6 +95,12 @@ when review is still pending. Compilation success does not imply resolved
 citations, faithful prose, or venue compliance.
 `review --language zh` and `paper --language zh` select Chinese offline reports;
 the original source, notes and compiler diagnostics keep their original text.
+`project check --bundle NEW_DIRECTORY` exports HTML/JSON and an integrity
+manifest together, outside the manuscript tree. It is exclusive with separate
+`--output`/`--html` files. `verify inspection NEW_DIRECTORY` checks the stored
+report inventory even after moving it, without reading manuscript paths.
+Static diagnostic status and byte verification remain independent.
+
 `verify` checks [offline artifact integrity](verification.md) without modifying
 its target. Passing checks return 0, mismatches/incomplete legacy coverage 1,
 and malformed metadata/preconditions 2. It does not authenticate the producer

@@ -1,4 +1,4 @@
-# 检查下载的发布包与转移后的审阅目录
+# 检查发布包、审阅目录与项目检查报告
 
 离线校验命令只需要 Python 标准库，不访问网络、不解压或执行压缩条目，
 也不修改待检查目录。通过只表示文件与所提供清单一致，不能认证发布者，
@@ -40,6 +40,22 @@ als --json verify review path/to/review-bundle
 旧目录没有完整清单时显示“未验证”，退出码为 `1`。已有的 `retained_files`
 指纹仍被检查，证据变化会失败；但不能据此确认旧 HTML、JSON、差异文件。
 用当前工具重新生成审阅目录即可得到完整清单，校验工具不会自动补写或覆盖。
+
+## 项目检查报告目录
+
+```sh
+als project check path/to/paper --bundle work/inspection-01 --html-language zh
+als verify inspection work/inspection-01
+```
+
+目录内包含 `inspection.json`、`report.html` 和 `integrity.json`，清单必须恰好覆盖
+两份报告。完整转移后可直接校验，不需要原论文或原导出路径；报告不包含源码，
+校验也不会读取源码。缺失、变化、额外文件均失败。无效或缺失清单返回 `2`，
+单独导出的 HTML/JSON 不能作为完整报告目录校验。
+
+报告完整性与检查结果各自独立：包含 `blocked` 问题的报告仍可校验通过。这不代表
+当前论文与报告一致，也不能证明编译成功。详见
+[整体报告导出](project_CN.md#整体导出与分享检查报告)。
 
 ## 结果与限制
 

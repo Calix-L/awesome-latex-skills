@@ -28,6 +28,7 @@ als paper --output work/full-paper-run
 # Chinese inspection and review interface
 als paper --output work/full-paper-zh --language zh
 als verify review work/full-paper-zh/review
+als verify inspection work/full-paper-zh/inspection-after
 ```
 
 Requires pdfLaTeX, XeLaTeX, BibTeX and **Noto Serif CJK SC**. CI installs these
@@ -53,6 +54,10 @@ expandable details. Retained evidence adds byte sizes and SHA-256 hashes,
 checked again before publication. See the [Chinese review guide](../../docs/review_CN.md).
 The review also includes `integrity.json`. The runner checks its complete
 inventory offline and retains `review_integrity` in `verification.json`.
+Sealed `inspection-before/` and `inspection-after/` directories contain the
+HTML/JSON reports and their complete inventories. The runner checks both and
+retains `inspection_integrity`; existing flat report filenames remain available.
+Inspection integrity does not imply that the inspected manuscript compiles.
 After moving/downloading the bundle, verify it again without the original
 project directories; see [delivery verification](../../docs/verification.md).
 

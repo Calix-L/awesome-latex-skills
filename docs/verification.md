@@ -1,4 +1,4 @@
-# Verify a downloaded release or a transferred review
+# Verify releases, reviews and inspection reports
 
 The verifier uses the Python standard library, reads local files, does not
 contact the network, and does not extract or execute archive entries. Its
@@ -50,6 +50,25 @@ Older reviews without the complete manifest remain **unverified**. Available
 `retained_files` fingerprints are checked, and changed artifacts fail; HTML,
 JSON and diff identity cannot be inferred. Regenerate a review for full
 coverage. The verifier never adds, repairs or overwrites manifests.
+
+## Inspection bundles
+
+```sh
+als project check path/to/paper --bundle work/inspection-01
+als verify inspection work/inspection-01
+```
+
+The new bundle contains `inspection.json`, `report.html` and `integrity.json`.
+Its manifest must cover exactly the two report files. Transfer the entire
+directory, then verify it without the original manuscript or export paths.
+No source files are included or read by verification. Changed, missing and
+extra files fail. A missing/malformed manifest returns exit 2; flat HTML/JSON
+exports cannot be verified as sealed bundles.
+
+Report integrity and inspection outcome are independent. A report containing
+`blocked` diagnostics can pass byte verification. Verification does not compare
+the report with the current manuscript or establish compilation success.
+The [project guide](project.md#share-a-complete-inspection-bundle) explains publication.
 
 ## Results and limits
 

@@ -119,6 +119,15 @@ metadata/expanded offsets are checked before oversized reads. Native full-paper
 and fresh installed wheel/sdist workflows also run the verifier; installed
 negative controls modify the source diff and require exit 1.
 
+Inspection-bundle regressions cover rendering, second-file writes, sealing,
+publication failures and late destination collisions. They require absent final
+outputs after failures and preserve another writer's files. Source changes
+during rendering/sealing prevent publication. Moved directories verify without
+original manuscript/export paths; changed/missing/extra files and malformed
+manifests fail. Native tests distinguish a clean literal inspection from a
+failed real build, while both stored report inventories verify. Fresh wheel and
+rebuilt-sdist checks exercise moved and corrupted inspection bundles.
+
 Review negative controls mutate reports/logs/PDFs during copying and inputs or
 page previews after rendering; no final review bundle may be published.
 Declared missing logs, reserved evidence-path collisions, unreadable successful

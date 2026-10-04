@@ -9,6 +9,8 @@ als project check path/to/paper --main main.tex --engine pdflatex --backend bibt
 als project init path/to/paper --main main.tex --engine pdflatex --backend bibtex --passes 3
 als --json project check path/to/paper --output work/inspection-01.json
 als project check path/to/paper --output work/inspection-02.json --html work/inspection-02.html
+als project check path/to/paper --bundle work/inspection-03
+als verify inspection work/inspection-03
 als build --project path/to/paper --output work/build-01 --require-resolved
 ```
 
@@ -51,9 +53,41 @@ an existing destination is refused before either is written. When they share a
 directory, HTML links to the JSON by an escaped relative filename. HTML needs
 `.html` or `.htm`; keep generated reports together when sharing them.
 
+Separate JSON/HTML exports prepare both contents before writing. They cannot
+provide a transaction across two files: an I/O error can leave a partial pair.
+Use a bundle for a complete directory that can be moved and checked together.
+
+## Share a complete inspection bundle
+
+```sh
+als project check path/to/paper --bundle work/inspection-04 --html-language zh
+als --json verify inspection work/inspection-04
+```
+
+`--bundle` is exclusive with `--output` and `--html`. Its directory must be new
+and outside the manuscript tree. It contains `report.html`, `inspection.json`
+and `integrity.json`. Open the HTML for the same responsive offline interface,
+with relative links to the JSON and checksum manifest. No source files are copied.
+
+All files are prepared and sealed in a temporary directory beside the final
+destination; the complete directory is published by a same-filesystem rename.
+Rendering, writing, sealing or publication errors clean up the stage and do not
+publish a partial bundle. Observed source fingerprints are rechecked immediately
+before publication. Keep source/destination paths unchanged during export;
+point-in-time checks are not a concurrent editor lock or a crash-durability guarantee.
+
+A `blocked` inspection still exports its diagnostic bundle and returns exit 1.
+`verify inspection` checks stored report bytes, independently of static status,
+without reading the original manuscript. A valid bundle can therefore verify
+even when its inspection found errors or its source later changed. It does not
+check current manuscript correspondence, execute TeX or authenticate the producer.
+Missing, changed or extra files fail; malformed/missing manifests return exit 2.
+See [offline verification](verification.md).
+
 The [complete manuscript runner](../examples/full-paper/README.md) also exports
 `inspection-before.html` and `inspection-after.html`, alongside its build/PDF
-review. See the [Chinese project guide](project_CN.md).
+review. It adds sealed `inspection-before/` and `inspection-after/` directories
+and retains both verification results. See the [Chinese project guide](project_CN.md).
 
 ## What is checked
 

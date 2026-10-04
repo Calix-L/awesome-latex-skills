@@ -394,6 +394,29 @@ class CompilationTests(unittest.TestCase):
         self.assertLess(first["2"][1], 0)
         self.assertGreater(abs(first["2"][1] - nested["2"][1]), 1)
 
+    def test_sealed_static_inspection_and_native_build_have_distinct_outcomes(self):
+        from inspection_bundle import export_inspection
+        from verify_artifacts import verify_inspection
+        project = self.work / "manuscript"
+        project.mkdir()
+        (project / "main.tex").write_text("\\documentclass{article}\\begin{document}\\input{part}\\end{document}", encoding="utf-8")
+        (project / "part.tex").write_text("Supplied value 42", encoding="utf-8")
+        original = {path.name: path.read_bytes() for path in project.iterdir()}
+        report = export_inspection(project, self.work / "sealed", engine="pdflatex", language="zh")
+        self.assertEqual(report["status"], "ready")
+        built = check_build.build(project / "main.tex", self.work / "native", require_resolved=True)
+        self.assert_build_success(built)
+        self.assertEqual({item["file"] for item in report["inputs"]}, {"main.tex", "part.tex"})
+        self.assertEqual(original, {path.name: path.read_bytes() for path in project.iterdir()})
+        (project / "part.tex").write_text("\\undefinedInspectionControl", encoding="utf-8")
+        second = export_inspection(project, self.work / "static-only", engine="pdflatex")
+        self.assertEqual(second["status"], "ready")
+        failed = check_build.build(project / "main.tex", self.work / "failed-native")
+        self.assertEqual(failed["status"], "failed")
+        project.rename(self.work / "moved-manuscript")
+        for directory in ("sealed", "static-only"):
+            self.assertEqual(verify_inspection(self.work / directory)["status"], "verified")
+
     def test_installed_layout_example_adapts_to_column_and_minipage_widths(self):
         import pymupdf
         sys.path.insert(0, str(REPO / "scripts"))

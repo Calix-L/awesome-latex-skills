@@ -208,6 +208,10 @@ class ManuscriptTests(unittest.TestCase):
         self.assertTrue(all(status == "unverified" for status in result["builds"].values()))
         self.assertTrue((self.root / "portable/inspection-before.html").is_file())
         self.assertTrue((self.root / "portable/inspection-after.html").is_file())
+        self.assertEqual({side: entry["status"] for side, entry in result["inspection_integrity"].items()},
+                         {"before": "verified", "after": "verified"})
+        for side in ("before", "after"):
+            self.assertTrue((self.root / f"portable/inspection-{side}/integrity.json").is_file())
         self.assertIn("论文修改审阅", (self.root / "portable/review/report.html").read_text(encoding="utf-8"))
         self.assertIn("LaTeX 项目检查", (self.root / "portable/inspection-after.html").read_text(encoding="utf-8"))
 

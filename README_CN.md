@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.11.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.11.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.12.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.12.0"></a>
 </p>
 
 <p align="center">五个专注于论文工作的 Agent Skills：修复编译、润色表达、转换格式、阅读论文、恢复源码。</p>
@@ -138,7 +138,8 @@ Read awesome-latex-skills/latex-rescue/SKILL.md and follow its workflow.
 
 ```sh
 python -m pip install ".[pdf]"
-als project check examples/full-paper/after --html work/project-inspection.html --html-language zh
+als project check examples/full-paper/after --bundle work/project-inspection --html-language zh
+als verify inspection work/project-inspection
 als paper --output work/full-paper-run --language zh
 ```
 
@@ -149,8 +150,15 @@ als paper --output work/full-paper-run --language zh
 
 [项目体检与配置](./docs/project_CN.md) · [统一修改审查](./docs/review_CN.md)
 
-打开 `work/project-inspection.html`，查看带源码位置的问题、资源依赖与处理建议。
-完整案例也会保留原稿和修复稿的独立检查报告。
+打开 `work/project-inspection/report.html`，查看带源码位置的问题、资源依赖与处理建议。
+分享整个目录即可保留 JSON 和校验清单；完整案例也会整体导出原稿和修复稿的检查报告。
+
+| 需求 | 入口 |
+|---|---|
+| 阅读静态问题与处理建议 | `project-inspection/report.html` |
+| 核验收到的检查报告 | `als verify inspection path/to/report-directory` |
+| 审阅源码修改与实际 PDF 页面 | `full-paper-run/review/report.html` |
+
 中文审阅页集中展示改动文件、数值/引用/公式变化、待作者确认项和构建状态；
 可展开差异与证据文件，不必先阅读完整 JSON。界面支持窄屏与深色模式。
 
@@ -163,6 +171,7 @@ als paper --output work/full-paper-run --language zh
 
 ```sh
 als verify review work/full-paper-run/review
+als verify inspection work/full-paper-run/inspection-after
 als verify release path/to/downloaded-release-assets
 ```
 
@@ -259,7 +268,7 @@ python scripts/als.py examples run --output work/example-run
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.11.0
+python scripts/als.py release --output dist/1.12.0
 ```
 
 [CLI 与 JSON 报告](./docs/cli.md) · [中文评测指南](./docs/evaluation_CN.md) ·

@@ -94,6 +94,22 @@ def check_distribution(wheel, output):
         if ({item["file"] for item in inspection["observed_files"]} != {".als.json", "main.tex"}
                 or inspection["dependencies"]):
             raise ValueError("Installed scanner mistook comment/verbatim/control-symbol examples for dependencies")
+        sealed = json.loads(run([command, "--json", "project", "check", main.parent,
+                                 "--bundle", cwd / "sealed-inspection", "--html-language", "zh"], expected=(0, 1)))["result"]
+        if sealed["status"] != inspection["status"] or sealed["observed_files"] != inspection["observed_files"]:
+            raise ValueError("Installed sealed inspection disagreed with the separate reports")
+        transferred = cwd / "transferred-inspection"
+        (cwd / "sealed-inspection").rename(transferred)
+        main.parent.rename(cwd / "paper-moved")
+        checked = json.loads(run([command, "--json", "verify", "inspection", transferred]))["result"]
+        if checked["status"] != "verified" or checked["files_checked"] != 2:
+            raise ValueError("Installed inspection verifier required original project/report paths")
+        # Restore only for the subsequent before/after review smoke test.
+        (cwd / "paper-moved").rename(main.parent)
+        (transferred / "report.html").write_text("Changed after delivery", encoding="utf-8")
+        damaged = json.loads(run([command, "--json", "verify", "inspection", transferred], expected=(1,)))["result"]
+        if damaged["status"] != "failed" or not any(item["code"] == "changed-file" for item in damaged["findings"]):
+            raise ValueError("Installed verifier missed a changed inspection page")
         candidate = cwd / "candidate"
         candidate.mkdir()
         (candidate / "main.tex").write_text("\\documentclass{article}\n\\begin{document}Example 42\\end{document}\nTODO: confirm value\n", encoding="utf-8")

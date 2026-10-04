@@ -16,7 +16,7 @@ LABELS = {
            "command": "Command", "requested": "Requested input", "resolved": "Resolution",
            "found": "Found", "missing": "Missing", "skipped": "Excluded by includeonly; not checked",
            "unknown": "Unverified", "hashes": "Dependency input fingerprints", "observed": "All observed file fingerprints", "limitations": "Inspection limits",
-           "json": "JSON report", "complete": "Complete evidence", "next": "Next step", "unset": "Not selected",
+           "json": "JSON report", "integrity": "File integrity manifest", "complete": "Complete evidence", "next": "Next step", "unset": "Not selected",
            "error": "Errors", "warning": "Warnings", "unverified": "Unverified checks"},
     "zh": {"title": "LaTeX 项目检查", "note": "静态检查 · 尚未编译",
            "intro": "查看字面依赖、文件校验值及处理建议。静态检查通过不代表编译通过，也不能证明科学内容正确。",
@@ -26,12 +26,12 @@ LABELS = {
            "selected": "仅选中的主文件", "all_roots": "全部清单内 TeX 源文件",
            "requested": "请求的输入", "resolved": "解析结果", "found": "已找到", "missing": "缺失",
            "skipped": "被 includeonly 排除；未检查", "unknown": "未验证", "hashes": "依赖输入文件校验值", "observed": "全部已读取文件校验值",
-           "limitations": "检查范围与限制", "json": "JSON 报告", "complete": "完整证据",
+           "limitations": "检查范围与限制", "json": "JSON 报告", "integrity": "文件校验清单", "complete": "完整证据",
            "next": "下一步", "unset": "未选择", "error": "错误", "warning": "警告", "unverified": "未验证项"},
 }
 
 
-def inspection_html(report, language="en", json_name=None):
+def inspection_html(report, language="en", json_name=None, integrity_name=None):
     labels = LABELS[language]
     esc = lambda value: html.escape(str(value), quote=True)
     location = lambda item: esc(item.get("file") or item.get("from") or "—") + (f":{esc(item['line'])}" if item.get("line") else "")
@@ -47,6 +47,8 @@ def inspection_html(report, language="en", json_name=None):
                f'<p class="path"><code>{esc(report["root"])}</code></p>']
     if json_name is not None:
         content.append(f'<p><a href="{esc(quote(json_name, safe=""))}">{esc(labels["json"])}</a></p>')
+    if integrity_name is not None:
+        content.append(f'<p><a href="{esc(quote(integrity_name, safe=""))}">{esc(labels["integrity"])}</a></p>')
     content.append('<div class="facts">')
     for key, value in (("main", report.get("main")), ("engine", report.get("engine")),
                        ("backend", report.get("backend")), ("inputs", len(report["inputs"]))):
@@ -79,6 +81,30 @@ def inspection_html(report, language="en", json_name=None):
     content.extend(f'<li>{esc(item)}</li>' for item in report["limitations"])
     content.append(f'</ul></section><details><summary>{esc(labels["complete"])}</summary><pre>{esc(json.dumps(report, ensure_ascii=False, indent=2))}</pre></details></main></body></html>')
     return "".join(content)
+
+
+def write_inspection_reports(json_path, html_path, report, language="en", integrity_name=None):
+    """Prepare all content first; separate files are not a transaction."""
+    paths = [Path(path).expanduser().absolute() if path is not None else None
+             for path in (json_path, html_path)]
+    destinations = [path for path in paths if path is not None]
+    resolved = [path.resolve() for path in destinations]
+    if (len(set(resolved)) != len(resolved)
+            or any(path.exists() or path.is_symlink() for path in destinations)
+            or any(a != b and a.is_relative_to(b) for a in resolved for b in resolved)):
+        raise ValueError("Each report needs a distinct new file without parent/child collisions")
+    if paths[1] and paths[1].suffix.lower() not in {".html", ".htm"}:
+        raise ValueError("HTML report needs a .html or .htm filename")
+    content = []
+    if paths[0]:
+        content.append((paths[0], json.dumps(report, ensure_ascii=False, indent=2, allow_nan=False) + "\n"))
+    if paths[1]:
+        name = paths[0].name if paths[0] and paths[0].resolve().parent == paths[1].resolve().parent else None
+        content.append((paths[1], inspection_html(report, language, name, integrity_name)))
+    for path, text in content:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("x", encoding="utf-8") as destination:
+            destination.write(text)
 
 
 def write_inspection_html(path, report, language="en", json_path=None):

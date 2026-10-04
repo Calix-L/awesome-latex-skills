@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.11.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.11.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.12.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.12.0"></a>
 </p>
 
 <p align="center">Five skills for LaTeX repair, academic editing, submission formatting, paper reading, and PDF recovery.</p>
@@ -144,7 +144,8 @@ logs and actual PDF pages.
 
 ```sh
 python -m pip install ".[pdf]"
-als project check examples/full-paper/after --html work/project-inspection.html
+als project check examples/full-paper/after --bundle work/project-inspection
+als verify inspection work/project-inspection
 als paper --output work/full-paper-run
 ```
 
@@ -156,8 +157,16 @@ page previews and the timing protocol still awaiting the author's decision.
 
 [Project doctor & configuration](./docs/project.md) · [Unified change review](./docs/review.md)
 
-Open `work/project-inspection.html` for located issues, dependency resolutions
-and next steps. The complete runner also retains before/after inspection reports.
+Open `work/project-inspection/report.html` for located issues, dependency
+resolutions and next steps. Transfer this complete directory to keep its JSON
+and integrity manifest together. The full runner seals both inspection reports.
+
+| Task | Where to look |
+|---|---|
+| Understand static issues | `project-inspection/report.html` |
+| Check a transferred report | `als verify inspection path/to/report-directory` |
+| Review source edits and real PDF pages | `full-paper-run/review/report.html` |
+
 The review opens with file changes, literal content signals, author decisions
 and build states; source diffs and complete evidence remain expandable.
 Use `--language zh` on `als review` or `als paper` for a Chinese interface.
@@ -177,6 +186,7 @@ folder or a complete downloaded release offline:
 
 ```sh
 als verify review work/full-paper-run/review
+als verify inspection work/full-paper-run/inspection-after
 als verify release path/to/downloaded-release-assets
 ```
 
@@ -276,7 +286,7 @@ The skill does not silently turn a relative percentage into percentage points.
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.11.0
+python scripts/als.py release --output dist/1.12.0
 ```
 
 [CLI & JSON reports](./docs/cli.md) · [Ten-task evaluation protocol](./docs/evaluation.md) ·
