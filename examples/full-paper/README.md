@@ -80,3 +80,12 @@ als build --project examples/full-paper/after --output work/configured-build --r
 The candidate includes [.als.json](after/.als.json). Your own manuscript can
 record its root/engine/backend with `als project init`; see
 [project configuration](../../docs/project.md) and [change review](../../docs/review.md).
+
+## Editable copy from the installed package
+
+`als examples export --case full-paper --output ../my-example --language zh`
+copies the source trees, local assets, decisions, hidden candidate configuration
+and license, with a generated offline guide and initial byte receipt. It needs
+no TeX/PDF library and does not run the existing full-paper verification runner.
+Open `../my-example/report.html`; see the [export guide](../../docs/examples-export.md)
+([中文](../../docs/examples-export_CN.md)).

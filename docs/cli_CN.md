@@ -81,3 +81,12 @@ JSON 的 `stdout` 中保留，`result` 为 null，`evidence` 为空。
 或无效返回 `2`。中文选项翻译界面和环境处理建议，机器证据保留原文。原有单独
 环境探测继续支持。详见[项目指南](project_CN.md#project-aware-prerequisites)、
 [任务操作](tasks_CN.md)、[评测试运行](pilot_CN.md)和[接口约定](compatibility.md#中文说明)。
+
+## 复制一个内置案例
+
+`examples export --case full-paper --output ../my-example --language zh`
+无需可选依赖即可复制六类合成案例之一，默认 `full-paper`。`examples list` 保留
+五个既有案例，新增 `export_cases`。目标必须是内置资源之外的新目录。
+`verify example ../my-example` 在移动后核验完整初始副本和来源记录，不读取原始
+安装路径。修改副本会使字节核验失败；保留未修改原稿。详见[导出指南](examples-export_CN.md)
+和[文档导航](README.md)。

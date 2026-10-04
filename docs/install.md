@@ -32,7 +32,7 @@ Alternatively, download the wheel or source distribution from
 and install the local file:
 
 ```sh
-python -m pip install path/to/awesome_latex_skills-1.13.0-py3-none-any.whl
+python -m pip install path/to/awesome_latex_skills-1.15.0-py3-none-any.whl
 ```
 
 This project does not claim a PyPI publication. Install from the checkout or
@@ -60,3 +60,16 @@ wheel in a fresh virtual environment, clears `PYTHONPATH`, executes from another
 directory, checks the active interpreter, and compares the installed bundle
 with the release source. It also rebuilds the source distribution and repeats
 first-use checks on Windows, macOS and Linux.
+
+## First example outside the checkout
+
+```sh
+als examples export --case full-paper --output ../my-example
+als verify example ../my-example
+```
+
+Open `../my-example/report.html`. Export uses only the standard library, keeps
+the full source/configuration/assets and does not run a model or TeX. See the
+[copy workflow](examples-export.md) ([中文](examples-export_CN.md)) and
+[documentation index](README.md). Preserve the initial copy before editing;
+verification checks its initial bytes and intentionally rejects later changes.

@@ -70,6 +70,32 @@ def check_distribution(wheel, output):
         summary = json.loads(run([command, "--json", "benchmark", "report", "--batch", cwd / "batch", "--output", cwd / "batch-report"]))["result"]
         if summary["scheduled_runs"] != 2 or summary["conditions"]["baseline"]["statuses"] != {"completed": 1} or summary["comparable_pairs"]:
             raise ValueError("Installed benchmark did not retain the expected synthetic control and missing pair")
+        exported = cwd / "exported-example"
+        copied = json.loads(run([command, "--json", "examples", "export", "--case", "full-paper", "--output", exported, "--language", "zh"]))["result"]
+        receipt = json.loads((exported / "example.json").read_text(encoding="utf-8"))
+        if copied["status"] != "exported-not-run" or receipt["candidate"] != "case/after/main.tex":
+            raise ValueError("Installed example export lost initial-copy status or candidate selection")
+        if "可编辑的论文案例" not in (exported / "report.html").read_text(encoding="utf-8"):
+            raise ValueError("Installed example export lost Chinese offline guide")
+        for row in receipt["source_files"]:
+            if sha256(exported / row["file"]) != sha256(ROOT / row["source"]):
+                raise ValueError("Installed example export differs from the release source")
+        if not (exported / "case/after/.als.json").is_file():
+            raise ValueError("Installed example export omitted hidden project configuration")
+        run([command, "verify", "example", exported])
+        relocated = cwd / "relocated-example"
+        exported.rename(relocated)
+        checked = json.loads(run([command, "--json", "verify", "example", relocated]))["result"]
+        if checked["status"] != "verified" or checked["case"] != "full-paper":
+            raise ValueError("Installed example verification depended on the initial export directory")
+        (relocated / "case/after/main.tex").write_text("Changed after copying", encoding="utf-8")
+        damaged = json.loads(run([command, "--json", "verify", "example", relocated], expected=(1,)))["result"]
+        if damaged["status"] != "failed" or not any(item["code"] == "changed-file" for item in damaged["findings"]):
+            raise ValueError("Installed example verifier missed a changed source")
+        pdf_copy = json.loads(run([command, "--json", "examples", "export", "--case", "pdf2tex", "--output", cwd / "pdf-example"]))["result"]
+        if pdf_copy["status"] != "exported-not-run" or not (cwd / "pdf-example/case/input.pdf").is_file():
+            raise ValueError("Installed PDF example export required optional tools or lost its PDF")
+        run([command, "verify", "example", cwd / "pdf-example"])
         main = cwd / "paper/main.tex"
         main.parent.mkdir()
         main.write_text("% \\begin{verbatim}\n\\documentclass{article}\n"

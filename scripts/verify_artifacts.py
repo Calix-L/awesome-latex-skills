@@ -123,6 +123,64 @@ def verify_inspection(root):
     return finish(result)
 
 
+def verify_example(root):
+    """Check a moved example's complete bytes and source-copy receipt without reading source paths."""
+    root, result = report(root, "example")
+    manifest_path = portable_name(root, "integrity.json")
+    manifest_bytes = metadata_bytes(manifest_path)
+    manifest = parse_json(manifest_bytes.decode("utf-8"))
+    if type(manifest.get("schema")) is not int or manifest["schema"] != 1 or manifest.get("kind") != "worked_example_integrity":
+        raise ValueError("Expected a schema-1 worked-example integrity manifest")
+    expected = validate_files(root, manifest.get("files"))
+    generated = {"example.json", "README.md", "report.html"}
+    if not generated.issubset(expected) or "LICENSE" not in expected or "integrity.json" in expected:
+        raise ValueError("Example manifest must cover guide, receipt, license and sources, excluding itself")
+    check_files(root, expected, result, excluded=("integrity.json",))
+    receipt_path = portable_name(root, "example.json")
+    if receipt_path.is_file():
+        receipt_bytes = metadata_bytes(receipt_path)
+        if (len(receipt_bytes) != expected["example.json"]["bytes"]
+                or hashlib.sha256(receipt_bytes).hexdigest() != expected["example.json"]["sha256"]):
+            issue(result, "changed-receipt", "example.json", "Receipt bytes differ from the stored manifest; no changed receipt is interpreted")
+            if bounded_file_hash(manifest_path) != hashlib.sha256(manifest_bytes).hexdigest():
+                issue(result, "changed-manifest", "integrity.json", "Manifest changed while verification was running")
+            result["scope"] = "stored example file inventory; changed receipt was not interpreted"
+            return finish(result)
+        receipt = parse_json(receipt_bytes.decode("utf-8"))
+        if (type(receipt.get("schema")) is not int or receipt["schema"] != 1 or receipt.get("kind") != "worked_example_export"
+                or receipt.get("origin") != "synthetic-maintainer-authored"
+                or not isinstance(receipt.get("language"), str) or receipt["language"] not in {"en", "zh"}
+                or not isinstance(receipt.get("version"), str) or re.fullmatch(r"\d+\.\d+\.\d+", receipt["version"]) is None
+                or not isinstance(receipt.get("case"), str) or re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", receipt["case"]) is None):
+            raise ValueError("Expected a schema-1 synthetic worked-example receipt")
+        sources = validate_files(root, receipt.get("source_files"))
+        if set(sources) != set(expected) - generated:
+            raise ValueError("Example source receipt must cover exactly the copied sources and license")
+        for name, row in sources.items():
+            if name == "LICENSE":
+                source_name = "LICENSE"
+            elif name.startswith("case/"):
+                source_name = f"examples/{receipt['case']}/{name[5:]}"
+            else:
+                raise ValueError("Copied example sources must stay under case/")
+            if row.get("source") != source_name:
+                raise ValueError(f"Example source mapping disagrees with the copied path: {name}")
+            if any(row[field] != expected[name][field] for field in ("sha256", "bytes")):
+                issue(result, "source-receipt-mismatch", name, "Source receipt differs from the stored integrity inventory")
+        for field in ("input", "candidate", "decisions"):
+            name = receipt.get(field)
+            portable_name(root, name)
+            if not name.startswith("case/") or name not in sources:
+                raise ValueError(f"Example {field} must name an inventoried case source")
+        if bounded_file_hash(receipt_path) != hashlib.sha256(receipt_bytes).hexdigest():
+            issue(result, "changed-receipt", "example.json", "Receipt changed while verification was running")
+        result.update(version=receipt["version"], case=receipt["case"])
+    if bounded_file_hash(manifest_path) != hashlib.sha256(manifest_bytes).hexdigest():
+        issue(result, "changed-manifest", "integrity.json", "Manifest changed while verification was running")
+    result["scope"] = "complete initial example bytes and source-copy receipt; installed repository paths are not read and edits intentionally fail"
+    return finish(result)
+
+
 def streamed_hash(stream):
     digest = hashlib.sha256()
     read = 0
@@ -326,7 +384,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--json", action="store_true")
     sub = parser.add_subparsers(dest="kind", required=True)
-    verifiers = {"release": verify_release, "review": verify_review, "inspection": verify_inspection}
+    verifiers = {"release": verify_release, "review": verify_review, "inspection": verify_inspection, "example": verify_example}
     for kind in verifiers:
         command = sub.add_parser(kind)
         command.add_argument("directory", type=Path)

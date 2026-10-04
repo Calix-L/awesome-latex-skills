@@ -47,3 +47,16 @@ The generator refuses an existing destination. ReportLab is not a core dependenc
 connect commands to deliverables and next checks. Real project contributions
 need the [provenance and acceptance checklist](../docs/case-contributions.md)
 ([中文](../docs/case-contributions_CN.md)); current fixtures remain synthetic.
+
+## Copy before trying or editing
+
+```sh
+als examples export --case full-paper --output ../my-example
+als verify example ../my-example
+```
+
+Choose `rescue`, `polish`, `fmt`, `read`, `pdf2tex` or `full-paper`. No optional
+library is required to copy a case from the installed package. Open its
+standalone `report.html`; repository-level README instructions are replaced
+by an offline guide. Keep an unchanged copy and edit a separate candidate.
+[Export details](../docs/examples-export.md) / [中文指南](../docs/examples-export_CN.md).

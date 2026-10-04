@@ -8,14 +8,14 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.14.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.14.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.15.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.15.0"></a>
 </p>
 
 <p align="center">Five skills for LaTeX repair, academic editing, submission formatting, paper reading, and PDF recovery.</p>
 
 <div align="center">
 
-[Skills](#skills) &nbsp; / &nbsp; [Setup](#quick-start) &nbsp; / &nbsp; [Examples](#examples) &nbsp; / &nbsp; [FAQ](#faq)
+[Skills](#skills) &nbsp; / &nbsp; [Setup](#quick-start) &nbsp; / &nbsp; [Examples](#examples) &nbsp; / &nbsp; [Docs](./docs/README.md) &nbsp; / &nbsp; [FAQ](#faq)
 
 <sub>**English** / [简体中文](./README_CN.md)</sub>
 
@@ -74,9 +74,20 @@ for commands, expected outputs and the next check.
 
 | Start here | What you can review |
 | :--- | :--- |
+| **[Copy an editable case](./docs/examples-export.md)** | Six cases available from the installed wheel, with an offline guide and source fingerprints |
 | **[Diagnose your project](./docs/project.md#project-aware-prerequisites)** | Actual settings, local tools, missing resources and source locations |
 | **[Inspect manuscript changes](./docs/tasks.md#polish)** | Original/candidate differences, author decisions and retained build evidence |
 | **[Try the complete case](./examples/full-paper/README.md)** | A multi-file English/Chinese manuscript and an offline review report |
+
+Start with your own copy; no TeX or PDF library is required for export:
+
+```sh
+als examples export --case full-paper --output ../my-example
+als verify example ../my-example
+```
+
+Open `../my-example/report.html`, then follow its commands. Preserve the
+initial export and edit a separate candidate. [All six cases & prerequisites](./docs/examples-export.md).
 
 Planning to assess skill quality? Start with the [12-run evaluation pilot](./docs/pilot.md).
 Read the [tested environments and interface policy](./docs/compatibility.md) before integrating reports.
@@ -299,7 +310,7 @@ The skill does not silently turn a relative percentage into percentage points.
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.14.0
+python scripts/als.py release --output dist/1.15.0
 ```
 
 [CLI & JSON reports](./docs/cli.md) · [Ten-task evaluation protocol](./docs/evaluation.md) ·

@@ -33,7 +33,7 @@ python scripts/als.py benchmark prepare --case polish-scope --trials 1 --output 
 python scripts/als.py benchmark run --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --spec runner-spec.json
 python scripts/als.py benchmark review-template --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --output work/baseline-review.json
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.14.0
+python scripts/als.py release --output dist/1.15.0
 ```
 
 Use `COMMAND --help` for the native options. Paths supplied by the user resolve
@@ -126,3 +126,14 @@ invalid/unreadable project inputs return 2. `--language zh` selects human labels
 and environment actions without translating machine evidence. Existing
 environment-only probes remain supported. See the [project guide](project.md#project-aware-prerequisites),
 [task recipes](tasks.md), [evaluation pilot](pilot.md) and [interface expectations](compatibility.md).
+
+## Copy one bundled example
+
+`examples export --case full-paper --output ../my-example --language zh`
+copies one of six synthetic cases without optional dependencies. Default case
+is `full-paper`; `examples list` adds `export_cases` while keeping its five
+worked examples. The destination must be new and outside bundled source
+resources. `verify example ../my-example` checks the complete initial copy and
+source receipt after transfer, without reading installed source paths. Editing
+the copy invalidates that byte check; keep an untouched original. See the
+[export guide](examples-export.md) and [documentation index](README.md).

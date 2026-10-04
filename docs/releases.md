@@ -195,3 +195,9 @@ keep differing copies backed up before moving them. See the
 [installation guide](../README.md#quick-start).
 
 Version 1.14.0 adds read-only project-aware doctor, task recipes, a bounded evaluation pilot, case acceptance requirements and interface expectations. The project inspection, doctor and CLI envelope schemas remain unchanged; doctor project/status fields are additive in project mode.
+
+Version 1.15.0 adds editable case exports from installed resources, bilingual
+offline guides, initial source-copy receipts and `verify example`. Publication
+requires the exported full-paper native regression and both installed-package
+first-use export/relocation/corruption checks. The documentation index routes
+setup, tasks, examples, diagnostics, review, verification and evaluation.

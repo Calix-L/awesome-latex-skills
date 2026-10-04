@@ -165,3 +165,11 @@ layout example checks ordinary LaTeX behavior, not official submission complianc
 Formatting tasks must use the exact venue/year/track/stage requested by the author.
 
 Project-aware doctor regressions cover configuration/override precedence, unresolved engines/backends, reachable resources, ambiguous roots, structured errors, Chinese actions, source immutability and external-directory CLI invocation. Package checks exercise the same interface from installed wheel and rebuilt sdist.
+
+Example export regressions cover all six cases, complete live offline links,
+hidden configuration/assets, standard-library-only external CLI use, moved
+deliveries, source/metadata changes, staged tampering, failed publication,
+source-byte bounds, corrupted receipts and edits. A native regression builds
+the exported original and English/Chinese candidates, then verifies unchanged
+export bytes. Wheel/rebuilt-sdist first use checks full-paper and PDF export,
+Chinese guides, source fingerprints, relocation and corruption outside the checkout.

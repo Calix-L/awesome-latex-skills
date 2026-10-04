@@ -20,20 +20,21 @@ def load_helper(name, relative):
     return module
 
 
-def catalog():
-    document = read_json(ROOT / "examples/index.json")
+def catalog(root=ROOT, document=None):
+    root = Path(root).resolve()
+    document = read_json(root / "examples/index.json") if document is None else document
     if document.get("schema") != 1 or not isinstance(document.get("examples"), list) or len(document["examples"]) != 5:
         raise ValueError("Expected five schema-1 worked examples")
     identifiers, skills = set(), set()
     for item in document["examples"]:
         if not isinstance(item, dict) or not isinstance(item.get("id"), str) or not item["id"] or item["id"] in identifiers:
             raise ValueError("Example ids must be nonempty and unique")
-        safe_path(ROOT, item["id"])
+        safe_path(root, item["id"])
         if "/" in item["id"] or item.get("skill") not in SKILLS or item["skill"] in skills:
             raise ValueError("Expected one portable example id per skill")
         identifiers.add(item["id"])
         skills.add(item["skill"])
-        directory = safe_path(ROOT, item["directory"])
+        directory = safe_path(root, item["directory"])
         for name in (item["input"], item["candidate"], "report.md"):
             if not safe_path(directory, name).is_file():
                 raise ValueError(f"Missing example artifact: {item['id']}/{name}")
@@ -130,13 +131,24 @@ def main(argv=None):
     parser.add_argument("--json", action="store_true")
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("list")
+    from export_examples import EXPORT_CASES
+    export = commands.add_parser("export", help="Copy a synthetic case with an offline guide and source fingerprints; no build or extraction")
+    export.add_argument("--case", choices=EXPORT_CASES, default="full-paper")
+    export.add_argument("--output", type=Path, required=True, help="New directory outside bundled source resources")
+    export.add_argument("--language", choices=("en", "zh"), default="en")
     run = commands.add_parser("run")
     run.add_argument("--output", type=Path, required=True)
     run.add_argument("--engine", choices=("pdflatex", "xelatex", "lualatex"), default="pdflatex")
     run.add_argument("--allow-unverified", action="store_true")
     args = parser.parse_args(argv)
     try:
-        result = {"schema": 1, "examples": catalog()} if args.command == "list" else run_examples(args.output, args.engine, args.allow_unverified)
+        if args.command == "list":
+            result = {"schema": 1, "examples": catalog(), "export_cases": list(EXPORT_CASES)}
+        elif args.command == "export":
+            from export_examples import export_example
+            result = export_example(args.case, args.output, args.language)
+        else:
+            result = run_examples(args.output, args.engine, args.allow_unverified)
         print(json.dumps(result, ensure_ascii=True, indent=2))
         return 1 if result.get("status") == "failed" else 0
     except (OSError, ValueError, RuntimeError, ImportError) as exc:

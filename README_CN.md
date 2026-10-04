@@ -8,14 +8,14 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.14.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.14.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.15.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.15.0"></a>
 </p>
 
 <p align="center">五个专注于论文工作的 Agent Skills：修复编译、润色表达、转换格式、阅读论文、恢复源码。</p>
 
 <div align="center">
 
-[技能](#skills) &nbsp; / &nbsp; [安装](#quick-start) &nbsp; / &nbsp; [示例](#examples) &nbsp; / &nbsp; [问答](#faq)
+[技能](#skills) &nbsp; / &nbsp; [安装](#quick-start) &nbsp; / &nbsp; [示例](#examples) &nbsp; / &nbsp; [文档](./docs/README.md) &nbsp; / &nbsp; [问答](#faq)
 
 <sub>[English](./README.md) / **简体中文**</sub>
 
@@ -76,9 +76,20 @@ als install --agent claude
 
 | 从这里开始 | 可以审查什么 |
 | :--- | :--- |
+| **[导出可编辑案例](./docs/examples-export_CN.md)** | 从已安装 wheel 复制六类案例，附离线操作页和源码指纹 |
 | **[体检自己的项目](./docs/project_CN.md#project-aware-prerequisites)** | 实际配置、本地工具、缺失资源与源码位置 |
 | **[检查论文修改](./docs/tasks_CN.md#polish)** | 原稿/候选差异、作者决策与保留的构建证据 |
 | **[试跑完整案例](./examples/full-paper/README.md)** | 多文件中英文论文与离线审查报告 |
+
+先复制到自己的目录；导出无需 TeX 或 PDF 库：
+
+```sh
+als examples export --case full-paper --output ../my-example --language zh
+als verify example ../my-example
+```
+
+打开 `../my-example/report.html`，按操作页继续。保留初始导出，另建候选副本再编辑。
+[六类案例与实际依赖](./docs/examples-export_CN.md)。
 
 需要衡量技能质量？从 [12 次运行的评测试运行](./docs/pilot_CN.md)开始。
 集成报告前，阅读[测试环境与接口约定](./docs/compatibility.md#中文说明)。
@@ -281,7 +292,7 @@ python scripts/als.py examples run --output work/example-run
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.14.0
+python scripts/als.py release --output dist/1.15.0
 ```
 
 [CLI 与 JSON 报告](./docs/cli.md) · [中文评测指南](./docs/evaluation_CN.md) ·

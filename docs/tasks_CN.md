@@ -139,3 +139,9 @@ als paper --output work/manuscript-demo --language zh
 打开 `work/manuscript-demo/review/report.html`。现有案例均为合成输入、MIT 授权，
 候选结果由维护者编写。真实案例按[贡献验收清单](case-contributions_CN.md)准备；
 衡量模型表现从[配对评测试运行](pilot_CN.md)开始。
+
+## 从导出案例开始
+
+已安装包可[导出六类案例](examples-export_CN.md)，无需仓库源码或可选依赖。
+打开离线操作页，核验初始字节，再另建候选副本。维护者答案不能进入盲评会话。
+[文档索引](README.md)。

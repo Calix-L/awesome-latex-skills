@@ -2,6 +2,23 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.15.0 — 2026-10-05
+
+### Added
+
+- `examples export` copies any of five skill cases or the complete English/Chinese manuscript from installed resources using only the standard library. It preserves source/assets/decisions and hidden configuration, includes the MIT license, and generates a standalone bilingual offline HTML/Markdown guide instead of repository-relative README instructions.
+- Schema-1 source-copy receipts and complete integrity manifests, with `verify example` checking transferred initial deliveries independently of installation paths. Missing/changed/extra files and source-receipt disagreements fail; changed receipt bytes are not interpreted. Editing remains a separate copy operation.
+- Source inventory/byte bounds, parsed-metadata fingerprint binding, staged publication, source rechecks and complete staged verification prevent partial deliveries on normal preparation failures. Export returns `exported-not-run` without calling models, compilers, copied scripts or PDF libraries.
+- README editable-case entry, bilingual export recipes and a bilingual documentation index. `examples list` preserves its five existing entries and adds the six exportable case IDs.
+
+### Validation
+
+- Twenty-eight portable regressions cover all case copies, live escaped offline links, resource/source immutability, metadata/source changes, publication failures, staged tampering, bounds, relocation, malformed receipts and corruption.
+- A native regression requires expected original failure, successful English/Chinese exported-candidate builds with resolved references, retained Chinese text/values and unchanged initial export integrity.
+- Original wheel and independently rebuilt sdist first-use checks export complete/PDF cases without optional libraries, verify source bytes and Chinese guides, and distinguish moved valid deliveries from modified sources outside the checkout.
+
+Cases remain synthetic maintainer demonstrations with answers/decisions, not blind agent tasks or efficacy results. Integrity checks establish initial-byte correspondence, not publisher authenticity or scientific quality. Existing run/build/review report schemas remain unchanged.
+
 ## 1.14.0 — 2026-10-05
 
 ### Added

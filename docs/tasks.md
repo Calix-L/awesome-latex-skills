@@ -154,3 +154,10 @@ Requires the native engines/backends listed in the
 MIT-licensed and maintainer-authored. To contribute a real case, follow the
 [case acceptance checklist](case-contributions.md). To measure model behavior,
 start with the [paired evaluation pilot](pilot.md).
+
+## Start from an exported case
+
+Installed packages can [export any of six cases](examples-export.md) without
+the source checkout or optional dependencies. Open its offline guide, verify
+initial bytes, then make a separate candidate copy. Keep these maintainer
+answers outside blind evaluation sessions. [Documentation index](README.md).

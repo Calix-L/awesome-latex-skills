@@ -74,3 +74,14 @@ als verify inspection work/inspection-01
 检查时请保持输入不变。工具不会编译、安装软件、执行 OCR、调用模型或判断投稿质量。
 
 详见[英文指南](verification.md)、[审阅流程](review_CN.md)和[版本迁移](releases.md)。
+
+## 可编辑案例的初始交付
+
+```sh
+als verify example path/to/exported-example
+```
+
+核对完整操作页、来源记录、许可证和源文件清单，以及复制文件的 SHA-256/大小
+是否一致。不读取原始安装仓库，不执行脚本或编译 TeX。移动后可继续核验；
+修改、缺失或新增文件会失败。保留初始交付，另建候选副本编辑。
+来源结构、退出码和发布限制见[导出指南](examples-export_CN.md)。

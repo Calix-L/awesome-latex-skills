@@ -59,3 +59,9 @@ JSON 外层 schema 与内部报告 schema/kind 分别检查。读取方容忍新
 变化后应写入新目录重新检查。破坏接口的版本需要明确迁移指南并提升主版本；
 兼容新增选项/字段用次版本，修复保留现有约定。报告问题时提供实际版本、命令、
 脱敏源码和真实日志。
+
+Example export adds schema-1 `worked_example_export` receipts and
+`worked_example_integrity` manifests. `examples list` adds `export_cases` and
+preserves its original five entries. Existing run/build/review report schemas
+are unchanged. Source-copy hashes and language-specific guides are initial
+artifact evidence, not build or model-quality results.

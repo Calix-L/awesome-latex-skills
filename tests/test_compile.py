@@ -64,6 +64,30 @@ class CompilationTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("Undefined control sequence", result.stdout)
 
+    def test_exported_full_paper_builds_both_languages_without_changing_export(self):
+        from export_examples import export_example
+        from verify_artifacts import verify_example
+        for name in ("xelatex", "bibtex"):
+            if shutil.which(name) is None:
+                if os.environ.get("LATEX_SKILLS_REQUIRE_TEX") == "1":
+                    self.fail(f"{name} is required for the exported manuscript check")
+                self.skipTest(f"{name} unavailable")
+        exported = self.work / "exported paper"
+        result = export_example("full-paper", exported, "zh")
+        self.assertEqual(result["status"], "exported-not-run")
+        before = check_build.build(exported / "case/before/main.tex", self.work / "export-before", "pdflatex", "bibtex", 3)
+        self.assertEqual(before["status"], "failed")
+        after = check_build.build(exported / "case/after/main.tex", self.work / "export-after", "pdflatex", "bibtex", 3, require_resolved=True)
+        self.assert_build_success(after)
+        chinese = check_build.build(exported / "case/after/main-cn.tex", self.work / "export-chinese", "xelatex", "bibtex", 3, require_resolved=True)
+        self.assert_build_success(chinese)
+        import pymupdf
+        with pymupdf.open(self.work / "export-chinese" / chinese["pdf"]) as document:
+            text = "\n".join(page.get_text() for page in document)
+            self.assertIn("自制样例", text)
+            self.assertIn("76.10", text)
+        self.assertEqual(verify_example(exported)["status"], "verified")
+
     def test_project_inspector_matches_native_class_input_and_graphics_selection(self):
         import pymupdf
         project = self.work / "project"

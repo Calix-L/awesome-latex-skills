@@ -92,3 +92,16 @@ point-in-time checks. No TeX, package installation, OCR or model is run.
 
 See [releases](releases.md), [review](review.md) and the
 [Chinese guide](verification_CN.md).
+
+## Initial editable-example deliveries
+
+```sh
+als verify example path/to/exported-example
+```
+
+Checks the complete guide/receipt/license/source inventory and copied-source
+SHA-256/size agreement. It does not read the installed repository, execute
+copied scripts or build TeX. Moved directories remain verifiable; changed,
+missing or additional files fail. Preserve the initial delivery and edit a
+separate copy. See the [export guide](examples-export.md) for receipt structure,
+exit codes and publication limits.
