@@ -39,8 +39,11 @@ def lex_tex(text):
                 end += 1
             # The star test happens before active spaces are skipped by sverb.
             # With a space before '*', that character is the delimiter instead.
+            padding = end
             while end < len(text) and text[end] in " \t":
                 end += 1
+            if "\t" in text[padding:end]:
+                issue("verb-tab-unverified", start, "Tab before inline verb delimiter: tokenization depends on the kernel; masking is approximate")
             newline = LINE_BREAK.search(text, end)
             line_end = newline.start() if newline else len(text)
             closing = text.find(text[end], end + 1, line_end) if end < line_end else -1

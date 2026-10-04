@@ -47,6 +47,7 @@ class LiteralScannerTests(unittest.TestCase):
                 self.assertEqual(content_tokens(text)[0], {})
                 self.assertEqual(lex_tex(text)[1], [])
         self.assertEqual(lex_tex(r"\verb * 1\input{hidden}1")[1][0]["code"], "unterminated-verb")
+        self.assertEqual(lex_tex("\\verb\t|example|")[1][0]["code"], "verb-tab-unverified")
 
     def test_inline_verb_does_not_consume_the_next_line_after_missing_delimiter(self):
         text = "\\verb|\\input{hidden}\n\\input{live}\n"

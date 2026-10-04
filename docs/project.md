@@ -102,7 +102,8 @@ and `minted` regions are masked while preserving offsets, line numbers and CRLF.
 Inline behavior is based on the
 [LaTeX kernel source](https://github.com/latex3/latex2e/blob/main/base/ltmiscen.dtx).
 The `verb*` star must immediately follow the command; after a space it becomes
-the literal delimiter instead.
+the literal delimiter instead. Tabs before an inline delimiter are explicitly
+unverified because their tokenization depends on the kernel; masking is approximate.
 
 An unfinished inline verb masks only its current line. An environment without
 a literal end marker masks the remaining source. Both emit located unverified
