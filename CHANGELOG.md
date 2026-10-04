@@ -2,6 +2,21 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.11.0 — 2026-10-05
+
+### Fixed
+
+- Build/extraction CLI metadata uses the helpers' shared argument grammar. Repeated output options bind the effective last directory instead of the first; abbreviated/equal-form options and the end-of-options marker agree with execution. Earlier outputs and existing effective evidence are not reused.
+- Configured builds normalize source/settings/flags from parsed arguments, honor explicit overrides, retain negative or dash-prefixed values correctly, and refuse ambiguous project/source selection. Help and argument-format errors return before configuration reads or helper execution.
+
+### Added
+
+- Additive schema-1 CLI `invocation` records the attempted interpreter, relative helper, exact arguments and working directory; preflight-only outcomes retain null. Logs and exit codes remain separate evidence of execution outcomes.
+- Chinese command guide and bilingual README/CLI recipes for configuration, literal filenames, fresh outputs and machine reports.
+- Twelve portable regression tests with real PDF extraction plus a native CLI test for both literal dash-prefixed roots and configured builds. Fresh wheel/rebuilt-sdist checks exercise project-independent help and argument preflight.
+
+Native build/extraction report schemas and standalone helper behavior remain compatible. Successful tooling checks do not establish scientific fidelity or model-quality improvements.
+
 ## 1.10.0 — 2026-10-05
 
 ### Fixed

@@ -2,7 +2,7 @@
 name: pdf2tex
 description: Reconstruct editable LaTeX from PDF content using page-aware extraction and visual comparison. Preserve source evidence, flag uncertain math/tables/citations, and distinguish text extraction, OCR, reconstruction, and verified compilation.
 metadata:
-  version: "1.10.0"
+  version: "1.11.0"
 ---
 
 ## Establish the reconstruction target

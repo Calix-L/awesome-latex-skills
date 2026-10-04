@@ -36,6 +36,10 @@ To run one area: `python -m unittest discover -s tests -p test_install.py -v`.
   all five skill bundles, and an installed synthetic command-runner pilot with
   an unfilled review template and missing-pair report; then independently rebuild
   the source distribution and repeat first-use checks.
+  CLI controls verify shared helper grammars, last-value output binding,
+  abbreviations/equal forms, literal option-like filenames, project overrides,
+  preflight-only help/errors and recorded execution attempts. Real PDF extraction
+  and native source/configured builds verify the actual evidence directories.
 - **Repeated-trial accounting:** 60-task blind preparation, deterministic randomized
   scheduling, all missing/failed runs, reused-session refusal, raw-transcript binding,
   finite actual measurement fields, unchanged criteria and null missing human/cost

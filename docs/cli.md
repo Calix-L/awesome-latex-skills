@@ -33,13 +33,34 @@ python scripts/als.py benchmark prepare --case polish-scope --trials 1 --output 
 python scripts/als.py benchmark run --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --spec runner-spec.json
 python scripts/als.py benchmark review-template --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --output work/baseline-review.json
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.10.0
+python scripts/als.py release --output dist/1.11.0
 ```
 
 Use `COMMAND --help` for the native options. Paths supplied by the user resolve
 from the current working directory; helper paths resolve from the checkout.
 The CLI runs the same Python interpreter that invoked it, without a shell.
 Existing direct script commands remain supported.
+
+Build and extraction use the same argument grammar as their standalone helpers.
+The wrapper respects `--name=value`, unambiguous long-option abbreviations and
+the `--` end-of-options marker. Prefer full option names in saved commands.
+For a filename beginning with a dash, put all options before the marker:
+
+```sh
+als --json build --output work/build-dash -- --submission.tex
+als --json extract --output work/extract-dash -- --paper.pdf
+als --json build --project path/to/paper --output work/configured-build --
+als build --project path/to/missing-project --help
+```
+
+Use a source file or one `--project` directory. Explicit engine/backend/pass
+options override project configuration. Repeated ordinary value options follow
+the helper's last-value behavior; the wrapper attaches evidence only from the
+effective output directory. Earlier output directories are untouched. Repeated
+`--project` or a project combined with a source is refused. Build/extraction help
+and argument errors do not read project configuration or launch a helper.
+
+See the [Chinese command guide](cli_CN.md) for common project workflows.
 
 ## Reports and exit codes
 
@@ -54,6 +75,16 @@ The schema-1 envelope contains `version`, `command`, `status`, `exit_code`,
 loaded only from a newly created output directory. Existing output evidence is
 never attached as if produced by this invocation. Native build reports remain
 schema 3; PDF extraction reports remain schema 2. `--help` is plain text.
+
+The additive `invocation` object records the attempted helper's relative path,
+Python interpreter, working directory and exact argument list. Configured build
+arguments contain the selected source and resolved defaults/overrides. It is
+null for build/extraction help, argument-preflight errors, unknown commands and
+version queries. This records an execution attempt, not independent proof that
+the process launched or completed. Child stdout/stderr and exit codes remain the
+evidence for the outcome. Top-level help remains plain text; with `--json`,
+build/extraction help is captured in the envelope's `stdout`, with null `result`
+and empty `evidence`.
 
 The wrapper preserves each helper's exit code: normally 0 for completed work,
 1 for a failed check, and 2 for invalid arguments or preconditions. Extraction

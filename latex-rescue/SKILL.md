@@ -2,7 +2,7 @@
 name: latex-rescue
 description: Diagnose and repair LaTeX build failures in local projects or supplied logs. Make minimal source fixes, preserve scientific content and reference keys, and report actual build evidence and unresolved errors.
 metadata:
-  version: "1.10.0"
+  version: "1.11.0"
 ---
 
 ## Purpose

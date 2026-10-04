@@ -294,9 +294,11 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
     return report
 
 
-def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("source", type=Path, help="Actual root document; relative assets resolve from its directory")
+def argument_parser(source_optional=False, **kwargs):
+    """Shared CLI grammar; creating a parser does not probe or run TeX."""
+    parser = argparse.ArgumentParser(description=__doc__, **kwargs)
+    parser.add_argument("source", type=Path, nargs="?" if source_optional else None,
+                        help="Actual root document; relative assets resolve from its directory")
     parser.add_argument("--output", type=Path, required=True, help="New directory for PDF, logs, and JSON evidence")
     parser.add_argument("--engine", choices=ENGINES, default="pdflatex")
     parser.add_argument("--backend", choices=BACKENDS, help="Explicit bibliography backend; omitted means none")
@@ -305,6 +307,11 @@ def main(argv=None):
     parser.add_argument("--jobname", help="Output basename; default: root filename without .tex")
     parser.add_argument("--until-stable", action="store_true", help="Stop on settled auxiliary files and rerun requests; default maximum 5 passes")
     parser.add_argument("--require-resolved", action="store_true", help="Fail if final references/citations or rerun requests remain")
+    return parser
+
+
+def main(argv=None):
+    parser = argument_parser()
     args = parser.parse_args(argv)
     try:
         report = build(args.source, args.output, args.engine, args.backend, args.passes, args.timeout,

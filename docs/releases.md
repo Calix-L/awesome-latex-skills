@@ -18,7 +18,7 @@ python scripts/als.py paper --output work/release-paper
 python -m pip install build
 python -m build --outdir dist/package
 python scripts/check_packages.py --directory dist/package --output work/package-verification
-python scripts/als.py release --output dist/1.10.0 --distribution-dir dist/package
+python scripts/als.py release --output dist/1.11.0 --distribution-dir dist/package
 ```
 
 The default example run requires a real TeX engine. Portable mode is not a
@@ -123,7 +123,7 @@ environments and TeX execution remain outside this limited check. Prepare new
 evaluation tasks after updating skill metadata, or retain the matching old CLI
 and context for reproducibility.
 
-## 1.8.0 to 1.10.0
+## 1.8.0 to 1.11.0
 
 New `verify release DIRECTORY` and `verify review DIRECTORY` commands use
 only the standard library and do not modify targets or execute/extract archive

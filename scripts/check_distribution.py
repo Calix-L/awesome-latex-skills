@@ -75,6 +75,13 @@ def check_distribution(wheel, output):
                         "\\begin{document}Example\\\\input{absent} \\verb 1\\input{absent}1\\end{document}\n"
                         "% \\end{verbatim}\n", encoding="utf-8")
         run([command, "project", "init", main.parent, "--main", "main.tex"])
+        help_report = json.loads(run([command, "--json", "build", "--project", cwd / "missing-project", "--help"]))
+        if help_report["invocation"] is not None or "--project" not in help_report["stdout"] or help_report["evidence"]:
+            raise ValueError("Installed build help incorrectly required a project or attempted execution")
+        rejected = json.loads(run([command, "--json", "build", "--project", main.parent,
+                                   "--out=" + str(cwd / "unused-build"), "--engine=invalid"], expected=(2,)))
+        if rejected["invocation"] is not None or (cwd / "unused-build").exists() or rejected["result"] is not None:
+            raise ValueError("Installed argument preflight ran a build or retained unrelated evidence")
         if not (main.parent / ".als.json").is_file():
             raise ValueError("Installed CLI did not initialize the selected project")
         inspection = json.loads(run([command, "--json", "project", "check", main.parent,

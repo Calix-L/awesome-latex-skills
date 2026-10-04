@@ -138,6 +138,34 @@ class CompilationTests(unittest.TestCase):
         report = check_build.build(source, self.work / "unfinished literal build")
         self.assertEqual(report["status"], "failed", report)
 
+    def test_unified_cli_uses_effective_output_for_literal_source_and_configured_builds(self):
+        from project_doctor import initialize
+        project = self.work / "CLI project with spaces"
+        project.mkdir()
+        source = project / "--submission.tex"
+        source.write_text(r"\documentclass{article}\begin{document}Actual CLI fixture\end{document}", encoding="utf-8")
+        original = source.read_bytes()
+        initialize(project, source.name, passes=2)
+        for mode in ("source", "configuration"):
+            with self.subTest(mode=mode):
+                ignored, output = self.work / f"{mode} ignored", self.work / f"{mode} actual"
+                ignored.mkdir()
+                (ignored / "build-report.json").write_text('{"fake":true}', encoding="utf-8")
+                args = ["--out=" + str(ignored), "--output", str(output), "--require-resolved"]
+                args += ["--", source.name] if mode == "source" else ["--project=" + str(project), "--"]
+                result = subprocess.run([sys.executable, str(REPO / "scripts/als.py"), "--json", "build", *args],
+                                        cwd=project, capture_output=True, text=True, encoding="utf-8", timeout=60)
+                evidence = json.loads(result.stdout)
+                self.assertEqual(result.returncode, 0, evidence)
+                self.assertEqual(evidence["result"]["status"], "success")
+                self.assertEqual(evidence["result"]["source"], str(source))
+                self.assertEqual(evidence["evidence"], [str(output / "build-report.json")])
+                self.assertEqual(evidence["invocation"]["cwd"], str(project))
+                self.assertIn(str(output), evidence["invocation"]["arguments"])
+                self.assertTrue(json.loads((ignored / "build-report.json").read_text())["fake"])
+                self.assertEqual(source.read_bytes(), original)
+                self.assertFalse((project / "--submission.pdf").exists())
+
     def test_corrected_fixture_builds_pdf_without_tex_errors(self):
         self.copy_fixture("expected_fixed.tex")
         for _ in range(2):

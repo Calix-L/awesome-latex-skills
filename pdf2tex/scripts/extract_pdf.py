@@ -210,8 +210,9 @@ def extract(pdf, output, pages=None, images=False, render=False, dpi=144, charac
     return report
 
 
-def main(argv=None):
-    parser = argparse.ArgumentParser(description=__doc__)
+def argument_parser(**kwargs):
+    """Shared CLI grammar; parser creation does not import PyMuPDF."""
+    parser = argparse.ArgumentParser(description=__doc__, **kwargs)
     parser.add_argument("pdf", type=Path)
     parser.add_argument("--output", type=Path, required=True, help="New output directory; never reuse an existing directory")
     parser.add_argument("--pages", help="1-based page numbers/ranges, e.g. 1-3,5; default: all")
@@ -219,6 +220,11 @@ def main(argv=None):
     parser.add_argument("--render", action="store_true", help="Save selected whole-page PNG previews for visual comparison; no OCR")
     parser.add_argument("--chars", action="store_true", help="Include character origins/bounding boxes in layout.json for detailed math inspection; larger output, no OCR")
     parser.add_argument("--dpi", type=int, default=144, help="Preview resolution, 72–300 DPI (default 144); 20 million pixels maximum per page")
+    return parser
+
+
+def main(argv=None):
+    parser = argument_parser()
     args = parser.parse_args(argv)
     try:
         report = extract(args.pdf, args.output, args.pages, args.images, args.render, args.dpi, args.chars)
