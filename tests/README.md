@@ -102,6 +102,16 @@ AI agent's editing quality or prove compliance with a venue's current rules.
 
 ## Fixtures
 
+Review negative controls mutate reports/logs/PDFs during copying and inputs or
+page previews after rendering; no final review bundle may be published.
+Declared missing logs, reserved evidence-path collisions, unreadable successful
+input tracking and mismatched parsed bytes are also refused. Real PDF fixtures
+check every retained file's hash/size, legacy PDF identity and offline links.
+Source tests cover escaped dollars, display delimiters, literal `nocite`,
+Chinese interfaces, uppercase TeX filenames, binary changes and inventory scope.
+Fresh installed wheels and rebuilt source packages run Chinese source review
+without a PDF dependency; the native release example uses Chinese reports.
+
 | Path | Use |
 |---|---|
 | `fixtures/errors/broken_paper.tex` | Deliberate syntax errors plus unresolved author decisions |

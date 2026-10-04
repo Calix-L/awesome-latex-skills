@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.7.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.7.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.8.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.8.0"></a>
 </p>
 
 <p align="center">Five skills for LaTeX repair, academic editing, submission formatting, paper reading, and PDF recovery.</p>
@@ -158,6 +158,9 @@ page previews and the timing protocol still awaiting the author's decision.
 
 Open `work/project-inspection.html` for located issues, dependency resolutions
 and next steps. The complete runner also retains before/after inspection reports.
+The review opens with file changes, literal content signals, author decisions
+and build states; source diffs and complete evidence remain expandable.
+Use `--language zh` on `als review` or `als paper` for a Chinese interface.
 
 **Actual build failure → verified candidate PDF**
 
@@ -252,7 +255,7 @@ The skill does not silently turn a relative percentage into percentage points.
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.7.0
+python scripts/als.py release --output dist/1.8.0
 ```
 
 [CLI & JSON reports](./docs/cli.md) · [Ten-task evaluation protocol](./docs/evaluation.md) ·

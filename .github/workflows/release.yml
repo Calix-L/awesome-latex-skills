@@ -25,7 +25,7 @@ jobs:
       - run: python scripts/check_sources_ci.py --output work/source-audit.json
       - run: python -m unittest discover -s tests -v
       - run: python scripts/als.py examples run --output work/example-run
-      - run: python scripts/als.py paper --output work/full-paper-run
+      - run: python scripts/als.py paper --output work/full-paper-run --language zh
       - run: python -m pip install build
       - run: python -m build --outdir dist/package
       - run: python scripts/check_packages.py --directory dist/package --output work/package-verification

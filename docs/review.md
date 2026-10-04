@@ -7,18 +7,26 @@ does not edit either one; its destination must be new and outside both trees.
 als build path/to/before/main.tex --output work/before-build --backend bibtex --passes 3
 als build path/to/after/main.tex --output work/after-build --backend bibtex --passes 3
 als review --before path/to/before --after path/to/after --before-build work/before-build/build-report.json --after-build work/after-build/build-report.json --notes decisions.md --output work/review-01
+# Chinese interface; original source/log/notes text stays unchanged
+als review --before path/to/before --after path/to/after --output work/review-zh --language zh
 ```
 
 Open `work/review-01/report.html` in a browser. Keep the generated directory
 together: it includes an offline HTML report, JSON evidence, source diff,
 retained build reports/logs, successful PDFs and page previews. No remote assets
 or scripts are required. PyMuPDF is required when successful PDFs are supplied.
+Source-only review needs only the Python standard library. The report opens with
+counts, build states and a file-change list, followed by expandable source diffs,
+added/removed literal values, author decisions and supplied PDF pages. Binary
+changes remain visible even when a text diff cannot be produced. English is the
+default; `--language zh` selects Chinese interface labels.
 
 ## Evidence remains separate
 
 - **Source changes:** fingerprints and a unified diff for source, bibliography,
   styles/classes and project configuration; asset changes are listed by hash.
-- **Content signals:** changed literal numbers, reference keys and simple math.
+- **Content signals:** changed literal numbers, reference keys (including
+  `nocite`) and math delimited by `$`, `$$`, `\(` or `\[`.
   These flag review needs; unchanged tokens do not prove unchanged meaning.
 - **Builds:** the supplied schema-3 build's status, engine/backend, diagnostics
   and logs. A failed build remains visible with its failure evidence.
@@ -35,11 +43,32 @@ are refused. Older schema-3 reports without this field are visibly marked with
 an unverified build-time PDF identity. File hashes establish correspondence,
 not independent authentication of a report's producer.
 
+Declared transcript/log/recorder paths must exist; missing files are refused
+instead of silently dropped. Retained reports, logs, PDFs and generated page
+previews add `retained_files` entries with relative path, SHA-256 and byte size.
+Copied evidence is checked against the original bytes, and both original and
+retained evidence are rechecked after rendering, before the bundle is published.
+Successful reports that declare unreadable local inputs are also refused.
+These are point-in-time consistency checks, not a lock or an immutable snapshot
+of a concurrently edited project. Legacy PDFs still retain their explicit
+unverified build-time identity.
+
 Without `--before-build`/`--after-build`, the corresponding side is explicitly
 unverified. Stale inputs, render failures and publication errors leave no
 partially published review directory. Source/configuration/asset snapshots are
 checked again before publication; generated build files are excluded.
 
+The additive schema-1 `inventory_scope` records supported source/asset
+extensions, `.als.json`, and excluded directory names. Other file types are
+not inspected. Place manuscript inputs outside generated/environment trees
+if you want them included in the source change inventory. Numbers are literal
+text tokens, not recognized measurements. Escaped dollars are not math
+delimiters; named math environments, macro expansion, catcode changes and
+scientific semantics are outside the literal math check. Comments and common
+verbatim forms are masked for content signals; visible author markers are
+scanned in source text, including comments.
+
 The report escapes source/notes and supports narrow screens and dark mode.
 See the [complete project example](../examples/full-paper/README.md) for a
 repair workflow with English and Chinese builds and an unresolved author choice.
+See the [Chinese review guide](review_CN.md) for the same workflow in Chinese.

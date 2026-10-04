@@ -25,6 +25,8 @@ From the repository root, or an installed CLI:
 ```sh
 python -m pip install ".[pdf]"
 als paper --output work/full-paper-run
+# Chinese inspection and review interface
+als paper --output work/full-paper-zh --language zh
 ```
 
 Requires pdfLaTeX, XeLaTeX, BibTeX and **Noto Serif CJK SC**. CI installs these
@@ -45,6 +47,9 @@ issues, dependency resolutions and next steps; these reports keep compilation
 separate from project inspection.
 The failed original has no successful PDF preview; its source and failure
 logs remain reviewable. The review does not fabricate an original page.
+Review HTML opens with counts, readable source/content/decision summaries and
+expandable details. Retained evidence adds byte sizes and SHA-256 hashes,
+checked again before publication. See the [Chinese review guide](../../docs/review_CN.md).
 
 For source inspection on a machine without TeX:
 

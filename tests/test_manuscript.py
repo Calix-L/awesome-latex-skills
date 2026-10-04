@@ -200,7 +200,7 @@ class ManuscriptTests(unittest.TestCase):
         with patch("run_paper_example.shutil.which", return_value=None):
             with self.assertRaisesRegex(ValueError, "native checks"):
                 run_paper(self.root / "strict")
-            result = run_paper(self.root / "portable", allow_unverified=True)
+            result = run_paper(self.root / "portable", allow_unverified=True, language="zh")
         self.assertEqual(result["status"], "partial")
         self.assertTrue(result["sources_unchanged"])
         self.assertEqual(result["review"]["content_flags"], 0)
@@ -208,6 +208,8 @@ class ManuscriptTests(unittest.TestCase):
         self.assertTrue(all(status == "unverified" for status in result["builds"].values()))
         self.assertTrue((self.root / "portable/inspection-before.html").is_file())
         self.assertTrue((self.root / "portable/inspection-after.html").is_file())
+        self.assertIn("论文修改审阅", (self.root / "portable/review/report.html").read_text(encoding="utf-8"))
+        self.assertIn("LaTeX 项目检查", (self.root / "portable/inspection-after.html").read_text(encoding="utf-8"))
 
 
 if __name__ == "__main__":

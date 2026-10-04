@@ -82,6 +82,15 @@ def check_distribution(wheel, output):
                 or any(item["code"] != "missing-engine" for item in inspection["diagnostics"])
                 or "LaTeX 项目检查" not in (cwd / "inspection.html").read_text(encoding="utf-8")):
             raise ValueError("Installed project inspection/report resources failed first-use checks")
+        candidate = cwd / "candidate"
+        candidate.mkdir()
+        (candidate / "main.tex").write_text("\\documentclass{article}\n\\begin{document}Example 42\\end{document}\nTODO: confirm value\n", encoding="utf-8")
+        reviewed = json.loads(run([command, "--json", "review", "--before", main.parent, "--after", candidate,
+                                   "--output", cwd / "source-review", "--language", "zh"]))["result"]
+        if (reviewed["builds"] != {"before": "unverified", "after": "unverified"}
+                or reviewed["content_flags"] != 1 or reviewed["open_decisions"] != 1
+                or "论文修改审阅" not in (cwd / "source-review/report.html").read_text(encoding="utf-8")):
+            raise ValueError("Installed offline source review failed first-use checks")
         result = {"schema": 1, "status": "verified", "version": version, "wheel_sha256": sha256(wheel), "steps": steps}
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         result = {"schema": 1, "status": "failed", "error": str(exc), "steps": steps}

@@ -2,6 +2,21 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.8.0 — 2026-10-04
+
+### Added
+
+- Bilingual offline manuscript review with counts, file changes (including binary assets), readable added/removed content signals, author decisions, build states, retained artifact links and PDF comparisons. `review --language zh` and `paper --language zh` select Chinese interfaces; source evidence remains unchanged.
+- Explicit review inventory coverage and per-build retained-file paths, SHA-256 hashes and byte sizes, including generated page previews. Chinese review guide and fresh installed-package source-review checks.
+
+### Fixed
+
+- Declared missing build evidence is refused rather than silently omitted. Reports/logs/PDFs are verified during retention; inputs and retained evidence are rechecked after rendering, before publication.
+- Successful reports with unreadable input tracking and reserved evidence path collisions are refused. Source parsing binds to initially inventoried bytes; UTF-8 BOM and uppercase TeX filenames are handled.
+- Escaped dollars no longer create false math regions; display-math contents and literal `nocite` keys participate in content signals. Unsupported nested reference arguments are not treated as literal keys.
+
+Consistency checks do not lock concurrent inputs or independently authenticate report producers. Literal signals and successful builds do not establish scientific fidelity.
+
 ## 1.7.0 — 2026-10-04
 
 ### Added

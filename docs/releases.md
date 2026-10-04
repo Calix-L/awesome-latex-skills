@@ -18,7 +18,7 @@ python scripts/als.py paper --output work/release-paper
 python -m pip install build
 python -m build --outdir dist/package
 python scripts/check_packages.py --directory dist/package --output work/package-verification
-python scripts/als.py release --output dist/1.7.0 --distribution-dir dist/package
+python scripts/als.py release --output dist/1.8.0 --distribution-dir dist/package
 ```
 
 The default example run requires a real TeX engine. Portable mode is not a
@@ -99,6 +99,26 @@ sources outside reserved generated trees. Full-paper artifacts add before/after
 inspection HTML files. The [project guide](project.md) describes the supported
 literal traversal and its limits. Skill metadata changes require fresh prepared
 evaluation tasks or a matching older CLI/context when reproducing old runs.
+
+## 1.7.0 to 1.8.0
+
+Unified review remains schema 1 and adds `language`, `inventory_scope`, and
+per-build `retained_files` (relative path, SHA-256 and byte size). English is
+the default; `review --language zh` and `paper --language zh` select Chinese
+interfaces. Direct helpers and installed entry points retain the same options.
+
+Declared but missing build transcripts/logs/recorders now fail instead of being
+silently omitted. Reports, PDFs and logs that change during copying or before
+publication are refused. Regenerate a build when its evidence is incomplete;
+do not remove declared paths just to bypass the check. Legacy schema-3 reports
+without a PDF hash still display an unverified build-time PDF identity.
+
+The `simple_math` audit signal now distinguishes inline/display delimiters and
+ignores escaped dollars; it includes `nocite` keys in reference signals.
+Recomputed literal audit details can differ from earlier reports. Named math
+environments and TeX execution remain outside this limited check. Prepare new
+evaluation tasks after updating skill metadata, or retain the matching old CLI
+and context for reproducibility.
 
 ## 1.3.x to 1.4.0
 

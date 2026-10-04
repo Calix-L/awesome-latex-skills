@@ -21,6 +21,7 @@ python scripts/als.py project check path/to/paper
 python scripts/als.py project check path/to/paper --output work/inspection.json --html work/inspection.html --html-language zh
 python scripts/als.py build --project path/to/paper --output work/build-02
 python scripts/als.py review --before path/to/original --after path/to/candidate --output work/review-01
+python scripts/als.py review --before path/to/original --after path/to/candidate --output work/review-zh --language zh
 python scripts/als.py paper --output work/full-paper-run
 python scripts/als.py validate
 python scripts/als.py evaluate validate
@@ -30,7 +31,7 @@ python scripts/als.py benchmark prepare --case polish-scope --trials 1 --output 
 python scripts/als.py benchmark run --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --spec runner-spec.json
 python scripts/als.py benchmark review-template --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --output work/baseline-review.json
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.7.0
+python scripts/als.py release --output dist/1.8.0
 ```
 
 Use `COMMAND --help` for the native options. Paths supplied by the user resolve
@@ -59,6 +60,8 @@ native evidence: `examples --allow-unverified` can complete with code 0 and
 `status: partial`; a source audit with `--validate-only` validates metadata even
 when review is still pending. Compilation success does not imply resolved
 citations, faithful prose, or venue compliance.
+`review --language zh` and `paper --language zh` select Chinese offline reports;
+the original source, notes and compiler diagnostics keep their original text.
 
 Build/extraction/example/evaluation/release outputs require fresh destinations.
 If an example check fails, its logs and `verification.json` stay in the new

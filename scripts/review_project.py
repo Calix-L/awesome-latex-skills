@@ -3,7 +3,7 @@
 import argparse
 from collections import Counter
 import difflib
-import html
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -11,8 +11,9 @@ import shutil
 import sys
 import tempfile
 
-from project_doctor import commands, inventory, mask_tex
+from project_doctor import commands, inventory, mask_tex, GENERATED, SOURCE_SUFFIXES, ASSET_SUFFIXES
 from project_support import read_json, safe_path, sha256, write_new_json
+from review_report import review_html
 
 
 def snapshot(root):
@@ -24,16 +25,60 @@ def content_tokens(text):
     masked = mask_tex(text)
     numbers = Counter(re.findall(r"(?<![\w])[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?", masked))
     keys = Counter((command["name"], key.strip()) for command in commands(text)
-                   if command["name"] == "label" or command["name"].startswith("cite") or command["name"] in {"ref", "eqref", "cref", "Cref", "pageref", "autoref"}
+                   if command["supported"] and (command["name"] == "label" or command["name"].startswith("cite") or command["name"] in {"nocite", "ref", "eqref", "cref", "Cref", "pageref", "autoref"})
                    for key in command["value"].split(","))
-    math = Counter(re.findall(r"(?<!\\)\$([^$]*)(?<!\\)\$|\\\((.*?)\\\)|\\\[(.*?)\\\]", masked, flags=re.S))
+    math = Counter(simple_math(masked))
     return numbers, keys, math
 
 
-def attach_build(path, project, side, bundle):
+def simple_math(text):
+    """Literal delimited math only; escaped delimiters retain their source meaning."""
+    delimiter = re.compile(r"\$\$?|\\[()\[\]]")
+    opened = None
+    pairs = {"$": "$", "$$": "$$", r"\(": r"\)", r"\[": r"\]"}
+    offset = 0
+    while (match := delimiter.search(text, offset)) is not None:
+        position = match.start()
+        offset = match.end()
+        slashes = 0
+        cursor = position - 1
+        while cursor >= 0 and text[cursor] == "\\":
+            slashes += 1
+            cursor -= 1
+        if slashes % 2:
+            # In \$$x$, only the first dollar is escaped; the second opens math.
+            if match.group() == "$$":
+                offset = position + 1
+            continue
+        token = match.group()
+        if opened is None:
+            if token in pairs:
+                opened = (token, match.end())
+        elif token == pairs[opened[0]]:
+            yield (opened[0], text[opened[1]:position])
+            opened = None
+
+
+def retain_file(original, target, bundle, bindings, expected=None, origin_root=None):
+    """Bind the copied bytes and recheck originals immediately and at publication."""
+    digest = expected or sha256(original)
+    if target.exists():
+        raise ValueError(f"Retained evidence path collision: {target.name}")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(original, target)
+    if sha256(target) != digest or sha256(original) != digest:
+        raise ValueError(f"Build evidence changed during retention: {original.name}")
+    origin_root = original.parent if origin_root is None else origin_root
+    bindings.append((origin_root, original.relative_to(origin_root).as_posix(), target, digest))
+    return {"file": target.relative_to(bundle).as_posix(), "sha256": digest, "bytes": target.stat().st_size}
+
+
+def attach_build(path, project, side, bundle, bindings=None):
+    bindings = [] if bindings is None else bindings
     if path is None:
         return {"status": "unverified", "reason": "No actual build report supplied", "pages": []}
     path = Path(path).resolve()
+    report_hash = sha256(path)
     report = read_json(path)
     if report.get("schema") != 3 or report.get("status") not in {"success", "failed"}:
         raise ValueError("Expected an actual schema-3 build report")
@@ -44,8 +89,10 @@ def attach_build(path, project, side, bundle):
     if not source.is_relative_to(project):
         raise ValueError(f"{side} build source is outside its project")
     relative = source.relative_to(project).as_posix()
-    if sha256(safe_path(project, relative)) != report.get("source_sha256"):
+    source_path = safe_path(project, relative)
+    if sha256(source_path) != report.get("source_sha256"):
         raise ValueError(f"{side} build source fingerprint differs from current input")
+    bindings.append((project, relative, None, report["source_sha256"]))
     for item in report.get("local_inputs", []):
         # Recorder hashes refer to paths relative to the root source's directory.
         name = item.get("path")
@@ -55,28 +102,29 @@ def attach_build(path, project, side, bundle):
         actual = safe_path(source.parent, name)
         if any(sha256(actual) != row["sha256"] for row in observations):
             raise ValueError(f"{side} recorded input changed: {name}")
+        bindings.append((source.parent, name, None, observations[0]["sha256"]))
     evidence = bundle / "evidence" / side
     evidence.mkdir(parents=True)
-    shutil.copyfile(path, evidence / "build-report.json")
+    retained = [retain_file(path, evidence / "build-report.json", bundle, bindings, report_hash)]
     copied = set()
     for step in report.get("steps", []):
         for field in ("transcript", "log", "recorder"):
             name = step.get(field)
             if name and name not in copied:
                 original = safe_path(path.parent, name)
-                if original.is_file():
-                    target = safe_path(evidence, name)
-                    target.parent.mkdir(parents=True, exist_ok=True)
-                    shutil.copyfile(original, target)
-                    copied.add(name)
+                if not original.is_file():
+                    raise ValueError(f"{side} declared build evidence is missing: {name}")
+                target = safe_path(evidence, name)
+                retained.append(retain_file(original, target, bundle, bindings, origin_root=path.parent))
+                copied.add(name)
     result = {"status": report["status"], "source": relative, "source_sha256": report["source_sha256"],
               "evidence": f"evidence/{side}/build-report.json", "engine": report.get("engine"), "backend": report.get("backend"),
               "failure": report.get("failure"), "unresolved_references": report.get("unresolved_references"),
-              "diagnostics": report.get("diagnostics", []), "pages": []}
+              "diagnostics": report.get("diagnostics", []), "pages": [], "retained_files": retained}
     # A failed build's PDF is not presented as a successful comparison.
     if report["status"] == "success":
         tracking = report.get("input_tracking", {})
-        if not isinstance(tracking, dict) or report.get("source_unchanged") is not True or tracking.get("changed"):
+        if not isinstance(tracking, dict) or report.get("source_unchanged") is not True or tracking.get("changed") or tracking.get("unreadable"):
             raise ValueError("Successful build evidence did not retain stable source inputs")
         pdf = safe_path(path.parent, report.get("pdf"))
         if not pdf.is_file():
@@ -84,14 +132,15 @@ def attach_build(path, project, side, bundle):
         with pdf.open("rb") as stream:
             if stream.read(5) != b"%PDF-":
                 raise ValueError("Successful report lacks a PDF header")
-        if report.get("pdf_sha256") and sha256(pdf) != report["pdf_sha256"]:
+        pdf_hash = sha256(pdf)
+        if report.get("pdf_sha256") and pdf_hash != report["pdf_sha256"]:
             raise ValueError("Build PDF changed after evidence was recorded")
         result["pdf_binding"] = "fingerprint-matched" if report.get("pdf_sha256") else "unverified-legacy-report"
         import pymupdf
-        shutil.copyfile(pdf, evidence / "document.pdf")
+        retained.append(retain_file(pdf, evidence / "document.pdf", bundle, bindings, pdf_hash))
         result["pdf"] = f"evidence/{side}/document.pdf"
         result["pdf_sha256"] = sha256(pdf)
-        with pymupdf.open(pdf) as document:
+        with pymupdf.open(evidence / "document.pdf") as document:
             if len(document) > 100:
                 raise ValueError("Review previews are limited to 100 pages per side")
             pages = evidence / "pages"
@@ -100,65 +149,49 @@ def attach_build(path, project, side, bundle):
                 if page.rect.width * page.rect.height * (120 / 72) ** 2 > 20_000_000:
                     raise ValueError("PDF page preview exceeds 20 million pixels")
                 filename = f"page-{number + 1:04}.png"
-                page.get_pixmap(dpi=120, colorspace=pymupdf.csRGB, alpha=False).save(pages / filename)
+                image = pages / filename
+                page.get_pixmap(dpi=120, colorspace=pymupdf.csRGB, alpha=False).save(image)
+                image_hash = sha256(image)
+                retained.append({"file": image.relative_to(bundle).as_posix(), "sha256": image_hash, "bytes": image.stat().st_size})
+                bindings.append((pages, filename, None, image_hash))
                 result["pages"].append(f"evidence/{side}/pages/{filename}")
     return result
 
 
 def render(bundle, report, diffs):
-    esc = lambda value: html.escape(str(value), quote=True)
-    content = ['<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">',
-               '<meta http-equiv="Content-Security-Policy" content="default-src \'none\'; img-src \'self\' data:; style-src \'unsafe-inline\'">',
-               '<title>Manuscript change review</title><style>',
-               'body{margin:0;background:#f4f3ed;color:#263027;font:16px/1.65 system-ui,sans-serif}main{max-width:1120px;margin:auto;padding:36px 24px}h1{font-size:38px;line-height:1.2}h2{margin-top:38px}small{color:#586555}section,details{background:#fffefa;border:1px solid #d5dacd;border-radius:12px;padding:20px;margin:16px 0}pre{overflow:auto;font:13px/1.5 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}a{color:#326041}.pair{display:grid;grid-template-columns:1fr 1fr;gap:16px}.pair img{width:100%;border:1px solid #ddd}table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:9px;border-bottom:1px solid #ddd}summary{cursor:pointer;font-weight:600}.pill{border:1px solid #bac5b3;border-radius:20px;padding:3px 12px} @media(max-width:700px){.pair{grid-template-columns:1fr}h1{font-size:28px}} @media(prefers-color-scheme:dark){body{background:#171c18;color:#e0e7da}section,details{background:#212a22;border-color:#40523f}a{color:#b2d9a6}small{color:#b6c2b0}}',
-               '</style></head><body><main><small>MANUSCRIPT TOOLKIT / REVIEWABLE CHANGES</small><h1>Manuscript change review</h1>',
-               '<p><span class="pill">Human content review required</span></p><p>Actual source snapshots, supplied build evidence and page previews. Literal preservation checks do not certify scientific fidelity.</p>',
-               '<p><a href="review.json">JSON evidence</a> · <a href="changes.diff">Source diff</a></p><h2>Build evidence</h2><div class="pair">']
-    for side in ("before", "after"):
-        build = report["builds"][side]
-        content.append(f'<section><h3>{side.title()}: {esc(build["status"])}</h3>')
-        if build.get("evidence"):
-            content.append(f'<a href="{esc(build["evidence"])}">Build report &amp; retained logs</a>')
-        if build.get("pdf"):
-            content.append(f' · <a href="{esc(build["pdf"])}">PDF</a>')
-        if build.get("pdf_binding") == "unverified-legacy-report":
-            content.append('<p>Legacy report: the original build did not record a PDF fingerprint. The current PDF is retained, but its identity at build time is unverified.</p>')
-        content.append(f'<pre>{esc(build.get("failure") or build.get("reason") or "Inspect warnings and the PDF separately.")}</pre></section>')
-    content.append('</div><h2>Content audit and author decisions</h2><p>Changed numbers, citation keys and simple math are review signals, not judgments of correctness.</p><pre>')
-    content.append(esc(json.dumps(report["content_audit"], ensure_ascii=False, indent=2)) + '</pre>')
-    content.append('<pre>' + esc(json.dumps(report["author_decisions"], ensure_ascii=False, indent=2)) + '</pre>')
-    if report["notes"]:
-        content.append('<section><h3>Supplied notes</h3><pre>' + esc(report["notes"]) + '</pre></section>')
-    content.append('<h2>Source changes</h2>')
-    for name, diff in diffs.items():
-        content.append(f'<details><summary>{esc(name)}</summary><pre>{esc(diff)}</pre></details>')
-    content.append('<h2>PDF pages</h2>')
-    before, after = report["builds"]["before"]["pages"], report["builds"]["after"]["pages"]
-    for index in range(max(len(before), len(after))):
-        content.append(f'<section><h3>Page {index + 1}</h3><div class="pair">')
-        for label, pages in (("Before", before), ("After", after)):
-            content.append(f'<div><h4>{label}</h4>')
-            content.append(f'<img loading="lazy" src="{esc(pages[index])}" alt="{label} page {index + 1}">' if index < len(pages) else '<p>No supplied verified page.</p>')
-            content.append('</div>')
-        content.append('</div></section>')
-    content.append('<p><small>Page numbers align by index only. Pagination changes need manual comparison. Keep this folder together for offline use.</small></p></main></body></html>')
-    (bundle / "report.html").write_text("".join(content), encoding="utf-8")
+    (bundle / "report.html").write_text(review_html(report, diffs, report.get("language", "en")), encoding="utf-8")
 
 
-def review(before, after, output, before_build=None, after_build=None, notes=None):
-    before, after = Path(before).resolve(), Path(after).resolve()
+def review(before, after, output, before_build=None, after_build=None, notes=None, language="en"):
+    if language not in {"en", "zh"}:
+        raise ValueError("Review language must be en or zh")
+    before, after = Path(before).expanduser().resolve(), Path(after).expanduser().resolve()
     output = Path(output).expanduser().absolute()
     if before == after:
         raise ValueError("Before and after must be distinct project directories")
     if output.exists() or output.is_symlink() or any(output.resolve().is_relative_to(root) for root in (before, after)):
         raise ValueError("Review output must be new and outside both project trees")
     original, candidate = snapshot(before), snapshot(after)
-    notes_text = Path(notes).read_text(encoding="utf-8") if notes else None
+    notes_text = Path(notes).expanduser().read_text(encoding="utf-8-sig") if notes else None
     report = {"schema": 1, "kind": "project_review", "before": {"root": str(before), "files": original},
               "after": {"root": str(after), "files": candidate}, "builds": {}, "changes": [],
-              "content_audit": [], "author_decisions": [], "notes": notes_text,
+              "content_audit": [], "author_decisions": [], "notes": notes_text, "language": language,
+              "inventory_scope": {"extensions": sorted(SOURCE_SUFFIXES | ASSET_SUFFIXES), "configuration": ".als.json",
+                                  "excluded_directories": sorted(GENERATED), "other_files": "not inspected"},
               "interpretation": "Build success, literal invariants and scientific fidelity are distinct. No AI quality score or venue compliance is inferred."}
     diffs = {}
+    bindings = []
+    parsed = {}
+    def source_text(root, name, files):
+        if name not in files:
+            return ""
+        key = (root, name)
+        if key not in parsed:
+            data = safe_path(root, name).read_bytes()
+            if hashlib.sha256(data).hexdigest() != files[name]["sha256"]:
+                raise ValueError(f"Project inputs changed before parsing: {name}")
+            parsed[key] = data.decode("utf-8-sig")
+        return parsed[key]
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix=".review-", dir=output.parent) as temporary:
         bundle = Path(temporary) / "review"
@@ -170,8 +203,8 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
             report["changes"].append({"file": name, "kind": kind})
             if Path(name).suffix.lower() not in {".tex", ".bib", ".sty", ".cls", ".bst", ".json"}:
                 continue
-            old = safe_path(before, name).read_text(encoding="utf-8") if name in original else ""
-            new = safe_path(after, name).read_text(encoding="utf-8") if name in candidate else ""
+            old = source_text(before, name, original)
+            new = source_text(after, name, candidate)
             diffs[name] = "".join(difflib.unified_diff(old.splitlines(keepends=True), new.splitlines(keepends=True), fromfile=f"before/{name}", tofile=f"after/{name}"))
             if Path(name).suffix.lower() == ".json":
                 continue
@@ -184,17 +217,20 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
             if changes:
                 report["content_audit"].append({"file": name, "requires_review": True, **changes})
         for name in candidate:
-            if Path(name).suffix == ".tex":
-                for number, line in enumerate(safe_path(after, name).read_text(encoding="utf-8").splitlines(), 1):
+            if Path(name).suffix.lower() == ".tex":
+                for number, line in enumerate(source_text(after, name, candidate).splitlines(), 1):
                     if "[UNCERTAIN" in line or re.search(r"\bTODO\b", line):
                         report["author_decisions"].append({"file": name, "line": number, "excerpt": line.strip(), "status": "open"})
-        report["builds"]["before"] = attach_build(before_build, before, "before", bundle)
-        report["builds"]["after"] = attach_build(after_build, after, "after", bundle)
+        report["builds"]["before"] = attach_build(before_build, before, "before", bundle, bindings)
+        report["builds"]["after"] = attach_build(after_build, after, "after", bundle, bindings)
         (bundle / "changes.diff").write_text("".join(diffs.values()), encoding="utf-8")
-        if original != snapshot(before) or candidate != snapshot(after):
-            raise ValueError("Project inputs changed during review preparation")
         write_new_json(bundle / "review.json", report)
         render(bundle, report, diffs)
+        if original != snapshot(before) or candidate != snapshot(after):
+            raise ValueError("Project inputs changed during review preparation")
+        for root, name, retained, digest in bindings:
+            if sha256(safe_path(root, name)) != digest or retained is not None and sha256(retained) != digest:
+                raise ValueError(f"Build evidence changed before review publication: {name}")
         if output.exists() or output.is_symlink():
             raise ValueError("Review output appeared during publication")
         bundle.rename(output)
@@ -212,9 +248,10 @@ def main(argv=None):
     parser.add_argument("--before-build", type=Path)
     parser.add_argument("--after-build", type=Path)
     parser.add_argument("--notes", type=Path)
+    parser.add_argument("--language", choices=("en", "zh"), default="en", help="Offline report interface language; source evidence is unchanged")
     args = parser.parse_args(argv)
     try:
-        result = review(args.before, args.after, args.output, args.before_build, args.after_build, args.notes)
+        result = review(args.before, args.after, args.output, args.before_build, args.after_build, args.notes, args.language)
         print(json.dumps(result, ensure_ascii=True, indent=2))
         return 0
     except (OSError, ValueError, TypeError, UnicodeError, ImportError, RuntimeError) as exc:

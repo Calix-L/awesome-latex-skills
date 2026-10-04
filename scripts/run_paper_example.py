@@ -13,7 +13,9 @@ from review_project import review, snapshot
 from run_examples import load_helper
 
 
-def run_paper(output, allow_unverified=False):
+def run_paper(output, allow_unverified=False, language="en"):
+    if language not in {"en", "zh"}:
+        raise ValueError("Review language must be en or zh")
     output = Path(output).expanduser().absolute()
     if output.exists() or output.is_symlink():
         raise ValueError("Full-paper evidence requires a new output directory")
@@ -34,7 +36,7 @@ def run_paper(output, allow_unverified=False):
         for side in ("before", "after"):
             inspection = inspect_project(output / side, "main.tex", "pdflatex", "bibtex")
             write_new_json(output / f"inspection-{side}.json", inspection)
-            write_inspection_html(output / f"inspection-{side}.html", inspection, json_path=output / f"inspection-{side}.json")
+            write_inspection_html(output / f"inspection-{side}.html", inspection, language, json_path=output / f"inspection-{side}.json")
         before_report = after_report = None
         if tools["pdflatex"] and tools["bibtex"]:
             before_result = build(before / "main.tex", output / "build-before", "pdflatex", "bibtex", 3)
@@ -70,7 +72,7 @@ def run_paper(output, allow_unverified=False):
                 result["chinese_pages"] = len(document)
         else:
             result["builds"]["chinese"] = "unverified"
-        result["review"] = review(before, after, output / "review", before_report, after_report, fixture / "decisions.md")
+        result["review"] = review(before, after, output / "review", before_report, after_report, fixture / "decisions.md", language)
         if result["review"]["content_flags"]:
             raise ValueError("Unexpected protected number/key/math changes in the candidate")
         result["sources_unchanged"] = all(original[side] == snapshot(fixture / side) == snapshot(output / side) for side in ("before", "after"))
@@ -87,9 +89,10 @@ def main(argv=None):
     parser.add_argument("--json", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--allow-unverified", action="store_true")
+    parser.add_argument("--language", choices=("en", "zh"), default="en", help="Inspection and review interface language")
     args = parser.parse_args(argv)
     try:
-        result = run_paper(args.output, args.allow_unverified)
+        result = run_paper(args.output, args.allow_unverified, args.language)
         print(json.dumps(result, ensure_ascii=True, indent=2))
         return 1 if result["status"] == "failed" else 0
     except (OSError, ValueError, RuntimeError, ImportError) as exc:
