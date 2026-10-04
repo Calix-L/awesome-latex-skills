@@ -13,6 +13,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 import project_doctor
 from project_report import inspection_html, write_inspection_html
 from project_support import read_json, sha256
+from inspection_bundle import export_inspection
 
 
 class InspectionTests(unittest.TestCase):
@@ -51,6 +52,101 @@ class InspectionTests(unittest.TestCase):
         report = self.check()
         self.assertEqual(next(item["file"] for item in report["diagnostics"] if item["code"] == "missing-local-package"), "styles/extra.sty")
         self.assertIn({"file": "styles/local.bst", "sha256": sha256(style)}, report["inputs"])
+
+    def test_parenthesis_headers_and_html_inventory_keep_locations_and_types(self):
+        self.put("main.tex", "\\documentclass{article}\\cite{a,b}\\bibliography{refs}")
+        self.put("refs.bib", '@misc{a,title={A}}\n@BOOK(b,title="B")')
+        report = self.check()
+        self.assertEqual(report["diagnostics"], [])
+        self.assertEqual(report["bibliography_entries"], [{"file": "refs.bib", "key": "a", "type": "misc", "line": 1},
+                                                        {"file": "refs.bib", "key": "b", "type": "book", "line": 2}])
+        page = inspection_html(report, "zh")
+        self.assertIn("参考文献字面条目头", page)
+        self.assertIn("refs.bib:2", page)
+        self.assertIn("尚未校验字段有效性", page)
+
+    def test_markers_in_field_string_and_preamble_do_not_satisfy_citations(self):
+        self.put("main.tex", "\\documentclass{article}\\cite{real,fake-value,fake-string,fake-preamble}\\bibliography{refs}")
+        self.put("refs.bib", '@string{unused="@misc{fake-string,title={Fake}}"}\n@preamble{"@misc{fake-preamble,title={Fake}}"}\n@misc{real,title={@misc{fake-value,title={Fake}}}}')
+        report = self.check()
+        self.assertEqual([item["key"] for item in report["bibliography_entries"]], ["real"])
+        missing = [item for item in report["diagnostics"] if item["code"] == "unknown-citation"]
+        self.assertEqual(len(missing), 3)
+        self.assertTrue(all(item["file"] == "main.tex" for item in missing))
+
+    def test_duplicate_keys_within_and_across_databases_point_to_first_header(self):
+        self.put("main.tex", "\\documentclass{article}\\bibliography{a,b}")
+        self.put("a.bib", '@misc{dup,title={A}}\n@misc(dup,title={B})')
+        self.put("b.bib", '@misc{dup,title={C}}')
+        report = self.check()
+        duplicates = [item for item in report["diagnostics"] if item["code"] == "duplicate-bib-key"]
+        self.assertEqual([(item["file"], item["line"]) for item in duplicates], [("a.bib", 2), ("b.bib", 1)])
+        self.assertTrue(all("a.bib:1" in item["message"] for item in duplicates))
+        self.assertEqual(len(report["bibliography_entries"]), 3)
+        self.put("main.tex", "\\documentclass{article}\\bibliography{b,a,b}")
+        reversed_order = self.check()
+        self.assertEqual([item["file"] for item in reversed_order["bibliography_entries"]], ["b.bib", "a.bib", "a.bib"])
+        duplicates = [item for item in reversed_order["diagnostics"] if item["code"] == "duplicate-bib-key"]
+        self.assertTrue(all("b.bib:1" in item["message"] for item in duplicates))
+
+    def test_case_duplicate_policy_follows_selected_backend_without_folding_citations(self):
+        self.put("main.tex", "\\documentclass{article}\\cite{KEY}\\bibliography{refs}")
+        self.put("refs.bib", '@misc{key,title={A}}\n@misc{Key,title={B}}')
+        with patch.object(project_doctor.shutil, "which", return_value="synthetic/tool"):
+            for backend, duplicates in ((None, 0), ("biber", 0), ("bibtex", 1)):
+                report = project_doctor.inspect_project(self.project, main="main.tex", engine="pdflatex", backend=backend)
+                self.assertEqual(sum(item["code"] == "duplicate-bib-key" for item in report["diagnostics"]), duplicates)
+                self.assertEqual(sum(item["code"] == "unknown-citation" for item in report["diagnostics"]), 1)
+            self.put("refs.bib", '@misc{Ä,title={A}}\n@misc{ä,title={B}}')
+            report = project_doctor.inspect_project(self.project, main="main.tex", engine="pdflatex", backend="bibtex")
+            self.assertFalse(any(item["code"] == "duplicate-bib-key" for item in report["diagnostics"]))
+
+    def test_unclosed_database_is_unverified_and_not_a_source_of_known_keys(self):
+        self.put("main.tex", "\\documentclass{article}\\cite{broken}\\bibliography{refs}")
+        self.put("refs.bib", '@misc{broken,title={unfinished\n@misc{nested,title={Fake}}')
+        report = self.check()
+        self.assertEqual(report["status"], "needs-review")
+        self.assertEqual(report["bibliography_entries"], [])
+        self.assertIn("bib-unclosed-region", {item["code"] for item in report["diagnostics"]})
+        self.assertIn("unknown-citation", {item["code"] for item in report["diagnostics"]})
+
+    def test_fixture_matches_selected_bibtex_comments_and_exact_parsed_hash(self):
+        self.put("main.tex", "\\documentclass{article}\\cite{brace,paren,percent,comment-active}\\bibliography{refs}")
+        fixture = Path(__file__).parent / "fixtures/bibliography/headers.bib"
+        database = self.project / "refs.bib"
+        database.write_bytes(fixture.read_bytes())
+        with patch.object(project_doctor.shutil, "which", return_value="synthetic/tool"):
+            report = project_doctor.inspect_project(self.project, main="main.tex", engine="pdflatex", backend="bibtex")
+        self.assertEqual(report["diagnostics"], [])
+        self.assertEqual({item["key"] for item in report["bibliography_entries"]}, {"brace", "paren", "percent", "comment-active"})
+        self.assertIn({"file": "refs.bib", "sha256": sha256(database)}, report["observed_files"])
+
+    def test_bibliography_inventory_is_retained_and_escaped_in_sealed_bundle(self):
+        from verify_artifacts import verify_inspection
+        self.put("main.tex", "\\documentclass{article}\\bibliography{refs}")
+        database = self.put("refs.bib", '@misc{<script>,title={Fixture}}')
+        original = database.read_bytes()
+        report = export_inspection(self.project, self.root / "sealed", language="zh")
+        self.assertEqual(read_json(self.root / "sealed/inspection.json")["bibliography_entries"], report["bibliography_entries"])
+        page = (self.root / "sealed/report.html").read_text(encoding="utf-8")
+        self.assertIn("&lt;script&gt;", page)
+        self.assertNotIn("<script>", page)
+        self.assertEqual(verify_inspection(self.root / "sealed")["status"], "verified")
+        self.assertEqual(database.read_bytes(), original)
+
+    def test_older_inspection_html_without_inventory_remains_readable(self):
+        self.put("main.tex", "\\documentclass{article}")
+        report = self.check()
+        del report["bibliography_entries"]
+        self.assertIn("LaTeX project inspection", inspection_html(report))
+
+    def test_bibliography_bound_prevents_publication_of_partial_inventory(self):
+        self.put("main.tex", "\\documentclass{article}\\bibliography{refs}")
+        self.put("refs.bib", '@misc{a,}\n@misc{b,}')
+        with patch("bib_lexer.MAX_ENTRIES", 1):
+            with self.assertRaisesRegex(ValueError, "inventory exceeds"):
+                export_inspection(self.project, self.root / "sealed")
+        self.assertFalse((self.root / "sealed").exists())
 
     def test_includeonly_excludes_includes_but_never_inputs(self):
         self.put("main.tex", "\\documentclass{article}\n\\includeonly{one}\n\\include{one}\n\\include{missing}\n\\input{required}\n")

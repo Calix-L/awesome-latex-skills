@@ -16,6 +16,8 @@ LABELS = {
            "command": "Command", "requested": "Requested input", "resolved": "Resolution",
            "found": "Found", "missing": "Missing", "skipped": "Excluded by includeonly; not checked",
            "unknown": "Unverified", "hashes": "Dependency input fingerprints", "observed": "All observed file fingerprints", "limitations": "Inspection limits",
+           "bib": "Literal bibliography entry headers", "bib_note": "Header inventory only; field validity and backend acceptance have not been checked.",
+           "key": "Citation key", "type": "Entry type",
            "json": "JSON report", "integrity": "File integrity manifest", "complete": "Complete evidence", "next": "Next step", "unset": "Not selected",
            "error": "Errors", "warning": "Warnings", "unverified": "Unverified checks"},
     "zh": {"title": "LaTeX 项目检查", "note": "静态检查 · 尚未编译",
@@ -26,6 +28,7 @@ LABELS = {
            "selected": "仅选中的主文件", "all_roots": "全部清单内 TeX 源文件",
            "requested": "请求的输入", "resolved": "解析结果", "found": "已找到", "missing": "缺失",
            "skipped": "被 includeonly 排除；未检查", "unknown": "未验证", "hashes": "依赖输入文件校验值", "observed": "全部已读取文件校验值",
+           "bib": "参考文献字面条目头", "bib_note": "仅记录条目头；尚未校验字段有效性或后端能否接受。", "key": "引用键", "type": "条目类型",
            "limitations": "检查范围与限制", "json": "JSON 报告", "integrity": "文件校验清单", "complete": "完整证据",
            "next": "下一步", "unset": "未选择", "error": "错误", "warning": "警告", "unverified": "未验证项"},
 }
@@ -74,6 +77,14 @@ def inspection_html(report, language="en", json_name=None, integrity_name=None):
         target = f'<br><code>{esc(item["file"])}</code>' if item.get("file") else ""
         content.append(f'<tr><td><code>{location(item)}</code></td><td><code>{esc(item["command"])}</code></td><td><code>{esc(item["requested"])}</code></td><td>{esc(resolution)}{target}</td></tr>')
     content.append('</tbody></table></section>')
+    if report.get("bibliography_entries"):
+        content.append(f'<h2>{esc(labels["bib"])}</h2><p>{esc(labels["bib_note"])}</p><section class="table-scroll"><table><thead><tr>')
+        for label in ("key", "type", "from"):
+            content.append(f'<th scope="col">{esc(labels[label])}</th>')
+        content.append('</tr></thead><tbody>')
+        for item in report["bibliography_entries"]:
+            content.append(f'<tr><td><code>{esc(item["key"])}</code></td><td>{esc(item["type"])}</td><td><code>{location(item)}</code></td></tr>')
+        content.append('</tbody></table></section>')
     content.append(f'<details><summary>{esc(labels["hashes"])}</summary><pre>{esc(json.dumps(report["inputs"], ensure_ascii=False, indent=2))}</pre></details>')
     if "observed_files" in report:
         content.append(f'<details><summary>{esc(labels["observed"])}</summary><pre>{esc(json.dumps(report["observed_files"], ensure_ascii=False, indent=2))}</pre></details>')

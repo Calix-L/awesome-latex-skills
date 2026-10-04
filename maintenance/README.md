@@ -1,12 +1,15 @@
 # Source review / 来源维护
 
-[sources.json](sources.json) tracks twelve selected primary sources, their exact
+[sources.json](sources.json) tracks thirteen selected primary sources, their exact
 claim scope, dependent files, review date and interval. The register
 covers core venue corrections and selected package/API guidance; it does not
 claim that every venue/year or every linked reference has been verified.
 It also records the inspected LaTeX graphics source used for literal search
 ordering. Review dates declare content review; the audit does not authenticate
 who performed it.
+The pinned BibTeX implementation records the reviewed entry/value boundaries,
+comment scanning and ASCII case folding used by literal bibliography inspection.
+It does not certify complete database grammar or Biber-specific extensions.
 
 ```sh
 python scripts/als.py --json sources

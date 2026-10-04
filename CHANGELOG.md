@@ -2,6 +2,24 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.13.0 — 2026-10-05
+
+### Fixed
+
+- Replace regex-only bibliography key extraction with iterative literal structure scanning. Parenthesis entries are recognized; entry-like text inside nested/quoted fields, string definitions and preambles cannot satisfy citations. Unfinished regions remain explicitly unverified and do not supply incomplete headers.
+- Follow selected BibTeX comment scanning without treating percent signs as TeX comments. Other backend/unselected comment bodies containing markers remain unverified. Duplicate comparisons use exact keys, with ASCII-only case folding for selected BibTeX; citation lookup remains exact.
+
+### Added
+
+- Additive `bibliography_entries` inventory retains each key/type/file/header line in resource encounter order. Duplicate keys within/across reachable databases point to the first header; repeated database references are inventoried once. Bilingual offline HTML displays the inventory without interpreting it as full field/backend validation.
+- Bilingual bibliography recipes and README navigation, a pinned reviewed primary-source record, and a reusable synthetic database fixture. Fresh wheel and rebuilt-sdist checks exercise header inventory, fake citations, parsed-byte binding and sealed Chinese reports outside the checkout.
+
+### Validation
+
+- Thirty portable regressions cover structure, comments, key collisions, locations, malformed/deep values, escaped HTML and bounded inventories, including an 8,000-entry control. Three native TeX regressions compare literal inventories to real BibTeX/Biber output, require fake references to remain unresolved, and confirm duplicate BibTeX keys fail.
+
+This inventories literal entry headers, not complete bibliography grammar, aliases, inheritance, string expansion, scientific source validity or model quality. Existing report schema numbers and direct helpers remain compatible.
+
 ## 1.12.0 — 2026-10-05
 
 ### Added

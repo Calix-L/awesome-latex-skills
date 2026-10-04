@@ -18,7 +18,7 @@ python scripts/als.py paper --output work/release-paper
 python -m pip install build
 python -m build --outdir dist/package
 python scripts/check_packages.py --directory dist/package --output work/package-verification
-python scripts/als.py release --output dist/1.12.0 --distribution-dir dist/package
+python scripts/als.py release --output dist/1.13.0 --distribution-dir dist/package
 ```
 
 The default example run requires a real TeX engine. Portable mode is not a
@@ -122,6 +122,20 @@ Recomputed literal audit details can differ from earlier reports. Named math
 environments and TeX execution remain outside this limited check. Prepare new
 evaluation tasks after updating skill metadata, or retain the matching old CLI
 and context for reproducibility.
+
+## 1.12.0 to 1.13.0
+
+Inspection JSON adds `bibliography_entries` with key/type/file/header line.
+HTML adds a located entry table when nonempty; older reports still render.
+Structural scanning recognizes brace/parenthesis headers and excludes markers
+inside values/string/preamble bodies. Malformed regions and backend-ambiguous
+comments produce unverified diagnostics instead of a clean inventory claim.
+
+Duplicate keys are located across reachable databases; selected BibTeX folds
+ASCII letters for duplicate comparison, while citation lookup remains exact.
+This does not certify complete database field grammar or backend/style acceptance.
+Build, extraction, review, CLI and inspection schema numbers remain unchanged.
+See [bibliography inspection](bibliography.md) for scope and native controls.
 
 ## 1.11.0 to 1.12.0
 

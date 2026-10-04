@@ -394,6 +394,73 @@ class CompilationTests(unittest.TestCase):
         self.assertLess(first["2"][1], 0)
         self.assertGreater(abs(first["2"][1] - nested["2"][1]), 1)
 
+    def test_literal_bibliography_headers_match_native_bibtex_without_value_fakes(self):
+        if not shutil.which("bibtex"):
+            self.fail("BibTeX is required for this native integration case")
+        project = self.work / "bibtex-project"
+        project.mkdir()
+        source = project / "main.tex"
+        source.write_text(r"\documentclass{article}\begin{document}\cite{brace,paren,percent,comment-active}"
+                          r"\bibliographystyle{plain}\bibliography{refs}\end{document}", encoding="utf-8")
+        shutil.copyfile(FIXTURES / "bibliography/headers.bib", project / "refs.bib")
+        original = {path.name: path.read_bytes() for path in project.iterdir()}
+        inspection = inspect_project(project, main="main.tex", engine="pdflatex", backend="bibtex")
+        self.assertEqual(inspection["diagnostics"], [])
+        report = check_build.build(source, self.work / "bibtex-valid", backend="bibtex", passes=3, require_resolved=True)
+        self.assert_build_success(report)
+        bbl = (self.work / "bibtex-valid/main.bbl").read_text(encoding="utf-8")
+        actual = set(re.findall(r"\\bibitem\{([^}]+)\}", bbl))
+        self.assertEqual(actual, {item["key"] for item in inspection["bibliography_entries"]})
+        self.assertEqual(actual, {"brace", "paren", "percent", "comment-active"})
+        self.assertEqual(original, {path.name: path.read_bytes() for path in project.iterdir()})
+        source.write_text(r"\documentclass{article}\begin{document}\cite{fake-braced,fake-quoted,fake-string}"
+                          r"\bibliographystyle{plain}\bibliography{refs}\end{document}", encoding="utf-8")
+        missing = inspect_project(project, main="main.tex", engine="pdflatex", backend="bibtex")
+        self.assertEqual(sum(item["code"] == "unknown-citation" for item in missing["diagnostics"]), 3)
+        failed = check_build.build(source, self.work / "bibtex-missing", backend="bibtex", passes=3, require_resolved=True)
+        self.assertEqual(failed["status"], "failed")
+        transcripts = "\n".join((Path(failed["output"]) / step["transcript"]).read_text(encoding="utf-8", errors="replace") for step in failed["steps"])
+        for key in ("fake-braced", "fake-quoted", "fake-string"):
+            self.assertIn(f'I didn\'t find a database entry for "{key}"', transcripts)
+
+    def test_literal_bibliography_headers_match_native_biber_for_common_values(self):
+        if not shutil.which("biber"):
+            if os.environ.get("LATEX_SKILLS_REQUIRE_TEX") == "1":
+                self.fail("Biber is required for this native integration case")
+            self.skipTest("biber unavailable")
+        project = self.work / "biber-project"
+        project.mkdir()
+        source = project / "main.tex"
+        source.write_text(r"\documentclass{article}\usepackage[backend=biber]{biblatex}\addbibresource{refs.bib}"
+                          r"\begin{document}\cite{brace,paren}\printbibliography\end{document}", encoding="utf-8")
+        (project / "refs.bib").write_text('@string{unused="@misc{fake-string,title={Fake}}"}\n'
+                                           '@comment{Ordinary comment}\n'
+                                           '@misc{brace,author={Example, Alice},title={@misc{fake-braced,title={Fake}}},year={2026}}\n'
+                                           '@misc(paren,author={Example, Bob},title="@misc{fake-quoted,title={Fake}}",year={2026})\n', encoding="utf-8")
+        inspection = inspect_project(project, main="main.tex", engine="pdflatex", backend="biber")
+        self.assertEqual(inspection["diagnostics"], [])
+        report = check_build.build(source, self.work / "biber-valid", backend="biber", passes=3, require_resolved=True)
+        self.assert_build_success(report)
+        bbl = (self.work / "biber-valid/main.bbl").read_text(encoding="utf-8")
+        self.assertEqual(set(re.findall(r"\\entry\{([^}]+)\}", bbl)), {item["key"] for item in inspection["bibliography_entries"]})
+
+    def test_duplicate_bibliography_diagnostic_agrees_with_native_bibtex_failure(self):
+        if not shutil.which("bibtex"):
+            self.fail("BibTeX is required for this native integration case")
+        project = self.work / "duplicate-project"
+        project.mkdir()
+        source = project / "main.tex"
+        source.write_text(r"\documentclass{article}\begin{document}\cite{dup}\bibliographystyle{plain}\bibliography{refs}\end{document}", encoding="utf-8")
+        (project / "refs.bib").write_text('@misc{dup,author={Example, Alice},title={First},year={2026}}\n'
+                                           '@misc{DUP,author={Example, Bob},title={Second},year={2026}}', encoding="utf-8")
+        inspection = inspect_project(project, main="main.tex", engine="pdflatex", backend="bibtex")
+        repeated = [item for item in inspection["diagnostics"] if item["code"] == "duplicate-bib-key"]
+        self.assertEqual(len(repeated), 1)
+        self.assertEqual((repeated[0]["file"], repeated[0]["line"]), ("refs.bib", 2))
+        report = check_build.build(source, self.work / "bibtex-duplicate", backend="bibtex")
+        self.assertEqual(report["status"], "failed")
+        self.assertEqual(report["failed_step"], "bibliography")
+
     def test_sealed_static_inspection_and_native_build_have_distinct_outcomes(self):
         from inspection_bundle import export_inspection
         from verify_artifacts import verify_inspection

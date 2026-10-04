@@ -119,6 +119,15 @@ metadata/expanded offsets are checked before oversized reads. Native full-paper
 and fresh installed wheel/sdist workflows also run the verifier; installed
 negative controls modify the source diff and require exit 1.
 
+Bibliography regressions cover brace/parenthesis headers, nested/quoted values,
+hidden entry-like markers in fields/string/preamble bodies, multiline/CRLF
+locations, percent/comment handling, unfinished regions, duplicate keys across
+files, explicit-backend case policy, escaped HTML and inventory bounds. A deep
+value and an 8,000-entry control exercise iterative scans and exact last-line
+locations. Native BibTeX/Biber cases compare supported headers to actual `.bbl`
+entries; fake keys remain unresolved and duplicate BibTeX keys fail natively.
+Fresh installed wheels and rebuilt-sdist checks run the same synthetic database.
+
 Inspection-bundle regressions cover rendering, second-file writes, sealing,
 publication failures and late destination collisions. They require absent final
 outputs after failures and preserve another writer's files. Source changes

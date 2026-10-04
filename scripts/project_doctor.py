@@ -13,6 +13,7 @@ import sys
 
 from project_support import parse_json, safe_path, sha256, write_new_json
 from tex_lexer import TOKEN, lex_tex, mask_tex
+from bib_lexer import ASCII_FOLD, scan_bibliography
 
 ENGINES = ("pdflatex", "xelatex", "lualatex")
 BACKENDS = (None, "bibtex", "biber")
@@ -164,10 +165,11 @@ def inspect_project(root, main=None, engine=None, backend=None):
               "root_selection": selection,
               "root_candidate_scope": "all-project-tex" if selection == "automatic" else "selected-main-only",
               "configuration_sha256": observed.get(".als.json"),
-              "inputs": [], "observed_files": [], "dependencies": [], "diagnostics": [], "status": "ready",
+              "inputs": [], "observed_files": [], "dependencies": [], "bibliography_entries": [], "diagnostics": [], "status": "ready",
               "limitations": ["Static literal references only: macro expansion, grouping, conditionals, system class/package internals and external search paths are not evaluated.",
                               "Literal scanning assumes ordinary category codes; custom verbatim environments and package escape/termination options are not evaluated.",
                               "Default graphics extension order is a common PDF-engine subset; explicit DeclareGraphicsExtensions is honored, but driver/conversion rules are not evaluated.",
+                              "Bibliography headers only: field grammar, string expansion, aliases, inheritance, crossref/xdata and backend/style acceptance are not validated. Citation keys are compared exactly.",
                               "A clean inspection is not a compilation or scientific-content review."]}
     def diagnostic(code, severity, file, line, message, next_step):
         result["diagnostics"].append({"code": code, "severity": severity, "file": file, "line": line,
@@ -198,7 +200,7 @@ def inspect_project(root, main=None, engine=None, backend=None):
     source = validate_main(root, main)
     if main not in texts or not source.is_file():
         raise ValueError("Selected main must be an existing UTF-8 .tex file inside the project")
-    visited, active, bibliography, packages, labels, references, citations = set(), [], set(), set(), Counter(), [], []
+    visited, active, bibliography, packages, labels, references, citations = set(), [], {}, set(), Counter(), [], []
     working_prefix = Path(main).parent
     graphics_paths = [""]
     graphics_extensions = [".pdf", ".png", ".jpg", ".jpeg", ".eps"]
@@ -330,14 +332,28 @@ def inspect_project(root, main=None, engine=None, backend=None):
                 elif name in {"input", "include"}:
                     scan(existing.relative_to(root).as_posix(), (filename, line))
                 elif name in {"bibliography", "addbibresource"}:
-                    bibliography.add(existing.relative_to(root).as_posix())
+                    bibliography.setdefault(existing.relative_to(root).as_posix(), None)
                 else:
                     remember(existing.relative_to(root).as_posix())
         active.pop()
     scan(main)
     known_keys = set()
-    for filename in sorted(bibliography):
-        known_keys.update(re.findall(r"@(?!(?:comment|string|preamble)\b)[a-zA-Z]+\s*\{\s*([^,\s]+)\s*,", source_text(filename), flags=re.I))
+    key_origins = {}
+    for filename in bibliography:
+        entries, issues = scan_bibliography(source_text(filename), backend)
+        for item in issues:
+            diagnostic(item["code"], "unverified", filename, item["line"], item["message"], "Inspect this region with the selected native bibliography backend; no source is repaired or invented")
+        for entry in entries:
+            result["bibliography_entries"].append({"file": filename, **entry})
+            known_keys.add(entry["key"])
+            folded = entry["key"].translate(ASCII_FOLD) if backend == "bibtex" else entry["key"]
+            previous = key_origins.get(folded)
+            if previous:
+                diagnostic("duplicate-bib-key", "warning", filename, entry["line"],
+                           f"Repeated bibliography key {entry['key']}; first header at {previous['file']}:{previous['line']}",
+                           "Choose the intended entry and check backend handling; do not silently merge references")
+            else:
+                key_origins[folded] = {"file": filename, **entry}
         remember(filename)
     for key, filename, line in references:
         if key not in labels:

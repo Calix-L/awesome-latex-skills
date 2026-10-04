@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import venv
@@ -110,6 +111,19 @@ def check_distribution(wheel, output):
         damaged = json.loads(run([command, "--json", "verify", "inspection", transferred], expected=(1,)))["result"]
         if damaged["status"] != "failed" or not any(item["code"] == "changed-file" for item in damaged["findings"]):
             raise ValueError("Installed verifier missed a changed inspection page")
+        bib_project = cwd / "bibliography-paper"
+        bib_project.mkdir()
+        shutil.copyfile(ROOT / "tests/fixtures/bibliography/headers.bib", bib_project / "refs.bib")
+        (bib_project / "main.tex").write_text(r"\documentclass{article}\cite{brace,paren,percent,comment-active,fake-braced,fake-quoted,fake-string}\bibliography{refs}", encoding="utf-8")
+        bib_report = json.loads(run([command, "--json", "project", "check", bib_project, "--backend", "bibtex",
+                                     "--bundle", cwd / "bibliography-inspection", "--html-language", "zh"], expected=(0, 1)))["result"]
+        if ({item["key"] for item in bib_report["bibliography_entries"]} != {"brace", "paren", "percent", "comment-active"}
+                or sum(item["code"] == "unknown-citation" for item in bib_report["diagnostics"]) != 3
+                or "参考文献字面条目头" not in (cwd / "bibliography-inspection/report.html").read_text(encoding="utf-8")):
+            raise ValueError("Installed bibliography header inventory confused literal values with entries")
+        if not any(item["file"] == "refs.bib" and item["sha256"] == sha256(bib_project / "refs.bib") for item in bib_report["observed_files"]):
+            raise ValueError("Installed bibliography inventory was not bound to parsed database bytes")
+        run([command, "verify", "inspection", cwd / "bibliography-inspection"])
         candidate = cwd / "candidate"
         candidate.mkdir()
         (candidate / "main.tex").write_text("\\documentclass{article}\n\\begin{document}Example 42\\end{document}\nTODO: confirm value\n", encoding="utf-8")

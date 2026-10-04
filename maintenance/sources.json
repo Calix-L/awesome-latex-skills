@@ -125,6 +125,20 @@
       ]
     },
     {
+      "id": "bibtex-literal-source",
+      "url": "https://github.com/TeX-Live/texlive-source/blob/a645809b018c7895d5326af2cabf73563f85f4bb/texk/web2c/bibtex.web",
+      "scope": "Reviewed literal entry/value boundaries, brace/parenthesis delimiters, @comment scanning and ASCII case folding; no complete database grammar, style acceptance, string expansion or Biber-specific extensions are certified",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-05",
+      "applies_to": [
+        "scripts/bib_lexer.py",
+        "scripts/project_doctor.py",
+        "docs/bibliography.md",
+        "docs/bibliography_CN.md"
+      ]
+    },
+    {
       "id": "latex-graphics-source",
       "url": "https://github.com/latex3/latex2e/blob/develop/required/graphics/graphics.dtx",
       "scope": "Literal graphicspath replacement and extension-before-directory search; static inspector does not evaluate grouping, custom driver rules or conversion",

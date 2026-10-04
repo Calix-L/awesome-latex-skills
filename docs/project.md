@@ -89,6 +89,10 @@ The [complete manuscript runner](../examples/full-paper/README.md) also exports
 review. It adds sealed `inspection-before/` and `inspection-after/` directories
 and retains both verification results. See the [Chinese project guide](project_CN.md).
 
+The report also lists located literal bibliography headers and duplicate keys.
+See [bibliography inspection](bibliography.md) for brace/parenthesis syntax,
+value masking, comments and backend limits.
+
 ## What is checked
 
 The doctor selects a unique `documentclass` root or asks for an explicit root
