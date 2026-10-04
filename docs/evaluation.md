@@ -231,3 +231,5 @@ The tests deliberately corrupt protected values, modify prepared context and
 reuse session IDs to check rejection. These are regression controls for the
 tooling; they are not measurements of a model's ability. No measured model gain
 is claimed by this release.
+
+Start with the [small pilot](pilot.md) to rehearse isolation, attribution, review and failure reporting before a larger run.

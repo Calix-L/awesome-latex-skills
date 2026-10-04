@@ -89,3 +89,5 @@ als benchmark report --batch evaluation-runs/pilot-01 --output work/pilot-report
 分享结果时保留全部失败、实际模型与设置、原始日志、审查证据及完整批次。已有其他
 运行器生成的证据也可以按[英文协议](evaluation.md#bring-evidence-from-an-existing-runner)
 的 `execution.json` 格式导入，无需再次调用模型。
+
+先按[小规模试运行](pilot_CN.md)练习隔离、身份记录、审查和失败报告，再扩大实验。

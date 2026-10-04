@@ -176,3 +176,32 @@ warnings/unverified checks; `blocked` includes errors and returns exit 1.
 Invalid configuration/preconditions return 2. Use the separate
 [build evidence guide](../latex-rescue/references/build-check.md) for actual
 compilation and the [review guide](review.md) for content/PDF inspection.
+
+<a id="project-aware-prerequisites"></a>
+
+## Project-aware prerequisites
+
+```sh
+als doctor --project path/to/paper --skill latex-rescue
+als doctor --project path/to/paper --main main.tex --engine xelatex --backend biber --skill latex-rescue
+als --json doctor --project path/to/paper --skill latex-rescue
+```
+
+Reads `.als.json` and the inspector's reachable sources without writing,
+compiling or installing. Explicit main/engine/backend options override valid
+configuration. Without a config, a unique root may be selected automatically;
+engine/backend are never guessed. For compile-requiring skills, an unselected
+engine or reachable bibliography with unselected backend blocks readiness.
+
+The JSON retains `local_prerequisites_met` for probes and adds the full
+`project` inspection plus combined `status`. Missing source resources can block
+a project even when all tools are available. `needs-review` keeps warnings,
+unverified findings and manual checks visible. Exit 0 means unblocked checks,
+not a successful build; blocked results return 1, unreadable/invalid inputs 2.
+An explicit selected engine missing from PATH is also a project inspection
+error, even when that skill's environment-only compiler probe is advisory.
+Use `--language zh` for Chinese human labels and environment actions; native
+and source diagnostic text and JSON remain unchanged. `--main` requires
+`--project`. Environment-only doctor keeps its legacy pdfLaTeX default.
+
+[Task recipes](tasks.md) · [Compatibility policy](compatibility.md)

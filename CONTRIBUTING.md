@@ -71,3 +71,5 @@ establish agent editing quality. Document any external/manual verification.
 For installer changes, test the full batch and both ordinary failure and rollback
 failure. Keep install receipts out of source bundles. For reference changes,
 validate links/anchors and keep required resources within the skill directory.
+
+Manuscript cases must follow the [provenance and acceptance checklist](docs/case-contributions.md) ([中文](docs/case-contributions_CN.md)); see [interface expectations](docs/compatibility.md) when changing CLI or reports.

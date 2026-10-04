@@ -40,3 +40,10 @@ The generator refuses an existing destination. ReportLab is not a core dependenc
 中文：所有输入均为自制样例，配套候选结果、说明和核验入口。运行后检查
 `verification.json` 与 PDF 预览；`partial` 表示仍有未验证的编译步骤。人工内容
 审查不能由关键词检查替代。详见[评测协议](../docs/evaluation.md)。
+
+## Choose a task or contribute a case
+
+[Five task recipes](../docs/tasks.md) / [中文任务指南](../docs/tasks_CN.md)
+connect commands to deliverables and next checks. Real project contributions
+need the [provenance and acceptance checklist](../docs/case-contributions.md)
+([中文](../docs/case-contributions_CN.md)); current fixtures remain synthetic.

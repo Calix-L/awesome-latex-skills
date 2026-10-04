@@ -72,3 +72,12 @@ JSON 的 `stdout` 中保留，`result` 为 null，`evidence` 为空。
 常见退出码为：完成 0，检查或构建失败 1，参数或前提无效 2，中断 130。PDF 提取的
 运行错误使用 1。允许未验证的示例可能返回 0 和 `partial`，应继续核对 `result`。
 详细契约和依赖见[英文指南](cli.md)。
+
+## 从实际项目开始
+
+`doctor --project path/to/paper --skill latex-rescue --language zh` 读取有效
+`.als.json` 并包含静态源码问题。显式 `--main`、`--engine`、`--backend` 覆盖配置；
+未知设置保持未选择，项目模式不假设 pdfLaTeX。综合受阻返回 `1`，项目无法读取
+或无效返回 `2`。中文选项翻译界面和环境处理建议，机器证据保留原文。原有单独
+环境探测继续支持。详见[项目指南](project_CN.md#project-aware-prerequisites)、
+[任务操作](tasks_CN.md)、[评测试运行](pilot_CN.md)和[接口约定](compatibility.md#中文说明)。

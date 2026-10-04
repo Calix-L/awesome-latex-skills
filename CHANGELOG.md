@@ -2,6 +2,22 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.14.0 — 2026-10-05
+
+### Added
+
+- Read-only `doctor --project` reuses project configuration and literal inspection, preserves unresolved engine/backend selection, reports reachable source problems and retains observed-byte evidence. Combined blocked status remains separate from local prerequisite probes; invalid projects return structured errors without writes.
+- `doctor --language zh` provides Chinese operator labels and environment actions while retaining original JSON/source/import evidence. Existing environment-only probes keep their default engine and direct helper interface.
+- Five bilingual task recipes connect skills, commands, output artifacts and next checks. README entry tables route directly to project diagnosis, source/build review and the complete English/Chinese demonstration.
+- A three-case, 12-run pilot documents isolation, real model attribution, concealed review conditions and complete failure reporting. Real-case provenance/acceptance requirements and tested-environment/interface expectations define the next contribution milestones without claiming real-paper or model-quality results.
+
+### Validation
+
+- Seventeen project-doctor regressions cover valid configurations and explicit overrides, missing resources/tools, ambiguous roots, unselected settings, reachable bibliography scope, source immutability, Chinese guidance, help and structured errors.
+- Installed original-wheel and rebuilt-sdist checks exercise project configuration evidence, Chinese output, unchanged sources and missing-project errors outside the checkout.
+
+Project diagnosis remains static and does not compile, repair, install or establish semantic fidelity. Preparation of a pilot does not execute a model or fill human scores.
+
 ## 1.13.0 — 2026-10-05
 
 ### Fixed

@@ -76,6 +76,23 @@ def check_distribution(wheel, output):
                         "\\begin{document}Example\\\\input{absent} \\verb 1\\input{absent}1\\end{document}\n"
                         "% \\end{verbatim}\n", encoding="utf-8")
         run([command, "project", "init", main.parent, "--main", "main.tex"])
+        configured_source_hash = sha256(main)
+        configured_hash = sha256(main.parent / ".als.json")
+        doctor = json.loads(run([command, "--json", "doctor", "--project", main.parent,
+                                 "--skill", "latex-rescue", "--language", "zh"], expected=(0, 1)))["result"]
+        if (doctor["engine"] != "pdflatex" or doctor["backend"] is not None
+                or doctor["project"]["main"] != "main.tex" or doctor["project"]["root_selection"] != "configuration"
+                or doctor["project"]["configuration_sha256"] != configured_hash
+                or doctor["project"]["observed_files"] == []):
+            raise ValueError("Installed project doctor lost configuration or source evidence")
+        human_doctor = run([command, "doctor", "--project", main.parent, "--skill", "latex-rescue", "--language", "zh"], expected=(0, 1))
+        if "综合状态" not in human_doctor or "未编译或修改文档" not in human_doctor:
+            raise ValueError("Installed doctor lost Chinese operator guidance")
+        if sha256(main) != configured_source_hash or sha256(main.parent / ".als.json") != configured_hash:
+            raise ValueError("Installed doctor changed its project")
+        invalid_doctor = json.loads(run([command, "--json", "doctor", "--project", cwd / "missing-project"], expected=(2,)))
+        if "error" not in invalid_doctor["result"] or (cwd / "missing-project").exists():
+            raise ValueError("Installed doctor did not retain a read-only project error")
         help_report = json.loads(run([command, "--json", "build", "--project", cwd / "missing-project", "--help"]))
         if help_report["invocation"] is not None or "--project" not in help_report["stdout"] or help_report["evidence"]:
             raise ValueError("Installed build help incorrectly required a project or attempted execution")

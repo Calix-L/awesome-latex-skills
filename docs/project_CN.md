@@ -129,3 +129,28 @@ UTF-8；行内 `verb` 支持星号、分隔符前的空格及数字分隔符。�
 [完整中英文论文案例](../examples/full-paper/README.md)同时生成
 `inspection-before.html`、`inspection-after.html` 和独立的构建/PDF 修改审查。
 检查资源、真实编译和审查内容各有用途，应分别核对结果。
+
+<a id="project-aware-prerequisites"></a>
+
+## 按项目设置检查依赖
+
+```sh
+als doctor --project path/to/paper --skill latex-rescue --language zh
+als doctor --project path/to/paper --main main.tex --engine xelatex --backend biber --skill latex-rescue --language zh
+als --json doctor --project path/to/paper --skill latex-rescue
+```
+
+只读 `.als.json` 和检查器可达源码，不写入、编译或安装。显式主文件/引擎/后端
+覆盖有效配置。没有配置时可自动选择唯一根文件，但不猜测引擎或文献后端。
+需要编译的技能遇到未选引擎，或可达文献资源但未选后端时，会阻止就绪。
+
+JSON 保留表示工具探测的 `local_prerequisites_met`，新增完整 `project` 检查和
+综合 `status`。即使工具全部可用，缺失源码资源仍可阻止项目。`needs-review`
+保留警告、未验证项和人工检查。退出码 `0` 只表示检查未受阻，不是编译通过；
+受阻返回 `1`，无法读取/无效输入返回 `2`。显式所选引擎不在 PATH 上，也是
+项目检查错误，即使该技能单独环境检查中的编译器仅为建议。
+
+`--language zh` 翻译人类输出标签和环境处理建议；源码诊断、原生错误和 JSON
+保持原文。`--main` 必须配合 `--project`。不提供项目时保留原有 pdfLaTeX 默认。
+
+[任务指南](tasks_CN.md) · [兼容约定](compatibility.md#中文说明)

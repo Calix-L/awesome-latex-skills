@@ -33,7 +33,7 @@ python scripts/als.py benchmark prepare --case polish-scope --trials 1 --output 
 python scripts/als.py benchmark run --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --spec runner-spec.json
 python scripts/als.py benchmark review-template --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --output work/baseline-review.json
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.11.0
+python scripts/als.py release --output dist/1.14.0
 ```
 
 Use `COMMAND --help` for the native options. Paths supplied by the user resolve
@@ -115,3 +115,14 @@ release packaging.
 See [worked examples](../examples/README.md), [evaluation](evaluation.md), and
 [complete project](../examples/full-paper/README.md), [project configuration](project.md),
 [change review](review.md), and [releases](releases.md).
+
+## Start with the actual project
+
+`doctor --project path/to/paper --skill latex-rescue` reads valid `.als.json`
+settings and includes static source diagnostics. Explicit `--main`, `--engine`
+and `--backend` override those settings. Unknown settings stay unresolved;
+project mode does not assume pdfLaTeX. Combined blocked status returns 1;
+invalid/unreadable project inputs return 2. `--language zh` selects human labels
+and environment actions without translating machine evidence. Existing
+environment-only probes remain supported. See the [project guide](project.md#project-aware-prerequisites),
+[task recipes](tasks.md), [evaluation pilot](pilot.md) and [interface expectations](compatibility.md).

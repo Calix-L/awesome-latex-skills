@@ -193,3 +193,5 @@ edits and use a separate destination if you need both versions. For untracked
 manual installs, only an exact match to the current source can be adopted;
 keep differing copies backed up before moving them. See the
 [installation guide](../README.md#quick-start).
+
+Version 1.14.0 adds read-only project-aware doctor, task recipes, a bounded evaluation pilot, case acceptance requirements and interface expectations. The project inspection, doctor and CLI envelope schemas remain unchanged; doctor project/status fields are additive in project mode.

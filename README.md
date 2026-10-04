@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.13.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.13.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.14.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.14.0"></a>
 </p>
 
 <p align="center">Five skills for LaTeX repair, academic editing, submission formatting, paper reading, and PDF recovery.</p>
@@ -68,6 +68,18 @@ Use `python3` if that is your system's Python command.
 checkout without installation? `python scripts/als.py` accepts the same commands.
 
 **Invoke:** `/latex-rescue` in Claude Code or `$latex-rescue` in Codex. Natural-language requests work too.
+
+**Get your first useful result.** Follow the [five task recipes](./docs/tasks.md)
+for commands, expected outputs and the next check.
+
+| Start here | What you can review |
+| :--- | :--- |
+| **[Diagnose your project](./docs/project.md#project-aware-prerequisites)** | Actual settings, local tools, missing resources and source locations |
+| **[Inspect manuscript changes](./docs/tasks.md#polish)** | Original/candidate differences, author decisions and retained build evidence |
+| **[Try the complete case](./examples/full-paper/README.md)** | A multi-file English/Chinese manuscript and an offline review report |
+
+Planning to assess skill quality? Start with the [12-run evaluation pilot](./docs/pilot.md).
+Read the [tested environments and interface policy](./docs/compatibility.md) before integrating reports.
 
 <details>
 <summary><strong>Install one skill, preview changes, or choose a destination</strong></summary>
@@ -287,7 +299,7 @@ The skill does not silently turn a relative percentage into percentage points.
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.13.0
+python scripts/als.py release --output dist/1.14.0
 ```
 
 [CLI & JSON reports](./docs/cli.md) · [Ten-task evaluation protocol](./docs/evaluation.md) ·

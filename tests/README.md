@@ -163,3 +163,5 @@ Writing/reading fixtures and historical venue examples need an agent evaluation
 and artifact review; their presence alone is not an end-to-end test. The automated
 layout example checks ordinary LaTeX behavior, not official submission compliance.
 Formatting tasks must use the exact venue/year/track/stage requested by the author.
+
+Project-aware doctor regressions cover configuration/override precedence, unresolved engines/backends, reachable resources, ambiguous roots, structured errors, Chinese actions, source immutability and external-directory CLI invocation. Package checks exercise the same interface from installed wheel and rebuilt sdist.

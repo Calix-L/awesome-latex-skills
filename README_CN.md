@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.13.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.13.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.14.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.14.0"></a>
 </p>
 
 <p align="center">五个专注于论文工作的 Agent Skills：修复编译、润色表达、转换格式、阅读论文、恢复源码。</p>
@@ -70,6 +70,18 @@ als install --agent claude
 [中文命令行速查](./docs/cli_CN.md)：项目构建、配置覆盖、特殊文件名与 JSON 证据。
 
 **调用：** Claude Code 使用 `/latex-rescue`；Codex 使用 `$latex-rescue`。也可以直接描述任务。
+
+**先得到一个可审查的结果。** [五类任务指南](./docs/tasks_CN.md)写明命令、
+预期输出和下一步核验。
+
+| 从这里开始 | 可以审查什么 |
+| :--- | :--- |
+| **[体检自己的项目](./docs/project_CN.md#project-aware-prerequisites)** | 实际配置、本地工具、缺失资源与源码位置 |
+| **[检查论文修改](./docs/tasks_CN.md#polish)** | 原稿/候选差异、作者决策与保留的构建证据 |
+| **[试跑完整案例](./examples/full-paper/README.md)** | 多文件中英文论文与离线审查报告 |
+
+需要衡量技能质量？从 [12 次运行的评测试运行](./docs/pilot_CN.md)开始。
+集成报告前，阅读[测试环境与接口约定](./docs/compatibility.md#中文说明)。
 
 <details>
 <summary><strong>只安装一个 Skill、预览改动、指定安装目录</strong></summary>
@@ -269,7 +281,7 @@ python scripts/als.py examples run --output work/example-run
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.13.0
+python scripts/als.py release --output dist/1.14.0
 ```
 
 [CLI 与 JSON 报告](./docs/cli.md) · [中文评测指南](./docs/evaluation_CN.md) ·

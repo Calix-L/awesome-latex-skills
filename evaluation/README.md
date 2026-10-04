@@ -14,3 +14,7 @@ python scripts/als.py evaluate validate
 python scripts/als.py evaluate prepare --case pdf-table --mode with-skill --output evaluation-runs/pdf-01
 python scripts/als.py benchmark prepare --case polish-scope --trials 1 --output evaluation-runs/pilot-01
 ```
+
+For a bounded first experiment, follow the [three-case, 12-run pilot](../docs/pilot.md)
+([中文](../docs/pilot_CN.md)). It prepares workspaces without calling a model;
+actual execution and human review remain separate steps.
