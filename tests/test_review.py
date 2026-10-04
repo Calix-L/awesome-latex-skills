@@ -156,7 +156,7 @@ class ReviewTests(unittest.TestCase):
         real_read = Path.read_bytes
         def changed_read(path):
             data = real_read(path)
-            return data + b'\nchanged' if path == self.root / 'after/main.tex' else data
+            return data + b'\nchanged' if path.resolve() == (self.root / 'after/main.tex').resolve() else data
         with patch.object(Path, 'read_bytes', changed_read):
             with self.assertRaisesRegex(ValueError, 'changed before parsing'):
                 tool.review(self.root / 'before', self.root / 'after', self.output)
@@ -203,6 +203,14 @@ class ReviewTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'path collision'):
             tool.review(self.root / 'before', self.root / 'after', self.output, after_build=record)
         self.assertFalse(self.output.exists())
+
+    def test_equivalent_output_parent_paths_keep_evidence_manifest_relative(self):
+        record = self.record('success')
+        output = self.root / 'before/../review'
+        result = tool.review(self.root / 'before', self.root / 'after', output, after_build=record)
+        self.assertEqual(Path(result['output']), self.output.resolve())
+        for item in read_json(self.output / 'review.json')['builds']['after']['retained_files']:
+            self.assertEqual(sha256(self.output / item['file']), item['sha256'])
 
 
 if __name__ == '__main__':

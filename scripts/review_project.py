@@ -171,6 +171,7 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
         raise ValueError("Before and after must be distinct project directories")
     if output.exists() or output.is_symlink() or any(output.resolve().is_relative_to(root) for root in (before, after)):
         raise ValueError("Review output must be new and outside both project trees")
+    output = output.resolve()
     original, candidate = snapshot(before), snapshot(after)
     notes_text = Path(notes).expanduser().read_text(encoding="utf-8-sig") if notes else None
     report = {"schema": 1, "kind": "project_review", "before": {"root": str(before), "files": original},
@@ -194,7 +195,7 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
         return parsed[key]
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix=".review-", dir=output.parent) as temporary:
-        bundle = Path(temporary) / "review"
+        bundle = (Path(temporary) / "review").resolve()
         bundle.mkdir()
         for name in sorted(set(original) | set(candidate)):
             if original.get(name) == candidate.get(name):

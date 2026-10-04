@@ -13,6 +13,7 @@ All notable changes to awesome-latex-skills.
 
 - Declared missing build evidence is refused rather than silently omitted. Reports/logs/PDFs are verified during retention; inputs and retained evidence are rechecked after rendering, before publication.
 - Successful reports with unreadable input tracking and reserved evidence path collisions are refused. Source parsing binds to initially inventoried bytes; UTF-8 BOM and uppercase TeX filenames are handled.
+- Review staging and publication use canonical paths, including macOS temporary-directory aliases and equivalent output parents.
 - Escaped dollars no longer create false math regions; display-math contents and literal `nocite` keys participate in content signals. Unsupported nested reference arguments are not treated as literal keys.
 
 Consistency checks do not lock concurrent inputs or independently authenticate report producers. Literal signals and successful builds do not establish scientific fidelity.
