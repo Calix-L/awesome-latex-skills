@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.5.1-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.5.1"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.6.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.6.0"></a>
 </p>
 
 <p align="center">Five skills for LaTeX repair, academic editing, submission formatting, paper reading, and PDF recovery.</p>
@@ -249,7 +249,7 @@ The skill does not silently turn a relative percentage into percentage points.
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.5.1
+python scripts/als.py release --output dist/1.6.0
 ```
 
 [CLI & JSON reports](./docs/cli.md) · [Ten-task evaluation protocol](./docs/evaluation.md) ·
@@ -259,8 +259,16 @@ Prepared evaluation sessions contain only original inputs and the requested
 skill context. Scores separate limited literal checks from evidence-backed
 human review; examples are never reported as baseline/treatment model results.
 The repeated-trial runner prepares 60 blind tasks by default and retains every
-failure or missing run. Actual model execution, measured billing and human
-review must be supplied; no measured quality gain is claimed.
+failure or missing run. Start with a two-task pilot:
+
+```sh
+als benchmark prepare --case polish-scope --trials 1 --output evaluation-runs/pilot-01
+```
+
+The [configured command runner](./docs/evaluation.md#execute-a-configured-command)
+records actual execution, binary-safe logs and submitted file hashes; human
+review templates keep missing scores explicit. Model attribution and billed
+cost require real evidence. No measured quality gain is claimed.
 
 </details>
 

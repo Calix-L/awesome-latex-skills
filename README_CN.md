@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.5.1-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.5.1"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.6.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.6.0"></a>
 </p>
 
 <p align="center">五个专注于论文工作的 Agent Skills：修复编译、润色表达、转换格式、阅读论文、恢复源码。</p>
@@ -237,16 +237,23 @@ python scripts/als.py examples run --output work/example-run
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.5.1
+python scripts/als.py release --output dist/1.6.0
 ```
 
-[CLI 与 JSON 报告](./docs/cli.md) · [十任务评测协议](./docs/evaluation.md) ·
+[CLI 与 JSON 报告](./docs/cli.md) · [中文评测指南](./docs/evaluation_CN.md) ·
 [来源维护登记](./maintenance/README.md) · [版本发布与迁移](./docs/releases.md)
 
 评测准备器只向独立会话提供原始输入和所选技能；评分区分有限的字面检查和附证据的
 人工审查，样例不会被包装成模型的前后对照成绩。
-多轮运行器默认准备 60 个盲测任务，保留失败及未运行记录；实际模型执行、账单费用
-和人工评分需要真实证据，当前不宣称已测得质量提升。
+多轮运行器默认准备 60 个盲测任务，保留失败及未运行记录。也可以先做两个任务的试运行：
+
+```sh
+als benchmark prepare --case polish-scope --trials 1 --output evaluation-runs/pilot-01
+```
+
+[配置外部运行程序](./docs/evaluation_CN.md#连接你实际使用的运行程序)，自动保留实际耗时、
+原始日志与全部提交文件的校验值；空白人工审查表不会被计为已评分。模型归属与账单
+费用仍需真实证据，当前不宣称已测得质量提升。
 
 </details>
 

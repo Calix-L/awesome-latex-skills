@@ -65,7 +65,8 @@ def main(argv=None):
     if machine:
         args.pop(0)
     if not args or args[0] in {"-h", "--help"}:
-        print("Usage: python scripts/als.py [--json] COMMAND [options]\n"
+        print("Usage: als [--json] COMMAND [options]\n"
+              "From source: python scripts/als.py [--json] COMMAND [options]\n"
               "Commands: " + ", ".join(COMMANDS) + "\n"
               "Use COMMAND --help for details. Exit codes are preserved. --json precedes COMMAND.")
         return 0

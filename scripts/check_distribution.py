@@ -9,7 +9,7 @@ import sys
 import venv
 import zipfile
 
-from install import bundle_files
+from install import SKILLS, bundle_files
 from project_support import ROOT, sha256, write_new_json
 
 
@@ -52,10 +52,23 @@ def check_distribution(wheel, output):
         report = json.loads(run([command, "--json", "doctor", "--skill", "paper-read"]))
         if Path(report["result"]["python"]["executable"]).resolve() != python.resolve():
             raise ValueError("CLI used a different Python environment")
-        run([command, "install", "--dest", cwd / "skills", "--skill", "latex-rescue"])
-        if bundle_files(cwd / "skills/latex-rescue") != bundle_files(ROOT / "latex-rescue"):
-            raise ValueError("Installed skill differs from release resources")
+        run([command, "install", "--dest", cwd / "skills"])
+        for skill in SKILLS:
+            if bundle_files(cwd / "skills" / skill) != bundle_files(ROOT / skill):
+                raise ValueError(f"Installed skill differs from release resources: {skill}")
         run([command, "evaluate", "validate"])
+        # Synthetic local process; no provider call or model-quality measurement.
+        run([command, "benchmark", "prepare", "--case", "polish-scope", "--trials", "1", "--output", cwd / "batch"])
+        spec = cwd / "synthetic-runner.json"
+        write_new_json(spec, {"schema": 1, "command": [str(python), "-I", "-c", "print('Synthetic package smoke test; no model called')"],
+                              "agent": "synthetic-package-control", "model": "no-model", "model_version": "no-model",
+                              "session_id": "synthetic-package-baseline", "settings": {"purpose": "packaging control only"}})
+        task = cwd / "batch/tasks/polish-scope-01-baseline"
+        run([command, "benchmark", "run", "--task", task, "--spec", spec])
+        run([command, "benchmark", "review-template", "--task", task, "--output", cwd / "review-template.json"])
+        summary = json.loads(run([command, "--json", "benchmark", "report", "--batch", cwd / "batch", "--output", cwd / "batch-report"]))["result"]
+        if summary["scheduled_runs"] != 2 or summary["conditions"]["baseline"]["statuses"] != {"completed": 1} or summary["comparable_pairs"]:
+            raise ValueError("Installed benchmark did not retain the expected synthetic control and missing pair")
         main = cwd / "paper/main.tex"
         main.parent.mkdir()
         main.write_text("\\documentclass{article}\n\\begin{document}Example\\end{document}\n", encoding="utf-8")

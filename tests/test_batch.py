@@ -118,6 +118,45 @@ class BatchTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 evaluate_batch.execution_evidence(task)
 
+    def test_partial_measurement_coverage_separates_currencies_and_unknown_values(self):
+        batch = self.root / "batch"
+        evaluate_batch.prepare_batch(batch, trials=3, case_ids=["polish-scope"])
+        for trial, currency in ((1, "USD"), (2, "CNY"), (3, None)):
+            task = batch / f"tasks/polish-scope-{trial:02}-baseline"
+            self.record_fixture(task, f"synthetic-{trial}")
+            record = read_json(task / "execution.json")
+            record.update(tokens={"input": 5, "output": 3} if trial == 1 else None,
+                          cost={"amount": 0.01, "currency": currency, "source": "synthetic control"} if currency else None)
+            (task / "execution.json").write_text(json.dumps(record), encoding="utf-8")
+        result = evaluate_batch.report_batch(batch, self.root / "report")
+        baseline = result["conditions"]["baseline"]
+        self.assertEqual(baseline["scheduled"], 3)
+        self.assertEqual(baseline["elapsed_measured_runs"], 3)
+        self.assertEqual(baseline["tokens"], {"input": 5, "output": 3})
+        self.assertEqual(baseline["token_measured_runs"], 1)
+        self.assertEqual(baseline["cost_measured_runs"], 2)
+        self.assertEqual(baseline["cost_by_currency"], {"USD": 0.01, "CNY": 0.01})
+        self.assertEqual(baseline["human_reviewed_runs"], 0)
+        self.assertIsNone(result["conditions"]["with-skill"]["tokens"])
+
+    def test_finite_measurements_with_overflowing_totals_keep_all_records(self):
+        batch = self.root / "batch"
+        evaluate_batch.prepare_batch(batch, trials=2, case_ids=["polish-scope"])
+        for trial in (1, 2):
+            task = batch / f"tasks/polish-scope-{trial:02}-baseline"
+            self.record_fixture(task, f"synthetic-{trial}")
+            record = read_json(task / "execution.json")
+            record.update(elapsed_seconds=1e308, cost={"amount": 1e308, "currency": "USD", "source": "synthetic overflow control"})
+            (task / "execution.json").write_text(json.dumps(record), encoding="utf-8")
+        result = evaluate_batch.report_batch(batch, self.root / "report")
+        baseline = result["conditions"]["baseline"]
+        self.assertEqual(result["scheduled_runs"], 4)
+        self.assertEqual(baseline["elapsed_measured_runs"], 2)
+        self.assertIsNone(baseline["measured_elapsed_seconds"])
+        self.assertIsNone(baseline["cost_by_currency"]["USD"])
+        self.assertEqual(len(baseline["aggregation_errors"]), 2)
+        self.assertEqual(len(read_json(self.root / "report/report.json")["runs"]), 4)
+
 
 if __name__ == "__main__":
     unittest.main()

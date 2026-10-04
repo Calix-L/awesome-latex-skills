@@ -26,7 +26,9 @@ skill discovery in the baseline; record any unavoidable implicit context. Load
 only the supplied context in the skill condition. Fill `agent`, `model`,
 `model_version`, `settings` (including tools/temperature/context policy), `trial`,
 and `session_id` with actual values in `run.json`; never substitute guessed
-values. The suite does not call an external model or incur model charges.
+values. Preparation and reporting do not call an external model. The optional
+command runner executes only the command you explicitly configure; that command
+can use your provider account and incur its normal charges.
 
 Input, prompt, case and skill SHA-256 fingerprints detect changed prepared
 inputs or context. They establish artifact provenance, not proof that a claimed
@@ -85,6 +87,93 @@ zero comparable pairs. Each agent sees only its own prepared task directory.
 Do not expose `batch.json`, other tasks, reference answers or scorer criteria
 to it. Use a fresh session for every task, with the same actual model/settings.
 
+For a small pilot, select cases explicitly; both conditions and every requested
+trial are still required and retained:
+
+```sh
+als benchmark prepare --case polish-scope --trials 1 --output evaluation-runs/pilot-01
+```
+
+Repeat `--case` for more cases. Reports identify the selected coverage; a pilot
+is not evidence about the remaining suite. Older full-suite batch catalogs
+without `case_ids` remain supported.
+
+## Execute a configured command
+
+Use an external CLI or your own adapter that reads a prompt from stdin, operates
+in the task directory, loads only the permitted context and writes deliverables
+to `submission/`. Create `runner-spec.json` **outside the task tree**, with the
+actual executable arguments and runtime attribution. This is a template; replace
+every placeholder with the observed configuration before running:
+
+```json
+{
+  "schema": 1,
+  "command": ["/absolute/path/to/your-adapter", "--fresh-session"],
+  "agent": "actual CLI and version",
+  "model": "actual model identifier",
+  "model_version": "actual resolved model version",
+  "session_id": "actual distinct session identifier",
+  "settings": {
+    "tools": "actual tool access",
+    "context_policy": "only TASK.md, inputs and supplied context; global skills disabled"
+  }
+}
+```
+
+The illustrative `--fresh-session` argument is not a universal agent flag. Use
+the arguments supported by your adapter. Windows paths in JSON need escaped
+backslashes or forward slashes. Keep credentials in the adapter's normal secret
+configuration, since the argument list is retained as evidence. Use the same
+agent/model/version/settings in both conditions and a new observed session ID
+per task. Aliases that silently change model versions weaken reproducibility;
+the runner does not discover provider identity or create sessions for you.
+
+```sh
+als benchmark run --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --spec runner-spec.json --timeout 600
+```
+
+`run` sends the unchanged `TASK.md` bytes through stdin and uses the task as its
+working directory. It invokes an argument list without requesting a shell;
+shell syntax such as pipes and redirects is not interpreted by the runner.
+The adapter must finish all work before exiting. This is an execution recorder,
+not an OS sandbox: configure the adapter's file access and implicit context
+separately. Timeout stops the direct command; adapters must supervise any child
+processes and must not leave detached workers running.
+
+The new `runner/` directory retains the original prepared record and the
+attributed record, plus a binary-safe combined stdout/stderr transcript with
+clearly marked runner start/end lines. `execution.json` records actual elapsed
+wall time (including command startup and its tools), exit code, failure/timeout,
+transcript hash, attributed-record hash and **all** submitted file hashes.
+Unknown tokens and billed cost remain null. Later evidence/submission changes
+are rejected; changing task inputs/context is also rejected. Failed attempts
+stay available. A retry needs a fresh prepared task; the runner never overwrites
+an attempted task. An exclusive `.execution.lock` blocks concurrent dispatch;
+after a hard termination, inspect the retained evidence and confirm the process
+has stopped before removing a stale lock.
+
+The command exits 0 for successful execution with intact evidence, 1 for a
+failed/timed-out command or failed integrity check, 2 for invalid preconditions,
+and 130 for interruption. A process exit of 0 means the command completed;
+literal checks, native compilation and human quality remain separate.
+
+Run the skill condition with another actual session, then generate an unfilled
+review form outside the agent's directory:
+
+```sh
+als benchmark review-template --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --output work/baseline-review.json
+als benchmark report --batch evaluation-runs/pilot-01 --output work/pilot-report-01
+```
+
+`review-template` includes all four questions and null scores. A named human
+reviewer fills every score, reason and exact artifact excerpt, then places the
+completed record at the task's `human-review.json`. An untouched template cannot
+count as a completed human review. Conceal condition information from reviewers
+where possible; the template alone does not establish blinding.
+
+## Bring evidence from an existing runner
+
 Alongside each task's completed `run.json`, retain a nonempty raw transcript
 and actual `execution.json`:
 
@@ -117,11 +206,17 @@ discarded. Native compilation runs independently on a unique submitted LaTeX
 root with the selected engine, two passes and no guessed bibliography backend.
 No root is `not-applicable`; absent tools or ambiguous roots are unverified.
 Inspect unresolved references and build diagnostics separately from status.
+An independent compilation-tool exception leaves the actual run and literal
+score intact, with the build marked unverified and its error retained.
 
 JSON and Markdown summaries keep runtime outcomes, literal deltas, human
 deltas, compilation, elapsed time and measured cost separate. Costs aggregate
-only within their recorded currency, with the number of measured runs. There
-is no inferred model identity, automatic human score or general improvement
+only within their recorded currency, with the number of measured runs. Token
+totals and elapsed/cost/token/review coverage are explicit, so a partial
+measurement cannot look like a complete suite total. The Markdown summary lists
+every scheduled run, including missing, failed and invalid evidence. Overflowing
+totals stay null with an explicit aggregation error and retained individual
+measurements. There is no inferred model identity, automatic human score or general improvement
 claim. Preserve the complete batch and raw evidence when sharing a result.
 
 Use multiple trials per case, preserve both conditions' failures, randomize

@@ -25,8 +25,11 @@ python scripts/als.py validate
 python scripts/als.py evaluate validate
 python scripts/als.py examples list
 python scripts/als.py benchmark prepare --trials 3 --output evaluation-runs/batch-01
+python scripts/als.py benchmark prepare --case polish-scope --trials 1 --output evaluation-runs/pilot-01
+python scripts/als.py benchmark run --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --spec runner-spec.json
+python scripts/als.py benchmark review-template --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --output work/baseline-review.json
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.5.1
+python scripts/als.py release --output dist/1.6.0
 ```
 
 Use `COMMAND --help` for the native options. Paths supplied by the user resolve

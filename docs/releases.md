@@ -18,7 +18,7 @@ python scripts/als.py paper --output work/release-paper
 python -m pip install build
 python -m build --outdir dist/package
 python scripts/check_packages.py --directory dist/package --output work/package-verification
-python scripts/als.py release --output dist/1.5.1 --distribution-dir dist/package
+python scripts/als.py release --output dist/1.6.0 --distribution-dir dist/package
 ```
 
 The default example run requires a real TeX engine. Portable mode is not a
@@ -65,6 +65,22 @@ the run records; no pair delta is inferred. Regenerate prepared tasks against
 the current release before scoring them: a skill version change also changes
 its context fingerprint. Keep the matching older CLI/batch together when
 reproducing an older evaluation.
+
+## 1.5.1 to 1.6.0
+
+Direct helpers and schema-1 manual execution records remain compatible. New
+batch catalogs add explicit `case_ids`; old catalogs still mean all ten cases.
+Reports add measurement coverage and token totals without inventing missing
+measurements. `benchmark run` is opt-in and executes the command you supply;
+preparation and reporting still do not call a model. See the
+[runner protocol](evaluation.md#execute-a-configured-command).
+
+Runner-produced records bind all submitted file bytes. Preserve submissions
+unchanged; put completed human reviews in the task's `human-review.json` rather
+than editing the artifacts. Existing attempted tasks cannot be rerun in place.
+Prepare a new task for a retry and keep the failed evidence. Blank review
+templates do not count as human ratings. As with earlier updates, skill-version
+changes require freshly prepared tasks or the matching older CLI and resources.
 
 ## 1.3.x to 1.4.0
 

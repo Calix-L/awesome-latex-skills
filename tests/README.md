@@ -22,11 +22,16 @@ To run one area: `python -m unittest discover -s tests -p test_install.py -v`.
 - **Python distributions:** build a wheel/source distribution on every portable
   matrix platform, install in fresh environments outside the checkout, check the
   running interpreter, module/console entry points and bundled resource roundtrip,
-  then independently rebuild the source distribution and repeat first-use checks.
+  all five skill bundles, and an installed synthetic command-runner pilot with
+  an unfilled review template and missing-pair report; then independently rebuild
+  the source distribution and repeat first-use checks.
 - **Repeated-trial accounting:** 60-task blind preparation, deterministic randomized
   scheduling, all missing/failed runs, reused-session refusal, raw-transcript binding,
   finite actual measurement fields, unchanged criteria and null missing human/cost
-  data. Unit fixtures are explicitly synthetic and do not count as model responses.
+  data. Selected-case pilots, command stdin/cwd, non-UTF-8 transcript bytes,
+  failed/startup/timeout outcomes, active locks, submission/record/transcript
+  tampering, blank-review refusal and independent build-tool errors are covered.
+  Unit fixtures are explicitly synthetic and do not count as model responses.
 
 - **Project workflows:** blind baseline/skill preparation, protected literals and negative controls, changed-input/context rejection, actual human review excerpts, attribution/session/settings checks, CLI execution from another directory, fresh evidence handling, source review dates, deterministic archives and checksums. Native CI runs all five worked examples and attaches logs, PDFs and previews. These tests validate the tooling; model editing quality requires the separate [evaluation protocol](../docs/evaluation.md).
 

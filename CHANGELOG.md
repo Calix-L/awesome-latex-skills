@@ -2,6 +2,22 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.6.0 — 2026-10-04
+
+### Added
+
+- Explicit external-command benchmark runner with unchanged prompt stdin, prepared-task working directory, actual wall time/exit codes, binary-safe combined logs, failure/timeout retention and exclusive task locks. No model provider is selected or called by preparation/reporting.
+- Execution evidence binds the attributed run, transcript and every submitted file; later changes are rejected. Retries require fresh tasks.
+- Selected-case paired pilots, unfilled human review templates, per-condition measurement/review coverage, token totals and Markdown visibility for every scheduled outcome.
+- Chinese evaluation guide and fresh installed wheel/source-package checks for all five skills and the complete synthetic runner/report workflow.
+
+### Fixed
+
+- Independent compilation-tool exceptions no longer discard valid execution and literal score evidence; builds retain an explicit unverified state and error.
+- Installed CLI help names the console entry point as well as source invocation.
+
+No model-quality improvement is claimed; process fixtures are synthetic regression controls.
+
 ## 1.5.1 — 2026-10-04
 
 ### Fixed
