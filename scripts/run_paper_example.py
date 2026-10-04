@@ -7,6 +7,7 @@ import shutil
 import sys
 
 from project_doctor import inspect_project
+from project_report import write_inspection_html
 from project_support import ROOT, write_new_json
 from review_project import review, snapshot
 from run_examples import load_helper
@@ -33,6 +34,7 @@ def run_paper(output, allow_unverified=False):
         for side in ("before", "after"):
             inspection = inspect_project(output / side, "main.tex", "pdflatex", "bibtex")
             write_new_json(output / f"inspection-{side}.json", inspection)
+            write_inspection_html(output / f"inspection-{side}.html", inspection, json_path=output / f"inspection-{side}.json")
         before_report = after_report = None
         if tools["pdflatex"] and tools["bibtex"]:
             before_result = build(before / "main.tex", output / "build-before", "pdflatex", "bibtex", 3)

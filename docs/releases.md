@@ -18,7 +18,7 @@ python scripts/als.py paper --output work/release-paper
 python -m pip install build
 python -m build --outdir dist/package
 python scripts/check_packages.py --directory dist/package --output work/package-verification
-python scripts/als.py release --output dist/1.6.0 --distribution-dir dist/package
+python scripts/als.py release --output dist/1.7.0 --distribution-dir dist/package
 ```
 
 The default example run requires a real TeX engine. Portable mode is not a
@@ -81,6 +81,24 @@ than editing the artifacts. Existing attempted tasks cannot be rerun in place.
 Prepare a new task for a retry and keep the failed evidence. Blank review
 templates do not count as human ratings. As with earlier updates, skill-version
 changes require freshly prepared tasks or the matching older CLI and resources.
+
+## 1.6.0 to 1.7.0
+
+Project inspection remains schema 1 and adds `root_selection`,
+`root_candidate_scope` and `configuration_sha256`. Explicit/configured roots
+list candidates only for the selected main; automatic selection scans the full
+supported inventory. Excluded `include` edges add `skipped: true` and
+`exists: null`, since the target was not checked. Consumers must not interpret
+null as a missing file.
+
+The new `--html`/`--html-language` flags are optional. JSON output and native
+exit codes stay supported. Invalid non-TeX/UTF-8/generated-directory main files
+are now refused during initialization instead of creating an unusable config.
+Inventory also prunes `.venv`, `venv` and `node_modules`; keep genuine manuscript
+sources outside reserved generated trees. Full-paper artifacts add before/after
+inspection HTML files. The [project guide](project.md) describes the supported
+literal traversal and its limits. Skill metadata changes require fresh prepared
+evaluation tasks or a matching older CLI/context when reproducing old runs.
 
 ## 1.3.x to 1.4.0
 

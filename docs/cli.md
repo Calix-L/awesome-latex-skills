@@ -18,6 +18,7 @@ python scripts/als.py build manuscript.tex --output work/build-01 --require-reso
 python scripts/als.py extract original.pdf --output work/pdf-01 --chars --render
 python scripts/als.py project init path/to/paper --main main.tex --engine pdflatex
 python scripts/als.py project check path/to/paper
+python scripts/als.py project check path/to/paper --output work/inspection.json --html work/inspection.html --html-language zh
 python scripts/als.py build --project path/to/paper --output work/build-02
 python scripts/als.py review --before path/to/original --after path/to/candidate --output work/review-01
 python scripts/als.py paper --output work/full-paper-run
@@ -29,7 +30,7 @@ python scripts/als.py benchmark prepare --case polish-scope --trials 1 --output 
 python scripts/als.py benchmark run --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --spec runner-spec.json
 python scripts/als.py benchmark review-template --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --output work/baseline-review.json
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.6.0
+python scripts/als.py release --output dist/1.7.0
 ```
 
 Use `COMMAND --help` for the native options. Paths supplied by the user resolve

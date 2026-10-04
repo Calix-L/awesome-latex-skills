@@ -123,6 +123,19 @@
       "applies_to": [
         "latex-fmt/references/formatting-rules.md"
       ]
+    },
+    {
+      "id": "latex-graphics-source",
+      "url": "https://github.com/latex3/latex2e/blob/develop/required/graphics/graphics.dtx",
+      "scope": "Literal graphicspath replacement and extension-before-directory search; static inspector does not evaluate grouping, custom driver rules or conversion",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-04",
+      "applies_to": [
+        "scripts/project_doctor.py",
+        "docs/project.md",
+        "docs/project_CN.md"
+      ]
     }
   ]
 }

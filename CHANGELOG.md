@@ -2,6 +2,23 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.7.0 — 2026-10-04
+
+### Added
+
+- Offline English/Chinese project inspection reports with located issues, next steps, selected tools, distinct missing/skipped/unverified dependency states and complete evidence. Full-paper examples and fresh package checks exercise the reports.
+- Literal unbraced/quoted/multiline inputs, `includeonly`, local class/package loader variants, local bibliography-style fingerprints and cycle/repeated-source diagnostics.
+- Source-order traversal, replacement graphics paths and extension-before-directory lookup, including explicit `DeclareGraphicsExtensions`; unsupported dynamic declarations invalidate older search assumptions.
+- Chinese project guide, parsed-byte/configuration fingerprints and native recorder comparisons for class/input/graphics selection.
+
+### Fixed
+
+- Explicit/configured roots do not parse unrelated or excluded source contents. Reports identify root-candidate coverage.
+- Generated/build/environment trees are pruned before inventory descent instead of traversing their contents; invalid configured main sources are refused before configuration is created.
+- Inspection refuses inputs that change while being parsed rather than attaching a newer hash to older contents.
+
+Static checks still do not emulate TeX macro/group/conditional execution or certify successful builds, scientific fidelity or submission compliance.
+
 ## 1.6.0 — 2026-10-04
 
 ### Added

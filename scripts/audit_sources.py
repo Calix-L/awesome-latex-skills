@@ -51,7 +51,7 @@ def audit(catalog=CATALOG, root=ROOT, as_of=None):
         rows.append({**item, "status": status, "age_days": age})
     return {"schema": 1, "as_of": today.isoformat(), "sources": rows,
             "needs_review": [row["id"] for row in rows if row["status"] in {"due", "unverified", "entrypoint-only"}],
-            "interpretation": "Dates record human content review; this audit makes no network requests or submission-compliance claims"}
+            "interpretation": "Dates record declared content reviews; this audit does not authenticate reviewer identity, make network requests or establish submission compliance"}
 
 
 def main(argv=None):

@@ -206,6 +206,8 @@ class ManuscriptTests(unittest.TestCase):
         self.assertEqual(result["review"]["content_flags"], 0)
         self.assertEqual(result["review"]["open_decisions"], 1)
         self.assertTrue(all(status == "unverified" for status in result["builds"].values()))
+        self.assertTrue((self.root / "portable/inspection-before.html").is_file())
+        self.assertTrue((self.root / "portable/inspection-after.html").is_file())
 
 
 if __name__ == "__main__":

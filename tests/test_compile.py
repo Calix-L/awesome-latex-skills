@@ -10,6 +10,9 @@ import tempfile
 import unittest
 from test_build import check_build, REPO
 
+sys.path.insert(0, str(REPO / "scripts"))
+from project_doctor import inspect_project
+
 FIXTURES = Path(__file__).resolve().parent / "fixtures"
 PDFLATEX = shutil.which("pdflatex")
 
@@ -60,6 +63,46 @@ class CompilationTests(unittest.TestCase):
         result = self.compile("broken_paper.tex")
         self.assertNotEqual(result.returncode, 0)
         self.assertIn("Undefined control sequence", result.stdout)
+
+    def test_project_inspector_matches_native_class_input_and_graphics_selection(self):
+        import pymupdf
+        project = self.work / "project"
+        for directory in ("styles", "chapters", "a", "b"):
+            (project / directory).mkdir(parents=True, exist_ok=True)
+        (project / "main.tex").write_text(
+            r"\documentclass{styles/top}\input settings.tex" + "\n" +
+            r"\includeonly{chapters/one}\begin{document}\include{chapters/one}\include{chapters/missing}"
+            r"See~\ref{sec:one}.\includegraphics[width=1cm]{figure}\end{document}", encoding="utf-8")
+        (project / "styles/top.cls").write_text(r"\ProvidesClass{styles/top}\LoadClass{styles/base}", encoding="utf-8")
+        (project / "styles/base.cls").write_text(r"\ProvidesClass{styles/base}\LoadClass{article}\RequirePackage{graphicx}", encoding="utf-8")
+        (project / "settings.tex").write_text(r"\graphicspath{{a/}{b/}}\DeclareGraphicsExtensions{.png,.pdf}", encoding="utf-8")
+        (project / "chapters/one.tex").write_text(r"\section{One}\label{sec:one}Supplied fixture.", encoding="utf-8")
+        with pymupdf.open(self.work / "plot.pdf") as document:
+            document[0].get_pixmap().save(project / "a/figure.png")
+        shutil.copyfile(self.work / "plot.pdf", project / "b/figure.pdf")
+        inspection = inspect_project(project, "main.tex", "pdflatex")
+        self.assertEqual(inspection["status"], "ready", inspection)
+        self.assertTrue(next(item for item in inspection["dependencies"] if item["requested"] == "chapters/missing")["skipped"])
+        self.assertEqual(next(item["file"] for item in inspection["dependencies"] if item["command"] == "includegraphics"), "a/figure.png")
+        report = check_build.build(project / "main.tex", self.work / "project build", require_resolved=True)
+        self.assert_build_success(report)
+        observed = {item["path"] for item in report["local_inputs"]}
+        self.assertTrue({item["file"] for item in inspection["inputs"]}.issubset(observed), (inspection, report))
+        self.assertNotIn("b/figure.pdf", observed)
+        self.assertNotIn("chapters/missing.tex", observed)
+
+    def test_project_inspector_does_not_apply_a_later_graphics_path_retroactively(self):
+        project = self.work / "late-path"
+        (project / "figures").mkdir(parents=True)
+        shutil.copyfile(self.work / "plot.pdf", project / "figures/figure.pdf")
+        source = project / "main.tex"
+        source.write_text(r"\documentclass{article}\usepackage{graphicx}\begin{document}"
+                          r"\includegraphics{figure}\graphicspath{{figures/}}\end{document}", encoding="utf-8")
+        inspection = inspect_project(project, "main.tex", "pdflatex")
+        self.assertEqual(inspection["status"], "blocked")
+        self.assertFalse(inspection["dependencies"][0]["exists"])
+        report = check_build.build(source, self.work / "late-path build")
+        self.assertEqual(report["status"], "failed", report)
 
     def test_corrected_fixture_builds_pdf_without_tex_errors(self):
         self.copy_fixture("expected_fixed.tex")

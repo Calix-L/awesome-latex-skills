@@ -40,6 +40,9 @@ trees, and content/decision signals in the unified review.
 Open `work/full-paper-run/review/report.html`. Inspect `verification.json`,
 `inspection-before.json`, `inspection-after.json`, retained build logs/PDFs,
 the source diff, English page previews and `chinese-pages/`.
+Open `inspection-before.html` and `inspection-after.html` for located static
+issues, dependency resolutions and next steps; these reports keep compilation
+separate from project inspection.
 The failed original has no successful PDF preview; its source and failure
 logs remain reviewable. The review does not fabricate an original page.
 
@@ -55,7 +58,7 @@ replace the native verification. It still requires PyMuPDF for the runner.
 ## Apply the same workflow to your manuscript
 
 ```sh
-als project check examples/full-paper/after
+als project check examples/full-paper/after --html work/project-inspection.html
 als build --project examples/full-paper/after --output work/configured-build --require-resolved
 ```
 

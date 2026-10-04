@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.6.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.6.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.7.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.7.0"></a>
 </p>
 
 <p align="center">五个专注于论文工作的 Agent Skills：修复编译、润色表达、转换格式、阅读论文、恢复源码。</p>
@@ -136,7 +136,7 @@ Read awesome-latex-skills/latex-rescue/SKILL.md and follow its workflow.
 
 ```sh
 python -m pip install ".[pdf]"
-als project check examples/full-paper/after
+als project check examples/full-paper/after --html work/project-inspection.html --html-language zh
 als paper --output work/full-paper-run
 ```
 
@@ -145,7 +145,10 @@ als paper --output work/full-paper-run
 `work/full-paper-run/review/report.html`，查看差异、构建证据、页面预览，以及仍需
 作者决定的计时协议。
 
-[项目体检与配置](./docs/project.md) · [统一修改审查](./docs/review.md)
+[项目体检与配置](./docs/project_CN.md) · [统一修改审查](./docs/review.md)
+
+打开 `work/project-inspection.html`，查看带源码位置的问题、资源依赖与处理建议。
+完整案例也会保留原稿和修复稿的独立检查报告。
 
 **实际构建失败 → 真实编译的修复稿**
 
@@ -237,7 +240,7 @@ python scripts/als.py examples run --output work/example-run
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.6.0
+python scripts/als.py release --output dist/1.7.0
 ```
 
 [CLI 与 JSON 报告](./docs/cli.md) · [中文评测指南](./docs/evaluation_CN.md) ·

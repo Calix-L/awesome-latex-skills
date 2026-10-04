@@ -37,10 +37,10 @@ def check_distribution(wheel, output):
     env = dict(os.environ, PYTHONIOENCODING="utf-8")
     env.pop("PYTHONPATH", None)
     steps = []
-    def run(args):
+    def run(args, expected=(0,)):
         result = subprocess.run([str(item) for item in args], cwd=cwd, env=env, capture_output=True, text=True, encoding="utf-8", timeout=120)
         steps.append({"arguments": [str(item) for item in args], "exit_code": result.returncode, "stdout": result.stdout, "stderr": result.stderr})
-        if result.returncode:
+        if result.returncode not in expected:
             raise ValueError(f"Distribution command failed: {result.stderr or result.stdout}")
         return result.stdout
     try:
@@ -75,6 +75,13 @@ def check_distribution(wheel, output):
         run([command, "project", "init", main.parent, "--main", "main.tex"])
         if not (main.parent / ".als.json").is_file():
             raise ValueError("Installed CLI did not initialize the selected project")
+        inspection = json.loads(run([command, "--json", "project", "check", main.parent,
+                                     "--output", cwd / "inspection.json", "--html", cwd / "inspection.html",
+                                     "--html-language", "zh"], expected=(0, 1)))["result"]
+        if (inspection["main"] != "main.tex" or inspection["root_selection"] != "configuration"
+                or any(item["code"] != "missing-engine" for item in inspection["diagnostics"])
+                or "LaTeX 项目检查" not in (cwd / "inspection.html").read_text(encoding="utf-8")):
+            raise ValueError("Installed project inspection/report resources failed first-use checks")
         result = {"schema": 1, "status": "verified", "version": version, "wheel_sha256": sha256(wheel), "steps": steps}
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         result = {"schema": 1, "status": "failed", "error": str(exc), "steps": steps}

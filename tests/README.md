@@ -19,6 +19,14 @@ To run one area: `python -m unittest discover -s tests -p test_install.py -v`.
   escaped offline HTML, author decisions, stale build/PDF rejection and atomic review
   publication. Native CI verifies the complete English/Chinese manuscript and
   retains its original failure, repaired PDFs and review bundle.
+- **Literal project inspection:** unbraced/quoted/multiline input, include-only
+  exclusions, class/package loader variants, bibliography styles, source-order
+  graphics paths and explicit extension priorities, dynamic invalidation, source
+  cycles, repeated packages, exact parsed-byte binding and pruned environments.
+  Escaped English/Chinese HTML reports preserve missing/skipped/unverified states,
+  blocked exit codes and fresh destinations. Native tests compare the selected
+  class/input/graphics files with real TeX recorder inputs and verify that a late
+  graphics path cannot repair an earlier missing lookup.
 - **Python distributions:** build a wheel/source distribution on every portable
   matrix platform, install in fresh environments outside the checkout, check the
   running interpreter, module/console entry points and bundled resource roundtrip,
