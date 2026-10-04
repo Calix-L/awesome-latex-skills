@@ -12,6 +12,11 @@ als review --before path/to/original --after path/to/candidate --output work/rev
 图片等二进制资源的变化也会列出，校验值保留在 `review.json`。
 纯源码审阅只需要 Python 标准库；没有提供构建报告时，两边均明确显示“编译未验证”。
 
+注释中的代码示例不会遮住真实数值或引用的变化；支持的原样文本中的示例命令不
+参与字面变化统计。未闭合的 `verb` 或原样环境会在 HTML 中单独提示修改前后的位置，
+在 JSON 的 `source_scan_issues` 中保留，即使该文件没有变化也会检查。此时“没有
+内容变化提示”不能证明内容未变。扫描范围详见[项目检查指南](project_CN.md)。
+
 ## 加入实际构建与页面证据
 
 按论文实际的引擎与文献工具编译，再传入生成的报告。例如使用 pdfLaTeX 与 BibTeX：

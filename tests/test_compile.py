@@ -104,6 +104,39 @@ class CompilationTests(unittest.TestCase):
         report = check_build.build(source, self.work / "late-path build")
         self.assertEqual(report["status"], "failed", report)
 
+    def test_literal_scanner_agrees_with_native_comments_verbs_and_control_symbols(self):
+        project = self.work / "literal scanner"
+        project.mkdir()
+        source = project / "main.tex"
+        source.write_text(
+            "\\documentclass{article}\n% \\begin{verbatim}\n"
+            "\\begin{document}\n\\input{live}\n% \\end{verbatim}\n"
+            "Example\\\\input{absent}\n"
+            "\\verb|\\input{absent} 99|\n"
+            "\\verb * 1\\input{absent}1\n"
+            "\\verb a\\input{hidden}a\n"
+            "\\verb%\\input{absent}%\n"
+            "\\begin{verbatim}\n\\input{absent}\n\\end{verbatim}\n"
+            "\\end{document}\n", encoding="utf-8")
+        (project / "live.tex").write_text("Actual input.", encoding="utf-8")
+        inspection = inspect_project(project, "main.tex", "pdflatex")
+        self.assertEqual(inspection["status"], "ready", inspection)
+        self.assertEqual([item["requested"] for item in inspection["dependencies"]], ["live"])
+        report = check_build.build(source, self.work / "literal scanner build", require_resolved=True)
+        self.assert_build_success(report)
+        self.assertEqual({item["path"] for item in report["local_inputs"]}, {"main.tex", "live.tex"})
+
+    def test_unfinished_inline_verb_is_unverified_and_fails_native_compilation(self):
+        project = self.work / "unfinished literal"
+        project.mkdir()
+        source = project / "main.tex"
+        source.write_text("\\documentclass{article}\n\\begin{document}\n\\verb|unfinished\n\\end{document}\n", encoding="utf-8")
+        inspection = inspect_project(project, "main.tex", "pdflatex")
+        self.assertEqual(inspection["status"], "needs-review")
+        self.assertEqual([(item["code"], item["line"]) for item in inspection["diagnostics"]], [("unterminated-verb", 3)])
+        report = check_build.build(source, self.work / "unfinished literal build")
+        self.assertEqual(report["status"], "failed", report)
+
     def test_corrected_fixture_builds_pdf_without_tex_errors(self):
         self.copy_fixture("expected_fixed.tex")
         for _ in range(2):

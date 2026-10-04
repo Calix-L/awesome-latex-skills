@@ -177,6 +177,86 @@ class InspectionTests(unittest.TestCase):
         with self.assertRaises(FileExistsError):
             write_inspection_html(output, report)
 
+    def test_automatic_ambiguous_root_report_keeps_all_observation_fingerprints(self):
+        first = self.put("main.tex", "\\documentclass{article}")
+        other = self.put("other.tex", "\\documentclass{article}")
+        report = project_doctor.inspect_project(self.project)
+        self.assertEqual(report["status"], "blocked")
+        self.assertEqual(report["inputs"], [])
+        self.assertEqual(report["observed_files"], [{"file": "main.tex", "sha256": sha256(first)},
+                                                     {"file": "other.tex", "sha256": sha256(other)}])
+        page = inspection_html(report, "zh")
+        self.assertIn("全部已读取文件校验值", page)
+        self.assertIn(sha256(other), page)
+
+    def test_root_selection_observations_are_distinct_from_reachable_dependencies(self):
+        self.put("main.tex", "\\documentclass{article}\\input{chapter}")
+        self.put("chapter.tex", "Active")
+        self.put("notes.tex", "Unrelated notes")
+        with patch.object(project_doctor.shutil, "which", return_value="synthetic/tool"):
+            automatic = project_doctor.inspect_project(self.project, engine="pdflatex")
+        self.assertEqual({item["file"] for item in automatic["observed_files"]}, {"main.tex", "chapter.tex", "notes.tex"})
+        self.assertEqual({item["file"] for item in automatic["inputs"]}, {"main.tex", "chapter.tex"})
+        self.assertEqual({item["file"] for item in self.check()["observed_files"]}, {"main.tex", "chapter.tex"})
+
+    def test_ambiguous_selection_rechecks_inputs_before_returning(self):
+        self.put("main.tex", "\\documentclass{article}")
+        other = self.put("other.tex", "\\documentclass{article}")
+        actual = project_doctor.commands
+        def mutate(text):
+            other.write_text("Changed after root discovery", encoding="utf-8")
+            yield from actual(text)
+        with patch.object(project_doctor, "commands", side_effect=mutate):
+            with self.assertRaisesRegex(ValueError, "changed during inspection"):
+                project_doctor.inspect_project(self.project)
+
+    def test_configuration_fingerprint_binds_bytes_parsed_even_after_restore(self):
+        self.put("main.tex", "\\documentclass{article}")
+        project_doctor.initialize(self.project, "main.tex")
+        config = self.project / ".als.json"
+        original = config.read_bytes()
+        different = original.replace(b"pdflatex", b"lualatex")
+        actual = project_doctor.read_source
+        def replaced_read(path):
+            if Path(path).name == ".als.json" and replaced_read.once:
+                replaced_read.once = False
+                return different  # bytes seen during a concurrent replacement
+            return actual(path)  # original file restored before final observation
+        replaced_read.once = True
+        with patch.object(project_doctor, "read_source", side_effect=replaced_read):
+            with self.assertRaisesRegex(ValueError, "changed during inspection: .als.json"):
+                self.check()
+
+    def test_configuration_is_in_observations_with_its_parsed_fingerprint(self):
+        self.put("main.tex", "\\documentclass{article}")
+        project_doctor.initialize(self.project, "main.tex")
+        report = self.check()
+        self.assertIn({"file": ".als.json", "sha256": sha256(self.project / ".als.json")}, report["observed_files"])
+        self.assertEqual(report["configuration_sha256"], sha256(self.project / ".als.json"))
+        self.put("selected.tex", "\\documentclass{article}")
+        explicit = project_doctor.inspect_project(self.project, main="selected.tex")
+        self.assertEqual({item["file"] for item in explicit["observed_files"]}, {".als.json", "main.tex", "selected.tex"})
+        self.assertEqual([item["file"] for item in explicit["inputs"]], ["selected.tex"])
+
+    def test_bounded_reads_refuse_growth_and_oversized_configuration(self):
+        source = self.put("main.tex", "\\documentclass{article}")
+        with patch.object(project_doctor, "MAX_SOURCE_BYTES", 10):
+            with self.assertRaisesRegex(ValueError, "size limit"):
+                project_doctor.read_source(source)
+        self.put(".als.json", " " * 65)
+        with patch.object(project_doctor, "MAX_SOURCE_BYTES", 64):
+            with self.assertRaisesRegex(ValueError, "size limit"):
+                project_doctor.load_config(self.project)
+
+    def test_unclosed_literal_regions_are_located_once_in_automatic_and_local_sources(self):
+        self.put("main.tex", "\\documentclass{article}\\usepackage{local}\n\\verb|unfinished\n")
+        self.put("local.sty", "\\begin{verbatim}\n\\input{not-real}")
+        with patch.object(project_doctor.shutil, "which", return_value="synthetic/tool"):
+            report = project_doctor.inspect_project(self.project, engine="pdflatex")
+        self.assertEqual(report["status"], "needs-review")
+        self.assertEqual([(item["code"], item["file"], item["line"]) for item in report["diagnostics"]],
+                         [("unterminated-verb", "main.tex", 2), ("unterminated-verbatim", "local.sty", 1)])
+
     def test_cli_keeps_blocked_exit_and_refuses_output_collisions_before_writing(self):
         self.put("main.tex", "\\documentclass{article}\\input{missing}")
         cli = Path(__file__).resolve().parents[1] / "scripts/als.py"

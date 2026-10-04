@@ -17,6 +17,7 @@ LABELS = {
         "files": "File changes", "empty_changes": "No changes in the supported inventory.", "no_diff": "Binary/asset change: compare file fingerprints in the JSON evidence.",
         "audit": "Content signals to review", "audit_note": "Added or removed literal values are review signals, not judgments of correctness. Numbers are counted as text tokens, not interpreted as scientific measurements.",
         "numbers": "Numbers", "reference_keys": "Labels, references and citations", "simple_math": "Delimited math", "count": "Count", "value": "Literal value",
+        "scan_issues": "Incomplete literal source regions", "scan_note": "Unclosed verbatim regions can hide later content from the literal audit. Check the source and actual build before interpreting absent change signals.",
         "none": "No supported literal changes detected; this does not establish unchanged meaning.",
         "author": "Author decisions", "no_decisions": "No visible TODO or UNCERTAIN markers found.", "notes": "Supplied notes",
         "scope": "Inventory and limits", "scope_note": "Only the listed source/configuration/asset types are compared. Generated and environment directories are excluded. Other files are outside this review's coverage.",
@@ -35,6 +36,7 @@ LABELS = {
         "files": "文件改动", "empty_changes": "支持的清单范围内未发现改动。", "no_diff": "二进制或资源文件改动：请在 JSON 证据中对照文件校验值。",
         "audit": "需要核对的内容变化", "audit_note": "新增或删除的字面值只是核对提示，不能判断修改是否正确。数值按文本统计，不解释其科学含义。",
         "numbers": "数值", "reference_keys": "标签、引用与文献键", "simple_math": "有定界符的公式", "count": "次数", "value": "字面值",
+        "scan_issues": "未闭合的源码字面区域", "scan_note": "未闭合的原样文本可能遮住后续内容，影响字面变化检查。请先核对源码与实际构建，再判断未出现变化提示的内容。",
         "none": "未检测到支持范围内的字面变化；这不能证明含义不变。",
         "author": "作者待确认事项", "no_decisions": "未发现可见的 TODO 或 UNCERTAIN 标记。", "notes": "提供的说明",
         "scope": "清单范围与限制", "scope_note": "只比较所列源码、配置和资源类型；生成目录与环境目录会被排除。其他文件不在本次审阅覆盖范围内。",
@@ -101,6 +103,11 @@ def review_html(report, diffs, language="en"):
             content.append(details(item['file'], diffs.get(item['file']) or labels['no_diff']))
     else:
         content.append(f'<section>{esc(labels["empty_changes"])}</section>')
+    if report.get("source_scan_issues"):
+        content.append(f'<h2>{esc(labels["scan_issues"])}</h2><p>{esc(labels["scan_note"])}</p><section><ul>')
+        for item in report["source_scan_issues"]:
+            content.append(f'<li>{esc(labels[item["side"]])} · <code>{esc(item["file"])}:{esc(item["line"])}</code> — {esc(item["message"])}</li>')
+        content.append('</ul></section>')
     content.append(f'<h2>{esc(labels["audit"])}</h2><p>{esc(labels["audit_note"])}</p>')
     if not report["content_audit"]:
         content.append(f'<section>{esc(labels["none"])}</section>')

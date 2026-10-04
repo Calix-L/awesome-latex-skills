@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.9.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.9.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.10.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.10.0"></a>
 </p>
 
 <p align="center">五个专注于论文工作的 Agent Skills：修复编译、润色表达、转换格式、阅读论文、恢复源码。</p>
@@ -152,6 +152,10 @@ als paper --output work/full-paper-run --language zh
 中文审阅页集中展示改动文件、数值/引用/公式变化、待作者确认项和构建状态；
 可展开差异与证据文件，不必先阅读完整 JSON。界面支持窄屏与深色模式。
 
+检查器区分注释、转义反斜杠与原样文本，保留真实依赖及源码位置。未闭合的代码
+示例会明确提示；自动主文件选择也记录全部已读取文件的指纹。详见
+[源码扫描范围](./docs/project_CN.md#注释与代码示例不会混入依赖)。
+
 **交付后仍可核验。** 新审阅目录会记录报告、差异、日志、PDF 与页面图片的校验值。
 转移目录或下载完整发布资产后，可离线检查：
 
@@ -253,7 +257,7 @@ python scripts/als.py examples run --output work/example-run
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.9.0
+python scripts/als.py release --output dist/1.10.0
 ```
 
 [CLI 与 JSON 报告](./docs/cli.md) · [中文评测指南](./docs/evaluation_CN.md) ·

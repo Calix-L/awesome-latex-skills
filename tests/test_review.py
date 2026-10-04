@@ -75,6 +75,28 @@ class ReviewTests(unittest.TestCase):
         keys = tool.content_tokens(r'\cite{\macro{key}} \nocite{literal} \ref{known}')[1]
         self.assertEqual(keys, {('nocite', 'literal'): 1, ('ref', 'known'): 1})
 
+    def test_comment_examples_do_not_hide_real_numeric_and_reference_changes(self):
+        self.put('before/main.tex', '% \\begin{verbatim}\nValue 42 \\ref{old}\n% \\end{verbatim}\n')
+        self.put('after/main.tex', '% \\begin{verbatim}\nValue 43 \\ref{new}\n% \\end{verbatim}\n')
+        result = tool.review(self.root / 'before', self.root / 'after', self.output)
+        report = read_json(self.output / 'review.json')
+        self.assertEqual(result['content_flags'], 1)
+        self.assertEqual(report['content_audit'][0]['numbers']['added'], [['43', 1]])
+        self.assertIn('reference_keys', report['content_audit'][0])
+        self.assertEqual(report['source_scan_issues'], [])
+
+    def test_unchanged_unclosed_source_is_visible_in_both_review_sides(self):
+        for side in ('before', 'after'):
+            self.put(f'{side}/main.tex', '\\documentclass{article}\n\\begin{verbatim}\n99')
+        result = tool.review(self.root / 'before', self.root / 'after', self.output, language='zh')
+        self.assertEqual(result['changed_files'], 0)
+        self.assertEqual(result['source_scan_issues'], 2)
+        report = read_json(self.output / 'review.json')
+        self.assertEqual([item['side'] for item in report['source_scan_issues']], ['before', 'after'])
+        page = (self.output / 'report.html').read_text(encoding='utf-8')
+        self.assertIn('未闭合的源码字面区域', page)
+        self.assertIn('main.tex:2', page)
+
     def test_chinese_source_report_lists_binary_changes_and_scope(self):
         (self.root / 'before/panel.png').write_bytes(b'before')
         (self.root / 'after/panel.png').write_bytes(b'after')
@@ -153,11 +175,11 @@ class ReviewTests(unittest.TestCase):
         self.assertFalse(self.output.exists())
 
     def test_parsed_bytes_must_match_initial_snapshot(self):
-        real_read = Path.read_bytes
+        real_read = tool.read_source
         def changed_read(path):
             data = real_read(path)
             return data + b'\nchanged' if path.resolve() == (self.root / 'after/main.tex').resolve() else data
-        with patch.object(Path, 'read_bytes', changed_read):
+        with patch.object(tool, 'read_source', changed_read):
             with self.assertRaisesRegex(ValueError, 'changed before parsing'):
                 tool.review(self.root / 'before', self.root / 'after', self.output)
         self.assertFalse(self.output.exists())

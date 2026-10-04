@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Inspect literal LaTeX project dependencies without editing or compiling them."""
 import argparse
+from bisect import bisect_right
 from collections import Counter
 import hashlib
 import json
@@ -10,7 +11,8 @@ import re
 import shutil
 import sys
 
-from project_support import read_json, safe_path, sha256, write_new_json
+from project_support import parse_json, safe_path, sha256, write_new_json
+from tex_lexer import TOKEN, lex_tex, mask_tex
 
 ENGINES = ("pdflatex", "xelatex", "lualatex")
 BACKENDS = (None, "bibtex", "biber")
@@ -21,24 +23,6 @@ MAX_FILES = 5000
 MAX_SOURCE_BYTES = 2_000_000
 
 
-def mask_tex(text):
-    """Keep offsets/lines; ignore ordinary comments and common verbatim forms."""
-    def blank(match):
-        return re.sub(r"[^\n]", " ", match.group())
-    text = re.sub(r"\\begin\{(verbatim\*?|lstlisting|minted)\}.*?\\end\{\1\}", blank, text, flags=re.S)
-    text = re.sub(r"\\verb\*?([^\w\s]).*?\1", blank, text)
-    lines = []
-    for line in text.splitlines(keepends=True):
-        for position, char in enumerate(line):
-            if char == "%":
-                backslashes = len(line[:position]) - len(line[:position].rstrip("\\"))
-                if backslashes % 2 == 0:
-                    line = line[:position] + re.sub(r"[^\n]", " ", line[position:])
-                    break
-        lines.append(line)
-    return "".join(lines)
-
-
 COMMAND = re.compile(r"\\(?P<name>documentclass|usepackage|RequirePackageWithOptions|RequirePackage|LoadClassWithOptions|LoadClass|input|includeonly|includegraphics|include|graphicspath|DeclareGraphicsExtensions|bibliography|addbibresource|bibliographystyle|label|ref|eqref|pageref|autoref|[cC]ref|cite[a-zA-Z]*|nocite)(?![a-zA-Z@])\*?\s*(?P<options>(?:\[[^\]]*\]\s*)*)")
 ARGUMENT = re.compile(r"\{(?P<value>[^{}]*)\}")
 GRAPHICS_ARGUMENT = re.compile(r"\{(?P<value>(?:\{[^{}]*\}\s*)*)\}")
@@ -46,7 +30,11 @@ GRAPHICS_ARGUMENT = re.compile(r"\{(?P<value>(?:\{[^{}]*\}\s*)*)\}")
 
 def commands(text):
     masked = mask_tex(text)
-    for match in COMMAND.finditer(masked):
+    newlines = [match.start() for match in re.finditer("\n", masked)]
+    for token in TOKEN.finditer(masked):
+        match = COMMAND.match(masked, token.start())
+        if match is None:
+            continue
         argument = (GRAPHICS_ARGUMENT if match["name"] == "graphicspath" else ARGUMENT).match(masked, match.end())
         value = argument["value"] if argument else None
         if value is None and match["name"] == "input":
@@ -54,10 +42,9 @@ def commands(text):
             value = bare[0] if bare else None
         supported = value is not None
         if not supported:
-            remainder = masked[match.end():].splitlines()
-            value = remainder[0][:160] if remainder else ""
+            value = re.match(r"[^\r\n]{0,160}", masked[match.end():match.end() + 160])[0]
         yield {"name": match["name"], "value": value.strip(), "options": match["options"], "supported": supported,
-               "line": masked.count("\n", 0, match.start()) + 1}
+               "line": bisect_right(newlines, match.start()) + 1}
 
 
 def inventory(root, assets=False):
@@ -85,12 +72,21 @@ def inventory(root, assets=False):
     return found
 
 
-def load_config(root, filename=".als.json"):
+def read_source(path):
+    """Bound the bytes actually read, including files that grow after inventory."""
+    with Path(path).open("rb") as source:
+        content = source.read(MAX_SOURCE_BYTES + 1)
+    if len(content) > MAX_SOURCE_BYTES:
+        raise ValueError(f"Source exceeds the supported size limit: {Path(path).name}")
+    return content
+
+
+def parse_config(root, content, observations=None):
+    config = parse_json(content.decode("utf-8"))
     root = Path(root).expanduser().resolve()
-    config = read_json(safe_path(root, filename))
     if config.get("schema") != 1 or set(config) - {"schema", "main", "engine", "backend", "passes"}:
         raise ValueError("Expected schema-1 project config with main/engine/backend/passes only")
-    validate_main(root, config.get("main"))
+    validate_main(root, config.get("main"), observations)
     if config.get("engine") not in ENGINES or config.get("backend") not in BACKENDS:
         raise ValueError("Invalid configured engine/backend")
     if type(config.get("passes", 2)) is not int or not 1 <= config.get("passes", 2) <= 5:
@@ -98,14 +94,22 @@ def load_config(root, filename=".als.json"):
     return config
 
 
-def validate_main(root, main):
+def load_config(root, filename=".als.json"):
+    root = Path(root).expanduser().resolve()
+    return parse_config(root, read_source(safe_path(root, filename)))
+
+
+def validate_main(root, main, observations=None):
     source = safe_path(root, main)
     if (not source.is_file() or source.suffix.lower() != ".tex"
             or any(part in GENERATED for part in Path(main).parts)):
         raise ValueError("Main must be an existing .tex source outside reserved generated directories")
     if source.stat().st_size > MAX_SOURCE_BYTES:
         raise ValueError("Main source exceeds the supported size limit")
-    source.read_bytes().decode("utf-8-sig")
+    content = read_source(source)
+    content.decode("utf-8-sig")
+    if observations is not None:
+        observations[main] = hashlib.sha256(content).hexdigest()
     return source
 
 
@@ -130,14 +134,15 @@ def inspect_project(root, main=None, engine=None, backend=None):
             path = safe_path(root, name)
             if path.stat().st_size > MAX_SOURCE_BYTES:
                 raise ValueError(f"Source exceeds the supported size limit: {name}")
-            content = path.read_bytes()
+            content = read_source(path)
             texts[name] = content.decode("utf-8-sig")
             observed[name] = hashlib.sha256(content).hexdigest()
         return texts[name]
     selection = "explicit" if main else "automatic"
     if (root / ".als.json").exists():
-        observed[".als.json"] = sha256(safe_path(root, ".als.json"))
-        config = load_config(root)
+        content = read_source(safe_path(root, ".als.json"))
+        observed[".als.json"] = hashlib.sha256(content).hexdigest()
+        config = parse_config(root, content, observed)
         if main is None:
             selection = "configuration"
         main = main or config["main"]
@@ -159,16 +164,36 @@ def inspect_project(root, main=None, engine=None, backend=None):
               "root_selection": selection,
               "root_candidate_scope": "all-project-tex" if selection == "automatic" else "selected-main-only",
               "configuration_sha256": observed.get(".als.json"),
-              "inputs": [], "dependencies": [], "diagnostics": [], "status": "ready",
+              "inputs": [], "observed_files": [], "dependencies": [], "diagnostics": [], "status": "ready",
               "limitations": ["Static literal references only: macro expansion, grouping, conditionals, system class/package internals and external search paths are not evaluated.",
+                              "Literal scanning assumes ordinary category codes; custom verbatim environments and package escape/termination options are not evaluated.",
                               "Default graphics extension order is a common PDF-engine subset; explicit DeclareGraphicsExtensions is honored, but driver/conversion rules are not evaluated.",
                               "A clean inspection is not a compilation or scientific-content review."]}
     def diagnostic(code, severity, file, line, message, next_step):
         result["diagnostics"].append({"code": code, "severity": severity, "file": file, "line": line,
                                       "message": message, "next_step": next_step})
+    def finalize_observations():
+        for filename, expected in sorted(observed.items()):
+            path = safe_path(root, filename)
+            actual = (hashlib.sha256(read_source(path)).hexdigest()
+                      if path.suffix.lower() in SOURCE_SUFFIXES or filename == ".als.json" else sha256(path))
+            if actual != expected:
+                raise ValueError(f"Project input changed during inspection: {filename}")
+        result["observed_files"] = [{"file": name, "sha256": digest} for name, digest in sorted(observed.items())]
+
+    # Automatic selection examines all TeX files, including malformed candidates.
+    # Explicit/configured selection examines only reachable sources below.
+    lex_checked = set()
+    if selection == "automatic":
+        for filename, text in texts.items():
+            lex_checked.add(filename)
+            for item in lex_tex(text)[1]:
+                diagnostic(item["code"], "unverified", filename, item["line"], item["message"],
+                           "Check the literal region in the actual build; later contents may be masked")
     if main is None:
         diagnostic("root-selection", "error", None, None, "No unique document root", "Choose --main from root_candidates or create .als.json with project init")
         result["status"] = "blocked"
+        finalize_observations()
         return result
     source = validate_main(root, main)
     if main not in texts or not source.is_file():
@@ -202,6 +227,11 @@ def inspect_project(root, main=None, engine=None, backend=None):
             raise ValueError("Dependency graph exceeds the supported file limit")
         text = source_text(filename)
         remember(filename)
+        if filename not in lex_checked:
+            lex_checked.add(filename)
+            for item in lex_tex(text)[1]:
+                diagnostic(item["code"], "unverified", filename, item["line"], item["message"],
+                           "Check the literal region in the actual build; later contents may be masked")
         for command in commands(text):
             name, value, line = command["name"], command["value"], command["line"]
             if not command["supported"] or "\\" in value or "#" in value:
@@ -329,9 +359,7 @@ def inspect_project(root, main=None, engine=None, backend=None):
     if backend and shutil.which(backend) is None:
         diagnostic("missing-backend", "error", main, None, f"{backend} is not on PATH", "Supply the actual bibliography tool on PATH")
     result["packages"] = sorted(packages)
-    for filename, expected in observed.items():
-        if sha256(safe_path(root, filename)) != expected:
-            raise ValueError(f"Project input changed during inspection: {filename}")
+    finalize_observations()
     result["status"] = "blocked" if any(item["severity"] == "error" for item in result["diagnostics"]) else "needs-review" if result["diagnostics"] else "ready"
     return result
 

@@ -71,7 +71,9 @@ def check_distribution(wheel, output):
             raise ValueError("Installed benchmark did not retain the expected synthetic control and missing pair")
         main = cwd / "paper/main.tex"
         main.parent.mkdir()
-        main.write_text("\\documentclass{article}\n\\begin{document}Example\\end{document}\n", encoding="utf-8")
+        main.write_text("% \\begin{verbatim}\n\\documentclass{article}\n"
+                        "\\begin{document}Example\\\\input{absent} \\verb 1\\input{absent}1\\end{document}\n"
+                        "% \\end{verbatim}\n", encoding="utf-8")
         run([command, "project", "init", main.parent, "--main", "main.tex"])
         if not (main.parent / ".als.json").is_file():
             raise ValueError("Installed CLI did not initialize the selected project")
@@ -82,6 +84,9 @@ def check_distribution(wheel, output):
                 or any(item["code"] != "missing-engine" for item in inspection["diagnostics"])
                 or "LaTeX 项目检查" not in (cwd / "inspection.html").read_text(encoding="utf-8")):
             raise ValueError("Installed project inspection/report resources failed first-use checks")
+        if ({item["file"] for item in inspection["observed_files"]} != {".als.json", "main.tex"}
+                or inspection["dependencies"]):
+            raise ValueError("Installed scanner mistook comment/verbatim/control-symbol examples for dependencies")
         candidate = cwd / "candidate"
         candidate.mkdir()
         (candidate / "main.tex").write_text("\\documentclass{article}\n\\begin{document}Example 42\\end{document}\nTODO: confirm value\n", encoding="utf-8")

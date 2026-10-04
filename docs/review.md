@@ -74,6 +74,13 @@ scientific semantics are outside the literal math check. Comments and common
 verbatim forms are masked for content signals; visible author markers are
 scanned in source text, including comments.
 
+Commented code examples cannot mask live number/reference changes. Supported
+verbatim examples do not contribute literal content signals. The additive
+`source_scan_issues` field and a separate HTML section locate unfinished inline
+verbs and verbatim regions on both sides, including unchanged TeX/class/package
+files. Absent content flags cannot establish fidelity when regions are incomplete.
+See the [literal scanner coverage](project.md) before interpreting these signals.
+
 The report escapes source/notes and supports narrow screens and dark mode.
 See the [complete project example](../examples/full-paper/README.md) for a
 repair workflow with English and Chinese builds and an unresolved author choice.

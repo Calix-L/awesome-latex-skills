@@ -11,7 +11,8 @@ import shutil
 import sys
 import tempfile
 
-from project_doctor import commands, inventory, mask_tex, GENERATED, SOURCE_SUFFIXES, ASSET_SUFFIXES
+from project_doctor import commands, inventory, mask_tex, read_source, GENERATED, SOURCE_SUFFIXES, ASSET_SUFFIXES
+from tex_lexer import lex_tex
 from project_support import read_json, safe_path, sha256, write_new_json
 from review_report import review_html
 from artifact_integrity import seal_review
@@ -177,7 +178,7 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
     notes_text = Path(notes).expanduser().read_text(encoding="utf-8-sig") if notes else None
     report = {"schema": 1, "kind": "project_review", "before": {"root": str(before), "files": original},
               "after": {"root": str(after), "files": candidate}, "builds": {}, "changes": [],
-              "content_audit": [], "author_decisions": [], "notes": notes_text, "language": language,
+              "content_audit": [], "source_scan_issues": [], "author_decisions": [], "notes": notes_text, "language": language,
               "inventory_scope": {"extensions": sorted(SOURCE_SUFFIXES | ASSET_SUFFIXES), "configuration": ".als.json",
                                   "excluded_directories": sorted(GENERATED), "other_files": "not inspected"},
               "interpretation": "Build success, literal invariants and scientific fidelity are distinct. No AI quality score or venue compliance is inferred."}
@@ -189,7 +190,7 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
             return ""
         key = (root, name)
         if key not in parsed:
-            data = safe_path(root, name).read_bytes()
+            data = read_source(safe_path(root, name))
             if hashlib.sha256(data).hexdigest() != files[name]["sha256"]:
                 raise ValueError(f"Project inputs changed before parsing: {name}")
             parsed[key] = data.decode("utf-8-sig")
@@ -198,6 +199,11 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
     with tempfile.TemporaryDirectory(prefix=".review-", dir=output.parent) as temporary:
         bundle = (Path(temporary) / "review").resolve()
         bundle.mkdir()
+        for side, root, files in (("before", before, original), ("after", after, candidate)):
+            for name in sorted(files):
+                if Path(name).suffix.lower() in {".tex", ".cls", ".sty"}:
+                    for item in lex_tex(source_text(root, name, files))[1]:
+                        report["source_scan_issues"].append({"side": side, "file": name, **item})
         for name in sorted(set(original) | set(candidate)):
             if original.get(name) == candidate.get(name):
                 continue
@@ -240,6 +246,7 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
     return {"schema": 1, "status": "ready-for-review", "output": str(output), "report": str(output / "report.html"),
             "integrity": str(output / "integrity.json"),
             "changed_files": len(report["changes"]), "content_flags": len(report["content_audit"]),
+            "source_scan_issues": len(report["source_scan_issues"]),
             "open_decisions": len(report["author_decisions"]), "builds": {side: item["status"] for side, item in report["builds"].items()}}
 
 

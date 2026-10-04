@@ -23,6 +23,9 @@ To run one area: `python -m unittest discover -s tests -p test_install.py -v`.
   exclusions, class/package loader variants, bibliography styles, source-order
   graphics paths and explicit extension priorities, dynamic invalidation, source
   cycles, repeated packages, exact parsed-byte binding and pruned environments.
+  Source-order comment/verbatim/control-symbol masking, numeric verb delimiters,
+  CRLF/Unicode offsets, unfinished literal regions, bounded reads, full observation
+  records on ambiguous selection and restored-configuration races are covered.
   Escaped English/Chinese HTML reports preserve missing/skipped/unverified states,
   blocked exit codes and fresh destinations. Native tests compare the selected
   class/input/graphics files with real TeX recorder inputs and verify that a late

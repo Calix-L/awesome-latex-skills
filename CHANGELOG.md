@@ -2,6 +2,21 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.10.0 — 2026-10-05
+
+### Fixed
+
+- Scan comments, control symbols and supported literal regions in source order. Commented verbatim openers cannot hide live dependencies or numeric/reference changes; escaped backslashes cannot create fake commands. Inline verb supports spaces, stars and numeric delimiters while preserving UTF-8 offsets and CRLF.
+- Locate unfinished inline verbs and verbatim environments as unverified diagnostics; review HTML/JSON surfaces incomplete regions on both sides, including unchanged TeX/class/package sources.
+- Bind configuration fingerprints to the bytes parsed, bound source/configuration reads even after inventory, and recheck observations on ambiguous-root returns. Additive `observed_files` records all root-selection/configuration/dependency reads separately from reachable `inputs`, with bilingual HTML sections.
+
+### Validation
+
+- Add 20 portable regressions and two native TeX tests comparing literal scan decisions with real recorder inputs and compilation failure. Source line lookup avoids repeated full-prefix counting; a 20,000-line control verifies locations.
+- Fresh wheel and rebuilt-sdist checks exercise comment/verbatim/control-symbol handling and complete observation records outside the checkout. Update bilingual README/project/review guides with coverage and limitations.
+
+Static literal scanning still does not evaluate macro expansion, grouping, conditionals, category-code changes or custom verbatim/package escape rules. No model-quality gain is claimed.
+
 ## 1.9.0 — 2026-10-05
 
 ### Added

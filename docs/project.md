@@ -63,6 +63,13 @@ sources without parsing unrelated `.tex` files. `root_selection` and
 `root_candidate_scope` record whether candidates cover the full inventory or
 only the selected root.
 
+`inputs` contains reachable dependency inputs. `observed_files` contains every
+file read in this inspection, including other `.tex` sources used for automatic
+root selection, the parsed configuration and its validated main source. Even an ambiguous-root `blocked`
+report retains these fingerprints and rechecks the observed files before return.
+HTML displays both lists separately. Fingerprints bind parsed bytes; they do not
+lock concurrent edits or authenticate authors.
+
 It follows braced and ordinary unbraced `input`, multiline literal arguments,
 quoted filenames, `include`, literal `includeonly`, graphics, bibliography
 files, local bibliography styles, and supplied local classes/packages, including
@@ -85,7 +92,24 @@ An unsupported dynamic declaration makes subsequent graphics lookup unverified
 instead of reusing an older path as if it were current. Exact driver rules,
 automatic conversions and TeX search configuration still require actual builds.
 
-Comments and common verbatim forms are excluded from these checks. Project
+## Literal examples and incomplete regions
+
+Scanning follows source order: a commented verbatim opener cannot mask later
+live input. Escaped percent signs remain literal; the control symbol `\\` does
+not create a second command. `verb`/`verb*` supports horizontal spaces before
+the delimiter and numeric delimiters. Literal `verbatim`/`verbatim*`, `lstlisting`
+and `minted` regions are masked while preserving offsets, line numbers and CRLF.
+Inline behavior is based on the
+[LaTeX kernel source](https://github.com/latex3/latex2e/blob/main/base/ltmiscen.dtx).
+
+An unfinished inline verb masks only its current line. An environment without
+a literal end marker masks the remaining source. Both emit located unverified
+diagnostics, so absent dependency signals cannot establish completeness. Category
+code changes, custom verbatim environments and package escape/termination options
+are not interpreted. An actual build remains necessary. Source/configuration
+reads are bounded to 2,000,000 bytes, including files growing after inventory.
+
+Comments and supported literal regions are excluded from these checks. Project
 paths stay inside the selected root; symlinks are refused. Inputs outside this
 boundary or dynamic macro arguments are reported as unverified. File hashes bind
 the actual parsed bytes; changes during inspection are refused.
