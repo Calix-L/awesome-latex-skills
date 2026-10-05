@@ -82,3 +82,14 @@ files. The direct build helper adds only a trailing optional `watch_inputs`.
 Schema-1 review build summaries add `watched_inputs`; missing legacy selection
 metadata means no explicit guard. No configuration schema change or inferred
 backend-consumption record. [English](build-inputs.md) / [中文](build-inputs_CN.md).
+
+## Citation inventories / 文献引用清单
+
+Schema-1 inspection adds a flat `citation_inventory`; schema-1 review adds
+`citation_inventory.before/after`. Rows contain literal `key`, `command`, `file`,
+command-opening `line`, 1-based argument `group` and Boolean `starred`. Old reports
+without the field still render. Existing `reference_keys` counters now include
+common natbib/biblatex commands and every complete multicite group.
+`citation-unverified` reports incomplete or special syntax; partial inventories
+never imply exhaustive coverage. Configuration/build schemas stay unchanged.
+[English](citations.md) / [中文](citations_CN.md).

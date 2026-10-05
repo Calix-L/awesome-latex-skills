@@ -199,3 +199,16 @@ followed by an author edit must produce failed consistency evidence. The complet
 English/Chinese case selects its bibliography and style, and fresh installed
 wheel/rebuilt-sdist checks validate help and traversal refusal without requiring
 TeX. These synthetic checks do not measure model quality or infer backend use.
+
+## Citation grammar and missed-key controls
+
+`test_citations.py` covers common/capital/starred commands, multicite groups,
+brace-protected and escaped note delimiters, comments/verbatim/control names,
+prose wrappers, wildcard scope, exact/Unicode keys, invalid/dynamic/special syntax,
+partial and deep arguments, source lines, key-only review changes, multiplicity,
+unchanged unverified sources, bilingual escaped tables, legacy reports and sealed
+inventory tampering. Native CI compares literal inventories with actual Biber BCF
+and BibTeX AUX keys, compiles valid natbib/biblatex notes and wrappers, then detects
+a deliberately missing second-group citation in both inspection and native build.
+Fresh original-wheel/rebuilt-sdist controls exercise both inspection and key-only
+review outside the checkout. These synthetic controls are not model evaluations.

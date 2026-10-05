@@ -17,6 +17,7 @@ from math_lexer import MATH_ENVIRONMENTS, scan_math_environments
 from project_support import read_json, safe_path, sha256, write_new_json
 from review_report import review_html
 from artifact_integrity import seal_review
+from citation_lexer import CITATION_NAMES
 
 
 def snapshot(root):
@@ -28,7 +29,7 @@ def content_tokens(text):
     masked = mask_tex(text)
     numbers = Counter(re.findall(r"(?<![\w])[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?", masked))
     keys = Counter((command["name"], key.strip()) for command in commands(text)
-                   if command["supported"] and (command["name"] == "label" or command["name"].startswith("cite") or command["name"] in {"nocite", "ref", "eqref", "cref", "Cref", "pageref", "autoref"})
+                   if command["supported"] and (command["name"] in CITATION_NAMES or command["name"] in {"label", "ref", "eqref", "cref", "Cref", "pageref", "autoref"})
                    for key in command["value"].split(","))
     math = Counter(simple_math(masked))
     return numbers, keys, math
@@ -193,6 +194,7 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
     report = {"schema": 1, "kind": "project_review", "before": {"root": str(before), "files": original},
               "after": {"root": str(after), "files": candidate}, "builds": {}, "changes": [],
               "content_audit": [], "source_scan_issues": [], "math_environment_inventory": {"before": [], "after": []},
+              "citation_inventory": {"before": [], "after": []},
               "math_environment_scope": {"environments": sorted(MATH_ENVIRONMENTS),
                                          "interpretation": "Complete literal outer spans only; nested bodies retained. No macro expansion, conditional/group evaluation, custom math environments or mathematical equivalence check."},
               "author_decisions": [], "notes": notes_text, "language": language,
@@ -224,6 +226,14 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
                     spans, issues = scan_math_environments(text)
                     math_spans[(root, name)] = spans
                     report["math_environment_inventory"][side].extend({"file": name, **item} for item in spans)
+                    for command in commands(text):
+                        if "citation_issue" in command:
+                            report["source_scan_issues"].append({"side": side, "file": name, "line": command["line"],
+                                                               "code": "citation-unverified", "message": command["citation_issue"] + ": " + command["name"]})
+                        elif command["name"] in CITATION_NAMES and command["supported"]:
+                            report["citation_inventory"][side].extend({"file": name, "line": command["line"], "command": command["name"],
+                                                                      "key": key.strip(), "group": command["citation_group"], "starred": command["starred"]}
+                                                                     for key in command["value"].split(","))
                     for item in lex_tex(text)[1] + issues:
                         report["source_scan_issues"].append({"side": side, "file": name, **item})
         for name in sorted(set(original) | set(candidate)):

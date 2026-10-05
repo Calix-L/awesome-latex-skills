@@ -154,3 +154,9 @@ JSON 保留表示工具探测的 `local_prerequisites_met`，新增完整 `proje
 保持原文。`--main` 必须配合 `--project`。不提供项目时保留原有 pdfLaTeX 默认。
 
 [任务指南](tasks_CN.md) · [兼容约定](compatibility.md#中文说明)
+
+## 常用文献引用命令
+
+LaTeX、natbib、biblatex 的常用命令共用带位置的 `citation_inventory`，
+多组引用逐组检查；不完整、动态或特殊命令明确提示未验证。
+[语法与操作](citations_CN.md)。

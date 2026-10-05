@@ -14,6 +14,7 @@ import sys
 from project_support import parse_json, safe_path, sha256, write_new_json
 from tex_lexer import TOKEN, lex_tex, mask_tex
 from bib_lexer import ASCII_FOLD, scan_bibliography
+from citation_lexer import CITATION_NAMES, citation_candidate, citation_arguments
 
 ENGINES = ("pdflatex", "xelatex", "lualatex")
 BACKENDS = (None, "bibtex", "biber")
@@ -32,7 +33,27 @@ GRAPHICS_ARGUMENT = re.compile(r"\{(?P<value>(?:\{[^{}]*\}\s*)*)\}")
 def commands(text):
     masked = mask_tex(text)
     newlines = [match.start() for match in re.finditer("\n", masked)]
+    consumed = 0
     for token in TOKEN.finditer(masked):
+        if token.start() < consumed:
+            continue
+        name = token[0][1:]
+        if citation_candidate(name):
+            offset = token.end()
+            starred = masked[offset:offset + 1] == "*"
+            offset += int(starred)
+            values, consumed, issue = (citation_arguments(masked, offset, name) if name in CITATION_NAMES
+                                       else ([], offset, "Custom or special citation syntax is unsupported"))
+            line = bisect_right(newlines, token.start()) + 1
+            for index, value in enumerate(values, 1):
+                yield {"name": name, "value": value, "options": "", "supported": True,
+                       "line": line, "citation_group": index, "starred": starred}
+            if issue:
+                yield {"name": name, "value": "", "options": "", "supported": False,
+                       "line": line, "citation_issue": issue}
+            continue
+        if name == "citetext":
+            continue  # Its prose is not a key; nested citation tokens remain visible.
         match = COMMAND.match(masked, token.start())
         if match is None:
             continue
@@ -165,11 +186,12 @@ def inspect_project(root, main=None, engine=None, backend=None):
               "root_selection": selection,
               "root_candidate_scope": "all-project-tex" if selection == "automatic" else "selected-main-only",
               "configuration_sha256": observed.get(".als.json"),
-              "inputs": [], "observed_files": [], "dependencies": [], "bibliography_entries": [], "diagnostics": [], "status": "ready",
+              "inputs": [], "observed_files": [], "dependencies": [], "bibliography_entries": [], "citation_inventory": [], "diagnostics": [], "status": "ready",
               "limitations": ["Static literal references only: macro expansion, grouping, conditionals, system class/package internals and external search paths are not evaluated.",
                               "Literal scanning assumes ordinary category codes; custom verbatim environments and package escape/termination options are not evaluated.",
                               "Default graphics extension order is a common PDF-engine subset; explicit DeclareGraphicsExtensions is honored, but driver/conversion rules are not evaluated.",
                               "Bibliography headers only: field grammar, string expansion, aliases, inheritance, crossref/xdata and backend/style acceptance are not validated. Citation keys are compared exactly.",
+                              "Common literal citation commands only; notes are not keys. Custom/special citation syntax, commands inside notes, macro-generated keys and manual bibitem definitions are not evaluated.",
                               "A clean inspection is not a compilation or scientific-content review."]}
     def diagnostic(code, severity, file, line, message, next_step):
         result["diagnostics"].append({"code": code, "severity": severity, "file": file, "line": line,
@@ -236,6 +258,9 @@ def inspect_project(root, main=None, engine=None, backend=None):
                            "Check the literal region in the actual build; later contents may be masked")
         for command in commands(text):
             name, value, line = command["name"], command["value"], command["line"]
+            if "citation_issue" in command:
+                diagnostic("citation-unverified", "unverified", filename, line, command["citation_issue"] + f": {name}", "Check the actual citation command with its package/backend; the key inventory may be incomplete")
+                continue
             if not command["supported"] or "\\" in value or "#" in value:
                 diagnostic("dynamic-reference", "unverified", filename, line, f"Dynamic {name} argument: {value}", "Inspect macro expansion in the actual build")
                 if name == "graphicspath":
@@ -292,8 +317,13 @@ def inspect_project(root, main=None, engine=None, backend=None):
             if name in {"ref", "eqref", "pageref", "autoref", "cref", "Cref"}:
                 references.extend((key.strip(), filename, line) for key in value.split(","))
                 continue
-            if name.startswith("cite") or name == "nocite":
-                citations.extend((key.strip(), filename, line) for key in value.split(",") if key.strip() != "*")
+            if name in CITATION_NAMES:
+                for key in value.split(","):
+                    key = key.strip()
+                    result["citation_inventory"].append({"file": filename, "line": line, "command": name,
+                                                         "key": key, "group": command["citation_group"], "starred": command["starred"]})
+                    if name != "nocite" or key != "*":
+                        citations.append((key, filename, line))
                 continue
             if name not in {"input", "include", "includegraphics", "bibliography", "addbibresource"}:
                 continue

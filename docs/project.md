@@ -205,3 +205,9 @@ and source diagnostic text and JSON remain unchanged. `--main` requires
 `--project`. Environment-only doctor keeps its legacy pdfLaTeX default.
 
 [Task recipes](tasks.md) · [Compatibility policy](compatibility.md)
+
+## Common citation commands
+
+Common LaTeX/natbib/biblatex commands now share a located `citation_inventory`,
+including all complete multicite groups. Malformed/dynamic or special commands
+remain explicitly unverified. [Grammar and workflow](citations.md).

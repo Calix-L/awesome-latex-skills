@@ -96,3 +96,10 @@ from preflight onward, even without engine recorder coverage. Review rechecks al
 their starting/step hashes, rejects later source changes and displays the selected
 scope beside the retained build. Legacy reports with no selection metadata remain
 usable; this does not infer backend consumption. [Build-input guide](build-inputs.md).
+
+## Citation key changes
+
+The shared scanner now catches common natbib/biblatex citation changes, including
+a second or later multicite group. Both source versions retain located inventories;
+unsupported syntax appears in `source_scan_issues` even in unchanged files.
+[Coverage and example](citations.md).

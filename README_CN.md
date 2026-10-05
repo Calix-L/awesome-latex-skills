@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.17.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.17.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.18.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.18.0"></a>
 </p>
 
 <p align="center">五个专注于论文工作的 Agent Skills：修复编译、润色表达、转换格式、阅读论文、恢复源码。</p>
@@ -180,18 +180,14 @@ als paper --output work/full-paper-run --language zh
 |---|---|
 | 阅读静态问题与处理建议 | `project-inspection/report.html` |
 | 检查文献条目、重复键与字段内示例 | [参考文献指南](./docs/bibliography_CN.md) |
+| 定位常用引用命令、核对引用键变化 | [文献引用检查](./docs/citations_CN.md) |
+| 对照公式内容与运算符变化 | [公式审查](./docs/math-review_CN.md) |
+| 监测构建中的指定文献库与样式 | [构建输入监测](./docs/build-inputs_CN.md) |
 | 核验收到的检查报告 | `als verify inspection path/to/report-directory` |
 | 审阅源码修改与实际 PDF 页面 | `full-paper-run/review/report.html` |
 
 中文审阅页集中展示改动文件、数值/引用/公式变化、待作者确认项和构建状态；
 可展开差异与证据文件，不必先阅读完整 JSON。界面支持窄屏与深色模式。
-
-**核对公式修改。** `equation`、`align` 等常用环境中只改运算符的变化也会提示审查，
-并排保留可展开的公式内容和源码行号。[检查范围与示例](./docs/math-review_CN.md)。
-
-**核对构建输入。** 重复 `--watch-input` 可监测指定文献库、样式等本地文件，
-覆盖构建前和各原生步骤；文件变化会使构建核验失败，之后再改动也会使旧构建证据
-无法附到当前稿件。[使用监测选项](./docs/build-inputs_CN.md)。
 
 检查器区分注释、转义反斜杠与原样文本，保留真实依赖及源码位置。未闭合的代码
 示例会明确提示；自动主文件选择也记录全部已读取文件的指纹。详见
@@ -299,7 +295,7 @@ python scripts/als.py examples run --output work/example-run
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.17.0
+python scripts/als.py release --output dist/1.18.0
 ```
 
 [CLI 与 JSON 报告](./docs/cli.md) · [中文评测指南](./docs/evaluation_CN.md) ·

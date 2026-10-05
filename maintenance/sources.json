@@ -163,6 +163,32 @@
         "docs/math-review.md",
         "docs/math-review_CN.md"
       ]
+    },
+    {
+      "id": "biblatex-citation-grammar",
+      "url": "https://ctan.math.illinois.edu/macros/latex/contrib/biblatex/doc/biblatex.pdf",
+      "scope": "biblatex manual section 3.9: common key commands, optional notes and multicite groups; special volume/field grammar deliberately unverified",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-05",
+      "applies_to": [
+        "scripts/citation_lexer.py",
+        "docs/citations.md",
+        "docs/citations_CN.md"
+      ]
+    },
+    {
+      "id": "natbib-citation-grammar",
+      "url": "https://mirrors.ctan.org/macros/latex/contrib/natbib/natbib.pdf",
+      "scope": "natbib manual sections 2.3-2.5: key commands, capital/star forms, notes and citetext prose wrapper",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-05",
+      "applies_to": [
+        "scripts/citation_lexer.py",
+        "docs/citations.md",
+        "docs/citations_CN.md"
+      ]
     }
   ]
 }

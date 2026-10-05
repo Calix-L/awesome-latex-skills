@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.17.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.17.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.18.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.18.0"></a>
 </p>
 
 <p align="center">Five skills for LaTeX repair, academic editing, submission formatting, paper reading, and PDF recovery.</p>
@@ -188,20 +188,15 @@ and integrity manifest together. The full runner seals both inspection reports.
 |---|---|
 | Understand static issues | `project-inspection/report.html` |
 | Inspect bibliography headers and repeated keys | [Bibliography guide](./docs/bibliography.md) |
+| Locate common citation commands and changed keys | [Citation checks](./docs/citations.md) |
+| Compare formula bodies and operator changes | [Formula review](./docs/math-review.md) |
+| Monitor selected bibliography/style inputs during builds | [Build input guards](./docs/build-inputs.md) |
 | Check a transferred report | `als verify inspection path/to/report-directory` |
 | Review source edits and real PDF pages | `full-paper-run/review/report.html` |
 
 The review opens with file changes, literal content signals, author decisions
 and build states; source diffs and complete evidence remain expandable.
 Use `--language zh` on `als review` or `als paper` for a Chinese interface.
-
-**Check formula edits.** Operator changes inside `equation`, `align` and other
-common math environments now appear as review signals, with expandable formula
-text and source lines on both sides. [Coverage and examples](./docs/math-review.md).
-
-**Keep build inputs consistent.** Repeat `--watch-input` to monitor selected local
-bibliography/style files from preflight through native passes. Changed inputs fail
-the check and later edits invalidate attached build evidence. [Use the guard](./docs/build-inputs.md).
 
 Inspection distinguishes comments, escaped backslashes and supported literal
 examples while retaining real dependencies and source locations. Incomplete
@@ -318,7 +313,7 @@ The skill does not silently turn a relative percentage into percentage points.
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.17.0
+python scripts/als.py release --output dist/1.18.0
 ```
 
 [CLI & JSON reports](./docs/cli.md) · [Ten-task evaluation protocol](./docs/evaluation.md) ·

@@ -72,3 +72,9 @@ als paper --output work/full-paper-zh --language zh
 审阅时会重新核对初始与各步骤指纹，拒绝构建后的源码变化，并在所附构建旁展示
 选择清单。没有监测字段的旧报告保持可用，监测不证明实际文献后端读取范围。
 [输入监测指南](build-inputs_CN.md)。
+
+## 文献引用键变化
+
+常用 natbib/biblatex 命令及第二组以后的多组引用键变化也会提示核对。
+修改前后保留带位置的引用清单；未改动文件里的暂不支持语法同样进入
+`source_scan_issues`。[范围与示例](citations_CN.md)。

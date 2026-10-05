@@ -2,6 +2,25 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.18.0 — 2026-10-05
+
+### Fixed
+
+- Static inspection and source review now recognize common natbib/biblatex citations such as `parencite`, `textcite`, `autocite` and capital variants. Every complete multicite group is checked, including keys previously missed after the first group.
+- Citation notes honor brace-protected/escaped delimiters. `citetext` prose no longer becomes a false citation key; nested citations remain visible. Only `nocite` exempts the all-entries wildcard from unknown-key checking.
+
+### Added
+
+- Located citation inventories in schema-1 inspection and both review versions, retaining command, key, group index, opening line and star variant. Bilingual offline pages add escaped, expandable inventory tables; old reports remain renderable.
+- Malformed, dynamic, excessively nested or unsupported special/custom citation grammar produces located unverified findings, including unchanged review sources. Earlier complete groups remain explicitly partial evidence.
+- English/Chinese citation recipes, reviewed primary grammar sources and consolidated README task tables improve navigation without extending the command-line grammar or configuration schema.
+
+### Validation
+
+- Twenty-six portable citation regressions and two native regressions compare inventories with actual BibTeX AUX / Biber BCF keys, compile supported notes/capital forms/prose wrappers, and check a missing later-group key against a real unresolved native build. Fresh original-wheel/rebuilt-sdist checks exercise located inspection and citation-key-only change review.
+
+Literal inventories do not evaluate macros, conditional execution, refsections, aliases, custom package/style availability, manual bibitem targets or scientific claim support. Unsupported syntax can leave inventories incomplete; native compilation and human review remain distinct.
+
 ## 1.17.0 — 2026-10-05
 
 ### Added

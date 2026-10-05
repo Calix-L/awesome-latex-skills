@@ -58,6 +58,66 @@ class CompilationTests(unittest.TestCase):
                 evidence.append(f"{step['transcript']}:\n" + transcript.read_text(encoding="utf-8", errors="replace")[-4000:])
         self.fail("\n\n".join(evidence))
 
+    def test_real_biblatex_multicites_and_second_group_missing_key(self):
+        from review_project import review
+        from verify_artifacts import verify_review
+        import xml.etree.ElementTree as ET
+        refs = "@book{a,author={Alice Author},title={First},year={2020}}\n@book{b,author={Bob Author},title={Second},year={2021}}\n"
+        prefix = (r"\documentclass{article}\usepackage[backend=biber,style=authoryear]{biblatex}"
+                  r"\addbibresource{refs.bib}\begin{document}")
+        body = (r"\parencite[see {nested ] note}][p. 7]{a} \textcite{b}. "
+                r"\parencites(see {nested ) note})(together)[p. 2]{a}[p. 3]{b}. "
+                r"\autocites{a}{b}. \Textcite{a}. \footcite{b}. ")
+        source = prefix + body + r"\printbibliography\end{document}"
+        for side, text in (("before", source), ("after", source.replace("[p. 3]{b}", "[p. 3]{missing}"))):
+            folder = self.work / side
+            folder.mkdir()
+            main = folder / "main.tex"
+            main.write_text(text, encoding="utf-8")
+            (folder / "refs.bib").write_text(refs, encoding="utf-8")
+            original = main.read_bytes()
+            inspection = inspect_project(folder, "main.tex", "pdflatex", "biber")
+            unknown = [r for r in inspection["diagnostics"] if r["code"] == "unknown-citation"]
+            self.assertEqual(len(unknown), 0 if side == "before" else 1)
+            self.assertFalse(any(r["code"] == "citation-unverified" for r in inspection["diagnostics"]))
+            built = check_build.build(main, self.work / f"citation-{side}", backend="biber", passes=5,
+                                      until_stable=True, require_resolved=True, watch_inputs=["refs.bib"])
+            if side == "before":
+                self.assert_build_success(built)
+            else:
+                self.assertEqual(built["status"], "failed")
+                self.assertTrue(built["unresolved_references"])
+            control = ET.parse(Path(built["output"]) / "main.bcf")
+            actual = {node.text for node in control.iter() if node.tag.endswith("}citekey")}
+            self.assertEqual(actual, {r["key"] for r in inspection["citation_inventory"]})
+            self.assertEqual(main.read_bytes(), original)
+        output = self.work / "citation-review"
+        result = review(self.work / "before", self.work / "after", output, language="zh")
+        self.assertEqual(result["content_flags"], 1)
+        self.assertEqual(result["source_scan_issues"], 0)
+        evidence = json.loads((output / "review.json").read_text(encoding="utf-8"))
+        self.assertEqual(set(evidence["content_audit"][0]), {"file", "requires_review", "reference_keys"})
+        self.assertEqual(verify_review(output)["status"], "verified")
+
+    def test_real_natbib_capital_commands_and_prose_wrapper(self):
+        source = self.work / "main.tex"
+        source.write_text(r"\documentclass{article}\usepackage{natbib}\begin{document}"
+                          r"\Citet{a}. \Citep*[see {nested ] note}][p. 7]{b}. "
+                          r"\citetext{private communication; \citealp{a}}. "
+                          r"\Citeauthor{b}. \bibliographystyle{plainnat}\bibliography{refs}\end{document}", encoding="utf-8")
+        (self.work / "refs.bib").write_text("@book{a,author={Alice Author},title={First},year={2020}}\n@book{b,author={Bob Author},title={Second},year={2021}}", encoding="utf-8")
+        expected = source.read_bytes()
+        inspection = inspect_project(self.work, "main.tex", "pdflatex", "bibtex")
+        self.assertEqual(inspection["diagnostics"], [])
+        self.assertEqual([r["key"] for r in inspection["citation_inventory"]], ["a", "b", "a", "b"])
+        built = check_build.build(source, self.work / "natbib-build", backend="bibtex", passes=5,
+                                  until_stable=True, require_resolved=True, watch_inputs=["refs.bib"])
+        self.assert_build_success(built)
+        aux = (Path(built["output"]) / "main.aux").read_text(encoding="utf-8")
+        actual = {key for value in re.findall(r"\\citation\{([^}]+)\}", aux) for key in value.split(",")}
+        self.assertEqual(actual, {r["key"] for r in inspection["citation_inventory"]})
+        self.assertEqual(source.read_bytes(), expected)
+
     def test_real_math_environment_changes_compile_and_remain_visible_in_review(self):
         from math_lexer import MATH_ENVIRONMENTS
         from review_project import review

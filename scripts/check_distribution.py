@@ -169,7 +169,7 @@ def check_distribution(wheel, output):
         bib_project = cwd / "bibliography-paper"
         bib_project.mkdir()
         shutil.copyfile(ROOT / "tests/fixtures/bibliography/headers.bib", bib_project / "refs.bib")
-        (bib_project / "main.tex").write_text(r"\documentclass{article}\cite{brace,paren,percent,comment-active,fake-braced,fake-quoted,fake-string}\bibliography{refs}", encoding="utf-8")
+        (bib_project / "main.tex").write_text(r"\documentclass{article}\parencites(see)(together)[{nested ] note}]{brace,paren}[p. 2]{percent,comment-active}\textcite{fake-braced}\autocite{fake-quoted}\Parencite{fake-string}\bibliography{refs}", encoding="utf-8")
         bib_report = json.loads(run([command, "--json", "project", "check", bib_project, "--backend", "bibtex",
                                      "--bundle", cwd / "bibliography-inspection", "--html-language", "zh"], expected=(0, 1)))["result"]
         if ({item["key"] for item in bib_report["bibliography_entries"]} != {"brace", "paren", "percent", "comment-active"}
@@ -178,6 +178,11 @@ def check_distribution(wheel, output):
             raise ValueError("Installed bibliography header inventory confused literal values with entries")
         if not any(item["file"] == "refs.bib" and item["sha256"] == sha256(bib_project / "refs.bib") for item in bib_report["observed_files"]):
             raise ValueError("Installed bibliography inventory was not bound to parsed database bytes")
+        if ([item["key"] for item in bib_report["citation_inventory"]] != ["brace", "paren", "percent", "comment-active", "fake-braced", "fake-quoted", "fake-string"]
+                or [item["group"] for item in bib_report["citation_inventory"][:4]] != [1, 1, 2, 2]
+                or any(item["code"] == "citation-unverified" for item in bib_report["diagnostics"])
+                or "带源码位置的文献引用" not in (cwd / "bibliography-inspection/report.html").read_text(encoding="utf-8")):
+            raise ValueError("Installed citation inventory lost common commands or later multicite groups")
         run([command, "verify", "inspection", cwd / "bibliography-inspection"])
         candidate = cwd / "candidate"
         candidate.mkdir()
@@ -211,6 +216,20 @@ def check_distribution(wheel, output):
                 or "带源码位置的公式环境" not in (math_output / "report.html").read_text(encoding="utf-8")):
             raise ValueError("Installed formula review missed an operator-only change")
         run([command, "verify", "review", math_output])
+        cite_before, cite_after = cwd / "citation-original", cwd / "citation-candidate"
+        for folder, key in ((cite_before, "old"), (cite_after, "new")):
+            folder.mkdir()
+            (folder / "main.tex").write_text(r"\documentclass{article}\parencites{same}{" + key + "}", encoding="utf-8")
+        cite_output = cwd / "citation-review"
+        cite_result = json.loads(run([command, "--json", "review", "--before", cite_before, "--after", cite_after,
+                                      "--output", cite_output, "--language", "zh"]))["result"]
+        cite_report = read_json(cite_output / "review.json")
+        if (cite_result["content_flags"] != 1 or cite_result["source_scan_issues"] != 0
+                or set(cite_report["content_audit"][0]) != {"file", "requires_review", "reference_keys"}
+                or cite_report["citation_inventory"]["after"][1]["key"] != "new"
+                or "带源码位置的文献引用" not in (cite_output / "report.html").read_text(encoding="utf-8")):
+            raise ValueError("Installed citation review missed a second-group key-only change")
+        run([command, "verify", "review", cite_output])
         result = {"schema": 1, "status": "verified", "version": version, "wheel_sha256": sha256(wheel), "steps": steps}
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         result = {"schema": 1, "status": "failed", "error": str(exc), "steps": steps}

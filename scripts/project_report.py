@@ -4,6 +4,7 @@ import html
 import json
 from pathlib import Path
 from urllib.parse import quote
+from citation_report import LABELS as CITATION_LABELS, citation_table
 
 
 LABELS = {
@@ -77,6 +78,9 @@ def inspection_html(report, language="en", json_name=None, integrity_name=None):
         target = f'<br><code>{esc(item["file"])}</code>' if item.get("file") else ""
         content.append(f'<tr><td><code>{location(item)}</code></td><td><code>{esc(item["command"])}</code></td><td><code>{esc(item["requested"])}</code></td><td>{esc(resolution)}{target}</td></tr>')
     content.append('</tbody></table></section>')
+    if "citation_inventory" in report:
+        title, *_, note = CITATION_LABELS[language]
+        content.append(f'<h2>{esc(title)}</h2><p>{esc(note)}</p><details><summary>{esc(title)} ({len(report["citation_inventory"])})</summary>{citation_table(report["citation_inventory"], language)}</details>')
     if report.get("bibliography_entries"):
         content.append(f'<h2>{esc(labels["bib"])}</h2><p>{esc(labels["bib_note"])}</p><section class="table-scroll"><table><thead><tr>')
         for label in ("key", "type", "from"):
