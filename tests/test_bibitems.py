@@ -85,6 +85,18 @@ class BibitemTests(unittest.TestCase):
         warning = next(r for r in report["diagnostics"] if r["code"] == "unknown-citation")
         self.assertEqual((warning["file"], warning["line"]), ("main.tex", 3))
 
+    def test_explicit_bbl_input_is_observed_but_implicit_generated_bbl_is_not(self):
+        self.put("embedded.bbl", r"\begin{thebibliography}{9}\bibitem{embedded} Synthetic.\end{thebibliography}")
+        self.put("main.bbl", r"\bibitem{implicit}")
+        self.put("refs.bib", "@misc{database,title={Synthetic}}")
+        report = self.check(r"\input{embedded.bbl}\bibliography{refs}\cite{embedded,database,implicit}")
+        self.assertEqual([r["file"] for r in report["bibitem_inventory"]], ["embedded.bbl"])
+        self.assertIn("embedded.bbl", {r["file"] for r in report["observed_files"]})
+        self.assertNotIn("main.bbl", {r["file"] for r in report["observed_files"]})
+        unknown = [r for r in report["diagnostics"] if r["code"] == "unknown-citation"]
+        self.assertEqual(len(unknown), 1)
+        self.assertTrue(unknown[0]["message"].endswith(" implicit"))
+
     def test_cross_file_duplicates_locate_first_and_every_later_definition(self):
         self.put("one.tex", "\\bibitem{a}\n")
         self.put("two.tex", "\n\\bibitem{a}\n\\bibitem{a}")

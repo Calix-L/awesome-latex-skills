@@ -17,7 +17,7 @@ All notable changes to awesome-latex-skills.
 
 ### Validation
 
-- Twenty portable and two native regressions cover boundaries, dependency scope, duplicate origins, unknown keys, exact spelling, source-only edits and sealed reports. Native controls compare actual AUX keys and deliberate missing/duplicate targets; original-wheel and rebuilt-sdist controls repeat first use outside the checkout.
+- Twenty-one portable and two native regressions cover boundaries, explicit/implicit BBL scope, duplicate origins, unknown keys, exact spelling, source-only edits and sealed reports. Native controls compare actual AUX keys and deliberate missing/duplicate targets; original-wheel and rebuilt-sdist controls repeat first use outside the checkout.
 
 Literal entry presence does not validate thebibliography activation, optional-label semantics, conditionals, refsections, generated BBL contents or scientific claim support. Configuration/build schemas remain unchanged.
 

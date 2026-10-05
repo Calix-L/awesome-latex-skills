@@ -230,9 +230,9 @@ quality or scientific-fidelity evaluations.
 
 ## Manual bibliography controls
 
-`test_bibitems.py` adds twenty portable regressions for optional labels, nested
+`test_bibitems.py` adds twenty-one portable regressions for optional labels, nested
 brace boundaries, comments/verbatim/internal commands, unsupported/deep syntax,
-forward/excluded/repeated/local-package inputs, located duplicates, exact keys,
+forward/excluded/repeated/local-package/explicit-BBL inputs, located duplicates, exact keys,
 database overlap, definition-only edits, distinct roles/multiplicity, unchanged
 issues, inactive sources, bilingual escaped/legacy reports and sealed evidence.
 Two native controls compare actual AUX bibcite keys with the inventory under core

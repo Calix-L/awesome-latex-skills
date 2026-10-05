@@ -79,7 +79,8 @@ Synthetic citation control: \cite{first,second}.
 `\bibitem[显示标签]{key}`。可选标签中的花括号与宏可以保留，但其含义不被
 验证，内部命令不被当成引用键。`bibitem_inventory` 记录命令起始行、文件、
 原样键与手写定义数量 `definition_count`；中英文离线报告提供可展开表格。
-生成的 `.bbl` 不在该清单内。
+显式 input 的 `.bbl` 会作为字面源码被观察；`bibliography` 隐式生成的 `.bbl`
+不会被读取。审阅则按其列出的源码扩展名建立清单，不含 `.bbl`。
 
 引用查找结合手写条目和可达数据库的已解析条目头。手写重复键按原样精确比较，
 不随后端折叠大小写；每个后续定义的 `duplicate-bibitem-key` 都定位到自身

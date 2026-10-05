@@ -90,7 +90,9 @@ reachable `.tex`, local `.sty` and `.cls` sources. The optional label may contai
 braced text/macros; it is skipped without checking its meaning or treating its
 inner commands as citation keys. The command-opening line, file, exact key and
 manual `definition_count` appear in `bibitem_inventory` and expandable English/
-Chinese HTML tables. Generated `.bbl` files are outside this inventory.
+Chinese HTML tables. An explicitly input `.bbl` is observed as a literal source;
+implicit generated `.bbl` output from `bibliography` is not read. Review instead
+uses its listed source extensions and excludes `.bbl` files.
 
 Known citation keys combine these manual observations with reachable parsed
 database headers. Manual duplicate comparison is exact, independent of backend;
