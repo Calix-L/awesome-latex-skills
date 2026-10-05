@@ -100,3 +100,9 @@ als paper --output work/full-paper-zh --language zh
 项目资源、构建元数据、保留日志/PDF 和评审备注使用有上限的普通文件读取。
 备注上限为 2,000,000 字节，JSON 为 16 MiB，单个指纹/复制证据为 512 MiB；
 报告摘要绑定实际解析字节。失败不发布评审目录。[完整边界](input-limits_CN.md)。
+
+## 准备后的参考文献输入
+
+评审保留 schema-3 参考文献步骤新增的 `prepared_inputs`：实际暂存 AUX、
+数据库与样式文件。发布前校对摘要、大小，以及所给项目内部原始资源的当前摘要。
+不含暂存字段的旧报告继续支持。[说明](relative-paths_CN.md)。

@@ -58,6 +58,84 @@ class CompilationTests(unittest.TestCase):
                 evidence.append(f"{step['transcript']}:\n" + transcript.read_text(encoding="utf-8", errors="replace")[-4000:])
         self.fail("\n\n".join(evidence))
 
+    def test_native_internal_parent_paths_match_main_directory_and_recorder(self):
+        project = self.work / 'nested-path-project'
+        for directory in ('paper', 'styles', 'shared', 'figures'):
+            (project / directory).mkdir(parents=True, exist_ok=True)
+        source = project / 'paper/main.tex'
+        source.write_text(r'\documentclass{../styles/top}\graphicspath{{../figures/}}'
+                          r'\begin{document}\input{../shared/part}\ref{shared}.'
+                          r'\includegraphics[width=1cm]{plot}\end{document}', encoding='utf-8')
+        (project / 'styles/top.cls').write_text(r'\ProvidesClass{../styles/top}\LoadClass{article}'
+                                              r'\RequirePackage{graphicx}\RequirePackage{../styles/settings}', encoding='utf-8')
+        (project / 'styles/settings.sty').write_text(r'\ProvidesPackage{../styles/settings}\newcommand{\siblingword}{Shared}', encoding='utf-8')
+        (project / 'shared/part.tex').write_text(r'\section{Shared}\label{shared}\siblingword{} \input{./local}', encoding='utf-8')
+        (project / 'paper/local.tex').write_text('Local source-directory input.', encoding='utf-8')
+        shutil.copyfile(self.work / 'plot.pdf', project / 'figures/plot.pdf')
+        original = {p.relative_to(project).as_posix(): p.read_bytes() for p in project.rglob('*') if p.is_file()}
+        inspection = inspect_project(project, 'paper/main.tex', 'pdflatex')
+        self.assertEqual(inspection['diagnostics'], [])
+        self.assertEqual(next(r['file'] for r in inspection['dependencies'] if r['requested'] == './local'), 'paper/local.tex')
+        output = self.work / 'nested-path-build'
+        built = check_build.build(source, output, passes=5, until_stable=True, require_resolved=True)
+        self.assert_build_success(built)
+        recorded = set()
+        for step in built['steps']:
+            if not step.get('recorder'):
+                continue
+            for line in (output / step['recorder']).read_text(encoding='utf-8', errors='replace').splitlines():
+                if line.startswith('INPUT '):
+                    path = Path(line[6:].strip().strip('"'))
+                    path = (path if path.is_absolute() else source.parent / path).resolve()
+                    if path.is_relative_to(project):
+                        recorded.add(path.relative_to(project).as_posix())
+        self.assertTrue({r['file'] for r in inspection['inputs']}.issubset(recorded), (inspection, recorded))
+        for name, data in original.items():
+            self.assertEqual((project / name).read_bytes(), data)
+
+    def test_native_parent_bibliography_and_local_style_with_both_backends(self):
+        for backend in ('bibtex', 'biber'):
+            project = self.work / f'parent-bibliography-{backend}'
+            for directory in ('paper', 'shared', 'styles'):
+                (project / directory).mkdir(parents=True, exist_ok=True)
+            source = project / 'paper/main.tex'
+            if backend == 'bibtex':
+                style = subprocess.check_output(['kpsewhich', 'plain.bst'], text=True, timeout=10).strip()
+                shutil.copyfile(style, project / 'styles/local.bst')
+                preamble = r'\documentclass{article}'
+                bibliography = r'\bibliographystyle{../styles/local}\bibliography{../shared/refs}'
+            else:
+                preamble = r'\documentclass{article}\usepackage[backend=biber]{biblatex}\addbibresource{../shared/refs.bib}'
+                bibliography = r'\printbibliography'
+            (project / 'paper/chapters').mkdir()
+            (project / 'paper/chapters/one.tex').write_text(r'\section{One}\cite{a}.', encoding='utf-8')
+            source.write_text(preamble + r'\begin{document}\include{chapters/one}\cite{a}.' + bibliography + r'\end{document}', encoding='utf-8')
+            (project / 'shared/refs.bib').write_text('@book{a, author={Ada Example}, title={Synthetic Parent Path}, publisher={Example}, year={2024}}', encoding='utf-8')
+            original = {p.relative_to(project).as_posix(): p.read_bytes() for p in project.rglob('*') if p.is_file()}
+            inspection = inspect_project(project, 'paper/main.tex', 'pdflatex', backend)
+            self.assertEqual(inspection['diagnostics'], [])
+            self.assertEqual(inspection['bibliography_entries'][0]['file'], 'shared/refs.bib')
+            output = self.work / f'parent-{backend}-build'
+            built = check_build.build(source, output, backend=backend, passes=5, until_stable=True, require_resolved=True)
+            self.assert_build_success(built)
+            control = (output / ('main.aux' if backend == 'bibtex' else 'main.bcf')).read_text(encoding='utf-8')
+            self.assertIn('../shared/refs', control)
+            if backend == 'bibtex':
+                self.assertIn('../styles/local', control)
+                prepared = next(row for row in built['steps'] if row['name'] == 'bibliography')['prepared_inputs']
+                self.assertEqual({row['kind'] for row in prepared}, {'bibliography', 'style', 'auxiliary'})
+                from review_project import review
+                from verify_artifacts import verify_review
+                before = self.work / 'parent-bibliography-original'
+                shutil.copytree(project, before)
+                review_output = self.work / 'parent-bibliography-review'
+                review(before, project, review_output, after_build=output / 'build-report.json', language='zh')
+                self.assertEqual(verify_review(review_output)['status'], 'verified')
+                retained = json.loads((review_output / 'review.json').read_text())['builds']['after']['retained_files']
+                self.assertTrue({row['file'] for row in prepared}.issubset({row['file'].removeprefix('evidence/after/') for row in retained}))
+            for name, data in original.items():
+                self.assertEqual((project / name).read_bytes(), data)
+
     def test_real_nested_class_and_package_loader_options(self):
         source = self.work / 'main.tex'
         source.write_text(r'\documentclass[note={nested ] text, more=value}]{alsoptionclass}'

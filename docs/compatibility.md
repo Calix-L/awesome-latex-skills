@@ -141,3 +141,14 @@ reject special files/symlinks; descriptor/path fingerprints check observed chang
 Normal inputs and legacy report rendering remain compatible; oversized or changing
 inputs now return an error before report publication. See [English](input-limits.md)
 and [中文](input-limits_CN.md). These checks are observations, not file locks.
+
+## Internal dependency paths and prepared BibTeX inputs
+
+Configuration/inspection/review/build schema numbers remain unchanged. Literal
+internal dot/parent dependencies normalize to canonical evidence names without
+relaxing configured main, watched selector or manifest paths. Bibliography steps
+optionally add structured `prepared_inputs` with file/hash/bytes/kind metadata;
+resource rows bind an original path, AUX rows record their initial AUX hash.
+Review retains these files and rechecks resource originals inside its project.
+Reports without this optional field retain previous behavior.
+[English](relative-paths.md) / [中文](relative-paths_CN.md).

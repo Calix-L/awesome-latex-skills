@@ -155,3 +155,16 @@ failures and transient path races can leave consistency unverified. Selection
 does not prove actual backend use or scientific fidelity. Rebuild current inputs
 before attaching their report to a review; never revert author edits merely to
 satisfy a stale fingerprint.
+
+## Explicit relative BibTeX resource names
+
+Generated literal `./`/`../` database/style names need the main source directory
+meaning even though BibTeX runs in the fresh output directory. The helper stages
+bounded resource copies and an adapted reachable AUX tree, keeps source/original
+AUX unchanged during preparation, and records hashes in the bibliography step
+`prepared_inputs`. Copies and originals are checked again during/finally after
+building. Ordinary names do not trigger staging; custom AUX syntax is not expanded.
+Reachable AUX is limited to 128 files of 2,000,000 bytes each; resources use the
+existing 128-file, 64 MiB/file and 256 MiB total limits. No filename-policy or
+shell-escape settings are relaxed. Review the recorded invocation and prepared
+files when diagnosing a relative-path failure.

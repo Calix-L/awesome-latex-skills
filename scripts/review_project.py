@@ -143,6 +143,27 @@ def attach_build(path, project, side, bundle, bindings=None):
     retained = [retain_file(path, evidence / "build-report.json", bundle, bindings, report_hash)]
     copied = set()
     for step in report.get("steps", []):
+        prepared = step.get("prepared_inputs", [])
+        if not isinstance(prepared, list) or len(prepared) > 256 or any(not isinstance(row, dict) for row in prepared):
+            raise ValueError("Prepared bibliography evidence must be a bounded structured list")
+        for row in prepared:
+            if row.get("kind") not in {"bibliography", "style", "auxiliary"}:
+                raise ValueError("Unknown prepared bibliography evidence kind")
+            original = safe_path(path.parent, row.get("file"))
+            if type(row.get("bytes")) is not int or original.stat().st_size != row["bytes"] or sha256(original) != row.get("sha256"):
+                raise ValueError("Prepared bibliography evidence differs from its fingerprint")
+            if row.get("kind") != "auxiliary":
+                selected = Path(row.get("original", "")).resolve()
+                if not selected.is_relative_to(project):
+                    raise ValueError("Prepared bibliography original is outside its project")
+                selected = safe_path(project, selected.relative_to(project).as_posix())
+                if sha256(selected) != row["sha256"]:
+                    raise ValueError("Prepared bibliography original changed after the build")
+                bindings.append((project, selected.relative_to(project).as_posix(), None, row["sha256"]))
+            name = row["file"]
+            if name not in copied:
+                retained.append(retain_file(original, safe_path(evidence, name), bundle, bindings, row["sha256"], path.parent))
+                copied.add(name)
         for field in ("transcript", "log", "recorder"):
             name = step.get(field)
             if name and name not in copied:

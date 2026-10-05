@@ -326,6 +326,34 @@ def check_distribution(wheel, output):
                 or loader_record["package_inventory"]["after"][-1]["backend_options"] != ["biber"]):
             raise ValueError("Installed review hid unsupported backend values or their changed declaration")
         run([command, "verify", "review", loader_review])
+        nested_project = cwd / "nested-project"
+        for name in ("paper", "styles", "shared"):
+            (nested_project / name).mkdir(parents=True, exist_ok=True)
+        nested_main = nested_project / "paper/main.tex"
+        nested_main.write_text(r"\documentclass{../styles/top}\input{../shared/part}"
+                               r"\bibliography{../shared/refs}\cite{a}", encoding="utf-8")
+        (nested_project / "styles/top.cls").write_text(r"\LoadClass{article}", encoding="utf-8")
+        (nested_project / "shared/part.tex").write_text("Synthetic sibling source", encoding="utf-8")
+        (nested_project / "shared/refs.bib").write_text("@misc{a, title={Synthetic}}", encoding="utf-8")
+        nested_output = cwd / "nested-inspection"
+        nested = json.loads(run([command, "--json", "project", "check", nested_project, "--main", "paper/main.tex",
+                                 "--bundle", nested_output, "--html-language", "zh"]))["result"]
+        expected_names = {"paper/main.tex", "styles/top.cls", "shared/part.tex", "shared/refs.bib"}
+        if ({row["file"] for row in nested["inputs"]} != expected_names
+                or [row["code"] for row in nested["diagnostics"]] != ["engine-unverified"]
+                or {row["file"] for row in nested["dependencies"]} != expected_names - {"paper/main.tex"}
+                or "../shared/part" not in (nested_output / "report.html").read_text(encoding="utf-8")):
+            raise ValueError("Installed nested project did not resolve internal parent dependencies canonically")
+        run([command, "verify", "inspection", nested_output])
+        (cwd / "external.tex").write_bytes(b"\xff")
+        nested_main.write_text(nested_main.read_text(encoding="utf-8") + r"\input{../../external}", encoding="utf-8")
+        escaped_output = cwd / "external-inspection"
+        external = json.loads(run([command, "--json", "project", "check", nested_project, "--main", "paper/main.tex",
+                                   "--bundle", escaped_output]))["result"]
+        if ({row["file"] for row in external["observed_files"]} != expected_names
+                or not any(row["code"] == "external-or-dynamic-path" for row in external["diagnostics"])):
+            raise ValueError("Installed nested project read an external parent dependency")
+        run([command, "verify", "inspection", escaped_output])
         result = {"schema": 1, "status": "verified", "version": version, "wheel_sha256": sha256(wheel), "steps": steps}
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         result = {"schema": 1, "status": "failed", "error": str(exc), "steps": steps}

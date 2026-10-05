@@ -129,3 +129,10 @@ Project assets, supplied build metadata, retained logs/PDFs and review notes now
 use bounded regular-file reads. Notes allow 2,000,000 bytes, JSON allows 16 MiB,
 and individual hashed/copied evidence allows 512 MiB. A report digest binds the
 exact parsed bytes. Failures leave no published review. [Limits](input-limits.md).
+
+## Prepared bibliography inputs
+
+Review retains additive schema-3 bibliography-step `prepared_inputs`: the actual
+staged AUX, database and style files. Stored hashes/byte counts and current
+original resource hashes inside the supplied project must match before publishing.
+Legacy reports without staging remain compatible. [Guide](relative-paths.md).

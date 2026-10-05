@@ -265,3 +265,18 @@ BBL publication limits and failed-stage cleanup. POSIX-specific controls skip
 on Windows. Installed wheel/rebuilt-sdist checks reject over-limit notes and
 metadata with exit 2 and no published directory. Existing copy-mutation tests
 now exercise the bounded copier. These are synthetic tooling controls.
+
+## Nested manuscript paths and BibTeX aliases
+
+Nineteen `test_project_paths.py` regressions check canonical internal parent
+lookup, source-directory semantics, class/package/style/bibliography/graphics
+paths, extension ordering, literal includeonly, alias cycles/repetition, missing
+directories, symlinks, outside-root refusals and sealed bilingual evidence.
+`test_bibtex_paths.py` exercises reachable AUX staging, exact copied bytes,
+comments/unreachable AUX, child records, CRLF/Unicode, alias reuse, missing/large
+inputs, fresh targets, changed input refusal and retained review evidence.
+Portable build controls preserve environment and filename checks. Two native
+controls compile parent shared resources and both bibliography backends, compare
+recorder/control files, retain staged review evidence and preserve source bytes.
+Installed original-wheel/rebuilt-sdist controls repeat internal/escaping project
+lookup outside the checkout. These are synthetic tooling controls.

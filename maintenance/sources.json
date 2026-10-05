@@ -270,6 +270,32 @@
         "docs/package-options.md",
         "docs/package-options_CN.md"
       ]
+    },
+    {
+      "id": "kpathsea-explicit-relative-search",
+      "url": "https://tug.ctan.org/systems/doc/kpathsea/kpathsea.html",
+      "scope": "Sections 5.1 and 7.2: explicit ./ and ../ names bypass ordinary path search; dependency helper remains bounded to its selected project and does not emulate full TeX search",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-05",
+      "applies_to": [
+        "docs/relative-paths.md",
+        "docs/relative-paths_CN.md",
+        "latex-rescue/scripts/check_build.py"
+      ]
+    },
+    {
+      "id": "web2c-bibtex-invocation",
+      "url": "https://www.tug.org/texinfohtml/web2c.html",
+      "scope": "Section 8.1: BibTeX AUX input, basename output in cwd and lack of AUX path searching; motivates output-local prepared input aliases without changing source files or filename checks",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-05",
+      "applies_to": [
+        "docs/relative-paths.md",
+        "docs/relative-paths_CN.md",
+        "latex-rescue/scripts/check_build.py"
+      ]
     }
   ]
 }

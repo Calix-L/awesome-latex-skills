@@ -60,3 +60,10 @@ als verify review work/guarded-review
 
 [完整中英文合成论文](../examples/full-paper/README.md)已经在实际构建中选择监测文献库
 和本地样式；导出的离线操作页也提供相应命令。
+
+## BibTeX 的显式相对资源
+
+生成的可达 AUX 中包含字面 `./`、`../` 数据库或样式名称时，BibTeX 使用
+输出目录内的暂存别名。`prepared_inputs` 记录复制字节与原始资源绑定；准备
+不会修改源码或原始 AUX，普通调用保持原状。该证据不同于 recorder 输入及
+严格相对主文件目录的监视选择器。[范围、上限与评审保留](relative-paths_CN.md)。

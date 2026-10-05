@@ -74,3 +74,12 @@ satisfy a stale report.
 The complete [English/Chinese synthetic manuscript](../examples/full-paper/README.md)
 now watches its local bibliography and style during native builds. Its exported
 offline guide includes the same selected-input commands.
+
+## Explicit relative BibTeX resources
+
+For literal `./`/`../` database or style names in generated reachable AUX files,
+BibTeX receives staged aliases inside the output directory. `prepared_inputs`
+records copied bytes and source-resource binding; preparation does not change
+source files or original AUX. Ordinary invocations remain unchanged. This is
+separate from recorder inputs and strict main-directory watch selectors.
+[Scope, limits and review retention](relative-paths.md).

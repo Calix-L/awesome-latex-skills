@@ -14,6 +14,9 @@ import sys
 
 ENGINES = ("pdflatex", "xelatex", "lualatex")
 BACKENDS = ("bibtex", "biber")
+MAX_BIBTEX_AUX_FILES = 128
+MAX_BIBTEX_AUX_BYTES = 2_000_000
+AUX_COMMAND = re.compile(r"^\\(bibdata|bibstyle|@input)\{([^{}\\\r\n]*)\}[ \t]*(?=\r?$)", re.MULTILINE)
 AUXILIARY_SUFFIXES = {".aux", ".toc", ".lof", ".lot", ".out", ".bcf", ".bbl", ".nav", ".snm"}
 MAX_WATCH_FILES = 128
 MAX_WATCH_BYTES = 64 * 1024 * 1024
@@ -29,6 +32,102 @@ def fingerprint(path, max_bytes=None):
             if max_bytes is not None and size > max_bytes:
                 raise ValueError(f"Watched input exceeds {max_bytes} bytes: {path.name}")
     return {"sha256": digest.hexdigest(), "size": size}
+
+
+def prepare_bibtex_inputs(source, output, jobname):
+    """Stage only explicit ./ or ../ database/style names, preserving AUX bytes.
+
+    BibTeX runs in the output directory for child AUX lookup and output isolation.
+    Its explicitly relative database/style names bypass BIBINPUTS/BSTINPUTS, so
+    copies with stable output-local aliases bind their source-directory meaning.
+    """
+    texts = {}
+    pending = [output / f"{jobname}.aux"]
+    while pending:
+        path = pending.pop()
+        if path in texts:
+            continue
+        if len(texts) >= MAX_BIBTEX_AUX_FILES:
+            raise ValueError("BibTeX auxiliary inventory exceeds 128 files")
+        if path.is_symlink() or not path.is_file() or path.stat().st_size > MAX_BIBTEX_AUX_BYTES:
+            raise ValueError("BibTeX AUX must be a bounded regular file")
+        with path.open("rb") as stream:
+            data = stream.read(MAX_BIBTEX_AUX_BYTES + 1)
+        if len(data) > MAX_BIBTEX_AUX_BYTES:
+            raise ValueError("BibTeX AUX exceeds the actual-read limit")
+        texts[path] = data
+        for match in AUX_COMMAND.finditer(data.decode("utf-8", "surrogateescape")):
+            if match[1] == "@input":
+                child = (output / match[2]).resolve()
+                if child.is_relative_to(output) and child.is_file():
+                    pending.append(child)
+    needed = any(name.strip().startswith(("./", "../"))
+                 for data in texts.values() for match in AUX_COMMAND.finditer(data.decode("utf-8", "surrogateescape"))
+                 if match[1] in {"bibdata", "bibstyle"} for name in match[2].split(","))
+    if not needed:
+        return jobname, []
+    stage = output / "bibtex-inputs"
+    stage.mkdir(exist_ok=False)
+    rows, resources, total = [], {}, 0
+    def resource(name, suffix):
+        nonlocal total
+        original = source.parent / (name if name.endswith(suffix) else name + suffix)
+        if original.is_symlink() or not original.is_file():
+            raise ValueError(f"Explicit relative BibTeX input is not a regular file: {name}")
+        original = original.resolve()
+        key = (original, suffix)
+        if key in resources:
+            return resources[key]
+        expected = fingerprint(original, MAX_WATCH_BYTES)
+        total += expected["size"]
+        if len(resources) >= MAX_WATCH_FILES or total > MAX_WATCH_TOTAL:
+            raise ValueError("Prepared BibTeX inputs exceed file/total byte limits")
+        target = stage / f"resource-{len(resources) + 1:04}{suffix}"
+        digest, size = hashlib.sha256(), 0
+        with original.open("rb") as stream, target.open("xb") as copied:
+            for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+                size += len(chunk)
+                if size > MAX_WATCH_BYTES:
+                    raise ValueError("Prepared BibTeX input exceeds the actual-read limit")
+                digest.update(chunk)
+                copied.write(chunk)
+        if {"sha256": digest.hexdigest(), "size": size} != expected or fingerprint(original, MAX_WATCH_BYTES) != expected:
+            raise ValueError(f"BibTeX input changed during preparation: {name}")
+        relative = target.relative_to(output).as_posix()
+        rows.append({"file": relative, "sha256": expected["sha256"], "bytes": size,
+                     "kind": "bibliography" if suffix == ".bib" else "style", "original": str(original)})
+        resources[key] = "./" + relative.removesuffix(suffix)
+        return resources[key]
+    for path, data in sorted(texts.items()):
+        def replace(match):
+            command, value = match[1], match[2]
+            if command == "@input":
+                child = (output / value).resolve()
+                if child not in texts or not child.is_relative_to(output):
+                    raise ValueError(f"BibTeX child AUX is missing or outside the output: {value}")
+                value = "./" + (stage / child.relative_to(output)).relative_to(output).as_posix()
+            else:
+                suffix = ".bib" if command == "bibdata" else ".bst"
+                value = ",".join(resource(name.strip(), suffix) if name.strip().startswith(("./", "../")) else name
+                                 for name in value.split(","))
+            return f"\\{command}{{{value}}}"
+        rendered = AUX_COMMAND.sub(replace, data.decode("utf-8", "surrogateescape")).encode("utf-8", "surrogateescape")
+        target = stage / path.relative_to(output)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("xb") as stream:
+            stream.write(rendered)
+        rows.append({"file": target.relative_to(output).as_posix(), "sha256": hashlib.sha256(rendered).hexdigest(),
+                     "bytes": len(rendered), "kind": "auxiliary", "original_auxiliary": path.relative_to(output).as_posix(),
+                     "original_sha256": hashlib.sha256(data).hexdigest()})
+    return (stage / jobname).relative_to(output).as_posix(), rows
+
+
+def check_prepared_inputs(output, rows):
+    for item in rows:
+        if fingerprint(output / item["file"], MAX_WATCH_BYTES)["sha256"] != item["sha256"]:
+            raise ValueError(f"Prepared BibTeX input changed: {item['file']}")
+        if item.get("original") and fingerprint(Path(item["original"]), MAX_WATCH_BYTES)["sha256"] != item["sha256"]:
+            raise ValueError(f"Prepared BibTeX source changed: {item['original']}")
 
 
 def watched_path(project, value):
@@ -214,7 +313,7 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
     for variable in ("TEXINPUTS", "BIBINPUTS", "BSTINPUTS"):
         environment[variable] = str(source.parent) + os.pathsep + environment.get(variable, "")
 
-    def run(command, cwd, name, native_log, recorder=None):
+    def run(command, cwd, name, native_log, recorder=None, prepared_inputs=None):
         evidence = output / "logs"
         evidence.mkdir(exist_ok=True)
         capture = evidence / f"{name}.txt"
@@ -222,6 +321,8 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
                 "name": name, "tool": engine if name.startswith("engine-") else backend,
                 "timed_out": False, "transcript": capture.relative_to(output).as_posix(), "log": None,
                 "recorder": None, "diagnostics": []}
+        if prepared_inputs:
+            step["prepared_inputs"] = prepared_inputs
         report["steps"].append(step)
         # A failed later pass must not inherit the preceding pass's native log.
         if native_log.exists():
@@ -268,6 +369,7 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
         return True
 
     try:
+        prepared_inputs = []
         prepare_include_directories(source.parent, output)
         previous_auxiliary = None
         for number in range(1, passes + 1):
@@ -293,14 +395,15 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
                     report["failure"] = f"Requested {backend}, but {control.name} was not generated"
                     break
                 if backend == "bibtex":
-                    # subprocess already supplies one argument; BibTeX takes it literally.
-                    command, cwd = [executables[backend], jobname], output
+                    auxiliary_name, prepared_inputs = prepare_bibtex_inputs(source, output, jobname)
+                    command, cwd = [executables[backend], auxiliary_name], output
                 else:
                     command = [executables[backend], f"--input-directory={output}",
                                f"--output-directory={output}", jobname]
                     cwd = source.parent
-                if not run(command, cwd, "bibliography", output / f"{jobname}.blg"):
+                if not run(command, cwd, "bibliography", output / f"{jobname}.blg", prepared_inputs=prepared_inputs):
                     break
+                check_prepared_inputs(output, prepared_inputs)
             if until_stable and report["auxiliary_stable"] and not report["rerun_requested"]:
                 break
         if report["steps"]:
@@ -311,6 +414,7 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
             log = output / (last_engine["log"] or last_engine["transcript"])
             final_text = log.read_text(encoding="utf-8", errors="replace")
             report.update(log_state(final_text))
+        check_prepared_inputs(output, prepared_inputs)
         for relative in sorted(observed_inputs):
             observe(source.parent / relative, "final")
         report["local_inputs"] = [observed_inputs[key] for key in sorted(observed_inputs)]

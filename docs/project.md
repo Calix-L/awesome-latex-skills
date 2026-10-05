@@ -238,3 +238,10 @@ Sources/configuration retain a 2,000,000-byte limit. Assets are hashed with a
 512 MiB actual-read limit; regular-file identity and modification metadata are
 checked around each read. Explicitly read `.bbl` inputs also retain the source
 limit during final rechecks. [Input limits and retrying](input-limits.md).
+
+## Internal relative dependencies
+
+A selected main in a subdirectory can refer to parent resources still inside
+the project. Requests retain their source spelling; resolved evidence and graph
+identity use canonical root-relative names. Traversed symlinks and paths leaving
+the root stay unverified. [Nested-layout guide](relative-paths.md).

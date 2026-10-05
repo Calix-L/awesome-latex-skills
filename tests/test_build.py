@@ -320,6 +320,15 @@ class BuildTests(unittest.TestCase):
         command, _ = self.calls[1]
         self.assertEqual(command, ["/tools/bibtex", "paper with spaces"])
 
+    def test_bibtex_environment_is_preserved_without_disabling_filename_checks(self):
+        with patch.dict(check_build.os.environ, {"TEXMFOUTPUT": "existing-output", "TEXMF_OUTPUT_DIRECTORY": "existing-directory", "openout_any": "p"}):
+            report = self.run_build(backend="bibtex")
+            self.assertEqual(report["status"], "success")
+            for command, options in self.calls:
+                self.assertEqual(options["env"].get("openout_any", options["env"].get("OPENOUT_ANY")), "p")
+                self.assertEqual(options["env"]["TEXMFOUTPUT"], "existing-output")
+            self.assertEqual(check_build.os.environ["TEXMFOUTPUT"], "existing-output")
+
     def test_later_zero_exit_cannot_reuse_an_earlier_pass_pdf(self):
         def runner(command, **kwargs):
             if not self.calls:

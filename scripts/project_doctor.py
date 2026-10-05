@@ -19,6 +19,7 @@ from citation_lexer import CITATION_NAMES, citation_candidate, citation_argument
 from reference_lexer import REFERENCE_NAMES, UNSTARRED_ONLY, reference_arguments
 from bibitem_lexer import bibitem_argument
 from package_options import LOADERS, loader_arguments, declaration
+from project_paths import dependency_path
 
 ENGINES = ("pdflatex", "xelatex", "lualatex")
 BACKENDS = (None, "bibtex", "biber")
@@ -346,9 +347,9 @@ def inspect_project(root, main=None, engine=None, backend=None):
                             diagnostic("backend-mismatch", "error", filename, line,
                                        f"Configured backend {backend} differs from direct biblatex backend {values[0]}",
                                        "Use the project's actual backend and confirm the native control files")
-                    local_name = (working_prefix / (package + extension)).as_posix()
                     try:
-                        local = safe_path(root, local_name)
+                        local = dependency_path(root, working_prefix.as_posix(), package + extension)
+                        local_name = local.relative_to(root).as_posix()
                     except ValueError as exc:
                         diagnostic("external-package", "unverified", filename, line, str(exc), "Review this package lookup explicitly")
                         continue
@@ -408,8 +409,7 @@ def inspect_project(root, main=None, engine=None, backend=None):
                     # Extensions precede search directories, as in the graphics package.
                     for extension in ([""] if Path(raw).suffix else suffixes):
                         for base in bases:
-                            relative = (working_prefix / base / (raw + extension)).as_posix()
-                            candidates.append(safe_path(root, relative))
+                            candidates.append(dependency_path(root, working_prefix.as_posix(), base, raw + extension))
                 except ValueError as exc:
                     diagnostic("external-or-dynamic-path", "unverified", filename, line, str(exc), "Review this path explicitly; the inspector does not read outside the project")
                     continue

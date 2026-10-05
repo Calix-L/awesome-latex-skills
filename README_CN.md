@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.22.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.22.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.23.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.23.0"></a>
 </p>
 
 <p align="center">五个专注于论文工作的 Agent Skills：修复编译、润色表达、转换格式、阅读论文、恢复源码。</p>
@@ -178,7 +178,7 @@ als paper --output work/full-paper-run --language zh
 
 | 需求 | 入口 |
 |---|---|
-| 阅读静态问题与处理建议 | `project-inspection/report.html` |
+| 检查源码与共享资源 | `project-inspection/report.html` · [子目录项目](./docs/relative-paths_CN.md) |
 | 处理大文件、评审备注与读取变化 | [输入大小与重试](./docs/input-limits_CN.md) |
 | 检查文档类、宏包选项与后端声明 | [加载选项](./docs/package-options_CN.md) |
 | 检查数据库、手写文献条目与重复键 | [参考文献指南](./docs/bibliography_CN.md) |
@@ -298,7 +298,7 @@ python scripts/als.py examples run --output work/example-run
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.22.0
+python scripts/als.py release --output dist/1.23.0
 ```
 
 [CLI 与 JSON 报告](./docs/cli.md) · [中文评测指南](./docs/evaluation_CN.md) ·

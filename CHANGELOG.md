@@ -2,6 +2,20 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.23.0 — 2026-10-05
+
+### Fixed
+
+- Internal relative dependencies from a nested main directory no longer appear external merely because they contain parent components. Classes, packages, bibliography styles/databases, inputs and graphics use canonical root-relative evidence names while preserving literal requests and source locations.
+- Dependency resolution checks traversed components before normalization, refusing symlinks, outside-root paths and cancelled missing/non-directory components. Canonical graph identity preserves cycle/repetition checks without relaxing main, watch or manifest syntax.
+- BibTeX explicit relative database/style declarations in reachable generated AUX files now use bounded output-local resource aliases and adapted AUX copies. Original source/AUX files remain unedited by preparation, ordinary invocations stay unchanged, and prepared bytes/original resources are rechecked.
+
+### Added
+
+- Optional schema-3 `prepared_inputs` evidence on bibliography steps. Review retains the staged AUX/database/style files and refuses stale or outside-project originals before publication.
+- Bilingual nested-layout/build guides, README navigation, compatibility notes and reviewed Kpathsea/Web2c interface sources.
+- Portable path/staging/evidence regressions, two native recorder/backend controls, and installed wheel/rebuilt-sdist checks outside the checkout.
+
 ## 1.22.0 — 2026-10-05
 
 ### Fixed

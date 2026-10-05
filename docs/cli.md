@@ -33,7 +33,7 @@ python scripts/als.py benchmark prepare --case polish-scope --trials 1 --output 
 python scripts/als.py benchmark run --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --spec runner-spec.json
 python scripts/als.py benchmark review-template --task evaluation-runs/pilot-01/tasks/polish-scope-01-baseline --output work/baseline-review.json
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.22.0
+python scripts/als.py release --output dist/1.23.0
 ```
 
 Use `COMMAND --help` for the native options. Paths supplied by the user resolve
