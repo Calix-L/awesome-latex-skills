@@ -211,3 +211,10 @@ and source diagnostic text and JSON remain unchanged. `--main` requires
 Common LaTeX/natbib/biblatex commands now share a located `citation_inventory`,
 including all complete multicite groups. Malformed/dynamic or special commands
 remain explicitly unverified. [Grammar and workflow](citations.md).
+
+## Label definitions and cross-reference targets
+
+Located definitions and references now cover common hyperref/nameref/cleveref
+commands, including both range endpoints. Duplicate diagnostics name the first
+definition and each later file/line. Only list commands split comma-separated
+keys. [Forms and interpretation](cross-references.md).

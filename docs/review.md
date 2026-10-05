@@ -103,3 +103,10 @@ The shared scanner now catches common natbib/biblatex citation changes, includin
 a second or later multicite group. Both source versions retain located inventories;
 unsupported syntax appears in `source_scan_issues` even in unchanged files.
 [Coverage and example](citations.md).
+
+## Cross-reference edits
+
+Review now retains label/reference inventories for both versions. Hyperref label
+target edits and reversed range endpoints enter the existing `reference_keys`
+signal; list-only reordering preserves its key counter. Unsupported syntax is
+visible even when a source is unchanged. [Coverage](cross-references.md).

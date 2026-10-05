@@ -15,6 +15,7 @@ from project_support import parse_json, safe_path, sha256, write_new_json
 from tex_lexer import TOKEN, lex_tex, mask_tex
 from bib_lexer import ASCII_FOLD, scan_bibliography
 from citation_lexer import CITATION_NAMES, citation_candidate, citation_arguments
+from reference_lexer import REFERENCE_NAMES, UNSTARRED_ONLY, reference_arguments
 
 ENGINES = ("pdflatex", "xelatex", "lualatex")
 BACKENDS = (None, "bibtex", "biber")
@@ -38,6 +39,20 @@ def commands(text):
         if token.start() < consumed:
             continue
         name = token[0][1:]
+        if name == "label" or name in REFERENCE_NAMES:
+            offset = token.end()
+            starred = masked[offset:offset + 1] == "*"
+            offset += int(starred)
+            values, consumed, issue = (([], offset, "Starred syntax for this command is unverified")
+                                       if starred and name in UNSTARRED_ONLY else reference_arguments(masked, offset, name))
+            line = bisect_right(newlines, token.start()) + 1
+            for index, keys in enumerate(values, 1):
+                yield {"name": name, "value": ",".join(keys), "keys": keys, "options": "", "supported": True,
+                       "line": line, "reference_group": index, "starred": starred}
+            if issue:
+                yield {"name": name, "value": "", "options": "", "supported": False,
+                       "line": line, "reference_issue": issue}
+            continue
         if citation_candidate(name):
             offset = token.end()
             starred = masked[offset:offset + 1] == "*"
@@ -186,12 +201,13 @@ def inspect_project(root, main=None, engine=None, backend=None):
               "root_selection": selection,
               "root_candidate_scope": "all-project-tex" if selection == "automatic" else "selected-main-only",
               "configuration_sha256": observed.get(".als.json"),
-              "inputs": [], "observed_files": [], "dependencies": [], "bibliography_entries": [], "citation_inventory": [], "diagnostics": [], "status": "ready",
+              "inputs": [], "observed_files": [], "dependencies": [], "bibliography_entries": [], "citation_inventory": [], "label_inventory": [], "reference_inventory": [], "diagnostics": [], "status": "ready",
               "limitations": ["Static literal references only: macro expansion, grouping, conditionals, system class/package internals and external search paths are not evaluated.",
                               "Literal scanning assumes ordinary category codes; custom verbatim environments and package escape/termination options are not evaluated.",
                               "Default graphics extension order is a common PDF-engine subset; explicit DeclareGraphicsExtensions is honored, but driver/conversion rules are not evaluated.",
                               "Bibliography headers only: field grammar, string expansion, aliases, inheritance, crossref/xdata and backend/style acceptance are not validated. Citation keys are compared exactly.",
                               "Common literal citation commands only; notes are not keys. Custom/special citation syntax, commands inside notes, macro-generated keys and manual bibitem definitions are not evaluated.",
+                              "Label/reference resolution describes literal definitions only; generated/external labels, refsection/package semantics and the actual compiled target are not evaluated.",
                               "A clean inspection is not a compilation or scientific-content review."]}
     def diagnostic(code, severity, file, line, message, next_step):
         result["diagnostics"].append({"code": code, "severity": severity, "file": file, "line": line,
@@ -258,6 +274,9 @@ def inspect_project(root, main=None, engine=None, backend=None):
                            "Check the literal region in the actual build; later contents may be masked")
         for command in commands(text):
             name, value, line = command["name"], command["value"], command["line"]
+            if "reference_issue" in command:
+                diagnostic("reference-unverified", "unverified", filename, line, command["reference_issue"] + f": {name}", "Inspect the actual command and generated targets; the literal inventory may be incomplete")
+                continue
             if "citation_issue" in command:
                 diagnostic("citation-unverified", "unverified", filename, line, command["citation_issue"] + f": {name}", "Check the actual citation command with its package/backend; the key inventory may be incomplete")
                 continue
@@ -313,9 +332,13 @@ def inspect_project(root, main=None, engine=None, backend=None):
                 continue
             if name == "label":
                 labels[value] += 1
+                result["label_inventory"].append({"file": filename, "line": line, "key": value})
                 continue
-            if name in {"ref", "eqref", "pageref", "autoref", "cref", "Cref"}:
-                references.extend((key.strip(), filename, line) for key in value.split(","))
+            if name in REFERENCE_NAMES:
+                for key in command["keys"]:
+                    references.append((key, filename, line))
+                    result["reference_inventory"].append({"file": filename, "line": line, "command": name,
+                                                          "key": key, "group": command["reference_group"], "starred": command["starred"]})
                 continue
             if name in CITATION_NAMES:
                 for key in value.split(","):
@@ -388,12 +411,24 @@ def inspect_project(root, main=None, engine=None, backend=None):
     for key, filename, line in references:
         if key not in labels:
             diagnostic("unknown-label", "warning", filename, line, f"No literal label definition found for {key}", "Retain the key and ask for its intended target; inspect generated definitions")
+    first_labels = {}
+    for item in result["label_inventory"]:
+        key = item["key"]
+        previous = first_labels.get(key)
+        if previous:
+            diagnostic("duplicate-label", "warning", item["file"], item["line"],
+                       f"Literal label {key} appears {labels[key]} times; first definition at {previous['file']}:{previous['line']}",
+                       "Choose the intended definition and update references; check active/generated definitions in the actual build")
+        else:
+            first_labels[key] = {"file": item["file"], "line": item["line"]}
+        item["definition_count"] = labels[key]
+    for item in result["reference_inventory"]:
+        count = labels[item["key"]]
+        item.update(definition_count=count, first_definition=first_labels.get(item["key"]),
+                    resolution="missing" if count == 0 else "defined" if count == 1 else "ambiguous")
     for key, filename, line in citations:
         if key not in known_keys:
             diagnostic("unknown-citation", "warning", filename, line, f"No parsed bibliography entry found for {key}", "Supply the actual entry; do not invent a source")
-    for key, count in labels.items():
-        if count > 1:
-            diagnostic("duplicate-label", "warning", main, None, f"Literal label {key} appears {count} times", "Check active definitions in the actual build")
     if "fontspec" in packages and engine == "pdflatex":
         diagnostic("engine-mismatch", "error", main, None, "fontspec requires XeLaTeX or LuaLaTeX", "Select the engine actually supported by the project")
     if {"natbib", "biblatex"}.issubset(packages):

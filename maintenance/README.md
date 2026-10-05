@@ -48,3 +48,7 @@ are reviewed; do not turn this catalog into blanket compliance assurance.
 
 中文：维护的是“哪些内容在何时被核验过”，不是链接能否访问。新日期需要实际
 复核官方内容；会议规则必须明确年份、赛道及阶段，不能沿用旧规则直接宣称合规。
+
+Cross-reference manual records cover the reviewed literal argument forms only;
+they do not establish complete package/style compatibility or compiled target
+correctness. Native regressions and source-only inventories remain distinct.

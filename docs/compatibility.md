@@ -93,3 +93,17 @@ common natbib/biblatex commands and every complete multicite group.
 `citation-unverified` reports incomplete or special syntax; partial inventories
 never imply exhaustive coverage. Configuration/build schemas stay unchanged.
 [English](citations.md) / [中文](citations_CN.md).
+
+## Cross-reference inventories / 交叉引用清单
+
+Schema-1 inspection adds `label_inventory` and `reference_inventory`; review adds
+`before/after` dictionaries under both names. Label rows keep `file/line/key`;
+inspection adds `definition_count`. Reference rows keep `file/line/key/command`,
+1-based argument `group` and Boolean `starred`; inspection adds `resolution`
+(missing/defined/ambiguous), `definition_count` and `first_definition` (null or
+file/line). Review inventories intentionally do not assert root resolution.
+Old reports without these fields remain renderable. Range content counters retain
+argument role as `(command, group, key)`; ordinary keys keep `(command, key)`.
+Repeated-label diagnostics now occur at each later definition and name the first
+location. Unsupported arguments produce `reference-unverified` instead of guessed
+targets. No configuration/build schema change. [Guide](cross-references.md).

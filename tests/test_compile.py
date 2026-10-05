@@ -118,6 +118,70 @@ class CompilationTests(unittest.TestCase):
         self.assertEqual(actual, {r["key"] for r in inspection["citation_inventory"]})
         self.assertEqual(source.read_bytes(), expected)
 
+    def test_real_hyperref_cleveref_targets_and_missing_range_endpoint(self):
+        from review_project import review
+        from verify_artifacts import verify_review
+        prefix = (r"\documentclass{article}\usepackage{amsmath}\usepackage{hyperref}\usepackage{cleveref}"
+                  r"\begin{document}\section{One}\label{a}\input{two}")
+        body = (r"\ref{a}, \eqref{a}, \pageref{a}, \autoref{a}, \autopageref{a}, \nameref*{a}. "
+                r"\hyperref[a]{Section \ref*{a}}. \cref{a,b}, \Cref*{a,b}, \cpageref{a,b}, \Cpageref{a,b}. "
+                r"\labelcref{a,b}, \labelcpageref{a,b}. \namecref{a}, \nameCref{a}, \lcnamecref{a}, "
+                r"\namecrefs{a}, \nameCrefs{a}, \lcnamecrefs{a}. "
+                r"\crefrange{a}{b}, \Crefrange{a}{b}, \cpagerefrange{a}{b}, \Cpagerefrange{a}{b}.")
+        for side, text in (("before", body), ("after", body.replace(r"\crefrange{a}{b}", r"\crefrange{a}{missing}"))):
+            folder = self.work / side
+            folder.mkdir()
+            main = folder / "main.tex"
+            main.write_text(prefix + text + r"\end{document}", encoding="utf-8")
+            (folder / "two.tex").write_text(r"\section{Two}\label[section]{b}Body.", encoding="utf-8")
+            original = main.read_bytes()
+            inspection = inspect_project(folder, "main.tex", "pdflatex")
+            self.assertEqual(sum(r["code"] == "unknown-label" for r in inspection["diagnostics"]), 0 if side == "before" else 1)
+            self.assertFalse(any(r["code"] == "reference-unverified" for r in inspection["diagnostics"]))
+            built = check_build.build(main, self.work / f"reference-{side}", passes=5, until_stable=True, require_resolved=True)
+            if side == "before":
+                self.assert_build_success(built)
+                self.assertTrue(all(r["resolution"] == "defined" for r in inspection["reference_inventory"]))
+            else:
+                self.assertEqual(built["status"], "failed")
+                self.assertTrue(built["unresolved_references"])
+            aux = (Path(built["output"]) / "main.aux").read_text(encoding="utf-8")
+            actual = {key for key in re.findall(r"\\newlabel\{([^{}]+)\}", aux) if not key.endswith("@cref")}
+            self.assertEqual(actual, {r["key"] for r in inspection["label_inventory"]})
+            self.assertEqual(main.read_bytes(), original)
+        output = self.work / "reference-review"
+        result = review(self.work / "before", self.work / "after", output, language="zh")
+        self.assertEqual(result["content_flags"], 1)
+        self.assertEqual(result["source_scan_issues"], 0)
+        evidence = json.loads((output / "review.json").read_text(encoding="utf-8"))
+        self.assertEqual(set(evidence["content_audit"][0]), {"file", "requires_review", "reference_keys"})
+        self.assertEqual(verify_review(output)["status"], "verified")
+
+    def test_real_comma_labels_and_located_duplicate_definitions(self):
+        source = self.work / "main.tex"
+        prefix = r"\documentclass{article}\usepackage{hyperref}\begin{document}\section{One}\label{a,b}"
+        source.write_text(prefix + r"\ref{a,b}, \nameref{a,b}, \hyperref[a,b]{See section}.\end{document}", encoding="utf-8")
+        original = source.read_bytes()
+        inspection = inspect_project(self.work, "main.tex", "pdflatex")
+        self.assertEqual(inspection["diagnostics"], [])
+        self.assertEqual({r["key"] for r in inspection["reference_inventory"]}, {"a,b"})
+        built = check_build.build(source, self.work / "comma-build", passes=5, until_stable=True, require_resolved=True)
+        self.assert_build_success(built)
+        self.assertEqual(source.read_bytes(), original)
+        (self.work / "two.tex").write_text("\\section{Two}\n\\label{a,b}\n", encoding="utf-8")
+        source.write_text(prefix + r"\input{two}\ref{a,b}\end{document}", encoding="utf-8")
+        original = source.read_bytes()
+        inspection = inspect_project(self.work, "main.tex", "pdflatex")
+        duplicate = next(r for r in inspection["diagnostics"] if r["code"] == "duplicate-label")
+        self.assertEqual((duplicate["file"], duplicate["line"]), ("two.tex", 2))
+        self.assertIn("main.tex:1", duplicate["message"])
+        self.assertEqual(inspection["reference_inventory"][0]["resolution"], "ambiguous")
+        built = check_build.build(source, self.work / "duplicate-build", passes=5, until_stable=True)
+        self.assert_build_success(built)
+        log = (Path(built["output"]) / "main.log").read_text(encoding="utf-8", errors="replace")
+        self.assertIn("multiply defined", log)
+        self.assertEqual(source.read_bytes(), original)
+
     def test_real_math_environment_changes_compile_and_remain_visible_in_review(self):
         from math_lexer import MATH_ENVIRONMENTS
         from review_project import review

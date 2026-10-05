@@ -160,3 +160,9 @@ JSON 保留表示工具探测的 `local_prerequisites_met`，新增完整 `proje
 LaTeX、natbib、biblatex 的常用命令共用带位置的 `citation_inventory`，
 多组引用逐组检查；不完整、动态或特殊命令明确提示未验证。
 [语法与操作](citations_CN.md)。
+
+## 标签定义与交叉引用目标
+
+常用 hyperref/nameref/cleveref 命令和范围两端保留定义、目标与源码位置；
+重复标签指出首次定义与每个后续定义的位置，仅列表命令拆分逗号键。
+[语法与解释](cross-references_CN.md)。

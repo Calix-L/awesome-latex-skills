@@ -18,6 +18,7 @@ from project_support import read_json, safe_path, sha256, write_new_json
 from review_report import review_html
 from artifact_integrity import seal_review
 from citation_lexer import CITATION_NAMES
+from reference_lexer import REFERENCE_NAMES, RANGE_REFS
 
 
 def snapshot(root):
@@ -28,9 +29,16 @@ def snapshot(root):
 def content_tokens(text):
     masked = mask_tex(text)
     numbers = Counter(re.findall(r"(?<![\w])[-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?", masked))
-    keys = Counter((command["name"], key.strip()) for command in commands(text)
-                   if command["supported"] and (command["name"] in CITATION_NAMES or command["name"] in {"label", "ref", "eqref", "cref", "Cref", "pageref", "autoref"})
-                   for key in command["value"].split(","))
+    keys = Counter()
+    for command in commands(text):
+        name = command["name"]
+        if not command["supported"]:
+            continue
+        if name in CITATION_NAMES:
+            keys.update((name, key.strip()) for key in command["value"].split(","))
+        elif name == "label" or name in REFERENCE_NAMES:
+            keys.update((name, command["reference_group"], key) if name in RANGE_REFS else (name, key)
+                        for key in command["keys"])
     math = Counter(simple_math(masked))
     return numbers, keys, math
 
@@ -195,6 +203,7 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
               "after": {"root": str(after), "files": candidate}, "builds": {}, "changes": [],
               "content_audit": [], "source_scan_issues": [], "math_environment_inventory": {"before": [], "after": []},
               "citation_inventory": {"before": [], "after": []},
+              "label_inventory": {"before": [], "after": []}, "reference_inventory": {"before": [], "after": []},
               "math_environment_scope": {"environments": sorted(MATH_ENVIRONMENTS),
                                          "interpretation": "Complete literal outer spans only; nested bodies retained. No macro expansion, conditional/group evaluation, custom math environments or mathematical equivalence check."},
               "author_decisions": [], "notes": notes_text, "language": language,
@@ -227,7 +236,16 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
                     math_spans[(root, name)] = spans
                     report["math_environment_inventory"][side].extend({"file": name, **item} for item in spans)
                     for command in commands(text):
-                        if "citation_issue" in command:
+                        if "reference_issue" in command:
+                            report["source_scan_issues"].append({"side": side, "file": name, "line": command["line"],
+                                                               "code": "reference-unverified", "message": command["reference_issue"] + ": " + command["name"]})
+                        elif command["supported"] and command["name"] == "label":
+                            report["label_inventory"][side].append({"file": name, "line": command["line"], "key": command["value"]})
+                        elif command["supported"] and command["name"] in REFERENCE_NAMES:
+                            report["reference_inventory"][side].extend({"file": name, "line": command["line"], "command": command["name"],
+                                                                       "key": key, "group": command["reference_group"], "starred": command["starred"]}
+                                                                      for key in command["keys"])
+                        elif "citation_issue" in command:
                             report["source_scan_issues"].append({"side": side, "file": name, "line": command["line"],
                                                                "code": "citation-unverified", "message": command["citation_issue"] + ": " + command["name"]})
                         elif command["name"] in CITATION_NAMES and command["supported"]:

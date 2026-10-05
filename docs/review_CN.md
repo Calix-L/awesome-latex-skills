@@ -78,3 +78,9 @@ als paper --output work/full-paper-zh --language zh
 常用 natbib/biblatex 命令及第二组以后的多组引用键变化也会提示核对。
 修改前后保留带位置的引用清单；未改动文件里的暂不支持语法同样进入
 `source_scan_issues`。[范围与示例](citations_CN.md)。
+
+## 交叉引用修改
+
+报告保留两侧标签、目标清单；hyperref 标签目标修改及范围端点调换进入
+`reference_keys` 提示。同命令内仅重排列表键保持计数不变；未改动源码的
+暂不支持语法也会提示。[检查范围](cross-references_CN.md)。

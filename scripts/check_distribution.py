@@ -230,6 +230,33 @@ def check_distribution(wheel, output):
                 or "带源码位置的文献引用" not in (cite_output / "report.html").read_text(encoding="utf-8")):
             raise ValueError("Installed citation review missed a second-group key-only change")
         run([command, "verify", "review", cite_output])
+        ref_project = cwd / "reference-paper"
+        ref_project.mkdir()
+        (ref_project / "main.tex").write_text("\\documentclass{article}\n\\label{a,b}\\ref{a,b}\n\\input{two}\n\\crefrange{start}{missing}\\hyperref[start]{See section}", encoding="utf-8")
+        (ref_project / "two.tex").write_text("\\label{start}\n\\label{a,b}", encoding="utf-8")
+        ref_report = json.loads(run([command, "--json", "project", "check", ref_project,
+                                     "--bundle", cwd / "reference-inspection", "--html-language", "zh"], expected=(0, 1)))["result"]
+        duplicate = [r for r in ref_report["diagnostics"] if r["code"] == "duplicate-label"]
+        if (len(duplicate) != 1 or duplicate[0]["file"] != "two.tex" or duplicate[0]["line"] != 2
+                or [r["key"] for r in ref_report["reference_inventory"]] != ["a,b", "start", "missing", "start"]
+                or [r["resolution"] for r in ref_report["reference_inventory"]] != ["ambiguous", "defined", "missing", "defined"]
+                or "标签定义与交叉引用" not in (cwd / "reference-inspection/report.html").read_text(encoding="utf-8")):
+            raise ValueError("Installed cross-reference inspection lost duplicate locations, comma keys or range endpoints")
+        run([command, "verify", "inspection", cwd / "reference-inspection"])
+        ref_before, ref_after = cwd / "reference-original", cwd / "reference-candidate"
+        for folder, values in ((ref_before, "{a}{b}"), (ref_after, "{b}{a}")):
+            folder.mkdir()
+            (folder / "main.tex").write_text(r"\documentclass{article}\crefrange" + values, encoding="utf-8")
+        ref_output = cwd / "reference-review"
+        ref_result = json.loads(run([command, "--json", "review", "--before", ref_before, "--after", ref_after,
+                                     "--output", ref_output, "--language", "zh"]))["result"]
+        ref_record = read_json(ref_output / "review.json")
+        if (ref_result["content_flags"] != 1 or ref_result["source_scan_issues"] != 0
+                or set(ref_record["content_audit"][0]) != {"file", "requires_review", "reference_keys"}
+                or ref_record["reference_inventory"]["after"][1]["key"] != "a"
+                or "标签定义与交叉引用" not in (ref_output / "report.html").read_text(encoding="utf-8")):
+            raise ValueError("Installed source review missed reversed range endpoints")
+        run([command, "verify", "review", ref_output])
         result = {"schema": 1, "status": "verified", "version": version, "wheel_sha256": sha256(wheel), "steps": steps}
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         result = {"schema": 1, "status": "failed", "error": str(exc), "steps": steps}

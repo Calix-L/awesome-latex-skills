@@ -3,7 +3,7 @@
 No macro expansion or package execution. Notes are consumed as text, not keys.
 """
 import re
-from tex_lexer import TOKEN
+from tex_arguments import MAX_DEPTH, read_group as group
 
 SINGLE_CITES = frozenset("""
 cite Cite citep Citep citet Citet citealt Citealt citealp Citealp citenum
@@ -18,40 +18,11 @@ footcites Footcites footcitetexts Footcitetexts smartcites Smartcites supercites
 """.split())
 CITATION_NAMES = SINGLE_CITES | MULTI_CITES
 FAMILY = re.compile(r"(?:[cC]ite[a-zA-Z]*|(?:[pPfFtTsSaA]?[vV]ol|paren|Paren|text|Text|auto|Auto|foot|Foot|smart|Smart|super|full|footfull|note|Note|pnote|Pnote|fnote)cite[a-zA-Z]*)\Z")
-MAX_DEPTH = 128
 
 
 def citation_candidate(name):
     # citetext wraps prose (possibly containing actual citations), not a key.
     return name != "citetext" and (name in CITATION_NAMES or FAMILY.fullmatch(name) is not None)
-
-
-def group(text, start):
-    """Read one TeX-delimited argument; braces protect note terminators."""
-    opening = text[start]
-    closing = {"{": "}", "[": "]", "(": ")"}[opening]
-    depth = 1 if opening == "{" else 0
-    cursor = start + 1
-    while cursor < len(text):
-        char = text[cursor]
-        if char == "\\":
-            token = TOKEN.match(text, cursor)
-            cursor += len(token[0]) if token else 1
-            continue
-        if char == "{":
-            depth += 1
-            if depth > MAX_DEPTH:
-                raise ValueError("Citation argument nesting exceeds 128 braces")
-        elif char == "}":
-            depth -= 1
-            if depth < 0:
-                raise ValueError("Citation note has an unmatched closing brace")
-            if opening == "{" and depth == 0:
-                return text[start + 1:cursor], cursor + 1
-        elif char == closing and depth == 0:
-            return text[start + 1:cursor], cursor + 1
-        cursor += 1
-    raise ValueError("Unclosed citation argument or note")
 
 
 def citation_arguments(text, start, name):

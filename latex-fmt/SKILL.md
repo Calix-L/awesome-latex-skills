@@ -2,7 +2,7 @@
 name: latex-fmt
 description: Reformat LaTeX papers for a specified venue, year, track, and submission stage. Apply official templates and check layout, bibliography, page limits, and anonymization while preserving scientific content.
 metadata:
-  version: "1.18.0"
+  version: "1.19.0"
 ---
 
 ## Role

@@ -212,3 +212,18 @@ and BibTeX AUX keys, compiles valid natbib/biblatex notes and wrappers, then det
 a deliberately missing second-group citation in both inspection and native build.
 Fresh original-wheel/rebuilt-sdist controls exercise both inspection and key-only
 review outside the checkout. These synthetic controls are not model evaluations.
+
+## Label resolution and cross-reference controls
+
+`test_cross_references.py` covers single/list/range grammars, hyperref text and
+nested commands, exact/Unicode/comma keys, type/star variants, literal masking,
+partial/dynamic/deep arguments, forward/excluded/repeated/local-package sources,
+located duplicates, key-only changes and reversed endpoints, multiplicity,
+unchanged unverified sources, legacy/escaped HTML and sealed inventory tampering.
+Native CI installs texlive-latex-extra for real cleveref checks, compares observed
+definitions with actual AUX keys, compiles hyperref and comma-label controls,
+checks a missing second range endpoint against an unresolved build and confirms
+located duplicates against real multiply-defined warnings. Installed original
+wheel and independently rebuilt sdist exercise both inspection and reversed-range
+review outside the checkout. These are synthetic tooling controls, not model
+quality or scientific-fidelity evaluations.

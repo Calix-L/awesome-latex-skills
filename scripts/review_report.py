@@ -3,6 +3,7 @@ import html
 import json
 from urllib.parse import quote
 from citation_report import LABELS as CITATION_LABELS, citation_table
+from cross_reference_report import LABELS as REFERENCE_LABELS, reference_tables
 
 
 LABELS = {
@@ -21,7 +22,7 @@ LABELS = {
         "numbers": "Numbers", "reference_keys": "Labels, references and citations", "simple_math": "Delimited math", "count": "Count", "value": "Literal value",
         "math_environments": "Math environment changes", "math_inventory": "Located math environments", "math_empty": "No complete supported literal math environment.",
         "math_note": "Complete outer environments are compared as literal text with multiplicity, including nested bodies. Locations point to both source versions; macro expansion, custom environments and mathematical equivalence remain unchecked.",
-        "scan_issues": "Incomplete or unverified literal source regions", "scan_note": "Unclosed verbatim regions can hide later content; malformed/dynamic formulas and unsupported citation syntax can leave inventories incomplete. Check the source and actual build before interpreting absent change signals.",
+        "scan_issues": "Incomplete or unverified literal source regions", "scan_note": "Unclosed verbatim regions can hide later content; malformed/dynamic formulas and unsupported citation/reference syntax can leave inventories incomplete. Check the source and actual build before interpreting absent change signals.",
         "none": "No supported literal changes detected; this does not establish unchanged meaning.",
         "author": "Author decisions", "no_decisions": "No visible TODO or UNCERTAIN markers found.", "notes": "Supplied notes",
         "scope": "Inventory and limits", "scope_note": "Only the listed source/configuration/asset types are compared. Generated and environment directories are excluded. Other files are outside this review's coverage.",
@@ -136,6 +137,12 @@ def review_html(report, diffs, language="en"):
                     content.append(f'<tr><td>{esc(labels[kind])}</td><td><code>{esc(value)}</code></td><td>{count}</td></tr>')
             content.append('</tbody></table></div>')
         content.append('</article>')
+    if "label_inventory" in report or "reference_inventory" in report:
+        ref_labels = REFERENCE_LABELS[language]
+        content.append(f'<h2>{esc(ref_labels["title"])}</h2><p>{esc(ref_labels["note"])}</p><div class="pair">')
+        for side in ("before", "after"):
+            content.append(f'<section><h3>{esc(labels[side])}</h3>{reference_tables(report.get("label_inventory", {}).get(side, []), report.get("reference_inventory", {}).get(side, []), language)}</section>')
+        content.append('</div>')
     if "citation_inventory" in report:
         title, *_, note = CITATION_LABELS[language]
         content.append(f'<h2>{esc(title)}</h2><p>{esc(note)}</p><div class="pair">')

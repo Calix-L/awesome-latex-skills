@@ -189,6 +189,45 @@
         "docs/citations.md",
         "docs/citations_CN.md"
       ]
+    },
+    {
+      "id": "cleveref-reference-grammar",
+      "url": "https://tug.ctan.org/macros/latex/contrib/cleveref/cleveref.pdf",
+      "scope": "cleveref sections 4 and 6: single name commands, comma lists, two-endpoint ranges and optional label type; no package/style compliance claim",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-05",
+      "applies_to": [
+        "scripts/reference_lexer.py",
+        "docs/cross-references.md",
+        "docs/cross-references_CN.md"
+      ]
+    },
+    {
+      "id": "hyperref-label-grammar",
+      "url": "https://ctan.math.illinois.edu/macros/latex/contrib/hyperref/doc/hyperref-doc.pdf",
+      "scope": "hyperref section 6: bracketed label link target, nested starred ref text, autoref and autopageref; old four-argument link syntax unverified",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-05",
+      "applies_to": [
+        "scripts/reference_lexer.py",
+        "docs/cross-references.md",
+        "docs/cross-references_CN.md"
+      ]
+    },
+    {
+      "id": "nameref-frontend-grammar",
+      "url": "https://ctan.math.illinois.edu/macros/latex/contrib/hyperref/doc/nameref.pdf",
+      "scope": "nameref documented frontend: literal nameref/starred nameref and Nameref label argument; no generated target/counter interpretation",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-05",
+      "applies_to": [
+        "scripts/reference_lexer.py",
+        "docs/cross-references.md",
+        "docs/cross-references_CN.md"
+      ]
     }
   ]
 }

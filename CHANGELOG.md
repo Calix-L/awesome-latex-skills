@@ -2,6 +2,26 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.19.0 — 2026-10-05
+
+### Fixed
+
+- Project inspection and source review now recognize common hyperref/nameref/cleveref label targets, both endpoints of range references and supported commands inside hyperref link text. Ordinary single-target references preserve comma-containing keys instead of inventing separate targets.
+- Repeated-label diagnostics now point to each later definition's actual source file/line and identify the first definition. Complete literal references retain missing/defined/ambiguous states after the full reachable graph has been scanned.
+- Review flags reversed range endpoints even when the key set and numbers are unchanged; endpoint argument roles remain distinct in the existing reference-key counter.
+
+### Added
+
+- Schema-1 label/reference inventories in inspection and both review versions; bilingual offline pages show escaped, expandable definitions and target tables. Legacy inputs without the fields still render.
+- Located reference-unverified findings for malformed/dynamic/unsupported syntax, including unchanged review sources. Complete earlier endpoints remain explicitly partial evidence. A bounded iterative argument reader is shared with citation parsing.
+- English/Chinese cross-reference guides, consolidated README/docs task navigation and three reviewed primary grammar sources. Native CI includes texlive-latex-extra to exercise actual cleveref behavior.
+
+### Validation
+
+- Twenty-seven portable regressions and two native regressions cover grammar, source boundaries, reachable definitions, duplicates, comma keys, target-only changes, reversed endpoints, unsupported stars, legacy/escaped reports and sealed evidence. Native checks compare labels with actual AUX data and deliberately fail a missing second endpoint. Fresh original-wheel/rebuilt-sdist controls exercise located inspection and reversed-endpoint review outside the checkout.
+
+Definition counts describe source observations, not conditional execution, macro-generated/external targets, correct label placement, package/style semantics or scientific claim support. Review inventories include inactive sources and do not claim root-level resolution. Configuration/build schema numbers remain unchanged.
+
 ## 1.18.0 — 2026-10-05
 
 ### Fixed
