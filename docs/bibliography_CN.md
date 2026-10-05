@@ -101,4 +101,6 @@ include 不提供键；重复输入保留仅扫描一次的限制。定义中的
 语法依据是[固定版本 LaTeX 内核文献实现](https://github.com/latex3/latex2e/blob/2cdbff62d8da4886006978e8cfd805d128d44b4f/base/ltbibl.dtx)
 和 [natbib 手册 §2.2](https://tug.ctan.org/macros/latex/contrib/natbib/natbib.pdf)。
 原生编译回归对照实际 AUX `bibcite` 键，确保缺失手写键仍失败，并核对真实
-重复定义警告。这些是合成工具回归，不是文献真实性或模型质量评测。
+重复定义警告。natbib 重复条目可能持续请求重新编译；在次数上限内仍未收敛时，
+`--until-stable` 会按实际结果判定失败。这些是合成工具回归，不是文献真实性
+或模型质量评测。

@@ -118,5 +118,7 @@ display-label compatibility and claim support are not evaluated.
 Syntax was checked against the [pinned LaTeX kernel bibliography implementation](https://github.com/latex3/latex2e/blob/2cdbff62d8da4886006978e8cfd805d128d44b4f/base/ltbibl.dtx)
 and [natbib manual, §2.2](https://tug.ctan.org/macros/latex/contrib/natbib/natbib.pdf).
 Native controls compare observed keys with actual AUX `bibcite` records, keep a
-missing manual key unresolved, and check real duplicate warnings. These are
+missing manual key unresolved, and check real duplicate warnings. Duplicate
+natbib entries can continue requesting a rerun; `--until-stable` correctly fails
+when these requests do not settle within the pass limit. These are
 synthetic tooling regressions, not reference-authenticity or model-quality results.
