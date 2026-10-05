@@ -58,6 +58,72 @@ class CompilationTests(unittest.TestCase):
                 evidence.append(f"{step['transcript']}:\n" + transcript.read_text(encoding="utf-8", errors="replace")[-4000:])
         self.fail("\n\n".join(evidence))
 
+    def test_real_manual_bibliography_and_definition_only_edit(self):
+        from review_project import review
+        from verify_artifacts import verify_review
+        main_text = (r"\documentclass{article}\begin{document}\cite{a,b}. "
+                     r"\begin{thebibliography}{9}\input{references}\end{thebibliography}\end{document}")
+        for side, key in (("before", "b"), ("after", "changed")):
+            folder = self.work / side
+            folder.mkdir()
+            source = folder / "main.tex"
+            source.write_text(main_text, encoding="utf-8")
+            references = folder / "references.tex"
+            references.write_text("\\bibitem{a} Synthetic first entry.\n\\bibitem[Author]{" + key + "} Synthetic second entry.", encoding="utf-8")
+            expected = {p.name: p.read_bytes() for p in (source, references)}
+            inspected = inspect_project(folder, "main.tex", "pdflatex")
+            self.assertIsNone(inspected["backend"])
+            self.assertEqual([r["key"] for r in inspected["bibitem_inventory"]], ["a", key])
+            unknown = [r for r in inspected["diagnostics"] if r["code"] == "unknown-citation"]
+            self.assertEqual([r["message"].rsplit(" ", 1)[-1] for r in unknown], [] if side == "before" else ["b"])
+            built = check_build.build(source, self.work / f"manual-{side}", passes=5,
+                                      until_stable=True, require_resolved=True, watch_inputs=["references.tex"])
+            if side == "before":
+                self.assert_build_success(built)
+            else:
+                self.assertEqual(built["status"], "failed")
+                self.assertTrue(built["unresolved_references"])
+            aux = (Path(built["output"]) / "main.aux").read_text(encoding="utf-8")
+            self.assertEqual(set(re.findall(r"\\bibcite\{([^}]+)\}", aux)), {r["key"] for r in inspected["bibitem_inventory"]})
+            for path in (source, references):
+                self.assertEqual(path.read_bytes(), expected[path.name])
+        output = self.work / "manual-review"
+        result = review(self.work / "before", self.work / "after", output, language="zh")
+        self.assertEqual((result["content_flags"], result["source_scan_issues"]), (1, 0))
+        record = json.loads((output / "review.json").read_text(encoding="utf-8"))
+        self.assertEqual(set(record["content_audit"][0]), {"file", "requires_review", "reference_keys"})
+        self.assertEqual(record["content_audit"][0]["file"], "references.tex")
+        self.assertEqual(verify_review(output)["status"], "verified")
+
+    def test_real_natbib_manual_labels_and_located_duplicate(self):
+        source = self.work / "main.tex"
+        source.write_text("\\documentclass{article}\\usepackage{natbib}\\begin{document}\n"
+                          "\\citet{a}. \\citep{b}. \\begin{thebibliography}{9}\n"
+                          "\\bibitem[Alice(2020)]{a} Synthetic first entry.\n"
+                          "\\bibitem[Bob(2021)Bob and Carol]{b} Synthetic second entry.\n"
+                          "\\input{extra}\\end{thebibliography}\\end{document}", encoding="utf-8")
+        extra = self.work / "extra.tex"
+        extra.write_text("", encoding="utf-8")
+        expected = source.read_bytes()
+        inspection = inspect_project(self.work, "main.tex", "pdflatex")
+        self.assertEqual(inspection["diagnostics"], [])
+        built = check_build.build(source, self.work / "manual-natbib", passes=5, until_stable=True, require_resolved=True)
+        self.assert_build_success(built)
+        aux = (Path(built["output"]) / "main.aux").read_text(encoding="utf-8")
+        self.assertEqual(set(re.findall(r"\\bibcite\{([^}]+)\}", aux)), {r["key"] for r in inspection["bibitem_inventory"]})
+        extra.write_text("\n\\bibitem[Alice(2020)]{a} Synthetic repeated entry.", encoding="utf-8")
+        duplicate_bytes = extra.read_bytes()
+        inspection = inspect_project(self.work, "main.tex", "pdflatex")
+        duplicate = next(r for r in inspection["diagnostics"] if r["code"] == "duplicate-bibitem-key")
+        self.assertEqual((duplicate["file"], duplicate["line"]), ("extra.tex", 2))
+        self.assertIn("main.tex:3", duplicate["message"])
+        built = check_build.build(source, self.work / "manual-natbib-duplicate", passes=5, until_stable=True)
+        self.assert_build_success(built)
+        log = (Path(built["output"]) / "main.log").read_text(encoding="utf-8", errors="replace")
+        self.assertIn("multiply defined", log)
+        self.assertEqual(source.read_bytes(), expected)
+        self.assertEqual(extra.read_bytes(), duplicate_bytes)
+
     def test_real_biblatex_multicites_and_second_group_missing_key(self):
         from review_project import review
         from verify_artifacts import verify_review

@@ -52,3 +52,7 @@ are reviewed; do not turn this catalog into blanket compliance assurance.
 Cross-reference manual records cover the reviewed literal argument forms only;
 they do not establish complete package/style compatibility or compiled target
 correctness. Native regressions and source-only inventories remain distinct.
+
+Manual bibliography grammar follows the pinned LaTeX kernel and natbib §2.2.
+Source records establish the literal key/optional-label interface, not actual
+execution, reference-section scope, optional-label semantics or claim support.

@@ -257,6 +257,36 @@ def check_distribution(wheel, output):
                 or "标签定义与交叉引用" not in (ref_output / "report.html").read_text(encoding="utf-8")):
             raise ValueError("Installed source review missed reversed range endpoints")
         run([command, "verify", "review", ref_output])
+        manual = cwd / "manual-paper"
+        manual.mkdir()
+        (manual / "main.tex").write_text("\\documentclass{article}\n\\cite{a,b,missing}\\input{references}", encoding="utf-8")
+        (manual / "references.tex").write_text("\\bibitem[Author(2020)]{a} Synthetic entry.\n\\bibitem{b} Other.\n\\bibitem{a} Duplicate.", encoding="utf-8")
+        manual_output = cwd / "manual-inspection"
+        manual_report = json.loads(run([command, "--json", "project", "check", manual, "--bundle", manual_output,
+                                        "--html-language", "zh"], expected=(0, 1)))["result"]
+        duplicate = [r for r in manual_report["diagnostics"] if r["code"] == "duplicate-bibitem-key"]
+        unknown = [r for r in manual_report["diagnostics"] if r["code"] == "unknown-citation"]
+        if (len(duplicate) != 1 or (duplicate[0]["file"], duplicate[0]["line"]) != ("references.tex", 3)
+                or "references.tex:1" not in duplicate[0]["message"] or len(unknown) != 1
+                or not unknown[0]["message"].endswith(" missing") or manual_report["backend"] is not None
+                or [r["key"] for r in manual_report["bibitem_inventory"]] != ["a", "b", "a"]
+                or "手写参考文献条目" not in (manual_output / "report.html").read_text(encoding="utf-8")):
+            raise ValueError("Installed manual bibliography inspection lost keys or duplicate/unknown locations")
+        run([command, "verify", "inspection", manual_output])
+        manual_before, manual_after = cwd / "manual-original", cwd / "manual-candidate"
+        for folder, key in ((manual_before, "old"), (manual_after, "new")):
+            folder.mkdir()
+            (folder / "main.tex").write_text(r"\documentclass{article}\bibitem[Author]{" + key + "} Synthetic entry.", encoding="utf-8")
+        manual_review = cwd / "manual-review"
+        manual_result = json.loads(run([command, "--json", "review", "--before", manual_before, "--after", manual_after,
+                                         "--output", manual_review, "--language", "zh"]))["result"]
+        manual_record = read_json(manual_review / "review.json")
+        if (manual_result["content_flags"] != 1 or manual_result["source_scan_issues"] != 0
+                or set(manual_record["content_audit"][0]) != {"file", "requires_review", "reference_keys"}
+                or manual_record["bibitem_inventory"]["after"][0]["key"] != "new"
+                or "手写参考文献条目" not in (manual_review / "report.html").read_text(encoding="utf-8")):
+            raise ValueError("Installed review missed a manual bibliography definition-only edit")
+        run([command, "verify", "review", manual_review])
         result = {"schema": 1, "status": "verified", "version": version, "wheel_sha256": sha256(wheel), "steps": steps}
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         result = {"schema": 1, "status": "failed", "error": str(exc), "steps": steps}

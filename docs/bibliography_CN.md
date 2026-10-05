@@ -50,3 +50,55 @@ BibTeX/Biber 构建测试，仍不构成完整数据库语法验证。
 未知引用应由作者提供真实条目；随后执行[配置构建](project_CN.md)，核对日志和
 PDF，并保留待作者决定的问题。[headers.bib](../tests/fixtures/bibliography/headers.bib)
 只是自动测试使用的自制控制数据，不引用真实研究。
+
+## 手写参考文献
+
+使用 `thebibliography` 手写条目的项目，不会仅因为这些条目而需要文献后端。
+项目实际没有后端时，省略 `--backend`：
+
+```sh
+als project check path/to/manual-paper --main main.tex --engine pdflatex --bundle work/manual-inspection --html-language zh
+als verify inspection work/manual-inspection
+```
+
+下面的合成文档无需数据库即可定义 `first` 与 `second`。用于实际论文时，
+应由作者提供真实文献替换占位条目：
+
+```tex
+\documentclass{article}
+\begin{document}
+Synthetic citation control: \cite{first,second}.
+\begin{thebibliography}{9}
+\bibitem{first} Synthetic first entry.
+\bibitem[Author(2020)]{second} Synthetic second entry.
+\end{thebibliography}
+\end{document}
+```
+
+检查支持可达 `.tex`、本地 `.sty`、`.cls` 中的 `\bibitem{key}` 与
+`\bibitem[显示标签]{key}`。可选标签中的花括号与宏可以保留，但其含义不被
+验证，内部命令不被当成引用键。`bibitem_inventory` 记录命令起始行、文件、
+原样键与手写定义数量 `definition_count`；中英文离线报告提供可展开表格。
+生成的 `.bbl` 不在该清单内。
+
+引用查找结合手写条目和可达数据库的已解析条目头。手写重复键按原样精确比较，
+不随后端折叠大小写；每个后续定义的 `duplicate-bibitem-key` 都定位到自身
+文件与行号，并指出首次定义。数据库条目头与手写键相同时，报告未验证项
+`bibliography-key-overlap`，因为条目头不能证明实际生成了重复条目。排除的
+include 不提供键；重复输入保留仅扫描一次的限制。定义中的逗号保留为一个键，
+引用命令仍使用自身的逗号列表语法。
+
+审阅保存两侧原始 `bibitem_inventory`，包括清单内未使用的源码；仅修改条目键
+也触发 `reference_keys`，且区分定义与引用角色、保留出现次数。可选标签和条目
+正文不被解释为键；其源码差异仍可见，已有数值与公式检查继续适用。审阅清单
+不宣称根文件级解析结果，仅源码审阅不会编译两侧。
+
+空键、动态或嵌套键、无花括号键、星号命令、错误标签和过深参数会产生带位置的
+`bibitem-unverified`；即使源码未改动也会提示。仅支持一个可选标签和一个字面
+花括号键，花括号嵌套最多 128 层。不判断宏定义、条件执行、thebibliography
+是否生效、refsection、`harvarditem` 等自定义命令、显示标签兼容性或论断支持。
+
+语法依据是[固定版本 LaTeX 内核文献实现](https://github.com/latex3/latex2e/blob/2cdbff62d8da4886006978e8cfd805d128d44b4f/base/ltbibl.dtx)
+和 [natbib 手册 §2.2](https://tug.ctan.org/macros/latex/contrib/natbib/natbib.pdf)。
+原生编译回归对照实际 AUX `bibcite` 键，确保缺失手写键仍失败，并核对真实
+重复定义警告。这些是合成工具回归，不是文献真实性或模型质量评测。

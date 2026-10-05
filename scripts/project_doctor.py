@@ -16,6 +16,7 @@ from tex_lexer import TOKEN, lex_tex, mask_tex
 from bib_lexer import ASCII_FOLD, scan_bibliography
 from citation_lexer import CITATION_NAMES, citation_candidate, citation_arguments
 from reference_lexer import REFERENCE_NAMES, UNSTARRED_ONLY, reference_arguments
+from bibitem_lexer import bibitem_argument
 
 ENGINES = ("pdflatex", "xelatex", "lualatex")
 BACKENDS = (None, "bibtex", "biber")
@@ -39,6 +40,14 @@ def commands(text):
         if token.start() < consumed:
             continue
         name = token[0][1:]
+        if name == "bibitem":
+            key, consumed, issue = bibitem_argument(masked, token.end())
+            row = {"name": name, "value": key or "", "options": "", "supported": issue is None,
+                   "line": bisect_right(newlines, token.start()) + 1}
+            if issue:
+                row["bibitem_issue"] = issue
+            yield row
+            continue
         if name == "label" or name in REFERENCE_NAMES:
             offset = token.end()
             starred = masked[offset:offset + 1] == "*"
@@ -201,12 +210,13 @@ def inspect_project(root, main=None, engine=None, backend=None):
               "root_selection": selection,
               "root_candidate_scope": "all-project-tex" if selection == "automatic" else "selected-main-only",
               "configuration_sha256": observed.get(".als.json"),
-              "inputs": [], "observed_files": [], "dependencies": [], "bibliography_entries": [], "citation_inventory": [], "label_inventory": [], "reference_inventory": [], "diagnostics": [], "status": "ready",
+              "inputs": [], "observed_files": [], "dependencies": [], "bibliography_entries": [], "bibitem_inventory": [], "citation_inventory": [], "label_inventory": [], "reference_inventory": [], "diagnostics": [], "status": "ready",
               "limitations": ["Static literal references only: macro expansion, grouping, conditionals, system class/package internals and external search paths are not evaluated.",
                               "Literal scanning assumes ordinary category codes; custom verbatim environments and package escape/termination options are not evaluated.",
                               "Default graphics extension order is a common PDF-engine subset; explicit DeclareGraphicsExtensions is honored, but driver/conversion rules are not evaluated.",
                               "Bibliography headers only: field grammar, string expansion, aliases, inheritance, crossref/xdata and backend/style acceptance are not validated. Citation keys are compared exactly.",
-                              "Common literal citation commands only; notes are not keys. Custom/special citation syntax, commands inside notes, macro-generated keys and manual bibitem definitions are not evaluated.",
+                              "Common literal citation commands and bibitem keys only; optional notes/display labels are not keys. Custom/special syntax, commands inside notes/labels and macro-generated keys are not evaluated.",
+                              "Bibitem observations do not prove execution inside thebibliography, optional-label validity, reference-section scoping or generated BBL contents. No bibliography backend is inferred from manual entries.",
                               "Label/reference resolution describes literal definitions only; generated/external labels, refsection/package semantics and the actual compiled target are not evaluated.",
                               "A clean inspection is not a compilation or scientific-content review."]}
     def diagnostic(code, severity, file, line, message, next_step):
@@ -274,6 +284,9 @@ def inspect_project(root, main=None, engine=None, backend=None):
                            "Check the literal region in the actual build; later contents may be masked")
         for command in commands(text):
             name, value, line = command["name"], command["value"], command["line"]
+            if "bibitem_issue" in command:
+                diagnostic("bibitem-unverified", "unverified", filename, line, command["bibitem_issue"], "Check the actual manual bibliography command; no entry key is guessed")
+                continue
             if "reference_issue" in command:
                 diagnostic("reference-unverified", "unverified", filename, line, command["reference_issue"] + f": {name}", "Inspect the actual command and generated targets; the literal inventory may be incomplete")
                 continue
@@ -334,6 +347,9 @@ def inspect_project(root, main=None, engine=None, backend=None):
                 labels[value] += 1
                 result["label_inventory"].append({"file": filename, "line": line, "key": value})
                 continue
+            if name == "bibitem":
+                result["bibitem_inventory"].append({"file": filename, "line": line, "key": value})
+                continue
             if name in REFERENCE_NAMES:
                 for key in command["keys"]:
                     references.append((key, filename, line))
@@ -390,7 +406,18 @@ def inspect_project(root, main=None, engine=None, backend=None):
                     remember(existing.relative_to(root).as_posix())
         active.pop()
     scan(main)
-    known_keys = set()
+    known_keys = {item["key"] for item in result["bibitem_inventory"]}
+    manual_counts = Counter(item["key"] for item in result["bibitem_inventory"])
+    manual_origins = {}
+    for item in result["bibitem_inventory"]:
+        item["definition_count"] = manual_counts[item["key"]]
+        previous = manual_origins.get(item["key"])
+        if previous:
+            diagnostic("duplicate-bibitem-key", "warning", item["file"], item["line"],
+                       f"Repeated literal bibitem key {item['key']}; first definition at {previous['file']}:{previous['line']}",
+                       "Choose the intended manual entry and inspect active definitions in the actual build")
+        else:
+            manual_origins[item["key"]] = {"file": item["file"], "line": item["line"]}
     key_origins = {}
     for filename in bibliography:
         entries, issues = scan_bibliography(source_text(filename), backend)
@@ -399,6 +426,11 @@ def inspect_project(root, main=None, engine=None, backend=None):
         for entry in entries:
             result["bibliography_entries"].append({"file": filename, **entry})
             known_keys.add(entry["key"])
+            if entry["key"] in manual_origins:
+                previous_manual = manual_origins[entry["key"]]
+                diagnostic("bibliography-key-overlap", "unverified", filename, entry["line"],
+                           f"Database key {entry['key']} also has a literal bibitem at {previous_manual['file']}:{previous_manual['line']}",
+                           "Check the active bibliography setup; a database header does not prove a generated duplicate entry")
             folded = entry["key"].translate(ASCII_FOLD) if backend == "bibtex" else entry["key"]
             previous = key_origins.get(folded)
             if previous:
@@ -428,7 +460,7 @@ def inspect_project(root, main=None, engine=None, backend=None):
                     resolution="missing" if count == 0 else "defined" if count == 1 else "ambiguous")
     for key, filename, line in citations:
         if key not in known_keys:
-            diagnostic("unknown-citation", "warning", filename, line, f"No parsed bibliography entry found for {key}", "Supply the actual entry; do not invent a source")
+            diagnostic("unknown-citation", "warning", filename, line, f"No parsed bibliography entry or literal bibitem found for {key}", "Supply the actual entry; do not invent a source")
     if "fontspec" in packages and engine == "pdflatex":
         diagnostic("engine-mismatch", "error", main, None, "fontspec requires XeLaTeX or LuaLaTeX", "Select the engine actually supported by the project")
     if {"natbib", "biblatex"}.issubset(packages):

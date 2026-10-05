@@ -24,3 +24,31 @@ def citation_table(rows, language):
         content.append(f'<tr><td><code>{esc(item["key"])}</code></td><td><code>{esc(command)} / {esc(item["group"])}</code></td><td><code>{esc(item["file"])}:{esc(item["line"])}</code></td></tr>')
     content.append('</tbody></table></div>')
     return "".join(content)
+
+
+BIBITEM_LABELS = {
+    "en": ("Manual bibliography entries", "Key", "Source location", "Literal definitions",
+           "No supported literal bibitem keys found.",
+           "Keys from source bibitem commands only; optional display labels are skipped. Presence/counts do not prove execution, label validity, generated BBL contents or claim support."),
+    "zh": ("手写参考文献条目", "条目键", "源码位置", "字面定义数量",
+           "未找到支持范围内的字面 bibitem 键。",
+           "仅记录源码 bibitem 命令的键，跳过可选显示标签；存在与数量不能证明实际执行、标签有效性、生成 BBL 的内容或文献支持相关论断。"),
+}
+
+
+def bibitem_table(rows, language):
+    labels = BIBITEM_LABELS[language]
+    esc = lambda value: html.escape(str(value), quote=True)
+    if not rows:
+        return f'<p>{esc(labels[4])}</p>'
+    counted = any("definition_count" in row for row in rows)
+    content = ['<div class="table-scroll"><table><thead><tr>']
+    content.extend(f'<th scope="col">{esc(label)}</th>' for label in labels[1:4 if counted else 3])
+    content.append('</tr></thead><tbody>')
+    for row in rows:
+        content.append(f'<tr><td><code>{esc(row["key"])}</code></td><td><code>{esc(row["file"])}:{esc(row["line"])}</code></td>')
+        if counted:
+            content.append(f'<td>{esc(row.get("definition_count", "—"))}</td>')
+        content.append('</tr>')
+    content.append('</tbody></table></div>')
+    return "".join(content)

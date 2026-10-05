@@ -32,7 +32,7 @@ Alternatively, download the wheel or source distribution from
 and install the local file:
 
 ```sh
-python -m pip install path/to/awesome_latex_skills-1.19.0-py3-none-any.whl
+python -m pip install path/to/awesome_latex_skills-1.20.0-py3-none-any.whl
 ```
 
 This project does not claim a PyPI publication. Install from the checkout or

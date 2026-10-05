@@ -110,3 +110,9 @@ Review now retains label/reference inventories for both versions. Hyperref label
 target edits and reversed range endpoints enter the existing `reference_keys`
 signal; list-only reordering preserves its key counter. Unsupported syntax is
 visible even when a source is unchanged. [Coverage](cross-references.md).
+
+## Manual entry key edits
+
+Changing only a literal `bibitem` key now triggers `reference_keys`. Both versions
+retain located entries; unsupported syntax stays visible for unchanged files.
+[Interpretation](bibliography.md#manual-bibliographies).

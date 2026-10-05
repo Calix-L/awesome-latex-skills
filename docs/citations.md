@@ -60,8 +60,8 @@ inventory, but a finding means that inventory may be incomplete. Custom
 
 This is a literal scanner. It does not expand macros, evaluate definitions,
 conditionals, active catcodes, refsections, aliases, commands inside notes,
-custom commands with unrelated names, manual `\bibitem` definitions or external
-bibliography resources. It does not validate command/style availability, note
+custom commands with unrelated names or external bibliography resources.
+Literal manual `\bibitem` keys are covered by the [bibliography guide](bibliography.md#manual-bibliographies). It does not validate command/style availability, note
 semantics, fields, citation ordering or whether a cited paper supports a claim.
 Use the configured native backend and inspect the actual PDF separately.
 

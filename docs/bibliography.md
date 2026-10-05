@@ -1,4 +1,4 @@
-# Inspect bibliography headers without inventing references
+# Inspect bibliography keys without inventing references
 
 ```sh
 als project check path/to/paper --main main.tex --engine pdflatex --backend bibtex --bundle work/bib-inspection
@@ -60,3 +60,63 @@ Run a [native configured build](project.md), review its log and PDF, and preserv
 unresolved author choices. The fixture [headers.bib](../tests/fixtures/bibliography/headers.bib)
 contains synthetic controls, not references to real research. See the
 [Chinese guide](bibliography_CN.md).
+
+## Manual bibliographies
+
+Projects using `thebibliography` do not need a bibliography backend merely to
+define manual entries. Omit `--backend` when the actual project has none:
+
+```sh
+als project check path/to/manual-paper --main main.tex --engine pdflatex --bundle work/manual-inspection
+als verify inspection work/manual-inspection
+```
+
+For example, this synthetic document defines `first` and `second` without a
+database. Replace its placeholder references with the author's actual sources:
+
+```tex
+\documentclass{article}
+\begin{document}
+Synthetic citation control: \cite{first,second}.
+\begin{thebibliography}{9}
+\bibitem{first} Synthetic first entry.
+\bibitem[Author(2020)]{second} Synthetic second entry.
+\end{thebibliography}
+\end{document}
+```
+
+Inspection recognizes `\bibitem{key}` and `\bibitem[display label]{key}` in
+reachable `.tex`, local `.sty` and `.cls` sources. The optional label may contain
+braced text/macros; it is skipped without checking its meaning or treating its
+inner commands as citation keys. The command-opening line, file, exact key and
+manual `definition_count` appear in `bibitem_inventory` and expandable English/
+Chinese HTML tables. Generated `.bbl` files are outside this inventory.
+
+Known citation keys combine these manual observations with reachable parsed
+database headers. Manual duplicate comparison is exact, independent of backend;
+each later definition produces `duplicate-bibitem-key` at its own file/line and
+names the first definition. A key shared with a database header produces an
+**unverified** `bibliography-key-overlap`: a header alone does not establish an
+active generated duplicate. Excluded includes supply no keys; repeated sources
+retain the inspector's scan-once limitation. Commas in a definition are retained
+as one key; citation commands still use their own comma-list grammar.
+
+Review retains both versions' raw `bibitem_inventory`, including inventoried
+inactive sources. Changing only an entry key triggers `reference_keys`, preserving
+definition/citation roles and repeated occurrences. Optional labels and entry
+prose are not interpreted as keys; their changed source diff remains visible and
+existing number/math checks still apply. No root resolution is asserted for a
+review inventory. Source-only review does not compile either version.
+
+Empty, nested/dynamic/unbraced keys, starred commands, malformed labels or excess
+argument depth produce located `bibitem-unverified` findings, even for unchanged
+review files. Only one optional label and a literal braced key are supported;
+argument nesting is bounded to 128 braces. Macro definitions, conditional execution,
+thebibliography activation, refsections, custom commands such as `harvarditem`,
+display-label compatibility and claim support are not evaluated.
+
+Syntax was checked against the [pinned LaTeX kernel bibliography implementation](https://github.com/latex3/latex2e/blob/2cdbff62d8da4886006978e8cfd805d128d44b4f/base/ltbibl.dtx)
+and [natbib manual, §2.2](https://tug.ctan.org/macros/latex/contrib/natbib/natbib.pdf).
+Native controls compare observed keys with actual AUX `bibcite` records, keep a
+missing manual key unresolved, and check real duplicate warnings. These are
+synthetic tooling regressions, not reference-authenticity or model-quality results.

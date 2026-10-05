@@ -36,6 +36,8 @@ def content_tokens(text):
             continue
         if name in CITATION_NAMES:
             keys.update((name, key.strip()) for key in command["value"].split(","))
+        elif name == "bibitem":
+            keys.update([(name, command["value"])])
         elif name == "label" or name in REFERENCE_NAMES:
             keys.update((name, command["reference_group"], key) if name in RANGE_REFS else (name, key)
                         for key in command["keys"])
@@ -203,6 +205,7 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
               "after": {"root": str(after), "files": candidate}, "builds": {}, "changes": [],
               "content_audit": [], "source_scan_issues": [], "math_environment_inventory": {"before": [], "after": []},
               "citation_inventory": {"before": [], "after": []},
+              "bibitem_inventory": {"before": [], "after": []},
               "label_inventory": {"before": [], "after": []}, "reference_inventory": {"before": [], "after": []},
               "math_environment_scope": {"environments": sorted(MATH_ENVIRONMENTS),
                                          "interpretation": "Complete literal outer spans only; nested bodies retained. No macro expansion, conditional/group evaluation, custom math environments or mathematical equivalence check."},
@@ -236,7 +239,12 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
                     math_spans[(root, name)] = spans
                     report["math_environment_inventory"][side].extend({"file": name, **item} for item in spans)
                     for command in commands(text):
-                        if "reference_issue" in command:
+                        if "bibitem_issue" in command:
+                            report["source_scan_issues"].append({"side": side, "file": name, "line": command["line"],
+                                                               "code": "bibitem-unverified", "message": command["bibitem_issue"]})
+                        elif command["supported"] and command["name"] == "bibitem":
+                            report["bibitem_inventory"][side].append({"file": name, "line": command["line"], "key": command["value"]})
+                        elif "reference_issue" in command:
                             report["source_scan_issues"].append({"side": side, "file": name, "line": command["line"],
                                                                "code": "reference-unverified", "message": command["reference_issue"] + ": " + command["name"]})
                         elif command["supported"] and command["name"] == "label":

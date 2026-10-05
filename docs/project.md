@@ -218,3 +218,9 @@ Located definitions and references now cover common hyperref/nameref/cleveref
 commands, including both range endpoints. Duplicate diagnostics name the first
 definition and each later file/line. Only list commands split comma-separated
 keys. [Forms and interpretation](cross-references.md).
+
+## Manual bibliography entries
+
+Literal `bibitem` keys now join parsed database headers for citation lookup.
+Located duplicates and optional-label boundaries appear in bilingual reports.
+[Coverage and a complete example](bibliography.md#manual-bibliographies).

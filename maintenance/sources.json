@@ -180,14 +180,17 @@
     {
       "id": "natbib-citation-grammar",
       "url": "https://mirrors.ctan.org/macros/latex/contrib/natbib/natbib.pdf",
-      "scope": "natbib manual sections 2.3-2.5: key commands, capital/star forms, notes and citetext prose wrapper",
+      "scope": "natbib manual sections 2.2-2.5: manual bibitem key/optional-label interface, key commands, capital/star forms, notes and citetext prose wrapper; label semantics unverified",
       "review_after_days": 180,
       "verification": "content-reviewed",
       "checked_on": "2026-10-05",
       "applies_to": [
         "scripts/citation_lexer.py",
         "docs/citations.md",
-        "docs/citations_CN.md"
+        "docs/citations_CN.md",
+        "scripts/bibitem_lexer.py",
+        "docs/bibliography.md",
+        "docs/bibliography_CN.md"
       ]
     },
     {
@@ -227,6 +230,19 @@
         "scripts/reference_lexer.py",
         "docs/cross-references.md",
         "docs/cross-references_CN.md"
+      ]
+    },
+    {
+      "id": "latex-kernel-bibitem-grammar",
+      "url": "https://github.com/latex3/latex2e/blob/2cdbff62d8da4886006978e8cfd805d128d44b4f/base/ltbibl.dtx",
+      "scope": "LaTeX kernel bibliography generation and bibitem/lbibitem definitions: mandatory key, optional display label and AUX bibcite; no execution/field semantics claim",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-05",
+      "applies_to": [
+        "scripts/bibitem_lexer.py",
+        "docs/bibliography.md",
+        "docs/bibliography_CN.md"
       ]
     }
   ]

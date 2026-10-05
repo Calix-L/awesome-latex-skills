@@ -166,3 +166,8 @@ LaTeX、natbib、biblatex 的常用命令共用带位置的 `citation_inventory`
 常用 hyperref/nameref/cleveref 命令和范围两端保留定义、目标与源码位置；
 重复标签指出首次定义与每个后续定义的位置，仅列表命令拆分逗号键。
 [语法与解释](cross-references_CN.md)。
+
+## 手写参考文献条目
+
+字面 `bibitem` 键与数据库条目头共同用于查找引用；中英文报告展示条目位置与
+重复定义，跳过可选显示标签。[完整示例与范围](bibliography_CN.md#手写参考文献)。

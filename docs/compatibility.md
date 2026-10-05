@@ -107,3 +107,15 @@ argument role as `(command, group, key)`; ordinary keys keep `(command, key)`.
 Repeated-label diagnostics now occur at each later definition and name the first
 location. Unsupported arguments produce `reference-unverified` instead of guessed
 targets. No configuration/build schema change. [Guide](cross-references.md).
+
+## Manual bibliography inventory / 手写文献清单
+
+Schema-1 inspection adds `bibitem_inventory` rows with `file/line/key` and manual
+`definition_count`. Schema-1 review adds raw `bibitem_inventory.before/after`
+without counts or root resolution. Old reports without the fields still render.
+Definition keys enter `reference_keys` as `(bibitem, key)`; command roles remain
+distinct. `bibitem-unverified` covers unsupported arguments,
+`duplicate-bibitem-key` locates later manual definitions, and
+`bibliography-key-overlap` marks database/manual overlap unverified. Existing
+configuration/build schemas and default backend selection remain unchanged.
+[Guide](bibliography.md#manual-bibliographies).

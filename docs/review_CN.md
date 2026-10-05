@@ -84,3 +84,8 @@ als paper --output work/full-paper-zh --language zh
 报告保留两侧标签、目标清单；hyperref 标签目标修改及范围端点调换进入
 `reference_keys` 提示。同命令内仅重排列表键保持计数不变；未改动源码的
 暂不支持语法也会提示。[检查范围](cross-references_CN.md)。
+
+## 手写条目键修改
+
+仅修改字面 `bibitem` 键也触发 `reference_keys`；报告保留两侧条目位置，未改动
+源码中的暂不支持语法也提示。[解释与范围](bibliography_CN.md#手写参考文献)。

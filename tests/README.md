@@ -227,3 +227,16 @@ located duplicates against real multiply-defined warnings. Installed original
 wheel and independently rebuilt sdist exercise both inspection and reversed-range
 review outside the checkout. These are synthetic tooling controls, not model
 quality or scientific-fidelity evaluations.
+
+## Manual bibliography controls
+
+`test_bibitems.py` adds twenty portable regressions for optional labels, nested
+brace boundaries, comments/verbatim/internal commands, unsupported/deep syntax,
+forward/excluded/repeated/local-package inputs, located duplicates, exact keys,
+database overlap, definition-only edits, distinct roles/multiplicity, unchanged
+issues, inactive sources, bilingual escaped/legacy reports and sealed evidence.
+Two native controls compare actual AUX bibcite keys with the inventory under core
+LaTeX and natbib, keep a renamed manual target unresolved, locate real duplicate
+warnings and verify that sources remain byte-identical. Original-wheel and
+rebuilt-sdist checks repeat manual inspection and key-only review outside the
+checkout. All references are synthetic; no model-quality claim is inferred.

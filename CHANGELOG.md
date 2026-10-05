@@ -2,6 +2,25 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.20.0 — 2026-10-05
+
+### Fixed
+
+- Manual bibliography keys from reachable `bibitem` commands now join database headers in static citation lookup, preventing false missing-entry warnings for core LaTeX/natbib thebibliography projects. Optional display labels are skipped with the shared bounded argument reader; no backend is inferred.
+- Review flags definition-only key edits and retains command roles and multiplicity. Malformed/dynamic/starred manual syntax stays explicitly unverified, even in unchanged sources.
+
+### Added
+
+- Additive schema-1 `bibitem_inventory` in inspection and both review versions, with escaped bilingual offline tables. Inspection counts literal manual definitions; review records raw locations without claiming root resolution. Legacy reports remain supported.
+- Manual duplicate diagnostics locate each later definition and identify the first. Database/manual key overlap is marked unverified without claiming an actual generated duplicate.
+- Expanded bilingual bibliography examples and README task navigation, compatibility documentation and reviewed primary syntax sources.
+
+### Validation
+
+- Twenty portable and two native regressions cover boundaries, dependency scope, duplicate origins, unknown keys, exact spelling, source-only edits and sealed reports. Native controls compare actual AUX keys and deliberate missing/duplicate targets; original-wheel and rebuilt-sdist controls repeat first use outside the checkout.
+
+Literal entry presence does not validate thebibliography activation, optional-label semantics, conditionals, refsections, generated BBL contents or scientific claim support. Configuration/build schemas remain unchanged.
+
 ## 1.19.0 — 2026-10-05
 
 ### Fixed

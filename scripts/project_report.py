@@ -4,7 +4,7 @@ import html
 import json
 from pathlib import Path
 from urllib.parse import quote
-from citation_report import LABELS as CITATION_LABELS, citation_table
+from citation_report import LABELS as CITATION_LABELS, citation_table, BIBITEM_LABELS, bibitem_table
 from cross_reference_report import LABELS as REFERENCE_LABELS, reference_tables
 
 
@@ -82,6 +82,10 @@ def inspection_html(report, language="en", json_name=None, integrity_name=None):
     if "citation_inventory" in report:
         title, *_, note = CITATION_LABELS[language]
         content.append(f'<h2>{esc(title)}</h2><p>{esc(note)}</p><details><summary>{esc(title)} ({len(report["citation_inventory"])})</summary>{citation_table(report["citation_inventory"], language)}</details>')
+    if "bibitem_inventory" in report:
+        title, *_, note = BIBITEM_LABELS[language]
+        rows = report["bibitem_inventory"]
+        content.append(f'<h2>{esc(title)}</h2><p>{esc(note)}</p><details><summary>{esc(title)} ({len(rows)})</summary>{bibitem_table(rows, language)}</details>')
     if "label_inventory" in report or "reference_inventory" in report:
         ref_labels = REFERENCE_LABELS[language]
         content.append(f'<h2>{esc(ref_labels["title"])}</h2><p>{esc(ref_labels["note"])}</p><section>{reference_tables(report.get("label_inventory", []), report.get("reference_inventory", []), language)}</section>')
