@@ -2,6 +2,19 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.22.0 — 2026-10-05
+
+### Fixed
+
+- Shared hashing, metadata reads and retained evidence copies now bound actual bytes, reject nonregular inputs and check descriptor/path identity and modification metadata around each read. POSIX no-follow/nonblocking opens handle substituted links/FIFOs; Windows stat/fstat ctime differences no longer create false change reports.
+- Review inventories reject oversized assets and aggregate input totals before hashing, then verify actual snapshot byte totals. Byte counts and hashes come from the same read. Explicitly read BBL sources keep their source limit at inspection publication.
+- Review notes and build metadata are bounded before use, shared JSON output is bounded before writing, and build-report hashes bind the exact parsed bytes. Failed staging never publishes a partial review/inspection.
+
+### Added
+
+- Bilingual input-limit/retry guides, README navigation and compatibility notes describing fixed limits and observation scope.
+- Twenty-two bounded-I/O regressions and installed wheel/rebuilt-sdist controls for oversized notes and metadata outside the checkout.
+
 ## 1.21.0 — 2026-10-05
 
 ### Fixed

@@ -329,10 +329,10 @@ class IntegrityTests(unittest.TestCase):
     def test_metadata_limits_apply_before_parsing_or_hashing_oversized_inputs(self):
         root = self.release()
         with patch.object(verifier, 'MAX_METADATA_BYTES', 4), patch.object(verifier, 'parse_json', side_effect=AssertionError('Must not parse oversized metadata')):
-            with self.assertRaisesRegex(ValueError, 'Metadata exceeds'):
+            with self.assertRaisesRegex(ValueError, 'size limit'):
                 verifier.verify_release(root)
         with patch.object(verifier, 'MAX_FILE_BYTES', 4):
-            with self.assertRaisesRegex(ValueError, 'per-file byte limit'):
+            with self.assertRaisesRegex(ValueError, 'size limit'):
                 verifier.bounded_file_hash(root / 'release-manifest.json')
 
     def test_failed_manifest_creation_never_publishes_partial_review(self):

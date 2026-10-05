@@ -253,3 +253,15 @@ BibTeX/Biber choices, compare selected declarations with real control files and
 keep source bytes unchanged. Installed wheel/rebuilt-sdist checks repeat nested
 inspection, located mismatch and unsupported-backend review outside the checkout.
 These are synthetic tooling controls, not model-quality measurements.
+
+## Bounded reads and evidence copies
+
+`test_bounded_io.py` adds twenty-two controls for exact/empty limits, byte counts,
+early oversized rejection, regular files, symlinks/FIFOs, actual stream growth,
+same-size mutation, POSIX replacement, opened-descriptor substitution, Windows
+ctime behavior, fresh copies, shared metadata input/output limits, asset/total
+preflight, actual totals, notes encoding/escaping, parsed-report binding, explicit
+BBL publication limits and failed-stage cleanup. POSIX-specific controls skip
+on Windows. Installed wheel/rebuilt-sdist checks reject over-limit notes and
+metadata with exit 2 and no published directory. Existing copy-mutation tests
+now exercise the bounded copier. These are synthetic tooling controls.

@@ -122,3 +122,10 @@ retain located entries; unsupported syntax stays visible for unchanged files.
 Both source versions retain literal class/package declarations. Malformed loaders
 and unsupported/conflicting direct backend assignments remain visible even for
 unchanged sources. [Scope and interpretation](package-options.md).
+
+## Large files and review notes
+
+Project assets, supplied build metadata, retained logs/PDFs and review notes now
+use bounded regular-file reads. Notes allow 2,000,000 bytes, JSON allows 16 MiB,
+and individual hashed/copied evidence allows 512 MiB. A report digest binds the
+exact parsed bytes. Failures leave no published review. [Limits](input-limits.md).

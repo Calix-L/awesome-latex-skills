@@ -200,6 +200,19 @@ def check_distribution(wheel, output):
         failed = json.loads(run([command, "--json", "verify", "review", cwd / "source-review"], expected=(1,)))["result"]
         if failed["status"] != "failed" or not any(item["code"] == "changed-file" for item in failed["findings"]):
             raise ValueError("Installed verifier missed a changed source diff")
+        # Fixed public limits, checked through the installed CLI outside this tree.
+        oversized_notes = cwd / "oversized-notes.txt"
+        oversized_notes.write_bytes(b"x" * 2_000_001)
+        oversized_report = cwd / "oversized-build.json"
+        oversized_report.write_bytes(b" " * (16 * 1024 * 1024 + 1))
+        for name, argument, supplied in (("notes", "--notes", oversized_notes),
+                                        ("metadata", "--after-build", oversized_report)):
+            refused_output = cwd / f"oversized-{name}-review"
+            refusal = json.loads(run([command, "--json", "review", "--before", main.parent, "--after", candidate,
+                                      "--output", refused_output, argument, supplied], expected=(2,)))
+            if (refusal["exit_code"] != 2 or "size limit" not in refusal.get("result", {}).get("error", "")
+                    or refused_output.exists() or list(cwd.glob(".review-*"))):
+                raise ValueError("Installed review did not refuse oversized input cleanly")
         math_original, math_candidate = cwd / "math-original", cwd / "math-candidate"
         for folder, operator in ((math_original, "+"), (math_candidate, "-")):
             folder.mkdir()

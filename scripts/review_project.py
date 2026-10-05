@@ -7,24 +7,30 @@ import hashlib
 import json
 from pathlib import Path
 import re
-import shutil
 import sys
 import tempfile
+from bounded_io import MAX_METADATA_BYTES, MAX_TOTAL_BYTES, fingerprint, read_bytes, copy_file
 
-from project_doctor import commands, inventory, mask_tex, read_source, GENERATED, SOURCE_SUFFIXES, ASSET_SUFFIXES
+from project_doctor import commands, inventory, mask_tex, read_source, GENERATED, SOURCE_SUFFIXES, ASSET_SUFFIXES, MAX_SOURCE_BYTES
 from tex_lexer import lex_tex
 from math_lexer import MATH_ENVIRONMENTS, scan_math_environments
-from project_support import read_json, safe_path, sha256, write_new_json
+from project_support import parse_json, safe_path, sha256, write_new_json
 from review_report import review_html
 from artifact_integrity import seal_review
 from citation_lexer import CITATION_NAMES
 from reference_lexer import REFERENCE_NAMES, RANGE_REFS
 from package_options import LOADERS, declaration
 
+MAX_NOTES_BYTES = 2_000_000
+
 
 def snapshot(root):
     files = inventory(root, assets=True)
-    return {name: {"sha256": sha256(path), "bytes": path.stat().st_size} for name, path in sorted(files.items())}
+    rows = {name: fingerprint(path, MAX_SOURCE_BYTES if path.suffix.lower() in SOURCE_SUFFIXES or name == ".als.json" else None)
+            for name, path in sorted(files.items())}
+    if sum(item["bytes"] for item in rows.values()) > MAX_TOTAL_BYTES:
+        raise ValueError("Project snapshot exceeds the total byte limit")
+    return rows
 
 
 def content_tokens(text):
@@ -80,12 +86,12 @@ def retain_file(original, target, bundle, bindings, expected=None, origin_root=N
     if target.exists():
         raise ValueError(f"Retained evidence path collision: {target.name}")
     target.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(original, target)
-    if sha256(target) != digest or sha256(original) != digest:
+    copied = copy_file(original, target)
+    if copied["sha256"] != digest or sha256(target) != digest or sha256(original) != digest:
         raise ValueError(f"Build evidence changed during retention: {original.name}")
     origin_root = original.parent if origin_root is None else origin_root
     bindings.append((origin_root, original.relative_to(origin_root).as_posix(), target, digest))
-    return {"file": target.relative_to(bundle).as_posix(), "sha256": digest, "bytes": target.stat().st_size}
+    return {"file": target.relative_to(bundle).as_posix(), **copied}
 
 
 def attach_build(path, project, side, bundle, bindings=None):
@@ -93,8 +99,9 @@ def attach_build(path, project, side, bundle, bindings=None):
     if path is None:
         return {"status": "unverified", "reason": "No actual build report supplied", "pages": []}
     path = Path(path).resolve()
-    report_hash = sha256(path)
-    report = read_json(path)
+    report_bytes = read_bytes(path, MAX_METADATA_BYTES)
+    report = parse_json(report_bytes.decode("utf-8"))
+    report_hash = hashlib.sha256(report_bytes).hexdigest()
     if report.get("schema") != 3 or report.get("status") not in {"success", "failed"}:
         raise ValueError("Expected an actual schema-3 build report")
     if any(not isinstance(report.get(field), list) or any(not isinstance(item, dict) for item in report[field]) for field in ("steps", "local_inputs")):
@@ -201,7 +208,7 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
         raise ValueError("Review output must be new and outside both project trees")
     output = output.resolve()
     original, candidate = snapshot(before), snapshot(after)
-    notes_text = Path(notes).expanduser().read_text(encoding="utf-8-sig") if notes else None
+    notes_text = read_bytes(Path(notes).expanduser(), MAX_NOTES_BYTES).decode("utf-8-sig") if notes else None
     report = {"schema": 1, "kind": "project_review", "before": {"root": str(before), "files": original},
               "after": {"root": str(after), "files": candidate}, "builds": {}, "changes": [],
               "content_audit": [], "source_scan_issues": [], "math_environment_inventory": {"before": [], "after": []},

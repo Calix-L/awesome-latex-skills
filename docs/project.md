@@ -231,3 +231,10 @@ Balanced loader arguments retain nested braces and protected delimiters. Exact
 direct biblatex backend declarations are compared without prefix matching or
 default/precedence inference. Located declarations appear in bilingual reports.
 [Coverage](package-options.md). Configuration requires integer schema 1.
+
+## Bounded file reads
+
+Sources/configuration retain a 2,000,000-byte limit. Assets are hashed with a
+512 MiB actual-read limit; regular-file identity and modification metadata are
+checked around each read. Explicitly read `.bbl` inputs also retain the source
+limit during final rechecks. [Input limits and retrying](input-limits.md).

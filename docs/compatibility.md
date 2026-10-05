@@ -130,3 +130,14 @@ Legacy HTML without the fields remains supported. Configuration schema 1 now
 requires an integer, rejecting Boolean/float/string lookalikes. Build and
 configuration schema numbers and backend defaults remain unchanged.
 [Guide](package-options.md).
+
+## Bounded I/O / 有界读取
+
+No report schema changes. Shared JSON readers/writers enforce 16 MiB; notes enforce
+2,000,000 bytes; shared hashing and evidence copying enforce 512 MiB per file.
+Review inventory enforces the existing sealed-artifact 2 GiB total per project
+side, before hashing and again on actual snapshot sizes. Regular-file checks
+reject special files/symlinks; descriptor/path fingerprints check observed changes.
+Normal inputs and legacy report rendering remain compatible; oversized or changing
+inputs now return an error before report publication. See [English](input-limits.md)
+and [中文](input-limits_CN.md). These checks are observations, not file locks.

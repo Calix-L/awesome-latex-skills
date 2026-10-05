@@ -136,7 +136,7 @@ class ReviewTests(unittest.TestCase):
 
     def test_copy_time_mutation_of_report_log_and_pdf_refuses_publication(self):
         record = self.record('success')
-        real_copy = shutil.copyfile
+        real_copy = tool.copy_file
         for name in ('build-report.json', 'engine.txt', 'main.pdf'):
             original = record if name == 'build-report.json' else record.parent / ('logs/engine.txt' if name == 'engine.txt' else name)
             old = original.read_bytes()
@@ -145,7 +145,7 @@ class ReviewTests(unittest.TestCase):
                 if Path(src).name == name:
                     Path(src).write_bytes(Path(src).read_bytes() + b'changed')
                 return result
-            with self.subTest(name=name), patch.object(tool.shutil, 'copyfile', side_effect=corrupt):
+            with self.subTest(name=name), patch.object(tool, 'copy_file', side_effect=corrupt):
                 with self.assertRaisesRegex(ValueError, 'evidence changed during retention'):
                     tool.review(self.root / 'before', self.root / 'after', self.output, after_build=record)
             self.assertFalse(self.output.exists())

@@ -12,6 +12,7 @@ import shutil
 import sys
 
 from project_support import parse_json, safe_path, sha256, write_new_json
+from bounded_io import MAX_FILE_BYTES, MAX_TOTAL_BYTES, file_stat, read_bytes
 from tex_lexer import TOKEN, lex_tex, mask_tex
 from bib_lexer import ASCII_FOLD, scan_bibliography
 from citation_lexer import CITATION_NAMES, citation_candidate, citation_arguments
@@ -108,6 +109,7 @@ def inventory(root, assets=False):
         raise ValueError("Project root must be a directory")
     suffixes = SOURCE_SUFFIXES | (ASSET_SUFFIXES if assets else set())
     found = {}
+    total = 0
     def walk_error(error):
         raise error
     for directory, children, filenames in os.walk(root, topdown=True, followlinks=False, onerror=walk_error):
@@ -117,10 +119,12 @@ def inventory(root, assets=False):
         for filename in sorted(filenames):
             path = Path(directory) / filename
             relative = path.relative_to(root)
-            if (path.suffix.lower() in suffixes or assets and relative.as_posix() == ".als.json") and (path.is_file() or path.is_symlink()):
+            if path.suffix.lower() in suffixes or assets and relative.as_posix() == ".als.json":
                 checked = safe_path(root, relative.as_posix())
-                if checked.stat().st_size > MAX_SOURCE_BYTES and checked.suffix.lower() in SOURCE_SUFFIXES:
-                    raise ValueError(f"Source exceeds {MAX_SOURCE_BYTES} bytes: {relative}")
+                limit = MAX_SOURCE_BYTES if checked.suffix.lower() in SOURCE_SUFFIXES or relative.as_posix() == ".als.json" else MAX_FILE_BYTES
+                total += file_stat(checked, limit).st_size
+                if total > MAX_TOTAL_BYTES:
+                    raise ValueError("Project inventory exceeds the total byte limit")
                 found[relative.as_posix()] = checked
                 if len(found) > MAX_FILES:
                     raise ValueError(f"Project inventory exceeds {MAX_FILES} files")
@@ -129,11 +133,7 @@ def inventory(root, assets=False):
 
 def read_source(path):
     """Bound the bytes actually read, including files that grow after inventory."""
-    with Path(path).open("rb") as source:
-        content = source.read(MAX_SOURCE_BYTES + 1)
-    if len(content) > MAX_SOURCE_BYTES:
-        raise ValueError(f"Source exceeds the supported size limit: {Path(path).name}")
-    return content
+    return read_bytes(path, MAX_SOURCE_BYTES)
 
 
 def parse_config(root, content, observations=None):
@@ -236,7 +236,7 @@ def inspect_project(root, main=None, engine=None, backend=None):
         for filename, expected in sorted(observed.items()):
             path = safe_path(root, filename)
             actual = (hashlib.sha256(read_source(path)).hexdigest()
-                      if path.suffix.lower() in SOURCE_SUFFIXES or filename == ".als.json" else sha256(path))
+                      if filename in texts or path.suffix.lower() in SOURCE_SUFFIXES or filename == ".als.json" else sha256(path))
             if actual != expected:
                 raise ValueError(f"Project input changed during inspection: {filename}")
         result["observed_files"] = [{"file": name, "sha256": digest} for name, digest in sorted(observed.items())]

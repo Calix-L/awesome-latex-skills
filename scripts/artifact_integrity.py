@@ -3,12 +3,10 @@ import os
 from pathlib import Path, PurePosixPath
 import re
 
-from project_support import safe_path, sha256, write_new_json
+from project_support import safe_path, write_new_json
+from bounded_io import MAX_FILE_BYTES, MAX_TOTAL_BYTES, MAX_METADATA_BYTES, fingerprint
 
 MAX_FILES = 20_000
-MAX_FILE_BYTES = 512 * 1024 * 1024
-MAX_TOTAL_BYTES = 2 * 1024 * 1024 * 1024
-MAX_METADATA_BYTES = 16 * 1024 * 1024
 HASH = re.compile(r"[0-9a-f]{64}\Z")
 
 
@@ -75,8 +73,11 @@ def regular_files(root):
 
 
 def file_inventory(root, exclude=()):
-    return [{"file": name, "sha256": sha256(path), "bytes": path.stat().st_size}
+    rows = [{"file": name, **fingerprint(path, MAX_FILE_BYTES)}
             for name, path in sorted(regular_files(root).items()) if name not in exclude]
+    if sum(item["bytes"] for item in rows) > MAX_TOTAL_BYTES:
+        raise ValueError("Artifact inventory exceeds the total byte limit")
+    return rows
 
 
 def seal_bundle(root, kind):

@@ -16,23 +16,15 @@ from artifact_integrity import (HASH, MAX_FILES, MAX_FILE_BYTES, MAX_TOTAL_BYTES
                                 MAX_METADATA_BYTES, portable_name, regular_files, validate_files)
 from install import SKILLS
 from project_support import parse_json
+from bounded_io import fingerprint, read_bytes
 
 
 def bounded_file_hash(path):
-    with path.open("rb") as stream:
-        return streamed_hash(stream)
+    return fingerprint(path, MAX_FILE_BYTES)["sha256"]
 
 
 def metadata_bytes(path):
-    if not path.is_file():
-        raise ValueError(f"Metadata must be a regular file: {path.name}")
-    if path.stat().st_size > MAX_METADATA_BYTES:
-        raise ValueError(f"Metadata exceeds {MAX_METADATA_BYTES} bytes: {path.name}")
-    with path.open("rb") as stream:
-        data = stream.read(MAX_METADATA_BYTES + 1)
-    if len(data) > MAX_METADATA_BYTES:
-        raise ValueError(f"Metadata exceeds {MAX_METADATA_BYTES} bytes: {path.name}")
-    return data
+    return read_bytes(path, MAX_METADATA_BYTES)
 
 
 def metadata(path):

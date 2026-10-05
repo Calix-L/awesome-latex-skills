@@ -3,9 +3,10 @@ from pathlib import Path
 import tempfile
 
 from artifact_integrity import seal_inspection
-from project_doctor import inspect_project
+from project_doctor import inspect_project, ASSET_SUFFIXES, MAX_SOURCE_BYTES
 from project_report import write_inspection_reports
-from project_support import safe_path, sha256
+from project_support import safe_path
+from bounded_io import fingerprint
 
 
 def export_inspection(root, output, main=None, engine=None, backend=None, language="en"):
@@ -25,7 +26,9 @@ def export_inspection(root, output, main=None, engine=None, backend=None, langua
         write_inspection_reports(staged / "inspection.json", staged / "report.html", result, language, "integrity.json")
         seal_inspection(staged)
         for item in result["observed_files"]:
-            if sha256(safe_path(root, item["file"])) != item["sha256"]:
+            path = safe_path(root, item["file"])
+            limit = None if path.suffix.lower() in ASSET_SUFFIXES else MAX_SOURCE_BYTES
+            if fingerprint(path, limit)["sha256"] != item["sha256"]:
                 raise ValueError(f"Project inputs changed before inspection publication: {item['file']}")
         if output.exists() or output.is_symlink():
             raise ValueError("Inspection output appeared during publication")

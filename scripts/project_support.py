@@ -1,8 +1,8 @@
 """Shared validation for project reports; no network or third-party dependencies."""
-import hashlib
 import json
 import math
 from pathlib import Path, PurePosixPath, PureWindowsPath
+from bounded_io import MAX_METADATA_BYTES, fingerprint, read_bytes
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -32,7 +32,7 @@ def parse_json(text):
 
 
 def read_json(path):
-    return parse_json(Path(path).read_text(encoding="utf-8"))
+    return parse_json(read_bytes(path, MAX_METADATA_BYTES).decode("utf-8"))
 
 
 def safe_path(root, value):
@@ -49,15 +49,13 @@ def safe_path(root, value):
 
 
 def sha256(path):
-    digest = hashlib.sha256()
-    with Path(path).open("rb") as source:
-        for chunk in iter(lambda: source.read(1024 * 1024), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
+    return fingerprint(path)["sha256"]
 
 
 def write_new_json(path, value):
     content = json.dumps(value, ensure_ascii=False, indent=2, allow_nan=False) + "\n"
+    if len(content.encode("utf-8")) > MAX_METADATA_BYTES:
+        raise ValueError(f"JSON output exceeds the {MAX_METADATA_BYTES}-byte size limit")
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("x", encoding="utf-8") as output:
