@@ -240,3 +240,16 @@ LaTeX and natbib, keep a renamed manual target unresolved, locate real duplicate
 warnings and verify that sources remain byte-identical. Original-wheel and
 rebuilt-sdist checks repeat manual inspection and key-only review outside the
 checkout. All references are synthetic; no model-quality claim is inferred.
+
+## Balanced loaders and exact backend controls
+
+`test_package_options.py` adds twenty-four portable regressions for nested loader
+arguments, protected delimiters, masking, command locations, forwarded-loader
+syntax, name lists, malformed/deep/dynamic inputs, root selection, local graph
+traversal, exact/braced/unsupported/conflicting backend values, doctor output,
+strict configuration preflight, escaped/legacy bilingual HTML and sealed reports.
+Two native controls compile inert local class/package options and both braced
+BibTeX/Biber choices, compare selected declarations with real control files and
+keep source bytes unchanged. Installed wheel/rebuilt-sdist checks repeat nested
+inspection, located mismatch and unsupported-backend review outside the checkout.
+These are synthetic tooling controls, not model-quality measurements.

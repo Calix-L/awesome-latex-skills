@@ -171,3 +171,9 @@ LaTeX、natbib、biblatex 的常用命令共用带位置的 `citation_inventory`
 
 字面 `bibitem` 键与数据库条目头共同用于查找引用；中英文报告展示条目位置与
 重复定义，跳过可选显示标签。[完整示例与范围](bibliography_CN.md#手写参考文献)。
+
+## 文档类与宏包选项声明
+
+完整读取加载参数中的嵌套花括号与受保护定界符；直接 biblatex 后端值按完整值
+比较，不匹配前缀、不推断默认或优先级。双语报告保留声明位置；配置要求整数
+schema 1。[检查范围](package-options_CN.md)。

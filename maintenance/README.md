@@ -56,3 +56,7 @@ correctness. Native regressions and source-only inventories remain distinct.
 Manual bibliography grammar follows the pinned LaTeX kernel and natbib §2.2.
 Source records establish the literal key/optional-label interface, not actual
 execution, reference-section scope, optional-label semantics or claim support.
+
+Loader/backend grammar records cover the reviewed literal declaration interface
+and exact tool names. They do not establish option execution, macro expansion,
+forwarded/global values, precedence, template acceptance or scientific fidelity.

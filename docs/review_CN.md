@@ -89,3 +89,8 @@ als paper --output work/full-paper-zh --language zh
 
 仅修改字面 `bibitem` 键也触发 `reference_keys`；报告保留两侧条目位置，未改动
 源码中的暂不支持语法也提示。[解释与范围](bibliography_CN.md#手写参考文献)。
+
+## 加载与后端选项观察
+
+两侧源码保留字面文档类与宏包声明；错误加载和暂不支持、冲突的直接后端赋值
+在未改动源码中也提示。[范围与解释](package-options_CN.md)。

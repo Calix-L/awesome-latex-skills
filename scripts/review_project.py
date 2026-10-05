@@ -19,6 +19,7 @@ from review_report import review_html
 from artifact_integrity import seal_review
 from citation_lexer import CITATION_NAMES
 from reference_lexer import REFERENCE_NAMES, RANGE_REFS
+from package_options import LOADERS, declaration
 
 
 def snapshot(root):
@@ -206,6 +207,7 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
               "content_audit": [], "source_scan_issues": [], "math_environment_inventory": {"before": [], "after": []},
               "citation_inventory": {"before": [], "after": []},
               "bibitem_inventory": {"before": [], "after": []},
+              "package_inventory": {"before": [], "after": []},
               "label_inventory": {"before": [], "after": []}, "reference_inventory": {"before": [], "after": []},
               "math_environment_scope": {"environments": sorted(MATH_ENVIRONMENTS),
                                          "interpretation": "Complete literal outer spans only; nested bodies retained. No macro expansion, conditional/group evaluation, custom math environments or mathematical equivalence check."},
@@ -239,7 +241,17 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
                     math_spans[(root, name)] = spans
                     report["math_environment_inventory"][side].extend({"file": name, **item} for item in spans)
                     for command in commands(text):
-                        if "bibitem_issue" in command:
+                        if "package_issue" in command:
+                            report["source_scan_issues"].append({"side": side, "file": name, "line": command["line"],
+                                                               "code": "package-unverified", "message": command["package_issue"]})
+                        elif command["supported"] and command["name"] in LOADERS:
+                            for package in command["value"].split(","):
+                                row, package_issues = declaration(command, name, package.strip())
+                                report["package_inventory"][side].append(row)
+                                report["source_scan_issues"].extend({"side": side, "file": name, "line": command["line"],
+                                                                     "code": "backend-options-unverified", "message": issue}
+                                                                    for issue in package_issues)
+                        elif "bibitem_issue" in command:
                             report["source_scan_issues"].append({"side": side, "file": name, "line": command["line"],
                                                                "code": "bibitem-unverified", "message": command["bibitem_issue"]})
                         elif command["supported"] and command["name"] == "bibitem":

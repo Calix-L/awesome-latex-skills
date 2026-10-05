@@ -116,3 +116,9 @@ visible even when a source is unchanged. [Coverage](cross-references.md).
 Changing only a literal `bibitem` key now triggers `reference_keys`. Both versions
 retain located entries; unsupported syntax stays visible for unchanged files.
 [Interpretation](bibliography.md#manual-bibliographies).
+
+## Loader and backend option observations
+
+Both source versions retain literal class/package declarations. Malformed loaders
+and unsupported/conflicting direct backend assignments remain visible even for
+unchanged sources. [Scope and interpretation](package-options.md).

@@ -244,6 +244,32 @@
         "docs/bibliography.md",
         "docs/bibliography_CN.md"
       ]
+    },
+    {
+      "id": "latex-kernel-loader-grammar",
+      "url": "https://github.com/latex3/latex2e/blob/b604e2e24e76d12f9aeb0bb81e017f29b5ddd473/base/ltclass.dtx",
+      "scope": "LaTeX kernel direct class/package loader options/name/version interface and WithOptions forwarding form; no effective options or version acceptance inference",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-05",
+      "applies_to": [
+        "scripts/package_options.py",
+        "docs/package-options.md",
+        "docs/package-options_CN.md"
+      ]
+    },
+    {
+      "id": "biblatex-backend-options",
+      "url": "https://ctan.math.illinois.edu/macros/latex/contrib/biblatex/doc/biblatex.pdf",
+      "scope": "biblatex sections 3.1.1 and 3.16: biber, bibtex and distinct bibtex8 backend values; build tooling remains biber/bibtex and defaults/precedence are not inferred",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-05",
+      "applies_to": [
+        "scripts/package_options.py",
+        "docs/package-options.md",
+        "docs/package-options_CN.md"
+      ]
     }
   ]
 }

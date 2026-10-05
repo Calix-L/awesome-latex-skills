@@ -287,6 +287,32 @@ def check_distribution(wheel, output):
                 or "手写参考文献条目" not in (manual_review / "report.html").read_text(encoding="utf-8")):
             raise ValueError("Installed review missed a manual bibliography definition-only edit")
         run([command, "verify", "review", manual_review])
+        loaders = cwd / "loader-paper"
+        loaders.mkdir()
+        (loaders / "main.tex").write_text("\\documentclass[note={nested ] text}]{article}\n\\usepackage[note={backend=biber},backend={bibtex}]{biblatex}", encoding="utf-8")
+        loader_output = cwd / "loader-inspection"
+        loader_report = json.loads(run([command, "--json", "project", "check", loaders, "--backend", "biber",
+                                        "--bundle", loader_output, "--html-language", "zh"], expected=(1,)))["result"]
+        mismatches = [r for r in loader_report["diagnostics"] if r["code"] == "backend-mismatch"]
+        if (loader_report["main"] != "main.tex" or len(mismatches) != 1 or mismatches[0]["line"] != 2
+                or loader_report["package_inventory"][-1]["backend_options"] != ["bibtex"]
+                or "文档类与宏包声明" not in (loader_output / "report.html").read_text(encoding="utf-8")):
+            raise ValueError("Installed loader inspection lost nested options or exact braced backend mismatch")
+        run([command, "verify", "inspection", loader_output])
+        loader_before, loader_after = cwd / "loader-original", cwd / "loader-candidate"
+        for folder, value in ((loader_before, "bibtex8"), (loader_after, "biber")):
+            folder.mkdir()
+            (folder / "main.tex").write_text(r"\documentclass{article}\usepackage[backend={" + value + "}]{biblatex}", encoding="utf-8")
+        loader_review = cwd / "loader-review"
+        loader_result = json.loads(run([command, "--json", "review", "--before", loader_before, "--after", loader_after,
+                                        "--output", loader_review, "--language", "zh"]))["result"]
+        loader_record = read_json(loader_review / "review.json")
+        if (loader_result["source_scan_issues"] != 1
+                or loader_record["source_scan_issues"][0]["code"] != "backend-options-unverified"
+                or loader_record["package_inventory"]["before"][-1]["backend_options"] != ["bibtex8"]
+                or loader_record["package_inventory"]["after"][-1]["backend_options"] != ["biber"]):
+            raise ValueError("Installed review hid unsupported backend values or their changed declaration")
+        run([command, "verify", "review", loader_review])
         result = {"schema": 1, "status": "verified", "version": version, "wheel_sha256": sha256(wheel), "steps": steps}
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         result = {"schema": 1, "status": "failed", "error": str(exc), "steps": steps}

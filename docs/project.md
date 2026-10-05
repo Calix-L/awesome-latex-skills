@@ -224,3 +224,10 @@ keys. [Forms and interpretation](cross-references.md).
 Literal `bibitem` keys now join parsed database headers for citation lookup.
 Located duplicates and optional-label boundaries appear in bilingual reports.
 [Coverage and a complete example](bibliography.md#manual-bibliographies).
+
+## Class/package option declarations
+
+Balanced loader arguments retain nested braces and protected delimiters. Exact
+direct biblatex backend declarations are compared without prefix matching or
+default/precedence inference. Located declarations appear in bilingual reports.
+[Coverage](package-options.md). Configuration requires integer schema 1.

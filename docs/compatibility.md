@@ -119,3 +119,14 @@ distinct. `bibitem-unverified` covers unsupported arguments,
 `bibliography-key-overlap` marks database/manual overlap unverified. Existing
 configuration/build schemas and default backend selection remain unchanged.
 [Guide](bibliography.md#manual-bibliographies).
+
+## Loader option inventory / 加载选项清单
+
+Schema-1 inspection adds `package_inventory`; review adds
+`package_inventory.before/after`. Rows retain `file/line/command/name/options`.
+Direct biblatex loader rows add `backend_options` and `backend_options_complete`,
+which describe the literal argument rather than effective runtime configuration.
+Legacy HTML without the fields remains supported. Configuration schema 1 now
+requires an integer, rejecting Boolean/float/string lookalikes. Build and
+configuration schema numbers and backend defaults remain unchanged.
+[Guide](package-options.md).

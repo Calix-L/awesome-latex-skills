@@ -58,6 +58,55 @@ class CompilationTests(unittest.TestCase):
                 evidence.append(f"{step['transcript']}:\n" + transcript.read_text(encoding="utf-8", errors="replace")[-4000:])
         self.fail("\n\n".join(evidence))
 
+    def test_real_nested_class_and_package_loader_options(self):
+        source = self.work / 'main.tex'
+        source.write_text(r'\documentclass[note={nested ] text, more=value}]{alsoptionclass}'
+                          r'\begin{document}Synthetic option control.\end{document}', encoding='utf-8')
+        cls = self.work / 'alsoptionclass.cls'
+        cls.write_text(r'\ProvidesClass{alsoptionclass}\DeclareOption*{}\ProcessOptions\relax'
+                       r'\LoadClass{article}\RequirePackage[note={nested ] text, more=value}]{alsoptionpackage}', encoding='utf-8')
+        sty = self.work / 'alsoptionpackage.sty'
+        sty.write_text(r'\ProvidesPackage{alsoptionpackage}\DeclareOption*{}\ProcessOptions\relax', encoding='utf-8')
+        expected = {p.name: p.read_bytes() for p in (source, cls, sty)}
+        inspected = inspect_project(self.work, engine='pdflatex')
+        # setUp's separate figure source is also a root; select this main explicitly.
+        self.assertIsNone(inspected['main'])
+        inspected = inspect_project(self.work, 'main.tex', 'pdflatex')
+        self.assertEqual(inspected['diagnostics'], [])
+        self.assertEqual([r['name'] for r in inspected['package_inventory']], ['alsoptionclass', 'article', 'alsoptionpackage'])
+        built = check_build.build(source, self.work / 'loader-build', passes=5, until_stable=True, require_resolved=True,
+                                  watch_inputs=['alsoptionclass.cls', 'alsoptionpackage.sty'])
+        self.assert_build_success(built)
+        self.assertTrue({'alsoptionclass.cls', 'alsoptionpackage.sty'}.issubset({r['path'] for r in built['local_inputs']}))
+        for path in (source, cls, sty):
+            self.assertEqual(path.read_bytes(), expected[path.name])
+
+    def test_real_braced_biblatex_backend_options_and_configured_mismatch(self):
+        for backend in ('biber', 'bibtex'):
+            folder = self.work / backend
+            folder.mkdir()
+            source = folder / 'main.tex'
+            source.write_text(r'\documentclass{article}\usepackage[backend={' + backend + r'},style=numeric]{biblatex}'
+                              r'\addbibresource{refs.bib}\begin{document}\cite{a}.\printbibliography\end{document}', encoding='utf-8')
+            refs = folder / 'refs.bib'
+            refs.write_text('@book{a,author={Alice Author},title={Synthetic control},year={2020}}', encoding='utf-8')
+            expected = {p.name: p.read_bytes() for p in (source, refs)}
+            inspected = inspect_project(folder, 'main.tex', 'pdflatex', backend)
+            self.assertEqual(inspected['diagnostics'], [])
+            row = next(r for r in inspected['package_inventory'] if r['name'] == 'biblatex')
+            self.assertEqual(row['backend_options'], [backend])
+            self.assertTrue(row['backend_options_complete'])
+            other = 'bibtex' if backend == 'biber' else 'biber'
+            mismatch = inspect_project(folder, 'main.tex', 'pdflatex', other)
+            self.assertEqual([r['code'] for r in mismatch['diagnostics']], ['backend-mismatch'])
+            built = check_build.build(source, self.work / f'loader-{backend}', backend=backend, passes=5,
+                                      until_stable=True, require_resolved=True, watch_inputs=['refs.bib'])
+            self.assert_build_success(built)
+            self.assertTrue(any(step['tool'] == backend and step['exit_code'] == 0 for step in built['steps']))
+            self.assertEqual((Path(built['output']) / 'main.bcf').exists(), backend == 'biber')
+            for path in (source, refs):
+                self.assertEqual(path.read_bytes(), expected[path.name])
+
     def test_real_manual_bibliography_and_definition_only_edit(self):
         from review_project import review
         from verify_artifacts import verify_review

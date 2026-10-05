@@ -4,6 +4,7 @@ import json
 from urllib.parse import quote
 from citation_report import LABELS as CITATION_LABELS, citation_table, BIBITEM_LABELS, bibitem_table
 from cross_reference_report import LABELS as REFERENCE_LABELS, reference_tables
+from package_report import LABELS as PACKAGE_LABELS, package_table
 
 
 LABELS = {
@@ -22,7 +23,7 @@ LABELS = {
         "numbers": "Numbers", "reference_keys": "Labels, references and citations", "simple_math": "Delimited math", "count": "Count", "value": "Literal value",
         "math_environments": "Math environment changes", "math_inventory": "Located math environments", "math_empty": "No complete supported literal math environment.",
         "math_note": "Complete outer environments are compared as literal text with multiplicity, including nested bodies. Locations point to both source versions; macro expansion, custom environments and mathematical equivalence remain unchecked.",
-        "scan_issues": "Incomplete or unverified literal source regions", "scan_note": "Unclosed verbatim regions can hide later content; malformed/dynamic formulas and unsupported citation/reference/bibitem syntax can leave inventories incomplete. Check the source and actual build before interpreting absent change signals.",
+        "scan_issues": "Incomplete or unverified literal source regions", "scan_note": "Unclosed verbatim regions can hide later content; malformed/dynamic formulas and unsupported class/package/citation/reference/bibitem syntax can leave inventories incomplete. Check the source and actual build before interpreting absent change signals.",
         "none": "No supported literal changes detected; this does not establish unchanged meaning.",
         "author": "Author decisions", "no_decisions": "No visible TODO or UNCERTAIN markers found.", "notes": "Supplied notes",
         "scope": "Inventory and limits", "scope_note": "Only the listed source/configuration/asset types are compared. Generated and environment directories are excluded. Other files are outside this review's coverage.",
@@ -44,7 +45,7 @@ LABELS = {
         "numbers": "数值", "reference_keys": "标签、引用与文献键", "simple_math": "有定界符的公式", "count": "次数", "value": "字面值",
         "math_environments": "公式环境变化", "math_inventory": "带源码位置的公式环境", "math_empty": "没有支持范围内的完整字面公式环境。",
         "math_note": "按字面文本和出现次数比较完整的外层环境，保留嵌套内容；位置对应修改前后源码。未检查宏展开、自定义公式环境或数学等价性。",
-        "scan_issues": "未闭合的源码字面区域与未验证项", "scan_note": "未闭合的原样文本可能遮住后续内容；错误或动态公式、暂不支持的引用与 bibitem 语法可能使清单不完整。请先核对源码与实际构建，再判断未出现变化提示的内容。",
+        "scan_issues": "未闭合的源码字面区域与未验证项", "scan_note": "未闭合的原样文本可能遮住后续内容；错误或动态公式、暂不支持的文档类、宏包、引用与 bibitem 语法可能使清单不完整。请先核对源码与实际构建，再判断未出现变化提示的内容。",
         "none": "未检测到支持范围内的字面变化；这不能证明含义不变。",
         "author": "作者待确认事项", "no_decisions": "未发现可见的 TODO 或 UNCERTAIN 标记。", "notes": "提供的说明",
         "scope": "清单范围与限制", "scope_note": "只比较所列源码、配置和资源类型；生成目录与环境目录会被排除。其他文件不在本次审阅覆盖范围内。",
@@ -149,6 +150,13 @@ def review_html(report, diffs, language="en"):
         for side in ("before", "after"):
             rows = report["citation_inventory"].get(side, [])
             content.append(f'<section><h3>{esc(labels[side])}</h3><details><summary>{esc(title)} ({len(rows)})</summary>{citation_table(rows, language)}</details></section>')
+        content.append('</div>')
+    if "package_inventory" in report:
+        title, *_, note = PACKAGE_LABELS[language]
+        content.append(f'<h2>{esc(title)}</h2><p>{esc(note)}</p><div class="pair">')
+        for side in ("before", "after"):
+            rows = report["package_inventory"].get(side, [])
+            content.append(f'<section><h3>{esc(labels[side])}</h3><details><summary>{esc(title)} ({len(rows)})</summary>{package_table(rows, language)}</details></section>')
         content.append('</div>')
     if "bibitem_inventory" in report:
         title, *_, note = BIBITEM_LABELS[language]

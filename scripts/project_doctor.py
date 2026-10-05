@@ -17,6 +17,7 @@ from bib_lexer import ASCII_FOLD, scan_bibliography
 from citation_lexer import CITATION_NAMES, citation_candidate, citation_arguments
 from reference_lexer import REFERENCE_NAMES, UNSTARRED_ONLY, reference_arguments
 from bibitem_lexer import bibitem_argument
+from package_options import LOADERS, loader_arguments, declaration
 
 ENGINES = ("pdflatex", "xelatex", "lualatex")
 BACKENDS = (None, "bibtex", "biber")
@@ -40,6 +41,14 @@ def commands(text):
         if token.start() < consumed:
             continue
         name = token[0][1:]
+        if name in LOADERS:
+            value, options, consumed, issue = loader_arguments(masked, token.end(), name)
+            row = {"name": name, "value": value, "options": options, "supported": issue is None,
+                   "line": bisect_right(newlines, token.start()) + 1}
+            if issue:
+                row["package_issue"] = issue
+            yield row
+            continue
         if name == "bibitem":
             key, consumed, issue = bibitem_argument(masked, token.end())
             row = {"name": name, "value": key or "", "options": "", "supported": issue is None,
@@ -130,7 +139,7 @@ def read_source(path):
 def parse_config(root, content, observations=None):
     config = parse_json(content.decode("utf-8"))
     root = Path(root).expanduser().resolve()
-    if config.get("schema") != 1 or set(config) - {"schema", "main", "engine", "backend", "passes"}:
+    if type(config.get("schema")) is not int or config["schema"] != 1 or set(config) - {"schema", "main", "engine", "backend", "passes"}:
         raise ValueError("Expected schema-1 project config with main/engine/backend/passes only")
     validate_main(root, config.get("main"), observations)
     if config.get("engine") not in ENGINES or config.get("backend") not in BACKENDS:
@@ -210,10 +219,11 @@ def inspect_project(root, main=None, engine=None, backend=None):
               "root_selection": selection,
               "root_candidate_scope": "all-project-tex" if selection == "automatic" else "selected-main-only",
               "configuration_sha256": observed.get(".als.json"),
-              "inputs": [], "observed_files": [], "dependencies": [], "bibliography_entries": [], "bibitem_inventory": [], "citation_inventory": [], "label_inventory": [], "reference_inventory": [], "diagnostics": [], "status": "ready",
+              "inputs": [], "observed_files": [], "dependencies": [], "package_inventory": [], "bibliography_entries": [], "bibitem_inventory": [], "citation_inventory": [], "label_inventory": [], "reference_inventory": [], "diagnostics": [], "status": "ready",
               "limitations": ["Static literal references only: macro expansion, grouping, conditionals, system class/package internals and external search paths are not evaluated.",
                               "Literal scanning assumes ordinary category codes; custom verbatim environments and package escape/termination options are not evaluated.",
                               "Default graphics extension order is a common PDF-engine subset; explicit DeclareGraphicsExtensions is honored, but driver/conversion rules are not evaluated.",
+                              "Loader options are literal observations, not validated package settings. Only direct exact biblatex backend assignments are compared; defaults, forwarded/global options and precedence are not inferred.",
                               "Bibliography headers only: field grammar, string expansion, aliases, inheritance, crossref/xdata and backend/style acceptance are not validated. Citation keys are compared exactly.",
                               "Common literal citation commands and bibitem keys only; optional notes/display labels are not keys. Custom/special syntax, commands inside notes/labels and macro-generated keys are not evaluated.",
                               "Bibitem observations do not prove execution inside thebibliography, optional-label validity, reference-section scoping or generated BBL contents. No bibliography backend is inferred from manual entries.",
@@ -284,6 +294,9 @@ def inspect_project(root, main=None, engine=None, backend=None):
                            "Check the literal region in the actual build; later contents may be masked")
         for command in commands(text):
             name, value, line = command["name"], command["value"], command["line"]
+            if "package_issue" in command:
+                diagnostic("package-unverified", "unverified", filename, line, command["package_issue"], "Inspect the loader's actual arguments; this declaration may hide dependencies")
+                continue
             if "bibitem_issue" in command:
                 diagnostic("bibitem-unverified", "unverified", filename, line, command["bibitem_issue"], "Check the actual manual bibliography command; no entry key is guessed")
                 continue
@@ -321,6 +334,18 @@ def inspect_project(root, main=None, engine=None, backend=None):
                 if extension == ".sty":
                     packages.update(part.strip() for part in value.split(","))
                 for package in (part.strip() for part in value.split(",")):
+                    if name in LOADERS:
+                        row, issues = declaration(command, filename, package)
+                        result["package_inventory"].append(row)
+                    if extension == ".sty" and package == "biblatex":
+                        values = row["backend_options"]
+                        for issue in issues:
+                            diagnostic("backend-options-unverified", "unverified", filename, line, issue,
+                                       "Check the actual biblatex options and native control files; no backend is guessed")
+                        if not issues and values and backend and values[0] != backend:
+                            diagnostic("backend-mismatch", "error", filename, line,
+                                       f"Configured backend {backend} differs from direct biblatex backend {values[0]}",
+                                       "Use the project's actual backend and confirm the native control files")
                     local_name = (working_prefix / (package + extension)).as_posix()
                     try:
                         local = safe_path(root, local_name)
@@ -338,10 +363,6 @@ def inspect_project(root, main=None, engine=None, backend=None):
                                 scan(local_name, (filename, line), name)
                         else:
                             diagnostic("missing-local-package", "error", filename, line, f"Local class/package not found: {package}", f"Supply its actual {extension} file")
-                if "biblatex" in {part.strip() for part in value.split(",")}:
-                    specified = re.search(r"backend\s*=\s*(biber|bibtex)", command["options"])
-                    if specified and backend and specified[1] != backend:
-                        diagnostic("backend-mismatch", "error", filename, line, "Configured bibliography backend differs from explicit biblatex options", "Use the project's actual backend")
                 continue
             if name == "label":
                 labels[value] += 1

@@ -2,6 +2,25 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.21.0 — 2026-10-05
+
+### Fixed
+
+- Class/package loader parsing now reads complete bounded options, literal name lists and trailing release dates. Braced closing brackets/commas no longer shift dependency parsing, and inner argument commands no longer invent separate dependencies or citations.
+- Direct biblatex backend checks now compare complete supported values, including a single braced value. `bibtex8`, unrelated option names and embedded text are never prefix-matched as `bibtex`. Dynamic/unsupported/conflicting assignments remain unverified without guessing defaults, forwarded options or precedence.
+- Project configuration rejects Boolean, float and string schema lookalikes before reading the configured main source; integer schema 1 remains compatible.
+
+### Added
+
+- Additive schema-1 class/package inventories in inspection and both review versions, with escaped expandable bilingual offline tables. Malformed loader and backend-option findings remain visible in unchanged review sources; legacy reports still render.
+- Bilingual option guides, README/docs navigation, compatibility notes and two reviewed primary grammar records.
+
+### Validation
+
+- Twenty-four portable regressions and two native controls cover nested loader boundaries, exact backend values, local graphs, strict configuration preflight, source locations and sealed reports. Native checks compile inert local class/package declarations and actual braced BibTeX/Biber choices; original-wheel/rebuilt-sdist controls repeat inspection and review outside the checkout.
+
+Literal declarations do not validate option execution, forwarded/global options, precedence, date satisfaction, package/style compatibility or scientific fidelity. Configuration/build schema numbers and explicit backend selection remain unchanged.
+
 ## 1.20.0 — 2026-10-05
 
 ### Fixed
