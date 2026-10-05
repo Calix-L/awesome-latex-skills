@@ -33,6 +33,25 @@ class BibTeXPathTests(unittest.TestCase):
     def prepare(self):
         return check_build.prepare_bibtex_inputs(self.source, self.output, "main")
 
+    def test_staged_bbl_is_copied_to_engine_job_without_overwriting(self):
+        target, _ = self.prepare()
+        bbl = self.output / f"{target}.bbl"
+        bbl.write_bytes(b"\\bibitem{a} Synthetic bibliography\r\n")
+        check_build.promote_bibtex_output(self.output, target, "main")
+        self.assertEqual((self.output / "main.bbl").read_bytes(), bbl.read_bytes())
+        with self.assertRaises(FileExistsError):
+            check_build.promote_bibtex_output(self.output, target, "main")
+        check_build.promote_bibtex_output(self.output, "main", "main")
+
+    def test_staged_bbl_requires_bounded_generated_bytes(self):
+        target, _ = self.prepare()
+        with self.assertRaisesRegex(ValueError, "regular BBL"):
+            check_build.promote_bibtex_output(self.output, target, "main")
+        (self.output / f"{target}.bbl").write_bytes(b"oversized synthetic BBL")
+        with patch.object(check_build, "MAX_WATCH_BYTES", 4), self.assertRaisesRegex(ValueError, "exceeds"):
+            check_build.promote_bibtex_output(self.output, target, "main")
+        self.assertFalse((self.output / "main.bbl").exists())
+
     def test_plain_names_and_unreachable_dot_aux_leave_backend_arguments_unchanged(self):
         self.aux.write_bytes(b"\\bibdata{refs}\n\\bibstyle{plain}\n")
         (self.output / "unused.aux").write_bytes(b"\\bibdata{../absent}\n")

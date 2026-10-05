@@ -122,6 +122,8 @@ class CompilationTests(unittest.TestCase):
             self.assertIn('../shared/refs', control)
             if backend == 'bibtex':
                 self.assertIn('../styles/local', control)
+                self.assertEqual((output / 'main.bbl').read_bytes(), (output / 'bibtex-inputs/main.bbl').read_bytes())
+                self.assertEqual(next(row for row in built['steps'] if row['name'] == 'bibliography')['log'], 'logs/bibliography.blg')
                 prepared = next(row for row in built['steps'] if row['name'] == 'bibliography')['prepared_inputs']
                 self.assertEqual({row['kind'] for row in prepared}, {'bibliography', 'style', 'auxiliary'})
                 from review_project import review

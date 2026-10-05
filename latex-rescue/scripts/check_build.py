@@ -130,6 +130,26 @@ def check_prepared_inputs(output, rows):
             raise ValueError(f"Prepared BibTeX source changed: {item['original']}")
 
 
+def promote_bibtex_output(output, auxiliary_name, jobname):
+    """Copy the staged backend's BBL to the engine's job location."""
+    if auxiliary_name == jobname:
+        return
+    original = output / f"{auxiliary_name}.bbl"
+    if original.is_symlink() or not original.is_file():
+        raise ValueError("Prepared BibTeX did not produce a regular BBL")
+    expected = fingerprint(original, MAX_WATCH_BYTES)
+    digest, size = hashlib.sha256(), 0
+    with original.open("rb") as stream, (output / f"{jobname}.bbl").open("xb") as copied:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            size += len(chunk)
+            if size > MAX_WATCH_BYTES:
+                raise ValueError("Prepared BibTeX BBL exceeds the actual-read limit")
+            digest.update(chunk)
+            copied.write(chunk)
+    if {"sha256": digest.hexdigest(), "size": size} != expected or fingerprint(original, MAX_WATCH_BYTES) != expected:
+        raise ValueError("Prepared BibTeX BBL changed during copying")
+
+
 def watched_path(project, value):
     """An explicit portable local filename, revalidated at every observation."""
     if (not isinstance(value, str) or not value or any(c in value for c in "\\:\x00\r\n")
@@ -397,13 +417,17 @@ def build(source, output, engine="pdflatex", backend=None, passes=None, timeout=
                 if backend == "bibtex":
                     auxiliary_name, prepared_inputs = prepare_bibtex_inputs(source, output, jobname)
                     command, cwd = [executables[backend], auxiliary_name], output
+                    native_log = output / f"{auxiliary_name}.blg"
                 else:
                     command = [executables[backend], f"--input-directory={output}",
                                f"--output-directory={output}", jobname]
                     cwd = source.parent
-                if not run(command, cwd, "bibliography", output / f"{jobname}.blg", prepared_inputs=prepared_inputs):
+                    native_log = output / f"{jobname}.blg"
+                if not run(command, cwd, "bibliography", native_log, prepared_inputs=prepared_inputs):
                     break
                 check_prepared_inputs(output, prepared_inputs)
+                if backend == "bibtex":
+                    promote_bibtex_output(output, auxiliary_name, jobname)
             if until_stable and report["auxiliary_stable"] and not report["rerun_requested"]:
                 break
         if report["steps"]:

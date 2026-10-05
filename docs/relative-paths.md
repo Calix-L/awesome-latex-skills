@@ -55,6 +55,10 @@ original AUX bytes; later native passes still update their output AUX normally.
 Ordinary names retain the previous invocation. Child AUX references
 are adapted to staged copies; comments and unrelated AUX files are ignored.
 
+The staged backend's BBL is copied to the engine's job location with byte/hash
+checks for later LaTeX passes. BLG evidence is retained from its actual staged
+location; an existing destination BBL is never overwritten.
+
 The bibliography step's additive `prepared_inputs` rows record actual retained
 filenames, byte counts, hashes, kinds and original resource paths. Copies and
 original resources are checked around bibliography execution and at the end.

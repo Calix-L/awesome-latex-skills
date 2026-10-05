@@ -18,7 +18,7 @@ class ProjectPaths(unittest.TestCase):
     def setUp(self):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
-        self.root = Path(temporary.name)
+        self.root = Path(temporary.name).resolve()
         self.project = self.root / "project"
         for name in ("paper", "shared", "styles", "figures", "paper/chapters"):
             (self.project / name).mkdir(parents=True, exist_ok=True)
