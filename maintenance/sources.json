@@ -287,7 +287,7 @@
     {
       "id": "web2c-bibtex-invocation",
       "url": "https://www.tug.org/texinfohtml/web2c.html",
-      "scope": "Section 8.1: BibTeX AUX input, basename output in cwd and lack of AUX path searching; motivates output-local prepared input aliases without changing source files or filename checks",
+      "scope": "Section 8.1: BibTeX AUX invocation and lack of AUX path searching; staged BBL/BLG locations are verified by native controls rather than inferred from basename wording",
       "review_after_days": 180,
       "verification": "content-reviewed",
       "checked_on": "2026-10-05",
@@ -295,6 +295,19 @@
         "docs/relative-paths.md",
         "docs/relative-paths_CN.md",
         "latex-rescue/scripts/check_build.py"
+      ]
+    },
+    {
+      "id": "latex-graphics-argument-interfaces",
+      "url": "https://ctan.math.illinois.edu/macros/latex/required/graphics/grfguide.pdf",
+      "scope": "LaTeX Project guide section 4.4: graphicx key-value options, graphics/graphicx classic two-option compatibility and optional clipping star. Scanner observations do not validate keys, drivers or execution.",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-08",
+      "applies_to": [
+        "scripts/dependency_arguments.py",
+        "docs/dependency-arguments.md",
+        "docs/dependency-arguments_CN.md"
       ]
     }
   ]

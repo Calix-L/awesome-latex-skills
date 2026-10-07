@@ -20,6 +20,7 @@ from reference_lexer import REFERENCE_NAMES, UNSTARRED_ONLY, reference_arguments
 from bibitem_lexer import bibitem_argument
 from package_options import LOADERS, loader_arguments, declaration
 from project_paths import dependency_path
+from dependency_arguments import DEPENDENCIES, dependency_arguments, declaration as dependency_declaration
 
 ENGINES = ("pdflatex", "xelatex", "lualatex")
 BACKENDS = (None, "bibtex", "biber")
@@ -30,11 +31,6 @@ MAX_FILES = 5000
 MAX_SOURCE_BYTES = 2_000_000
 
 
-COMMAND = re.compile(r"\\(?P<name>documentclass|usepackage|RequirePackageWithOptions|RequirePackage|LoadClassWithOptions|LoadClass|input|includeonly|includegraphics|include|graphicspath|DeclareGraphicsExtensions|bibliography|addbibresource|bibliographystyle|label|ref|eqref|pageref|autoref|[cC]ref|cite[a-zA-Z]*|nocite)(?![a-zA-Z@])\*?\s*(?P<options>(?:\[[^\]]*\]\s*)*)")
-ARGUMENT = re.compile(r"\{(?P<value>[^{}]*)\}")
-GRAPHICS_ARGUMENT = re.compile(r"\{(?P<value>(?:\{[^{}]*\}\s*)*)\}")
-
-
 def commands(text):
     masked = mask_tex(text)
     newlines = [match.start() for match in re.finditer("\n", masked)]
@@ -43,6 +39,14 @@ def commands(text):
         if token.start() < consumed:
             continue
         name = token[0][1:]
+        if name in DEPENDENCIES:
+            value, options, consumed, issue = dependency_arguments(masked, token.end(), name)
+            row = {'name': name, 'value': value, 'options': options, 'supported': issue is None,
+                   'line': bisect_right(newlines, token.start()) + 1, 'starred': masked[token.end():token.end() + 1] == '*'}
+            if issue:
+                row['dependency_issue'] = issue
+            yield row
+            continue
         if name in LOADERS:
             value, options, consumed, issue = loader_arguments(masked, token.end(), name)
             row = {"name": name, "value": value, "options": options, "supported": issue is None,
@@ -89,19 +93,6 @@ def commands(text):
             continue
         if name == "citetext":
             continue  # Its prose is not a key; nested citation tokens remain visible.
-        match = COMMAND.match(masked, token.start())
-        if match is None:
-            continue
-        argument = (GRAPHICS_ARGUMENT if match["name"] == "graphicspath" else ARGUMENT).match(masked, match.end())
-        value = argument["value"] if argument else None
-        if value is None and match["name"] == "input":
-            bare = re.match(r'"[^"\n]+"|[^\s{}%]+', masked[match.end():])
-            value = bare[0] if bare else None
-        supported = value is not None
-        if not supported:
-            value = re.match(r"[^\r\n]{0,160}", masked[match.end():match.end() + 160])[0]
-        yield {"name": match["name"], "value": value.strip(), "options": match["options"], "supported": supported,
-               "line": bisect_right(newlines, match.start()) + 1}
 
 
 def inventory(root, assets=False):
@@ -220,10 +211,11 @@ def inspect_project(root, main=None, engine=None, backend=None):
               "root_selection": selection,
               "root_candidate_scope": "all-project-tex" if selection == "automatic" else "selected-main-only",
               "configuration_sha256": observed.get(".als.json"),
-              "inputs": [], "observed_files": [], "dependencies": [], "package_inventory": [], "bibliography_entries": [], "bibitem_inventory": [], "citation_inventory": [], "label_inventory": [], "reference_inventory": [], "diagnostics": [], "status": "ready",
+              "inputs": [], "observed_files": [], "dependencies": [], "dependency_inventory": [], "package_inventory": [], "bibliography_entries": [], "bibitem_inventory": [], "citation_inventory": [], "label_inventory": [], "reference_inventory": [], "diagnostics": [], "status": "ready",
               "limitations": ["Static literal references only: macro expansion, grouping, conditionals, system class/package internals and external search paths are not evaluated.",
                               "Literal scanning assumes ordinary category codes; custom verbatim environments and package escape/termination options are not evaluated.",
                               "Default graphics extension order is a common PDF-engine subset; explicit DeclareGraphicsExtensions is honored, but driver/conversion rules are not evaluated.",
+                              "Dependency options are retained without execution or validity checks; commands inside options/filename arguments are not scanned as body commands. Malformed groups can leave later inventories incomplete.",
                               "Loader options are literal observations, not validated package settings. Only direct exact biblatex backend assignments are compared; defaults, forwarded/global options and precedence are not inferred.",
                               "Bibliography headers only: field grammar, string expansion, aliases, inheritance, crossref/xdata and backend/style acceptance are not validated. Citation keys are compared exactly.",
                               "Common literal citation commands and bibitem keys only; optional notes/display labels are not keys. Custom/special syntax, commands inside notes/labels and macro-generated keys are not evaluated.",
@@ -295,6 +287,8 @@ def inspect_project(root, main=None, engine=None, backend=None):
                            "Check the literal region in the actual build; later contents may be masked")
         for command in commands(text):
             name, value, line = command["name"], command["value"], command["line"]
+            if name in DEPENDENCIES:
+                result['dependency_inventory'].append(dependency_declaration(command, filename))
             if "package_issue" in command:
                 diagnostic("package-unverified", "unverified", filename, line, command["package_issue"], "Inspect the loader's actual arguments; this declaration may hide dependencies")
                 continue
@@ -308,7 +302,7 @@ def inspect_project(root, main=None, engine=None, backend=None):
                 diagnostic("citation-unverified", "unverified", filename, line, command["citation_issue"] + f": {name}", "Check the actual citation command with its package/backend; the key inventory may be incomplete")
                 continue
             if not command["supported"] or "\\" in value or "#" in value:
-                diagnostic("dynamic-reference", "unverified", filename, line, f"Dynamic {name} argument: {value}", "Inspect macro expansion in the actual build")
+                diagnostic("dynamic-reference", "unverified", filename, line, command.get('dependency_issue') or f"Dynamic {name} argument: {value}", "Inspect the actual dependency arguments and macro expansion in the build")
                 if name == "graphicspath":
                     graphics_paths = None
                 elif name == "DeclareGraphicsExtensions":

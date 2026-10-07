@@ -11,6 +11,7 @@ Start with a task, then follow its evidence. 从任务开始，再检查实际�
 | Diagnose sources and settings / 检查源码与配置 | [Project inspection](project.md) | [项目检查](project_CN.md) |
 | Nested manuscript layouts / 子目录论文项目 | [Relative paths](relative-paths.md) | [相对路径](relative-paths_CN.md) |
 | Large/changing inputs / 大文件与读取变化 | [Input limits](input-limits.md) | [输入边界](input-limits_CN.md) |
+| Complete dependency arguments / 完整依赖参数 | [Dependency syntax](dependency-arguments.md) | [依赖语法](dependency-arguments_CN.md) |
 | Class/package options / 文档类与宏包选项 | [Loader options](package-options.md) | [加载选项](package-options_CN.md) |
 | Bibliography issues / 参考文献问题 | [Bibliography](bibliography.md) | [参考文献](bibliography_CN.md) |
 | Review edits and actual PDFs / 审查修改和实际页面 | [Project review](review.md) | [项目审查](review_CN.md) |

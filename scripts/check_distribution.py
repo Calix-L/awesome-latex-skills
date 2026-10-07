@@ -354,6 +354,26 @@ def check_distribution(wheel, output):
                 or not any(row["code"] == "external-or-dynamic-path" for row in external["diagnostics"])):
             raise ValueError("Installed nested project read an external parent dependency")
         run([command, "verify", "inspection", escaped_output])
+        complete = cwd / 'complete-dependency-project'
+        complete.mkdir()
+        (complete / 'main.tex').write_text('\\documentclass{article}\n\\input "chapter part.tex"\n'
+                                         r'\includegraphics[note={] \cite{fake}\input{absent}},width=1cm]{plot}'
+                                         r'\addbibresource[location={local},note={]\ref{fake}}]{refs.bib}\cite{a}', encoding='utf-8')
+        (complete / 'chapter part.tex').write_text('Synthetic literal chapter', encoding='utf-8')
+        (complete / 'plot.pdf').write_bytes(b'%PDF-synthetic dependency asset, not a compiled PDF')
+        (complete / 'refs.bib').write_text('@misc{a, title={Synthetic}}', encoding='utf-8')
+        complete_output = cwd / 'complete-dependency-inspection'
+        complete_report = json.loads(run([command, '--json', 'project', 'check', complete, '--main', 'main.tex',
+                                          '--bundle', complete_output, '--html-language', 'zh']))['result']
+        if ({row['file'] for row in complete_report['inputs']} != {'main.tex', 'chapter part.tex', 'plot.pdf', 'refs.bib'}
+                or len(complete_report['dependency_inventory']) != 3
+                or not all(row['supported'] for row in complete_report['dependency_inventory'])
+                or [row['key'] for row in complete_report['citation_inventory']] != ['a']
+                or complete_report['reference_inventory']
+                or [row['code'] for row in complete_report['diagnostics']] != ['engine-unverified']
+                or '依赖命令声明' not in (complete_output / 'report.html').read_text(encoding='utf-8')):
+            raise ValueError('Installed dependency argument scanner lost options, filenames or body-command scope')
+        run([command, 'verify', 'inspection', complete_output])
         result = {"schema": 1, "status": "verified", "version": version, "wheel_sha256": sha256(wheel), "steps": steps}
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         result = {"schema": 1, "status": "failed", "error": str(exc), "steps": steps}

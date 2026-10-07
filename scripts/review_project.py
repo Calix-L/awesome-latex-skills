@@ -20,6 +20,7 @@ from artifact_integrity import seal_review
 from citation_lexer import CITATION_NAMES
 from reference_lexer import REFERENCE_NAMES, RANGE_REFS
 from package_options import LOADERS, declaration
+from dependency_arguments import DEPENDENCIES, declaration as dependency_declaration
 
 MAX_NOTES_BYTES = 2_000_000
 
@@ -236,6 +237,7 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
               "citation_inventory": {"before": [], "after": []},
               "bibitem_inventory": {"before": [], "after": []},
               "package_inventory": {"before": [], "after": []},
+              "dependency_inventory": {"before": [], "after": []},
               "label_inventory": {"before": [], "after": []}, "reference_inventory": {"before": [], "after": []},
               "math_environment_scope": {"environments": sorted(MATH_ENVIRONMENTS),
                                          "interpretation": "Complete literal outer spans only; nested bodies retained. No macro expansion, conditional/group evaluation, custom math environments or mathematical equivalence check."},
@@ -269,6 +271,11 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
                     math_spans[(root, name)] = spans
                     report["math_environment_inventory"][side].extend({"file": name, **item} for item in spans)
                     for command in commands(text):
+                        if command['name'] in DEPENDENCIES:
+                            report['dependency_inventory'][side].append(dependency_declaration(command, name))
+                        if 'dependency_issue' in command:
+                            report['source_scan_issues'].append({'side': side, 'file': name, 'line': command['line'],
+                                                               'code': 'dependency-unverified', 'message': command['dependency_issue']})
                         if "package_issue" in command:
                             report["source_scan_issues"].append({"side": side, "file": name, "line": command["line"],
                                                                "code": "package-unverified", "message": command["package_issue"]})

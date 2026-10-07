@@ -106,3 +106,9 @@ als paper --output work/full-paper-zh --language zh
 评审保留 schema-3 参考文献步骤新增的 `prepared_inputs`：实际暂存 AUX、
 数据库与样式文件。发布前校对摘要、大小，以及所给项目内部原始资源的当前摘要。
 不含暂存字段的旧报告继续支持。[说明](relative-paths_CN.md)。
+
+## 依赖命令观察
+
+`dependency_inventory.before/after` 展示两侧的字面参数、选项、星号与源码位置。
+动态或错误语法明确记录为源码扫描问题，不将其内部命令猜成正文引用键。
+该清单不解析路径或执行选项。[说明](dependency-arguments_CN.md)。

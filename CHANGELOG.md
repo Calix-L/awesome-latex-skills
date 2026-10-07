@@ -2,6 +2,19 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.24.0 — 2026-10-08
+
+### Fixed
+
+- Complete dependency arguments use the shared bounded balanced reader. Braces protecting a closing bracket in graphics/bibliography options no longer hide the filename.
+- Commands inside options and filename arguments no longer create phantom body inputs, citations or cross-references. Dynamic/nested filenames and malformed or unexpected argument forms remain located unverified observations; incomplete groups conservatively stop later command scanning.
+
+### Added
+
+- Optional schema-1 dependency declaration inventories in project inspection and both review versions, with literal arguments/options, stars, syntax status and source locations. Escaped bilingual offline tables remain compatible with older reports.
+- Bilingual dependency syntax guides, README navigation, interface notes and a reviewed LaTeX Project graphics source. Clarified that staged BibTeX output locations are established by native controls.
+- Nineteen portable regressions, two native three-engine/graphics-interface controls, and installed wheel/rebuilt-source first-use evidence outside the checkout.
+
 ## 1.23.0 — 2026-10-05
 
 ### Fixed

@@ -136,3 +136,10 @@ Review retains additive schema-3 bibliography-step `prepared_inputs`: the actual
 staged AUX, database and style files. Stored hashes/byte counts and current
 original resource hashes inside the supplied project must match before publishing.
 Legacy reports without staging remain compatible. [Guide](relative-paths.md).
+
+## Dependency declaration observations
+
+Located `dependency_inventory.before/after` rows expose literal argument/option
+changes. Dynamic or malformed dependency syntax contributes a source scan issue;
+commands within those arguments are not invented as body citation/reference keys.
+This inventory does not resolve paths or execute options. [Guide](dependency-arguments.md).

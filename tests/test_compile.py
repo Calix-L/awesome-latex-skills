@@ -93,6 +93,52 @@ class CompilationTests(unittest.TestCase):
         for name, data in original.items():
             self.assertEqual((project / name).read_bytes(), data)
 
+    def test_native_complete_dependency_options_with_three_engines(self):
+        project = self.work / 'complete-dependency-project'
+        project.mkdir()
+        source = project / 'main.tex'
+        source.write_text(r'\documentclass{article}\usepackage{graphicx}'
+                          r'\makeatletter\define@key{Gin}{alsnote}{}\makeatother'
+                          '\n\\begin{document}\n\\input "chapter part.tex"\n'
+                          r'\includegraphics*[alsnote={nested ] text,\cite{not-a-body-key}\ref{not-a-body-label}},width=1cm]{plot}'
+                          r'\ref{chapter}.\end{document}', encoding='utf-8')
+        (project / 'chapter part.tex').write_text(r'\section{Chapter}\label{chapter}', encoding='utf-8')
+        shutil.copyfile(self.work / 'plot.pdf', project / 'plot.pdf')
+        original = {p.name: p.read_bytes() for p in project.iterdir()}
+        for engine in ('pdflatex', 'xelatex', 'lualatex'):
+            with self.subTest(engine=engine):
+                inspected = inspect_project(project, 'main.tex', engine)
+                self.assertEqual(inspected['diagnostics'], [])
+                self.assertEqual(inspected['citation_inventory'], [])
+                self.assertEqual([r['key'] for r in inspected['reference_inventory']], ['chapter'])
+                self.assertEqual({r['file'] for r in inspected['dependencies']}, {'chapter part.tex', 'plot.pdf'})
+                output = self.work / f'complete-dependency-{engine}'
+                built = check_build.build(source, output, engine=engine, passes=5, until_stable=True, require_resolved=True)
+                self.assert_build_success(built)
+                auxiliary = (output / 'main.aux').read_text(encoding='utf-8')
+                self.assertNotIn('not-a-body', auxiliary)
+                self.assertIn('chapter', auxiliary)
+                recorders = '\n'.join((output / r['recorder']).read_text(encoding='utf-8') for r in built['steps'] if r['recorder'])
+                self.assertIn('plot.pdf', recorders)
+                self.assertIn('chapter part.tex', recorders)
+        self.assertEqual(original, {p.name: p.read_bytes() for p in project.iterdir()})
+
+    def test_native_classic_two_optional_graphics_arguments_with_both_interfaces(self):
+        for package in ('graphics', 'graphicx'):
+            project = self.work / ('classic-' + package)
+            project.mkdir()
+            source = project / 'main.tex'
+            source.write_text(r'\documentclass{article}\usepackage{' + package + r'}'
+                              r'\begin{document}\includegraphics*[0,0][72,72]{plot.pdf}\end{document}', encoding='utf-8')
+            shutil.copyfile(self.work / 'plot.pdf', project / 'plot.pdf')
+            before = source.read_bytes()
+            inspected = inspect_project(project, 'main.tex', 'pdflatex')
+            self.assertEqual(inspected['diagnostics'], [])
+            self.assertEqual(inspected['dependency_inventory'][0]['options'], '[0,0][72,72]')
+            built = check_build.build(source, self.work / (package + '-classic-build'), require_resolved=True)
+            self.assert_build_success(built)
+            self.assertEqual(source.read_bytes(), before)
+
     def test_native_parent_bibliography_and_local_style_with_both_backends(self):
         for backend in ('bibtex', 'biber'):
             project = self.work / f'parent-bibliography-{backend}'

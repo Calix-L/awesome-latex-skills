@@ -7,6 +7,7 @@ from urllib.parse import quote
 from citation_report import LABELS as CITATION_LABELS, citation_table, BIBITEM_LABELS, bibitem_table
 from cross_reference_report import LABELS as REFERENCE_LABELS, reference_tables
 from package_report import LABELS as PACKAGE_LABELS, package_table
+from dependency_report import LABELS as DEPENDENCY_LABELS, dependency_table
 
 
 LABELS = {
@@ -80,6 +81,10 @@ def inspection_html(report, language="en", json_name=None, integrity_name=None):
         target = f'<br><code>{esc(item["file"])}</code>' if item.get("file") else ""
         content.append(f'<tr><td><code>{location(item)}</code></td><td><code>{esc(item["command"])}</code></td><td><code>{esc(item["requested"])}</code></td><td>{esc(resolution)}{target}</td></tr>')
     content.append('</tbody></table></section>')
+    if 'dependency_inventory' in report:
+        rows = report['dependency_inventory']
+        title, *_, note = DEPENDENCY_LABELS[language]
+        content.append(f'<h2>{esc(title)}</h2><p>{esc(note)}</p><details><summary>{esc(title)} ({len(rows)})</summary>{dependency_table(rows, language)}</details>')
     if report.get("package_inventory"):
         rows = report["package_inventory"]
         title, *_, note = PACKAGE_LABELS[language]

@@ -245,3 +245,10 @@ A selected main in a subdirectory can refer to parent resources still inside
 the project. Requests retain their source spelling; resolved evidence and graph
 identity use canonical root-relative names. Traversed symlinks and paths leaving
 the root stay unverified. [Nested-layout guide](relative-paths.md).
+
+## Complete dependency arguments
+
+Dependency commands now retain complete balanced options, literal filenames,
+star forms and located unverified syntax in `dependency_inventory`. Commands
+inside options or filename arguments are not counted as body observations.
+Resolved paths remain separately checked. [Syntax and limits](dependency-arguments.md).

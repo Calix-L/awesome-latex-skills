@@ -152,3 +152,13 @@ resource rows bind an original path, AUX rows record their initial AUX hash.
 Review retains these files and rechecks resource originals inside its project.
 Reports without this optional field retain previous behavior.
 [English](relative-paths.md) / [中文](relative-paths_CN.md).
+
+## Dependency argument inventory / 依赖参数清单
+
+Schema-1 inspection adds optional `dependency_inventory`; review adds
+`dependency_inventory.before/after`. Rows contain `file/line/command/value/options/
+starred/supported/issue`. Bilingual HTML renders these observations independently
+of resolved dependencies; legacy reports without this field remain supported.
+Malformed dependency syntax now produces located unverified observations rather
+than phantom body keys. CLI/configuration/build schemas and exit semantics stay
+unchanged. [English](dependency-arguments.md) / [中文](dependency-arguments_CN.md).

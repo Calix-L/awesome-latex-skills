@@ -280,3 +280,15 @@ controls compile parent shared resources and both bibliography backends, compare
 recorder/control files, retain staged review evidence and preserve source bytes.
 Installed original-wheel/rebuilt-sdist controls repeat internal/escaping project
 lookup outside the checkout. These are synthetic tooling controls.
+
+## Complete dependency arguments
+
+Nineteen portable regressions cover protected optional delimiters, commands
+inside options/dynamic filenames, quoted and bare inputs, classic two-option
+graphics, empty includeonly, complete directory lists, malformed/deep groups,
+option-count limits, located inventories, bilingual escaping, moved seals and
+legacy rendering. Two native controls use three engines plus both graphics
+interfaces, compare recorder/AUX evidence and preserve source bytes. Original
+wheel/rebuilt-sdist first-use controls exercise complete declarations outside the
+checkout. Inert option keys and dummy installed-package assets are explicitly
+synthetic; the checks do not certify option validity or manuscript quality.
