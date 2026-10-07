@@ -143,3 +143,10 @@ Located `dependency_inventory.before/after` rows expose literal argument/option
 changes. Dynamic or malformed dependency syntax contributes a source scan issue;
 commands within those arguments are not invented as body citation/reference keys.
 This inventory does not resolve paths or execute options. [Guide](dependency-arguments.md).
+
+## Located delimited formulas
+
+Review now retains both source versions of exact delimited formulas and reports
+unclosed, mismatched or group-dependent regions even when files are unchanged.
+The existing `simple_math` change signal remains. See [formula coverage](math-review.md)
+for syntax limits, additive JSON fields and the distinction from actual TeX validity.

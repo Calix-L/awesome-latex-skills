@@ -374,6 +374,23 @@ def check_distribution(wheel, output):
                 or '依赖命令声明' not in (complete_output / 'report.html').read_text(encoding='utf-8')):
             raise ValueError('Installed dependency argument scanner lost options, filenames or body-command scope')
         run([command, 'verify', 'inspection', complete_output])
+        delimited_before, delimited_after = cwd / "delimited-original", cwd / "delimited-candidate"
+        for folder, operator in ((delimited_before, "+"), (delimited_after, "-")):
+            folder.mkdir()
+            (folder / "main.tex").write_text("\n$x" + operator + r"y$ $$a+b$$ \(z+w\) \[u+v\] $a$$b$", encoding="utf-8")
+            (folder / "unchanged.sty").write_text("\n\\(unclosed", encoding="utf-8")
+        delimited_output = cwd / "delimited-review"
+        delimited = json.loads(run([command, "--json", "review", "--before", delimited_before, "--after", delimited_after,
+                                    "--output", delimited_output, "--language", "zh"]))["result"]
+        delimited_record = read_json(delimited_output / "review.json")
+        if (delimited["content_flags"] != 1 or delimited["source_scan_issues"] != 2
+                or set(delimited_record["content_audit"][0]) != {"file", "requires_review", "simple_math"}
+                or any(len(delimited_record["math_delimiter_inventory"][side]) != 6 for side in ("before", "after"))
+                or any(row["line"] != 2 or row["file"] != "main.tex" for row in delimited_record["math_delimiter_inventory"]["after"])
+                or {row["side"] for row in delimited_record["source_scan_issues"]} != {"before", "after"}
+                or "带源码位置的定界符公式" not in (delimited_output / "report.html").read_text(encoding="utf-8")):
+            raise ValueError("Installed delimited math review lost adjacent pairs, locations or unchanged source issues")
+        run([command, "verify", "review", delimited_output])
         result = {"schema": 1, "status": "verified", "version": version, "wheel_sha256": sha256(wheel), "steps": steps}
     except (OSError, ValueError, subprocess.TimeoutExpired) as exc:
         result = {"schema": 1, "status": "failed", "error": str(exc), "steps": steps}

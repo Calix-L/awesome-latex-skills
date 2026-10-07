@@ -73,3 +73,31 @@ intentionally invalidates its initial integrity manifest.
 For intended AMS environment usage, consult the primary
 [AMS/LaTeX Project user guide, sections 3.2–3.7](https://texdoc.org/serve/amsldoc.pdf/0).
 The tool's coverage is narrower than the full package language.
+
+## Delimited math and source locations
+
+**Located delimited math** shows exact `$…$`, `$$…$$`, `\(…\)` and `\[…\]`
+pairs with file and opening/closing lines on both sides. Adjacent `$x$$y$` is
+observed as two inline formulas; `\$` is currency, not an opener. Complete
+pairs retain literal bodies and occurrence counts in the existing
+`content_audit[].simple_math` signal. Moving identical formulas changes locations
+without inventing a content change. Comments and known verbatim are masked.
+
+Unclosed pairs, orphan explicit closers and conflicting delimiters produce
+located `math-delimiter-*` source issues even in unchanged `.tex/.sty/.cls` files.
+Ambiguous spans supply no complete formula value. Exact-pair recognition is
+conservative: mixed forms, nested modes such as `$a+\text{$b$}$`, or delimiters
+crossing literal brace depths need manual review. This is not a verdict that
+such source is invalid. Macro definitions/arguments, conditions, changed catcodes
+and cross-file math modes are not executed or resolved; balanced literal pairs
+alone do not establish TeX validity, execution or mathematical equivalence.
+
+Schema-1 adds optional `math_delimiter_inventory.before/after`, with `file`,
+`delimiter`, `closing`, `mode`, `line`, `end_line`, and masked `content`.
+`math_delimiter_scope` records interpretation. Existing schemas, CLI exit meanings
+and legacy report rendering remain supported. The located inventory covers only
+`.tex/.sty/.cls`; older generic content signals for other text file types remain.
+
+The primary [LaTeX kernel math source, Math Environments](https://github.com/latex3/latex2e/blob/develop/base/ltmath.dtx)
+shows the mode-sensitive implementations of `\(`, `\)` and `\[`, `\]`.
+Our exact-pair observations deliberately cover less than TeX's executable modes.

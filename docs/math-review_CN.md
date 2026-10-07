@@ -60,3 +60,27 @@ schema-1 报告新增 `math_environment_inventory.before/after`，每项包括 `
 使初始清单校验失败。环境的预期用法可查阅
 [AMS/LaTeX Project 官方用户指南第 3.2–3.7 节](https://texdoc.org/serve/amsldoc.pdf/0)，
 工具只检查其中有限的字面范围。
+
+## 定界符公式与源码位置
+
+“带源码位置的定界符公式”展示 `$…$`、`$$…$$`、`\(…\)`、`\[…\]` 的
+精确配对、文件名与起止行号。相邻的 `$x$$y$` 按两个行内公式观察；`\$` 不会
+开启公式。完整配对的字面内容和出现次数继续使用已有
+`content_audit[].simple_math` 字段。移动相同公式仅改变位置，不虚构内容变化；
+注释与已知原样文本保持屏蔽。
+
+未闭合、孤立的显式结束符和冲突定界符记录为定位后的 `math-delimiter-*`
+源码问题，包括未改动的 `.tex/.sty/.cls` 文件。含歧义区域不提供完整公式值。
+精确配对采取保守范围：混用写法、`$a+\text{$b$}$` 等嵌套模式，或跨字面
+花括号深度的配对需人工核对；这不等于判定源码无效。工具不执行宏定义、参数、
+条件或修改后的类别码，也不拼接跨文件的数学模式。字面配对无法证明 TeX
+有效性、实际执行或数学等价性。
+
+schema-1 增加可选 `math_delimiter_inventory.before/after`，每项包含 `file`、
+`delimiter`、`closing`、`mode`、`line`、`end_line` 和屏蔽后的 `content`；
+`math_delimiter_scope` 记录解释边界。已有 schema、命令退出语义和旧报告渲染
+保持兼容。定位清单仅覆盖 `.tex/.sty/.cls`；其他文本文件原有通用内容信号保留。
+
+[LaTeX 内核源码 Math Environments](https://github.com/latex3/latex2e/blob/develop/base/ltmath.dtx)
+给出了 `\(`、`\)` 与 `\[`、`\]` 依赖实际数学模式的实现；工具观察范围小于
+TeX 可执行语言，不能用静态配对代替真实构建。

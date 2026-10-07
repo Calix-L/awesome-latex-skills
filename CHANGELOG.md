@@ -2,6 +2,19 @@
 
 All notable changes to awesome-latex-skills.
 
+## 1.25.0 — 2026-10-08
+
+### Fixed
+
+- Adjacent `$x$$y$` formulas are scanned as two inline pairs. Escaped control symbols retain their literal meaning.
+- Unclosed, mismatched and group-dependent delimited math no longer disappears silently from review. Located source issues appear on both versions, including unchanged files; ambiguous spans supply no complete formula values.
+
+### Added
+
+- Optional schema-1 delimited formula inventories with exact pair, mode, source filename, line range and masked body. Escaped bilingual offline details preserve existing `simple_math` signals and legacy rendering.
+- Extended bilingual formula guides, README navigation, compatibility notes and a reviewed primary LaTeX kernel source documenting the distinction between exact pairs and executable math modes.
+- Twenty-two portable regressions, two native controls covering three engines and actual malformed builds, plus original-wheel/rebuilt-source first-use evidence outside the checkout.
+
 ## 1.24.0 — 2026-10-08
 
 ### Fixed

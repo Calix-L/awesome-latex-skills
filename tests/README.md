@@ -292,3 +292,15 @@ interfaces, compare recorder/AUX evidence and preserve source bytes. Original
 wheel/rebuilt-sdist first-use controls exercise complete declarations outside the
 checkout. Inert option keys and dummy installed-package assets are explicitly
 synthetic; the checks do not certify option validity or manuscript quality.
+
+## Delimited formulas and source locations
+
+Twenty-two portable controls cover four exact pair forms, adjacent inline/display
+transitions, currency/control symbols, Unicode/CRLF, comments/verbatim, incomplete
+and conflicting delimiters, nested/group ambiguity, deep iterative scans,
+multiplicity, unchanged files, added/removed sources, bilingual escaping, moved
+seals and old reports. Two native controls build valid pairs and operator edits
+with three engines, and attach actual failed builds for three malformed cases.
+Both wheel and independently rebuilt-sdist first use check six located formulas
+and an unchanged unclosed style outside the checkout. These synthetic tool
+controls do not establish mathematical equivalence or manuscript quality.

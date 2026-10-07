@@ -480,6 +480,67 @@ class CompilationTests(unittest.TestCase):
         self.assertTrue(any(i["code"] == "math-environment-unclosed" and i["line"] == 4
                             for i in evidence["source_scan_issues"]))
 
+    def test_native_delimited_math_pairs_with_three_engines_and_review(self):
+        from review_project import review
+        from verify_artifacts import verify_review
+        source = ("\\documentclass{article}\n\\begin{document}\n" +
+                  r"Cost \$5. $x+y$ $$a+b$$ \(z+w\) \[u+v\] $a$$b$" + "\n\\end{document}\n")
+        for side in ("before", "after"):
+            folder = self.work / side
+            folder.mkdir()
+            (folder / "main.tex").write_text(source if side == "before" else source.replace("x+y", "x-y"), encoding="utf-8")
+        originals = {side: (self.work / side / "main.tex").read_bytes() for side in ("before", "after")}
+        for engine in ("pdflatex", "xelatex", "lualatex"):
+            with self.subTest(engine=engine):
+                if not shutil.which(engine):
+                    if os.environ.get("LATEX_SKILLS_REQUIRE_TEX") == "1":
+                        self.fail(f"Required engine missing: {engine}")
+                    continue
+                builds = {}
+                for side in ("before", "after"):
+                    output = self.work / f"{engine}-{side}-build"
+                    built = check_build.build(self.work / side / "main.tex", output, engine=engine,
+                                              until_stable=True, require_resolved=True)
+                    self.assert_build_success(built)
+                    self.assertEqual((self.work / side / "main.tex").read_bytes(), originals[side])
+                    builds[side] = output / "build-report.json"
+                output = self.work / f"{engine}-delimited-review"
+                result = review(self.work / "before", self.work / "after", output, builds["before"], builds["after"], language="zh")
+                self.assertEqual(result["builds"], {"before": "success", "after": "success"})
+                record = json.loads((output / "review.json").read_text(encoding="utf-8"))
+                self.assertFalse(record["source_scan_issues"])
+                for side in ("before", "after"):
+                    self.assertEqual(len(record["math_delimiter_inventory"][side]), 6)
+                self.assertEqual(set(record["content_audit"][0]), {"file", "requires_review", "simple_math"})
+                self.assertIn("x-y", record["content_audit"][0]["simple_math"]["added"][0][0])
+                self.assertEqual(verify_review(output)["status"], "verified")
+                self.assertIn("带源码位置的定界符公式", (output / "report.html").read_text(encoding="utf-8"))
+
+    def test_native_malformed_delimited_math_fails_and_unchanged_sources_are_located(self):
+        from review_project import review
+        from verify_artifacts import verify_review
+        for index, formula in enumerate((r"\(x+y\]", "$x+y", "$$x+y$")):
+            with self.subTest(formula=formula):
+                source = "\\documentclass{article}\n\\begin{document}\nSynthetic case\n" + formula + "\n\\end{document}\n"
+                folders = {}
+                for side in ("before", "after"):
+                    folders[side] = self.work / f"bad-{index}-{side}"
+                    folders[side].mkdir()
+                    (folders[side] / "main.tex").write_text(source, encoding="utf-8")
+                build_output = self.work / f"bad-{index}-build"
+                native = check_build.build(folders["after"] / "main.tex", build_output)
+                self.assertEqual(native["status"], "failed")
+                output = self.work / f"bad-{index}-review"
+                result = review(folders["before"], folders["after"], output, after_build=build_output / "build-report.json")
+                self.assertEqual((result["changed_files"], result["content_flags"]), (0, 0))
+                self.assertEqual(result["builds"]["after"], "failed")
+                record = json.loads((output / "review.json").read_text(encoding="utf-8"))
+                self.assertEqual(record["math_delimiter_inventory"], {"before": [], "after": []})
+                self.assertEqual({i["side"] for i in record["source_scan_issues"]}, {"before", "after"})
+                self.assertTrue(all(i["line"] == 4 and i["code"].startswith("math-delimiter-") for i in record["source_scan_issues"]))
+                self.assertEqual(verify_review(output)["status"], "verified")
+                self.assertEqual((folders["after"] / "main.tex").read_text(encoding="utf-8"), source)
+
     def test_real_explicit_bibliography_guards_bind_configured_builds_and_review(self):
         from project_doctor import initialize
         from review_project import review

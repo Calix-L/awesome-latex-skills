@@ -162,3 +162,14 @@ of resolved dependencies; legacy reports without this field remain supported.
 Malformed dependency syntax now produces located unverified observations rather
 than phantom body keys. CLI/configuration/build schemas and exit semantics stay
 unchanged. [English](dependency-arguments.md) / [中文](dependency-arguments_CN.md).
+
+## Located math pairs / 定界符公式位置
+
+Schema-1 review adds optional `math_delimiter_inventory.before/after` and
+`math_delimiter_scope`; rows contain file/delimiter/closing/mode/line/end_line/content.
+Existing `content_audit[].simple_math`, schemas and CLI exit meanings remain.
+Adjacent inline pairs are now correctly separated. Unclosed/conflicting or
+group-dependent spans become located source issues, including unchanged files,
+and supply no complete formula values. Mixed/nested modes are unverified rather
+than judged invalid; legacy HTML without the fields remains supported.
+[English](math-review.md) / [中文](math-review_CN.md).

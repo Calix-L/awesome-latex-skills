@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml"><img src="https://github.com/Calix-L/awesome-latex-skills/actions/workflows/test.yml/badge.svg" alt="Tests"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-64665f?style=flat-square&amp;labelColor=242622" alt="MIT license"></a>
-  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.24.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.24.0"></a>
+  <a href="https://github.com/Calix-L/awesome-latex-skills/releases"><img src="https://img.shields.io/badge/release-1.25.0-537b55?style=flat-square&amp;labelColor=242622" alt="Release 1.25.0"></a>
 </p>
 
 <p align="center">五个专注于论文工作的 Agent Skills：修复编译、润色表达、转换格式、阅读论文、恢复源码。</p>
@@ -184,7 +184,7 @@ als paper --output work/full-paper-run --language zh
 | 检查数据库、手写文献条目与重复键 | [参考文献指南](./docs/bibliography_CN.md) |
 | 定位常用引用命令、核对引用键变化 | [文献引用检查](./docs/citations_CN.md) |
 | 定位重复标签、缺失目标与范围端点调换 | [交叉引用检查](./docs/cross-references_CN.md) |
-| 对照公式内容与运算符变化 | [公式审查](./docs/math-review_CN.md) |
+| 定位公式、未闭合配对与运算符变化 | [公式审查](./docs/math-review_CN.md) |
 | 监测构建中的指定文献库与样式 | [构建输入监测](./docs/build-inputs_CN.md) |
 | 核验收到的检查报告 | `als verify inspection path/to/report-directory` |
 | 审阅源码修改与实际 PDF 页面 | `full-paper-run/review/report.html` |
@@ -298,7 +298,7 @@ python scripts/als.py examples run --output work/example-run
 python scripts/als.py --json doctor
 python scripts/als.py evaluate validate
 python scripts/als.py sources
-python scripts/als.py release --output dist/1.24.0
+python scripts/als.py release --output dist/1.25.0
 ```
 
 [CLI 与 JSON 报告](./docs/cli.md) · [中文评测指南](./docs/evaluation_CN.md) ·

@@ -112,3 +112,9 @@ als paper --output work/full-paper-zh --language zh
 `dependency_inventory.before/after` 展示两侧的字面参数、选项、星号与源码位置。
 动态或错误语法明确记录为源码扫描问题，不将其内部命令猜成正文引用键。
 该清单不解析路径或执行选项。[说明](dependency-arguments_CN.md)。
+
+## 定界符公式定位
+
+评审保留两侧精确配对的公式与行号，未改动文件中的未闭合、错配或分组相关
+区域也会给出提示。已有 `simple_math` 变化字段保留。
+[公式范围](math-review_CN.md)说明语法限制、新增 JSON 字段及与实际 TeX 有效性的区别。

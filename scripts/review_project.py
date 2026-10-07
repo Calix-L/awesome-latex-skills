@@ -14,6 +14,7 @@ from bounded_io import MAX_METADATA_BYTES, MAX_TOTAL_BYTES, fingerprint, read_by
 from project_doctor import commands, inventory, mask_tex, read_source, GENERATED, SOURCE_SUFFIXES, ASSET_SUFFIXES, MAX_SOURCE_BYTES
 from tex_lexer import lex_tex
 from math_lexer import MATH_ENVIRONMENTS, scan_math_environments
+from math_delimiters import PAIRS, scan_math_delimiters
 from project_support import parse_json, safe_path, sha256, write_new_json
 from review_report import review_html
 from artifact_integrity import seal_review
@@ -49,36 +50,14 @@ def content_tokens(text):
         elif name == "label" or name in REFERENCE_NAMES:
             keys.update((name, command["reference_group"], key) if name in RANGE_REFS else (name, key)
                         for key in command["keys"])
-    math = Counter(simple_math(masked))
+    math = Counter(simple_math(text))
     return numbers, keys, math
 
 
 def simple_math(text):
-    """Literal delimited math only; escaped delimiters retain their source meaning."""
-    delimiter = re.compile(r"\$\$?|\\[()\[\]]")
-    opened = None
-    pairs = {"$": "$", "$$": "$$", r"\(": r"\)", r"\[": r"\]"}
-    offset = 0
-    while (match := delimiter.search(text, offset)) is not None:
-        position = match.start()
-        offset = match.end()
-        slashes = 0
-        cursor = position - 1
-        while cursor >= 0 and text[cursor] == "\\":
-            slashes += 1
-            cursor -= 1
-        if slashes % 2:
-            # In \$$x$, only the first dollar is escaped; the second opens math.
-            if match.group() == "$$":
-                offset = position + 1
-            continue
-        token = match.group()
-        if opened is None:
-            if token in pairs:
-                opened = (token, match.end())
-        elif token == pairs[opened[0]]:
-            yield (opened[0], text[opened[1]:position])
-            opened = None
+    """Compatibility iterator over complete, unambiguous literal math pairs."""
+    for span in scan_math_delimiters(text)[0]:
+        yield span["delimiter"], span["content"]
 
 
 def retain_file(original, target, bundle, bindings, expected=None, origin_root=None):
@@ -234,6 +213,8 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
     report = {"schema": 1, "kind": "project_review", "before": {"root": str(before), "files": original},
               "after": {"root": str(after), "files": candidate}, "builds": {}, "changes": [],
               "content_audit": [], "source_scan_issues": [], "math_environment_inventory": {"before": [], "after": []},
+              "math_delimiter_inventory": {"before": [], "after": []},
+              "math_delimiter_scope": {"pairs": PAIRS, "interpretation": "Complete exact pairs under ordinary catcodes, in .tex/.sty/.cls files. Mixed/nested/group-dependent modes are unverified. No macro expansion, conditional evaluation, file joining, TeX validity or mathematical equivalence check."},
               "citation_inventory": {"before": [], "after": []},
               "bibitem_inventory": {"before": [], "after": []},
               "package_inventory": {"before": [], "after": []},
@@ -270,6 +251,9 @@ def review(before, after, output, before_build=None, after_build=None, notes=Non
                     spans, issues = scan_math_environments(text)
                     math_spans[(root, name)] = spans
                     report["math_environment_inventory"][side].extend({"file": name, **item} for item in spans)
+                    delimiter_spans, delimiter_issues = scan_math_delimiters(text)
+                    report["math_delimiter_inventory"][side].extend({"file": name, **item} for item in delimiter_spans)
+                    issues.extend(delimiter_issues)
                     for command in commands(text):
                         if command['name'] in DEPENDENCIES:
                             report['dependency_inventory'][side].append(dependency_declaration(command, name))

@@ -309,6 +309,19 @@
         "docs/dependency-arguments.md",
         "docs/dependency-arguments_CN.md"
       ]
+    },
+    {
+      "id": "latex-kernel-math-delimiters",
+      "url": "https://github.com/latex3/latex2e/blob/develop/base/ltmath.dtx",
+      "scope": "Math Environments: mode-sensitive inline and display delimiters. Static exact-pair observations do not execute TeX modes or certify validity; mixed and nested forms need manual review.",
+      "review_after_days": 180,
+      "verification": "content-reviewed",
+      "checked_on": "2026-10-08",
+      "applies_to": [
+        "scripts/math_delimiters.py",
+        "docs/math-review.md",
+        "docs/math-review_CN.md"
+      ]
     }
   ]
 }

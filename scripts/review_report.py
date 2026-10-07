@@ -22,7 +22,9 @@ LABELS = {
         "files": "File changes", "empty_changes": "No changes in the supported inventory.", "no_diff": "Binary/asset change: compare file fingerprints in the JSON evidence.",
         "audit": "Content signals to review", "audit_note": "Added or removed literal values are review signals, not judgments of correctness. Numbers are counted as text tokens, not interpreted as scientific measurements.",
         "numbers": "Numbers", "reference_keys": "Labels, references and citations", "simple_math": "Delimited math", "count": "Count", "value": "Literal value",
-        "math_environments": "Math environment changes", "math_inventory": "Located math environments", "math_empty": "No complete supported literal math environment.",
+        "math_environments": "Math environment changes", "math_inventory": "Located math environments",
+        "delimiter_inventory": "Located delimited math", "delimiter_empty": "No complete unambiguous literal math pair.",
+        "delimiter_note": "Exact $ / $$ / \\( / \\[ pairs in .tex/.sty/.cls files, with comments and known verbatim masked. Mixed/nested modes and pairs crossing literal brace depths need manual review. Locations and literal changes do not establish TeX validity or mathematical equivalence.", "math_empty": "No complete supported literal math environment.",
         "math_note": "Complete outer environments are compared as literal text with multiplicity, including nested bodies. Locations point to both source versions; macro expansion, custom environments and mathematical equivalence remain unchecked.",
         "scan_issues": "Incomplete or unverified literal source regions", "scan_note": "Unclosed verbatim regions can hide later content; malformed/dynamic formulas and unsupported dependency/class/package/citation/reference/bibitem syntax can leave inventories incomplete. Check the source and actual build before interpreting absent change signals.",
         "none": "No supported literal changes detected; this does not establish unchanged meaning.",
@@ -44,7 +46,9 @@ LABELS = {
         "files": "文件改动", "empty_changes": "支持的清单范围内未发现改动。", "no_diff": "二进制或资源文件改动：请在 JSON 证据中对照文件校验值。",
         "audit": "需要核对的内容变化", "audit_note": "新增或删除的字面值只是核对提示，不能判断修改是否正确。数值按文本统计，不解释其科学含义。",
         "numbers": "数值", "reference_keys": "标签、引用与文献键", "simple_math": "有定界符的公式", "count": "次数", "value": "字面值",
-        "math_environments": "公式环境变化", "math_inventory": "带源码位置的公式环境", "math_empty": "没有支持范围内的完整字面公式环境。",
+        "math_environments": "公式环境变化", "math_inventory": "带源码位置的公式环境",
+        "delimiter_inventory": "带源码位置的定界符公式", "delimiter_empty": "没有完整且可明确配对的字面公式。",
+        "delimiter_note": "扫描 .tex/.sty/.cls 中的 $ / $$ / \\( / \\[ 精确配对，屏蔽注释与已知原样文本。混用、嵌套及跨字面花括号深度的公式需人工核对。源码位置和字面变化不能证明 TeX 有效性或数学等价性。", "math_empty": "没有支持范围内的完整字面公式环境。",
         "math_note": "按字面文本和出现次数比较完整的外层环境，保留嵌套内容；位置对应修改前后源码。未检查宏展开、自定义公式环境或数学等价性。",
         "scan_issues": "未闭合的源码字面区域与未验证项", "scan_note": "未闭合的原样文本可能遮住后续内容；错误或动态公式、暂不支持的依赖、文档类、宏包、引用与 bibitem 语法可能使清单不完整。请先核对源码与实际构建，再判断未出现变化提示的内容。",
         "none": "未检测到支持范围内的字面变化；这不能证明含义不变。",
@@ -171,6 +175,18 @@ def review_html(report, diffs, language="en"):
         for side in ("before", "after"):
             rows = report["bibitem_inventory"].get(side, [])
             content.append(f'<section><h3>{esc(labels[side])}</h3><details><summary>{esc(title)} ({len(rows)})</summary>{bibitem_table(rows, language)}</details></section>')
+        content.append('</div>')
+    if "math_delimiter_inventory" in report:
+        content.append(f'<h2>{esc(labels["delimiter_inventory"])}</h2><p>{esc(labels["delimiter_note"])}</p><div class="pair">')
+        for side in ("before", "after"):
+            rows = report["math_delimiter_inventory"].get(side, [])
+            content.append(f'<section><h3>{esc(labels[side])}</h3>')
+            for item in rows:
+                title = f'{item["file"]}:{item["line"]}–{item["end_line"]} · {item["delimiter"]} … {item["closing"]}'
+                content.append(details(title, item["content"]))
+            if not rows:
+                content.append(f'<p>{esc(labels["delimiter_empty"])}</p>')
+            content.append('</section>')
         content.append('</div>')
     if "math_environment_inventory" in report:
         content.append(f'<h2>{esc(labels["math_inventory"])}</h2><p>{esc(labels["math_note"])}</p><div class="pair">')

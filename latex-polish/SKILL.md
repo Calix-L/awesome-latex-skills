@@ -2,7 +2,7 @@
 name: latex-polish
 description: Edit academic prose in LaTeX manuscripts or supplied text at light, moderate, or strict intensity. Improve grammar and clarity while preserving scientific claims, uncertainty, numbers, citations, and LaTeX structure.
 metadata:
-  version: "1.24.0"
+  version: "1.25.0"
 ---
 
 ## Scope and intensity
